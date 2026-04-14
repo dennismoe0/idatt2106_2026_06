@@ -1,0 +1,11 @@
+# Default — Dennis covers everything
+*                   @dennimoe
+
+# Backend — PR must be approved by another backend team member
+/backend/           @dennimoe @chripre @kasperog @tohiggin
+
+# Frontend — PR must be approved by another frontend team member
+/frontend/          @dennimoe @shaktios @krisase @olasy
+
+# CI/CD and GitHub config — Dennis only
+/.github/           @dennimoe
