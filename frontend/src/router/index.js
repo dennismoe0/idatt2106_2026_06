@@ -9,6 +9,7 @@ const routes = [
 
   // Student
   { path: '/',             name: 'Home',      component: () => import('@/views/student/HomeView.vue'),     meta: { role: 'STUDENT' } },
+  { path: '/task/:taskId?', name: 'Task',      component: () => import('@/views/student/TaskView.vue'),     meta: { role: 'STUDENT' } },
 
   // Teacher
   { path: '/teacher',      name: 'Dashboard', component: () => import('@/views/teacher/DashboardView.vue'), meta: { role: 'TEACHER' } },
