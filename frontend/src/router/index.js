@@ -5,6 +5,8 @@ const routes = [
   // Public
   { path: '/login',        name: 'Login',        component: () => import('@/views/auth/LoginView.vue'),    meta: { public: true } },
   { path: '/register',     name: 'Register',     component: () => import('@/views/auth/RegisterView.vue'), meta: { public: true } },
+  { path: '/join-classroom', name: 'JoinClassroom', component: () => import('@/views/student/JoinClassroomView.vue'), meta: { public: true } },
+  { path: '/waiting',      name: 'Waiting',      component: () => import('@/views/student/WaitingView.vue'), meta: { public: true } },
   { path: '/unauthorized', name: 'Unauthorized', component: () => import('@/views/UnauthorizedView.vue'),  meta: { public: true } },
 
   // Student
