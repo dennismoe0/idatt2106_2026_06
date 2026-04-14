@@ -4,11 +4,13 @@ import { useAuthStore } from '@/stores/auth'
 const routes = [
   // Public
   { path: '/login',        name: 'Login',        component: () => import('@/views/auth/LoginView.vue'),    meta: { public: true } },
+  { path: '/student-login', name: 'StudentLogin', component: () => import('@/views/auth/StudentLoginView.vue'), meta: { public: true } },
   { path: '/register',     name: 'Register',     component: () => import('@/views/auth/RegisterView.vue'), meta: { public: true } },
   { path: '/unauthorized', name: 'Unauthorized', component: () => import('@/views/UnauthorizedView.vue'),  meta: { public: true } },
 
   // Student
   { path: '/',             name: 'Home',      component: () => import('@/views/student/HomeView.vue'),     meta: { role: 'STUDENT' } },
+  { path: '/intro',        name: 'StudentIntro', component: () => import('@/views/student/StudentIntroView.vue'), meta: { role: 'STUDENT' } },
 
   // Teacher
   { path: '/teacher',      name: 'Dashboard', component: () => import('@/views/teacher/DashboardView.vue'), meta: { role: 'TEACHER' } },
