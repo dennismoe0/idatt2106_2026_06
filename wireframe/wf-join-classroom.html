@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WF — Bli med i klassen</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#2B6CB0;--pl:#EBF8FF;--pd:#1A4A7A;--a:#F6AD55;--ad:#DD6B20;--s:#38A169;--sl:#C6F6D5;--bg:#EBF8FF;--t:#1A202C;--m:#718096;--b:#E2E8F0;--shl:0 8px 40px rgba(43,108,176,.18)}
+body{font-family:'Nunito',system-ui,sans-serif;background:var(--bg);color:var(--t);min-height:100vh}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border-radius:999px;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:16px;transition:all .15s;text-decoration:none}
+.btn-a{background:var(--a);color:#7C4A00;box-shadow:0 4px 12px rgba(246,173,85,.4)}
+.btn-a:hover{background:var(--ad);transform:translateY(-1px)}
+.btn-p{background:var(--p);color:#fff;box-shadow:0 4px 12px rgba(43,108,176,.35)}
+.btn-p:hover{background:var(--pd);transform:translateY(-1px)}
+.btn-full{width:100%}
+.fg{margin-bottom:20px}
+.fl{display:block;font-weight:800;font-size:15px;margin-bottom:8px;color:var(--t)}
+.fi{width:100%;height:56px;border:2px solid var(--b);border-radius:14px;padding:0 20px;font-family:inherit;font-size:18px;background:#fff;outline:none;font-weight:700;letter-spacing:1px}
+.fi:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(43,108,176,.15)}
+.code-input{text-transform:uppercase;letter-spacing:3px;font-size:22px;text-align:center;height:64px;border:3px solid var(--b);border-radius:16px}
+.code-input:focus{border-color:var(--a);box-shadow:0 0 0 3px rgba(246,173,85,.25)}
+.proto-bar{position:fixed;bottom:0;left:0;right:0;background:#1A202C;display:flex;align-items:center;padding:0 12px;font-size:11px;z-index:9999;font-family:monospace;height:40px}
+.proto-bar a{color:#90CDF4;text-decoration:none;padding:3px 7px;border-radius:4px;white-space:nowrap}
+.proto-bar a.ac{background:var(--p);color:#fff}
+.ps{display:flex;gap:3px;overflow-x:auto;flex:1}
+/* page */
+.page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px 64px;background:linear-gradient(160deg,#EBF8FF 0%,#E9D8FD 100%)}
+.card{background:#fff;border-radius:24px;padding:36px;width:100%;max-width:420px;box-shadow:var(--shl)}
+.step-badge{display:inline-flex;align-items:center;gap:6px;background:var(--pl);color:var(--p);border-radius:999px;padding:4px 14px;font-size:13px;font-weight:800;margin-bottom:20px}
+/* Name chips */
+.name-chip{display:inline-flex;align-items:center;gap:6px;background:var(--sl);color:#276749;border-radius:999px;padding:6px 14px;font-size:14px;font-weight:700;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.name-chip:hover{border-color:var(--s);transform:scale(1.02)}
+.name-chip.selected{border-color:var(--s);background:#A8F0C6}
+.names-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="card">
+    <div class="step-badge">Steg 1 av 2 — Klassekode</div>
+
+    <h2 style="font-size:22px;font-weight:900;margin-bottom:6px">Bli med i klassen! 🏷️</h2>
+    <p style="color:var(--m);font-size:14px;margin-bottom:24px;line-height:1.4">
+      Læreren din har gitt deg en klassekode. Skriv den inn nedenfor.
+    </p>
+
+    <div class="fg">
+      <label class="fl">Klassekode</label>
+      <input class="fi code-input" type="text" placeholder="FJORD-TIGER" value="FJORD-TIGER" maxlength="20">
+      <div style="font-size:12px;color:var(--s);font-weight:700;margin-top:6px">✓ Kode funnet: <strong>7A Blindern skole</strong></div>
+    </div>
+
+    <div class="fg">
+      <label class="fl">Hva vil du hete? 🕵️</label>
+      <input class="fi" type="text" placeholder="Detektiv Kånrad" value="Detektiv Ola" style="font-size:16px;letter-spacing:0">
+      <div style="font-size:12px;color:var(--m);margin-top:6px">Visningsnavn er kun synlig for deg og læreren din.</div>
+    </div>
+
+    <div style="margin-bottom:24px">
+      <div style="font-size:13px;font-weight:800;color:var(--m);margin-bottom:4px">Eller velg et detektivnavn:</div>
+      <div class="names-grid">
+        <div class="name-chip">Detektiv Kånrad</div>
+        <div class="name-chip selected">Detektiv Ola</div>
+        <div class="name-chip">Agent Bjørnsen</div>
+        <div class="name-chip">Detektiv Lunde</div>
+        <div class="name-chip">Krim-Kari</div>
+        <div class="name-chip">Sherlock Sjur</div>
+      </div>
+    </div>
+
+    <a href="wf-corkboard.html" class="btn btn-a btn-full" style="font-size:17px;padding:16px">
+      Bli med i klassen! →
+    </a>
+
+    <p style="font-size:12px;color:var(--m);text-align:center;margin-top:14px">
+      ⏳ Læreren din må godkjenne deg før du kan spille. Du får beskjed!
+    </p>
+  </div>
+</div>
+
+<div class="proto-bar">
+  <div class="ps">
+    <a href="wf-index.html">Index</a>
+    <a href="wf-student-login.html">Elev login</a>
+    <a href="wf-student-intro.html">Intro</a>
+    <a href="wf-join-classroom.html" class="ac">Bli med</a>
+    <a href="wf-corkboard.html">Korkboard</a>
+    <a href="wf-game-map.html">Kart</a>
+    <a href="wf-task-fakenews.html">Nyheter</a>
+    <a href="wf-task-fakenews-result.html">Nyheter res.</a>
+    <a href="wf-task-phishing.html">Phishing</a>
+    <a href="wf-task-phishing-result.html">Phishing res.</a>
+    <a href="wf-teacher-register.html">Registrer</a>
+    <a href="wf-teacher-login.html">Lærer login</a>
+    <a href="wf-teacher-dashboard.html">Dashboard</a>
+    <a href="wf-classroom-detail.html">Klasse</a>
+  </div>
+</div>
+<script src="wf-utils.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+/* Tailwind v4 — replaces @tailwind base/components/utilities */
+@import "tailwindcss";
+
+/* ── Design tokens ──────────────────────────────────────────────
+   @theme values become BOTH CSS custom properties AND Tailwind
+   utilities. Change ONE hex value → whole UI updates.
+─────────────────────────────────────────────────────────────── */
+@theme {
+  /* Brand */
+  --color-primary:       #2B6CB0;
+  --color-primary-light: color-mix(in srgb, #2B6CB0 40%, white);
+  --color-primary-dark:  color-mix(in srgb, #2B6CB0 60%, black);
+
+  --color-accent:        #ED8936;
+  --color-accent-light:  color-mix(in srgb, #ED8936 40%, white);
+  --color-accent-dark:   color-mix(in srgb, #ED8936 60%, black);
+
+  --color-danger:        #E53E3E;
+  --color-danger-light:  color-mix(in srgb, #E53E3E 40%, white);
+  --color-success:       #38A169;
+  --color-success-light: color-mix(in srgb, #38A169 40%, white);
+
+  /* Semantic — use these in components, never raw brand */
+  --color-bg:           #F7FAFC;
+  --color-surface:      #FFFFFF;
+  --color-text:         #1A202C;
+  --color-text-muted:   #718096;
+  --color-text-on-dark: #FFFFFF;
+  --color-border:       #E2E8F0;
+  --color-focus:        #ED8936;
+
+  /* Button semantic tokens */
+  --color-btn-primary-bg:   #2B6CB0;
+  --color-btn-primary-fg:   #FFFFFF;
+  --color-btn-primary-hover: color-mix(in srgb, #2B6CB0 80%, black);
+
+  /* Font */
+  --font-sans: "Nunito", system-ui, -apple-system, sans-serif;
+
+  /* Font weights for Tailwind utilities */
+  --font-medium:   500;
+  --font-semibold: 600;
+  --font-bold:     700;
+
+  /* Text sizes */
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  1.875rem;
+}
+
+/* Non-color tokens — use var() directly in style blocks */
+:root {
+  --shadow-sm:       0 1px 3px rgba(0,0,0,.12);
+  --shadow-md:       0 4px 6px rgba(0,0,0,.07);
+  --shadow-lg:       0 10px 15px rgba(0,0,0,.10);
+  --radius-sm:       0.25rem;
+  --radius-md:       0.5rem;
+  --radius-lg:       1rem;
+  --radius-xl:       1.5rem;
+  --radius-full:     9999px;
+  --space-1:         0.25rem;
+  --space-2:         0.5rem;
+  --space-3:         0.75rem;
+  --space-4:         1rem;
+  --space-6:         1.5rem;
+  --space-8:         2rem;
+  --transition-fast:   150ms ease;
+  --transition-normal: 250ms ease;
+}

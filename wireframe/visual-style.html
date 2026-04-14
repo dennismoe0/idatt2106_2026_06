@@ -1,0 +1,112 @@
+<h2>Overall visual direction?</h2>
+<p class="subtitle">Nettdetektivene targets grades 3–7. Which tone fits the game best?</p>
+
+<style>
+  .style-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 24px; }
+  .style-card { border-radius: 12px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: all 0.2s; }
+  .style-card:hover { transform: translateY(-2px); }
+  .style-card.selected { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.3); }
+  .style-card .preview { height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  .style-card .label-row { padding: 12px 16px; background: white; }
+  .style-card .label-row h3 { margin: 0 0 4px; font-size: 15px; }
+  .style-card .label-row p { margin: 0; font-size: 13px; color: #666; }
+
+  /* Style A — Playful Bright */
+  .preview-a { background: linear-gradient(135deg, #fef3c7 0%, #dbeafe 100%); }
+  .preview-a .mini-card {
+    background: white; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    text-align: center; width: 160px;
+  }
+  .preview-a .mini-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg,#fcd34d,#f97316); margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .preview-a .mini-title { font-size: 17px; font-weight: 800; color: #1d4ed8; letter-spacing: -0.3px; }
+  .preview-a .mini-btn { display: inline-block; margin-top: 10px; background: #f97316; color: white; border-radius: 999px; padding: 5px 18px; font-size: 13px; font-weight: 700; }
+  .preview-a .bubble { position: absolute; border-radius: 50%; opacity: 0.3; }
+  .preview-a .b1 { width: 70px; height: 70px; background: #60a5fa; top: -20px; left: -15px; }
+  .preview-a .b2 { width: 50px; height: 50px; background: #fbbf24; bottom: 10px; right: -10px; }
+
+  /* Style B — Cool Detective */
+  .preview-b { background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%); }
+  .preview-b .grid-lines { position: absolute; inset: 0; background-image: linear-gradient(rgba(99,102,241,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.08) 1px, transparent 1px); background-size: 24px 24px; }
+  .preview-b .mini-panel { background: rgba(30,41,59,0.9); border: 1px solid rgba(99,102,241,0.4); border-radius: 10px; padding: 14px 18px; width: 160px; position: relative; z-index: 1; }
+  .preview-b .mini-badge { width: 36px; height: 36px; background: #6366f1; border-radius: 8px; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .preview-b .mini-title { font-size: 14px; font-weight: 700; color: #e2e8f0; text-align: center; letter-spacing: 0.5px; }
+  .preview-b .mini-sub { font-size: 11px; color: #94a3b8; text-align: center; margin-top: 4px; }
+  .preview-b .mini-btn { display: block; margin-top: 10px; background: #6366f1; color: white; border-radius: 6px; padding: 5px; font-size: 12px; font-weight: 600; text-align: center; }
+  .preview-b .glow { position: absolute; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%); top: 20px; left: 30px; }
+
+  /* Style C — Adventure Book */
+  .preview-c { background: #fdf6e3; border-bottom: none; }
+  .preview-c .paper { background: #fffbf0; border: 2px solid #d4a373; border-radius: 4px; padding: 12px 16px; width: 155px; position: relative; box-shadow: 3px 3px 0 #c7956a; }
+  .preview-c .paper::before { content: ''; position: absolute; top: 6px; left: 6px; right: -6px; bottom: -6px; background: #d4a373; border-radius: 4px; z-index: -1; }
+  .preview-c .mini-title { font-size: 16px; font-weight: 800; color: #5c3317; font-family: Georgia, serif; text-align: center; }
+  .preview-c .divider { border: none; border-top: 2px dashed #d4a373; margin: 8px 0; }
+  .preview-c .mini-text { font-size: 12px; color: #7c5239; text-align: center; font-style: italic; }
+  .preview-c .mini-btn { display: block; margin-top: 10px; background: #e07b39; color: white; border-radius: 4px; padding: 5px; font-size: 12px; font-weight: 700; text-align: center; }
+  .preview-c .stamp { position: absolute; top: -10px; right: -10px; width: 36px; height: 36px; border-radius: 50%; background: #e63946; border: 2px solid #c1121f; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .preview-c .lines { position: absolute; bottom: 30px; left: 10px; }
+  .preview-c .lines span { display: block; height: 2px; background: #d4a373; opacity: 0.3; margin: 6px 0; width: 80px; }
+</style>
+
+<div class="style-cards">
+
+  <div class="style-card" data-choice="playful" onclick="toggleSelect(this)">
+    <div class="preview preview-a">
+      <div class="bubble b1"></div>
+      <div class="bubble b2"></div>
+      <div class="mini-card">
+        <div class="mini-avatar">🕵️</div>
+        <div class="mini-title">Nettdetektivene</div>
+        <div class="mini-btn">Logg inn!</div>
+      </div>
+    </div>
+    <div class="label-row">
+      <h3>A — Playful & Bright</h3>
+      <p>Bold colors, rounded shapes, fun energy. Younger-leaning (gr. 3–5). Duolingo-adjacent feel.</p>
+    </div>
+  </div>
+
+  <div class="style-card" data-choice="cool" onclick="toggleSelect(this)">
+    <div class="preview preview-b">
+      <div class="grid-lines"></div>
+      <div class="glow"></div>
+      <div class="mini-panel">
+        <div class="mini-badge">🔍</div>
+        <div class="mini-title">NETTDETEKTIVENE</div>
+        <div class="mini-sub">Logg inn for å fortsette</div>
+        <div class="mini-btn">Logg inn</div>
+      </div>
+    </div>
+    <div class="label-row">
+      <h3>B — Cool Detective</h3>
+      <p>Dark UI, neon/purple accents, game-like. Older-leaning (gr. 5–7). Feels like a real game.</p>
+    </div>
+  </div>
+
+  <div class="style-card" data-choice="storybook" onclick="toggleSelect(this)">
+    <div class="preview preview-c">
+      <div class="lines"><span></span><span></span><span></span></div>
+      <div class="paper">
+        <div class="stamp">🔍</div>
+        <div class="mini-title">Nettdetektivene</div>
+        <hr class="divider">
+        <div class="mini-text">Din oppdrag venter, detektiv.</div>
+        <div class="mini-btn">Start oppdraget</div>
+      </div>
+    </div>
+    <div class="label-row">
+      <h3>C — Adventure Storybook</h3>
+      <p>Warm paper tones, illustrated feel, mystery-novel vibe. Broad age appeal, cozy not childish.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:20px">Or describe a mix — "A but with darker tones", "B but warmer colors", etc.</p>
+
+<script>
+function toggleSelect(el) {
+  document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  if (window.recordChoice) recordChoice(el.dataset.choice, el.querySelector('h3').textContent);
+}
+</script>

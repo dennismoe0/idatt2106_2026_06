@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WF — Stopp 2: Postkontoret</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#2B6CB0;--pl:#EBF8FF;--pd:#1A4A7A;--a:#F6AD55;--ad:#DD6B20;--s:#38A169;--d:#E53E3E;--dl:#FED7D7;--t:#1A202C;--m:#718096;--b:#E2E8F0;--shadow:0 4px 16px rgba(43,108,176,.1)}
+body{font-family:'Nunito',system-ui,sans-serif;background:#F7FAFC;color:var(--t);min-height:100vh}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;border-radius:999px;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:15px;transition:all .15s;text-decoration:none}
+.btn-p{background:var(--p);color:#fff;box-shadow:0 4px 12px rgba(43,108,176,.35)}
+.btn-p:hover{background:var(--pd);transform:translateY(-1px)}
+.btn-d{background:var(--d);color:#fff}
+.btn-s{background:var(--s);color:#fff}
+.btn-outline{background:#fff;color:var(--p);border:2px solid var(--p)}
+.proto-bar{position:fixed;bottom:0;left:0;right:0;background:#1A202C;display:flex;align-items:center;padding:0 12px;font-size:11px;z-index:9999;font-family:monospace;height:40px}
+.proto-bar a{color:#90CDF4;text-decoration:none;padding:3px 7px;border-radius:4px;white-space:nowrap}
+.proto-bar a.ac{background:var(--p);color:#fff}
+.ps{display:flex;gap:3px;overflow-x:auto;flex:1}
+/* Nav */
+.top-nav{background:#fff;border-bottom:2px solid var(--b);padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.back-btn{background:none;border:2px solid var(--b);border-radius:999px;font-weight:700;color:var(--p);display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:13px;padding:5px 12px;text-decoration:none}
+/* Task header */
+.task-header{background:linear-gradient(135deg,#702459,#9B2C2C);color:#fff;padding:20px;text-align:center}
+.task-badge{display:inline-flex;gap:6px;background:rgba(255,255,255,.2);border-radius:999px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:8px}
+.task-title{font-size:20px;font-weight:900;margin-bottom:4px}
+.task-sub{font-size:13px;opacity:.85}
+.task-dots{display:flex;justify-content:center;gap:8px;margin-top:10px}
+.tdot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.3)}
+.tdot.active{background:#fff;width:24px;border-radius:5px}
+/* Main layout */
+.main{display:grid;grid-template-columns:1fr 340px;gap:0;max-width:1100px;margin:0 auto;padding:20px;gap:20px}
+/* Email client mockup */
+.email-client{background:#fff;border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.email-toolbar{background:#F1F5F9;border-bottom:2px solid var(--b);padding:10px 16px;display:flex;align-items:center;gap:10px}
+.email-toolbar-btn{background:#fff;border:1px solid var(--b);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.email-meta{padding:16px;border-bottom:1px solid var(--b)}
+.email-from{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.email-avatar{width:40px;height:40px;border-radius:50%;background:#FED7D7;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.email-from-text{flex:1}
+.email-sender-name{font-weight:800;font-size:14px}
+.email-sender-addr{font-size:12px;color:var(--m);font-family:monospace}
+.email-subject{font-size:18px;font-weight:900;color:var(--t);margin-bottom:8px}
+.email-date{font-size:12px;color:var(--m)}
+/* Suspicious spans — clickable */
+.sus{cursor:pointer;border-radius:4px;padding:1px 3px;transition:all .15s;border-bottom:2px dashed;position:relative}
+.sus-addr{border-color:var(--d);color:#9B2C2C}
+.sus-addr.caught{background:var(--dl);border-style:solid}
+.sus-link{border-color:#D69E2E;color:#744210}
+.sus-link.caught{background:#FEFCBF;border-style:solid}
+.sus-urgency{border-color:#6B46C1;color:#553C9A}
+.sus-urgency.caught{background:#E9D8FD;border-style:solid}
+.sus-logo{border-color:#2C7A7B;color:#234E52}
+.sus-logo.caught{background:#E6FFFA;border-style:solid}
+.email-body{padding:16px;font-size:14px;line-height:1.7;color:#2D3748}
+.email-body p{margin-bottom:12px}
+.email-sig{padding:12px 16px;background:#F7FAFC;border-top:1px solid var(--b);font-size:12px;color:var(--m)}
+/* Counter badge */
+.caught-count{display:inline-flex;align-items:center;gap:6px;background:var(--sl);color:#276749;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:800}
+/* Sidebar */
+.sidebar{display:flex;flex-direction:column;gap:14px}
+.instruction-card{background:#fff;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid var(--a)}
+.instruction-card h4{font-size:14px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.clue-list{display:flex;flex-direction:column;gap:6px}
+.clue{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;background:var(--pl);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+.clue.found{background:var(--sl);color:#276749}
+.clue-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--m);flex-shrink:0}
+.clue.found .clue-dot{background:var(--s);border-color:var(--s)}
+/* Action buttons */
+.action-card{background:#fff;border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.action-card h4{font-size:14px;font-weight:800;margin-bottom:10px}
+.action-btns{display:flex;flex-direction:column;gap:8px}
+</style>
+</head>
+<body>
+<div class="top-nav">
+  <a href="wf-game-map.html" class="back-btn">← Kart</a>
+  <span style="font-weight:900;font-size:15px;color:var(--t)">📬 Postkontoret</span>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+    <span class="caught-count" id="counter">🔍 0 av 4 funnet</span>
+  </div>
+</div>
+
+<!-- Task header -->
+<div class="task-header">
+  <div class="task-badge">📧 Stopp 2 — Postkontoret</div>
+  <div class="task-title">Undersøk denne e-posten for mistenkelige elementer!</div>
+  <div class="task-sub">Klikk på alt som virker merkelig. Velg deretter hva du vil gjøre.</div>
+  <div class="task-dots">
+    <div class="tdot active"></div>
+    <div class="tdot"></div>
+    <div class="tdot"></div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Email client -->
+  <div class="email-client">
+    <div class="email-toolbar">
+      <span style="font-weight:800;font-size:13px;color:var(--m)">📥 Innboks</span>
+      <button class="email-toolbar-btn">Svar</button>
+      <button class="email-toolbar-btn">Videresend</button>
+      <button class="email-toolbar-btn" style="color:var(--d);border-color:var(--d)">Slett</button>
+    </div>
+
+    <div class="email-meta">
+      <div class="email-from">
+        <div class="email-avatar">📧</div>
+        <div class="email-from-text">
+          <div class="email-sender-name">Vipps Kundestøtte</div>
+          <div class="email-sender-addr">
+            Fra:
+            <span class="sus sus-addr" onclick="markFound(this,'addr')" title="Klikk!">
+              support@vipps-hjelp-norge.net
+            </span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--d);font-weight:800;background:var(--dl);padding:3px 8px;border-radius:999px">⚠ Ikke ekte</div>
+      </div>
+      <div class="email-subject">
+        ⚠️
+        <span class="sus sus-urgency" onclick="markFound(this,'urgency')" title="Klikk!">
+          VIKTIG: Kontoen din er midlertidig blokkert — Bekreft nå!
+        </span>
+      </div>
+      <div class="email-date">Mottatt: Søndag 13. april 2026, kl. 03:47</div>
+    </div>
+
+    <div class="email-body">
+      <p>Kjære Vipps-bruker,</p>
+
+      <p>Vi har oppdaget
+        <span class="sus sus-urgency" onclick="markFound(this,'urgency2')" title="Klikk!">
+          mistenkelig aktivitet på kontoen din. Du MÅ bekrefte identiteten din umiddelbart for å unngå permanent blokkering.
+        </span>
+      </p>
+
+      <p style="background:#FFF5F5;border-left:4px solid var(--d);padding:10px 14px;border-radius:0 8px 8px 0;font-size:13px">
+        🔒 Kontoen din vil bli <strong>permanent slettet om 24 timer</strong> hvis du ikke bekrefter.
+      </p>
+
+      <p>Klikk på lenken nedenfor for å bekrefte:</p>
+
+      <p>
+        <span class="sus sus-link" onclick="markFound(this,'link')" title="Klikk!">
+          👉 http://vipps-sikkerhet.verify-now.ru/bekreft?id=user38821
+        </span>
+      </p>
+
+      <p>Med vennlig hilsen,<br>
+        <span class="sus sus-logo" onclick="markFound(this,'logo')" title="Klikk!">
+          Vipps AS — Sikkerhetsteamet 🏦
+        </span>
+      </p>
+
+      <p style="font-size:12px;color:var(--m)">
+        ⚠️ Del aldri passord eller BankID med noen, heller ikke oss.
+        <em>(Merknad: ekte Vipps vil aldri be deg klikke lenker i e-post)</em>
+      </p>
+    </div>
+
+    <div class="email-sig">
+      Vipps · Dronning Eufemias gate 16, Oslo · Kundeservice: 22 00 00 00
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="instruction-card">
+      <h4>🔍 Finn de mistenkelige elementene</h4>
+      <div style="font-size:13px;color:var(--m);margin-bottom:12px">Klikk på alt i e-posten som ser mistenkelig ut:</div>
+      <div class="clue-list" id="clueList">
+        <div class="clue" id="clue-addr">
+          <div class="clue-dot"></div>
+          <span>Avsenderadresse</span>
+        </div>
+        <div class="clue" id="clue-urgency">
+          <div class="clue-dot"></div>
+          <span>Urgency-språk (hastverk)</span>
+        </div>
+        <div class="clue" id="clue-link">
+          <div class="clue-dot"></div>
+          <span>Mistenkelig lenke</span>
+        </div>
+        <div class="clue" id="clue-logo">
+          <div class="clue-dot"></div>
+          <span>Falsk avsender-identitet</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-card">
+      <h4>Hva vil du gjøre?</h4>
+      <div class="action-btns">
+        <button class="btn btn-d" style="font-size:14px;padding:11px" onclick="alert('❌ Aldri klikk lenker i mistenkelige e-poster!')">🔗 Klikk lenken</button>
+        <button class="btn btn-outline" style="font-size:14px;padding:11px" onclick="alert('❌ Ikke svar heller — det bekrefter at e-posten er aktiv!')">↩️ Svar på e-posten</button>
+        <a href="wf-task-phishing-result.html" class="btn btn-s" style="font-size:14px;padding:11px">🛡️ Rapporter phishing ✓</a>
+        <button class="btn btn-outline" style="font-size:14px;padding:11px;border-color:var(--b);color:var(--m)" onclick="alert('Greit, men best å rapportere det til skolen!')">🗑️ Ignorer og slett</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let found = 0;
+const total = 4;
+const foundSet = new Set();
+function markFound(el, key) {
+  if (foundSet.has(key)) return;
+  foundSet.add(key);
+  el.classList.add('caught');
+  found++;
+  document.getElementById('counter').textContent = `🔍 ${found} av ${total} funnet`;
+  if (found === total) document.getElementById('counter').style.background = '#C6F6D5';
+  // Mark clue
+  const clueKey = key.replace(/\d+/,'');
+  const clue = document.getElementById('clue-'+clueKey);
+  if (clue) clue.classList.add('found');
+}
+</script>
+
+<div class="proto-bar">
+  <div class="ps">
+    <a href="wf-index.html">Index</a>
+    <a href="wf-student-login.html">Elev login</a>
+    <a href="wf-student-intro.html">Intro</a>
+    <a href="wf-join-classroom.html">Bli med</a>
+    <a href="wf-corkboard.html">Korkboard</a>
+    <a href="wf-game-map.html">Kart</a>
+    <a href="wf-task-fakenews.html">Nyheter</a>
+    <a href="wf-task-fakenews-result.html">Nyheter res.</a>
+    <a href="wf-task-phishing.html" class="ac">Phishing</a>
+    <a href="wf-task-phishing-result.html">Phishing res.</a>
+    <a href="wf-teacher-register.html">Registrer</a>
+    <a href="wf-teacher-login.html">Lærer login</a>
+    <a href="wf-teacher-dashboard.html">Dashboard</a>
+    <a href="wf-classroom-detail.html">Klasse</a>
+  </div>
+</div>
+<script src="wf-utils.js"></script>
+</body>
+</html>

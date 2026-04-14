@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nettdetektivene — Wireframe Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#2B6CB0;--pl:#EBF8FF;--pd:#1A4A7A;--a:#F6AD55;--ad:#DD6B20;--s:#38A169;--sl:#C6F6D5;--t:#1A202C;--m:#718096;--b:#E2E8F0}
+body{font-family:'Nunito',system-ui,sans-serif;background:#F7FAFC;color:var(--t);min-height:100vh;padding-bottom:60px}
+/* Header */
+.hero{background:linear-gradient(135deg,var(--pd),var(--p));color:#fff;padding:36px 24px 28px}
+.hero-inner{max-width:960px;margin:0 auto}
+.hero-title{font-size:30px;font-weight:900;display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.hero-sub{font-size:15px;opacity:.85;margin-bottom:20px}
+.meta-row{display:flex;gap:12px;flex-wrap:wrap}
+.meta-pill{background:rgba(255,255,255,.15);border-radius:999px;padding:5px 14px;font-size:13px;font-weight:700}
+/* Content */
+.content{max-width:960px;margin:0 auto;padding:28px 20px}
+.section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--m);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--b)}
+.flow-section{margin-bottom:36px}
+/* Screen grid */
+.screens{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:8px}
+.screen-card{background:#fff;border-radius:14px;overflow:hidden;text-decoration:none;color:var(--t);box-shadow:0 2px 12px rgba(43,108,176,.08);border:2px solid transparent;transition:all .2s;display:block}
+.screen-card:hover{border-color:var(--p);transform:translateY(-2px);box-shadow:0 6px 20px rgba(43,108,176,.16)}
+.sc-thumb{height:110px;display:flex;align-items:center;justify-content:center;font-size:48px;border-bottom:1px solid var(--b)}
+.sc-body{padding:10px 12px}
+.sc-name{font-size:13px;font-weight:800;margin-bottom:2px}
+.sc-desc{font-size:11px;color:var(--m)}
+/* Flow arrow */
+.flow-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:20px;font-size:12px;color:var(--m);font-weight:700}
+.flow-step{display:flex;align-items:center;gap:4px;background:#fff;border:1.5px solid var(--b);border-radius:8px;padding:5px 10px;text-decoration:none;color:var(--t);transition:all .15s}
+.flow-step:hover{border-color:var(--p);color:var(--p);background:var(--pl)}
+.flow-arrow{color:var(--m);font-size:16px}
+/* Info box */
+.info-box{background:#fff;border-radius:14px;padding:16px 20px;border-left:4px solid var(--a);box-shadow:0 2px 12px rgba(43,108,176,.06);margin-top:24px}
+.info-box h4{font-size:14px;font-weight:800;margin-bottom:6px}
+.info-box ul{list-style:none;font-size:13px;color:var(--m);display:flex;flex-wrap:wrap;gap:8px}
+.info-box li{background:#F7FAFC;border:1px solid var(--b);border-radius:6px;padding:3px 10px}
+/* Proto bar */
+.proto-bar{position:fixed;bottom:0;left:0;right:0;background:#1A202C;display:flex;align-items:center;padding:0 12px;font-size:11px;z-index:9999;font-family:monospace;height:40px}
+.proto-bar a{color:#90CDF4;text-decoration:none;padding:3px 7px;border-radius:4px;white-space:nowrap}
+.proto-bar a.ac{background:var(--p);color:#fff}
+.ps{display:flex;gap:3px;overflow-x:auto;flex:1}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-title">🔍 Nettdetektivene — Wireframe Prototype</div>
+    <div class="hero-sub">Sprint 1 MVP · 13 skjermbilder · Klikk for å navigere mellom skjermene · Bruk 🎨 for å bytte fargetema</div>
+    <div class="meta-row">
+      <div class="meta-pill">📅 Sprint 1: Apr 15–21, 2026</div>
+      <div class="meta-pill">🎓 Elev + 👩‍🏫 Lærer flyt</div>
+      <div class="meta-pill">🔵 Klikkbar prototype</div>
+      <div class="meta-pill">🎨 Live fargetema</div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- Student critical path -->
+  <div class="flow-section">
+    <div class="section-label">🎓 Elevflyt — Kritisk sti (MVP)</div>
+
+    <div class="flow-row">
+      <a href="wf-student-login.html" class="flow-step">🏫 Logg inn</a>
+      <span class="flow-arrow">→</span>
+      <a href="wf-student-intro.html" class="flow-step">🕵️ Intro</a>
+      <span class="flow-arrow">→</span>
+      <a href="wf-join-classroom.html" class="flow-step">🏷️ Bli med</a>
+      <span class="flow-arrow">→</span>
+      <a href="wf-corkboard.html" class="flow-step">📌 Korkboard</a>
+      <span class="flow-arrow">→</span>
+      <a href="wf-game-map.html" class="flow-step">🗺️ Kart</a>
+      <span class="flow-arrow">→</span>
+      <a href="wf-task-fakenews.html" class="flow-step">📰 Oppgave 1</a>
+      <span class="flow-arrow">→</span>
+      <a href="wf-task-fakenews-result.html" class="flow-step">✅ Resultat 1</a>
+      <span class="flow-arrow">→</span>
+      <a href="wf-task-phishing.html" class="flow-step">📧 Oppgave 2</a>
+      <span class="flow-arrow">→</span>
+      <a href="wf-task-phishing-result.html" class="flow-step">🏅 Resultat 2 + Medalje</a>
+    </div>
+
+    <div class="screens">
+      <a href="wf-student-login.html" class="screen-card">
+        <div class="sc-thumb" style="background:linear-gradient(160deg,#EBF8FF,#E9D8FD)">🏫</div>
+        <div class="sc-body"><div class="sc-name">Elev — Logg inn</div><div class="sc-desc">Feide-simulering</div></div>
+      </a>
+      <a href="wf-student-intro.html" class="screen-card">
+        <div class="sc-thumb" style="background:linear-gradient(180deg,#1A365D,#2B6CB0)">🕵️</div>
+        <div class="sc-body"><div class="sc-name">Intro-sekvens</div><div class="sc-desc">Første innlogging, oppdragsbriefing</div></div>
+      </a>
+      <a href="wf-join-classroom.html" class="screen-card">
+        <div class="sc-thumb" style="background:linear-gradient(160deg,#EBF8FF,#E9D8FD)">🏷️</div>
+        <div class="sc-body"><div class="sc-name">Bli med i klassen</div><div class="sc-desc">Kode + velg detektivnavn</div></div>
+      </a>
+      <a href="wf-corkboard.html" class="screen-card">
+        <div class="sc-thumb" style="background:#C19A6B">📌</div>
+        <div class="sc-body"><div class="sc-name">Korkboard</div><div class="sc-desc">Elevens startside, 7 seksjoner</div></div>
+      </a>
+      <a href="wf-game-map.html" class="screen-card">
+        <div class="sc-thumb" style="background:linear-gradient(160deg,#C8E6C9,#B2EBF2)">🗺️</div>
+        <div class="sc-body"><div class="sc-name">Spillkart</div><div class="sc-desc">7 stopp, sti over by-kart</div></div>
+      </a>
+      <a href="wf-task-fakenews.html" class="screen-card">
+        <div class="sc-thumb" style="background:#EBF8FF">📰</div>
+        <div class="sc-body"><div class="sc-name">Stopp 1: Nyheter</div><div class="sc-desc">FAKE_NEWS — velg falsk artikkel</div></div>
+      </a>
+      <a href="wf-task-fakenews-result.html" class="screen-card">
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#22543D,#38A169)">✅</div>
+        <div class="sc-body"><div class="sc-name">Nyheter — Resultat</div><div class="sc-desc">Forklaring + stjerner + notat-tip</div></div>
+      </a>
+      <a href="wf-task-phishing.html" class="screen-card">
+        <div class="sc-thumb" style="background:#FFF5F5">📧</div>
+        <div class="sc-body"><div class="sc-name">Stopp 2: Phishing</div><div class="sc-desc">PHISHING_EMAIL — klikk røde flagg</div></div>
+      </a>
+      <a href="wf-task-phishing-result.html" class="screen-card">
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#1A365D,#2B6CB0)">🏅</div>
+        <div class="sc-body"><div class="sc-name">Phishing — Resultat</div><div class="sc-desc">Tilbakemelding + medalje earned</div></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Teacher flow -->
+  <div class="flow-section">
+    <div class="section-label">👩‍🏫 Lærerflyt</div>
+
+    <div class="flow-row">
+      <a href="wf-teacher-register.html" class="flow-step">✏️ Registrer</a>
+      <span class="flow-arrow">→</span>
+      <a href="wf-teacher-login.html" class="flow-step">🔑 Logg inn</a>
+      <span class="flow-arrow">→</span>
+      <a href="wf-teacher-dashboard.html" class="flow-step">🏠 Dashboard</a>
+      <span class="flow-arrow">→</span>
+      <a href="wf-classroom-detail.html" class="flow-step">👥 Klassedetaljer</a>
+    </div>
+
+    <div class="screens">
+      <a href="wf-teacher-register.html" class="screen-card">
+        <div class="sc-thumb" style="background:linear-gradient(160deg,#EBF8FF,#BEE3F8)">✏️</div>
+        <div class="sc-body"><div class="sc-name">Registrer deg</div><div class="sc-desc">Opprett lærerkonto</div></div>
+      </a>
+      <a href="wf-teacher-login.html" class="screen-card">
+        <div class="sc-thumb" style="background:linear-gradient(160deg,#EBF8FF,#BEE3F8)">🔑</div>
+        <div class="sc-body"><div class="sc-name">Lærer — Logg inn</div><div class="sc-desc">E-post + passord</div></div>
+      </a>
+      <a href="wf-teacher-dashboard.html" class="screen-card">
+        <div class="sc-thumb" style="background:#F7FAFC">🏠</div>
+        <div class="sc-body"><div class="sc-name">Lærerdashboard</div><div class="sc-desc">Klasseoversikt + statistikk</div></div>
+      </a>
+      <a href="wf-classroom-detail.html" class="screen-card">
+        <div class="sc-thumb" style="background:#FEFCBF">👥</div>
+        <div class="sc-body"><div class="sc-name">Klassedetaljer</div><div class="sc-desc">Elever + godkjenn + fremgang</div></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Info -->
+  <div class="info-box">
+    <h4>Sprint 1 MVP — Scope</h4>
+    <ul>
+      <li>✅ Elev-login (Feide)</li>
+      <li>✅ Intro-sekvens</li>
+      <li>✅ Bli med i klasse</li>
+      <li>✅ Korkboard (startside)</li>
+      <li>✅ Spillkart (7 stopp, sti)</li>
+      <li>✅ FAKE_NEWS oppgave</li>
+      <li>✅ PHISHING_EMAIL oppgave</li>
+      <li>✅ Resultat + stjerner</li>
+      <li>✅ Medalje earned</li>
+      <li>✅ Lærerdashboard</li>
+      <li>✅ Klassedetaljer</li>
+      <li>🔒 Stopp 3–7 (Sprint 2)</li>
+      <li>🔒 Avatar creator (Sprint 2)</li>
+      <li>🔒 Notatblokk (Sprint 2)</li>
+    </ul>
+  </div>
+</div>
+
+<div class="proto-bar">
+  <div class="ps">
+    <a href="wf-index.html" class="ac">Index</a>
+    <a href="wf-student-login.html">Elev login</a>
+    <a href="wf-student-intro.html">Intro</a>
+    <a href="wf-join-classroom.html">Bli med</a>
+    <a href="wf-corkboard.html">Korkboard</a>
+    <a href="wf-game-map.html">Kart</a>
+    <a href="wf-task-fakenews.html">Nyheter</a>
+    <a href="wf-task-fakenews-result.html">Nyheter res.</a>
+    <a href="wf-task-phishing.html">Phishing</a>
+    <a href="wf-task-phishing-result.html">Phishing res.</a>
+    <a href="wf-teacher-register.html">Registrer</a>
+    <a href="wf-teacher-login.html">Lærer login</a>
+    <a href="wf-teacher-dashboard.html">Dashboard</a>
+    <a href="wf-classroom-detail.html">Klasse</a>
+  </div>
+</div>
+
+<script src="wf-utils.js"></script>
+</body>
+</html>
