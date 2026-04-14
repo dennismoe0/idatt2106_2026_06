@@ -52,6 +52,7 @@ cd frontend && npm install
 ```
 
 Or with Make (Mac/Linux):
+
 ```bash
 make setup
 ```
@@ -59,25 +60,29 @@ make setup
 ### 3. Start (three terminals)
 
 **Terminal 1 — Database**
+
 ```bash
 docker-compose up -d
 ```
 
 **Terminal 2 — Backend**
+
 ```bash
 # Mac / Linux
 cd backend && ./mvnw spring-boot:run
 
 # Windows
-cd backend && mvnw.cmd spring-boot:run
+cd backend && mvnw.cmd spring-boot:run # WRONG it's
 ```
 
 **Terminal 3 — Frontend**
+
 ```bash
 cd frontend && npm run dev
 ```
 
 Or start everything with Make (Mac/Linux):
+
 ```bash
 make dev
 ```
@@ -87,6 +92,7 @@ Backend API: http://localhost:8080
 Swagger UI: http://localhost:8080/swagger-ui.html
 
 **Stop everything**
+
 ```bash
 docker-compose down
 ```
@@ -103,17 +109,20 @@ To confirm, check the backend terminal for a `Communications link failure` or `A
 
 **Mac/Linux: `Permission denied` on `./mvnw`**  
 The Maven wrapper needs execute permission after a fresh clone:
+
 ```bash
 chmod +x backend/mvnw
 ```
 
 **Windows: `error during connect ... pipe/docker_engine`**  
-Docker Desktop is not running, or it's in Windows containers mode.  
-1. Open Docker Desktop from the Start menu and wait for it to finish loading (whale icon in the system tray stops animating).  
-2. Right-click the Docker icon → *Switch to Linux containers…* (MySQL requires Linux containers).
+Docker Desktop is not running, or it's in Windows containers mode.
+
+1. Open Docker Desktop from the Start menu and wait for it to finish loading (whale icon in the system tray stops animating).
+2. Right-click the Docker icon → _Switch to Linux containers…_ (MySQL requires Linux containers).
 
 **Windows: `make` not found**  
 `make` is not installed by default. Options (pick one):
+
 ```powershell
 # Chocolatey
 choco install make
@@ -124,4 +133,5 @@ scoop install make
 # winget (built into Windows 10/11)
 winget install GnuWin32.Make
 ```
+
 After installing, restart your terminal. If using winget, also add `C:\Program Files (x86)\GnuWin32\bin` to your PATH.
