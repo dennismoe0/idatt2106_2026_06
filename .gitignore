@@ -1,0 +1,69 @@
+# ─── AI / Private planning ────────────────────────────────────────────────────
+CLAUDE.md
+dennis_docs/
+.superpowers/
+
+# ─── Java / Maven ─────────────────────────────────────────────────────────────
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# ─── Spring Boot ──────────────────────────────────────────────────────────────
+application-local.properties
+application-local.yml
+application-dev.properties
+application-dev.yml
+*.env
+
+# ─── Node / Vue / Frontend ────────────────────────────────────────────────────
+node_modules/
+dist/
+.nuxt/
+.output/
+.cache/
+coverage/
+*.local
+
+# ─── Environment / Secrets ────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+
+# ─── IDE ──────────────────────────────────────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+.factorypath
+
+# ─── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+spring.log
+
+# ─── Docker ───────────────────────────────────────────────────────────────────
+.dockerignore
+docker-compose.override.yml
