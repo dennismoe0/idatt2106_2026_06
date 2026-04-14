@@ -3,15 +3,23 @@ import { useAuthStore } from '@/stores/auth'
 
 const routes = [
   // Public
-  { path: '/login',        name: 'Login',        component: () => import('@/views/auth/LoginView.vue'),    meta: { public: true } },
-  { path: '/register',     name: 'Register',     component: () => import('@/views/auth/RegisterView.vue'), meta: { public: true } },
-  { path: '/unauthorized', name: 'Unauthorized', component: () => import('@/views/UnauthorizedView.vue'),  meta: { public: true } },
+  { path: '/login',         name: 'Login',        component: () => import('@/views/auth/LoginView.vue'),              meta: { public: true } },
+  { path: '/register',      name: 'Register',     component: () => import('@/views/auth/RegisterView.vue'),           meta: { public: true } },
+  { path: '/unauthorized',  name: 'Unauthorized', component: () => import('@/views/UnauthorizedView.vue'),            meta: { public: true } },
+  { path: '/student-login', name: 'StudentLogin', component: () => import('@/views/auth/StudentLoginView.vue'),       meta: { public: true } },
 
   // Student
-  { path: '/',             name: 'Home',      component: () => import('@/views/student/HomeView.vue'),     meta: { role: 'STUDENT' } },
+  { path: '/',              name: 'Home',            component: () => import('@/views/student/HomeView.vue'),          meta: { role: 'STUDENT' } },
+  { path: '/intro',         name: 'Intro',           component: () => import('@/views/student/IntroView.vue'),         meta: { role: 'STUDENT' } },
+  { path: '/join',          name: 'Join',            component: () => import('@/views/student/JoinClassroomView.vue'), meta: { role: 'STUDENT' } },
+  { path: '/waiting',       name: 'Waiting',         component: () => import('@/views/student/WaitingRoomView.vue'),   meta: { role: 'STUDENT' } },
+  { path: '/map',           name: 'Map',             component: () => import('@/views/student/MapView.vue'),           meta: { role: 'STUDENT' } },
+  { path: '/task',          name: 'Task',            component: () => import('@/views/student/TaskView.vue'),          meta: { role: 'STUDENT' } },
+  { path: '/avatar',        name: 'Avatar',          component: () => import('@/views/student/AvatarView.vue'),        meta: { role: 'STUDENT' } },
 
   // Teacher
-  { path: '/teacher',      name: 'Dashboard', component: () => import('@/views/teacher/DashboardView.vue'), meta: { role: 'TEACHER' } },
+  { path: '/teacher',                 name: 'Dashboard',       component: () => import('@/views/teacher/DashboardView.vue'),       meta: { role: 'TEACHER' } },
+  { path: '/teacher/classrooms/:id',  name: 'ClassroomDetail', component: () => import('@/views/teacher/ClassroomDetailView.vue'), meta: { role: 'TEACHER' } },
 
   // Fallback
   { path: '/:pathMatch(.*)*', redirect: '/login' }
