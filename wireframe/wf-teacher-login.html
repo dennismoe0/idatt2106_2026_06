@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WF — Lærer logg inn</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#2B6CB0;--pl:#EBF8FF;--pd:#1A4A7A;--a:#F6AD55;--bg:#EBF8FF;--t:#1A202C;--m:#718096;--b:#E2E8F0;--shl:0 8px 40px rgba(43,108,176,.18)}
+body{font-family:'Nunito',system-ui,sans-serif;background:var(--bg);color:var(--t);min-height:100vh}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border-radius:999px;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:16px;transition:all .15s;text-decoration:none}
+.btn-p{background:var(--p);color:#fff;box-shadow:0 4px 12px rgba(43,108,176,.35)}
+.btn-p:hover{background:var(--pd);transform:translateY(-1px)}
+.btn-full{width:100%}
+.fg{margin-bottom:16px}
+.fl{display:block;font-weight:700;font-size:14px;margin-bottom:6px}
+.fi{width:100%;height:52px;border:2px solid var(--b);border-radius:12px;padding:0 16px;font-family:inherit;font-size:16px;background:#fff;outline:none}
+.fi:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(43,108,176,.15)}
+.proto-bar{position:fixed;bottom:0;left:0;right:0;background:#1A202C;display:flex;align-items:center;padding:0 12px;font-size:11px;z-index:9999;font-family:monospace;height:40px;gap:6px}
+.proto-bar a{color:#90CDF4;text-decoration:none;padding:3px 7px;border-radius:4px;white-space:nowrap}
+.proto-bar a.ac{background:var(--p);color:#fff}
+.ps{display:flex;gap:3px;overflow-x:auto;flex:1}
+/* page */
+.page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px 64px;background:linear-gradient(160deg,#EBF8FF 0%,#BEE3F8 100%)}
+.card{background:#fff;border-radius:24px;padding:36px;width:100%;max-width:400px;box-shadow:var(--shl)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div style="text-align:center;margin-bottom:28px">
+    <div style="font-size:48px;line-height:1;margin-bottom:10px">👩‍🏫</div>
+    <div style="font-size:28px;font-weight:900;color:var(--pd)">Lærerpålogging</div>
+    <div style="font-size:14px;color:var(--m);margin-top:4px">Nettdetektivene · Lærerportal</div>
+  </div>
+
+  <div class="card">
+    <div class="fg">
+      <label class="fl">E-postadresse</label>
+      <input class="fi" type="email" placeholder="laerer@skole.no" value="maria.hansen@blindern-skole.no">
+    </div>
+    <div class="fg">
+      <label class="fl">Passord</label>
+      <input class="fi" type="password" placeholder="••••••••" value="passord123">
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-bottom:20px">
+      <a href="#" style="font-size:13px;color:var(--p);font-weight:700;text-decoration:none">Glemt passord?</a>
+    </div>
+
+    <a href="wf-teacher-dashboard.html" class="btn btn-p btn-full">
+      Logg inn →
+    </a>
+
+    <div style="text-align:center;margin-top:20px;font-size:14px;color:var(--m)">
+      Ikke registrert ennå?
+      <a href="wf-teacher-register.html" style="color:var(--p);font-weight:700;text-decoration:none"> Opprett konto →</a>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:20px;font-size:14px;color:var(--m)">
+    Er du elev? <a href="wf-student-login.html" style="color:var(--p);font-weight:700;text-decoration:none">Gå til elevinnlogging →</a>
+  </div>
+</div>
+
+<div class="proto-bar">
+  <div class="ps">
+    <a href="wf-index.html">Index</a>
+    <a href="wf-student-login.html">Elev login</a>
+    <a href="wf-student-intro.html">Intro</a>
+    <a href="wf-join-classroom.html">Bli med</a>
+    <a href="wf-corkboard.html">Korkboard</a>
+    <a href="wf-game-map.html">Kart</a>
+    <a href="wf-task-fakenews.html">Nyheter</a>
+    <a href="wf-task-fakenews-result.html">Nyheter res.</a>
+    <a href="wf-task-phishing.html">Phishing</a>
+    <a href="wf-task-phishing-result.html">Phishing res.</a>
+    <a href="wf-teacher-register.html">Registrer</a>
+    <a href="wf-teacher-login.html" class="ac">Lærer login</a>
+    <a href="wf-teacher-dashboard.html">Dashboard</a>
+    <a href="wf-classroom-detail.html">Klasse</a>
+  </div>
+</div>
+<script src="wf-utils.js"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WF — Stopp 1: Nyhetskvartalet</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#2B6CB0;--pl:#EBF8FF;--pd:#1A4A7A;--a:#F6AD55;--ad:#DD6B20;--s:#38A169;--d:#E53E3E;--dl:#FED7D7;--t:#1A202C;--m:#718096;--b:#E2E8F0;--shadow:0 4px 16px rgba(43,108,176,.12)}
+body{font-family:'Nunito',system-ui,sans-serif;background:#F7FAFC;color:var(--t);min-height:100vh}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;border-radius:999px;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:15px;transition:all .15s;text-decoration:none}
+.btn-p{background:var(--p);color:#fff;box-shadow:0 4px 12px rgba(43,108,176,.35)}
+.btn-p:hover{background:var(--pd);transform:translateY(-1px)}
+.btn-full{width:100%}
+.proto-bar{position:fixed;bottom:0;left:0;right:0;background:#1A202C;display:flex;align-items:center;padding:0 12px;font-size:11px;z-index:9999;font-family:monospace;height:40px}
+.proto-bar a{color:#90CDF4;text-decoration:none;padding:3px 7px;border-radius:4px;white-space:nowrap}
+.proto-bar a.ac{background:var(--p);color:#fff}
+.ps{display:flex;gap:3px;overflow-x:auto;flex:1}
+/* Nav */
+.top-nav{background:#fff;border-bottom:2px solid var(--b);padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.back-btn{background:none;border:2px solid var(--b);border-radius:999px;font-weight:700;color:var(--p);display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:13px;padding:5px 12px;text-decoration:none}
+.back-btn:hover{background:var(--pl)}
+/* Task header */
+.task-header{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;padding:20px;text-align:center}
+.task-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.2);border-radius:999px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:10px}
+.task-title{font-size:22px;font-weight:900;margin-bottom:6px}
+.task-sub{font-size:14px;opacity:.85;line-height:1.4}
+/* Task progress dots */
+.task-dots{display:flex;justify-content:center;gap:8px;margin-top:12px}
+.tdot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.3)}
+.tdot.done{background:#fff}
+.tdot.active{background:var(--a);width:24px;border-radius:5px}
+/* Articles */
+.articles-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px;max-width:960px;margin:0 auto}
+.article{background:#fff;border-radius:16px;box-shadow:var(--shadow);overflow:hidden;cursor:pointer;border:3px solid transparent;transition:all .2s;position:relative}
+.article:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.article.selected-fake{border-color:var(--d);box-shadow:0 0 0 4px rgba(229,62,62,.15)}
+.article-img{height:160px;display:flex;align-items:center;justify-content:center;font-size:60px;border-bottom:2px solid var(--b)}
+.article-source{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:10px 14px 0;color:var(--m)}
+.article-headline{font-size:18px;font-weight:900;padding:6px 14px 10px;line-height:1.3;color:var(--t)}
+.article-body{font-size:13px;line-height:1.5;color:var(--m);padding:0 14px 14px}
+.article-footer{padding:10px 14px;border-top:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--m)}
+.author{font-weight:700}
+/* Real article styling */
+.article-real .article-img{background:#E3F2FD}
+.article-real .article-source{color:#1565C0}
+/* Fake article styling - subtle red flags */
+.article-fake .article-img{background:#FFF3E0}
+.article-fake .article-headline{color:#B71C1C}
+.article-fake .article-source{color:#D50000}
+/* Click instruction */
+.pick-instruction{text-align:center;padding:16px 20px;background:#fff;border-top:2px solid var(--b);border-bottom:2px solid var(--b);margin:0}
+.pick-instruction strong{font-size:18px;color:var(--t)}
+.pick-instruction p{font-size:14px;color:var(--m);margin-top:4px}
+/* Submit area */
+.submit-area{padding:20px;max-width:960px;margin:0 auto;display:flex;gap:12px;align-items:center}
+.hint-btn{background:var(--pl);color:var(--p);border:2px solid var(--pl);border-radius:999px;padding:10px 20px;font-family:inherit;font-weight:800;font-size:14px;cursor:pointer}
+.hint-btn:hover{border-color:var(--p)}
+/* Red flag markers on fake article */
+.red-flag{position:absolute;background:var(--d);color:#fff;border-radius:999px;font-size:10px;font-weight:800;padding:2px 8px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+</style>
+</head>
+<body>
+<div class="top-nav">
+  <a href="wf-game-map.html" class="back-btn">← Kart</a>
+  <span style="font-weight:900;font-size:16px;color:var(--t)">📰 Nyhetskvartalet</span>
+  <span style="margin-left:auto;font-size:13px;font-weight:700;color:var(--m)">Oppgave 1 av 3</span>
+</div>
+
+<!-- Task header -->
+<div class="task-header">
+  <div class="task-badge">📰 Stopp 1 — Nyhetskvartalet</div>
+  <div class="task-title">Hvilken av disse er en falsk nyhet?</div>
+  <div class="task-sub">Les begge artiklene nøye. Klikk på den du tror er falsk.</div>
+  <div class="task-dots">
+    <div class="tdot done"></div>
+    <div class="tdot active"></div>
+    <div class="tdot"></div>
+  </div>
+</div>
+
+<!-- Pick instruction -->
+<div class="pick-instruction">
+  <strong>🕵️ Klikk på den FALSKE artikkelen</strong>
+  <p>Se etter overdrivelser, feil kilde-URL eller manglende journalist.</p>
+</div>
+
+<!-- Articles -->
+<div class="articles-wrap">
+
+  <!-- ARTICLE 1 — REAL -->
+  <div class="article article-real" onclick="this.classList.toggle('selected-fake');document.getElementById('a2').classList.remove('selected-fake')">
+    <div class="article-img">🌊</div>
+    <div class="article-source">🔵 nrk.no — Nyheter</div>
+    <div class="article-headline">Ny rapport: Havtemperaturen langs norskekysten stiger raskere enn ventet</div>
+    <div class="article-body">
+      En ny rapport fra Havforskningsinstituttet viser at havtemperaturen langs norskekysten
+      har steget med 1,2 grader de siste 30 årene. Forskere advarer om at dette vil påvirke
+      fiskebestander og kystøkosystemet...
+    </div>
+    <div class="article-footer">
+      <span class="author">✍️ Kari Johansen, miljøjournalist</span>
+      <span>12. apr 2026 · 4 min lesing</span>
+    </div>
+  </div>
+
+  <!-- ARTICLE 2 — FAKE -->
+  <div class="article article-fake selected-fake" id="a2" onclick="this.classList.toggle('selected-fake')">
+    <!-- Red flag markers -->
+    <div class="red-flag" style="top:12px;left:14px">⚠ Mistenkelig URL</div>
+    <div class="article-img">⚡</div>
+    <div class="article-source">🔴 nrk-nyheter24.blogspot.com</div>
+    <div class="article-headline">AVSLØRT! Regjeringen skjuler ENORM skattesvindel — Milliarder stjålet fra vanlige folk!!</div>
+    <div class="article-body">
+      EKSKLUSIVT: En anonym kilde har BEVIST at statsministeren og alle partileder i hemmelighet
+      har stjålet 47 milliarder kroner fra skattebetalerne. Del dette nå før det blir SLETTET!!
+      Myndighetene prøver å tie dette ihjel...
+    </div>
+    <div class="article-footer">
+      <span style="color:var(--m)">⚠️ Ingen forfatter oppgitt</span>
+      <span>Publisert: I dag, for 5 min siden</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Submit area -->
+<div class="submit-area">
+  <button class="hint-btn">💡 Trenger du et hint?</button>
+  <a href="wf-task-fakenews-result.html" class="btn btn-p" style="flex:1;font-size:16px">
+    Bekreft svar: Artikkel 2 er falsk →
+  </a>
+</div>
+
+<div class="proto-bar">
+  <div class="ps">
+    <a href="wf-index.html">Index</a>
+    <a href="wf-student-login.html">Elev login</a>
+    <a href="wf-student-intro.html">Intro</a>
+    <a href="wf-join-classroom.html">Bli med</a>
+    <a href="wf-corkboard.html">Korkboard</a>
+    <a href="wf-game-map.html">Kart</a>
+    <a href="wf-task-fakenews.html" class="ac">Nyheter</a>
+    <a href="wf-task-fakenews-result.html">Nyheter res.</a>
+    <a href="wf-task-phishing.html">Phishing</a>
+    <a href="wf-task-phishing-result.html">Phishing res.</a>
+    <a href="wf-teacher-register.html">Registrer</a>
+    <a href="wf-teacher-login.html">Lærer login</a>
+    <a href="wf-teacher-dashboard.html">Dashboard</a>
+    <a href="wf-classroom-detail.html">Klasse</a>
+  </div>
+</div>
+<script src="wf-utils.js"></script>
+</body>
+</html>

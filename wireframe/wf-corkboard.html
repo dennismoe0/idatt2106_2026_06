@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WF — Korkboard (Startside)</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#2B6CB0;--pl:#EBF8FF;--pd:#1A4A7A;--a:#F6AD55;--ad:#DD6B20;--s:#38A169;--bg:#EBF8FF;--t:#1A202C;--m:#718096;--b:#E2E8F0}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--t);min-height:100vh}
+.proto-bar{position:fixed;bottom:0;left:0;right:0;background:#1A202C;display:flex;align-items:center;padding:0 12px;font-size:11px;z-index:9999;font-family:monospace;height:40px}
+.proto-bar a{color:#90CDF4;text-decoration:none;padding:3px 7px;border-radius:4px;white-space:nowrap}
+.proto-bar a.ac{background:var(--p);color:#fff}
+.ps{display:flex;gap:3px;overflow-x:auto;flex:1}
+
+/* Cork board */
+.board-bg{
+  min-height:100vh;
+  background-color:#C19A6B;
+  background-image:
+    radial-gradient(ellipse at 20% 30%,rgba(180,140,80,.4) 0%,transparent 40%),
+    radial-gradient(ellipse at 80% 70%,rgba(150,110,60,.3) 0%,transparent 40%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a07840' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  padding:0 0 60px;
+}
+
+/* Top bar */
+.top-bar{background:rgba(180,130,60,.9);backdrop-filter:blur(4px);padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:3px solid rgba(0,0,0,.15)}
+.top-bar-title{font-weight:900;font-size:20px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.user-pill{margin-left:auto;background:rgba(255,255,255,.2);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px}
+
+/* Section title */
+.section-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.7);margin:20px 20px 12px;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+
+/* Cards grid */
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:0 20px;max-width:760px;margin:0 auto}
+
+/* Individual card */
+.board-card{
+  background:#FFFDE7;
+  border-radius:8px;
+  padding:20px 16px 16px;
+  text-align:center;
+  text-decoration:none;
+  color:var(--t);
+  box-shadow:3px 4px 12px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.8);
+  position:relative;
+  transition:all .2s;
+  border:1px solid rgba(0,0,0,.08);
+  display:block;
+}
+.board-card:hover{transform:translateY(-3px) rotate(0.5deg);box-shadow:5px 8px 20px rgba(0,0,0,.3)}
+
+/* Pushpin */
+.pin{position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:20px;height:20px;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.3);z-index:2}
+.pin::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:4px;height:10px;border-radius:0 0 2px 2px;background:inherit;opacity:.7}
+
+.card-icon{font-size:40px;line-height:1;margin-bottom:10px;display:block}
+.card-title{font-size:14px;font-weight:800;color:var(--t);margin-bottom:4px}
+.card-sub{font-size:11px;color:var(--m)}
+
+/* Progress row */
+.progress-bar-wrap{margin-top:6px}
+.progress-bar{height:4px;border-radius:2px;background:var(--b);overflow:hidden}
+.progress-fill{height:100%;border-radius:2px;background:var(--s)}
+
+/* Wide card (map) */
+.card-wide{grid-column:span 3;display:flex;align-items:center;gap:16px;text-align:left;padding:20px 24px}
+.card-wide .card-icon{font-size:48px;margin-bottom:0;flex-shrink:0}
+.card-wide-info{flex:1}
+.card-wide-info .card-title{font-size:18px}
+.card-wide-info .card-sub{font-size:13px}
+
+/* Status badge on card */
+.card-badge{position:absolute;top:10px;right:10px;background:var(--s);color:#fff;border-radius:999px;font-size:10px;font-weight:800;padding:2px 7px}
+.card-badge-new{background:var(--a);color:#7C4A00}
+</style>
+</head>
+<body>
+<div class="board-bg">
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div style="font-size:28px">🔍</div>
+    <div class="top-bar-title">Nettdetektivene</div>
+    <div class="user-pill">🕵️ Detektiv Ola</div>
+  </div>
+
+  <div style="max-width:760px;margin:0 auto">
+    <div class="section-title">📌 Detektivenes oppslagstavle</div>
+
+    <div class="cards-grid">
+
+      <!-- MAP - wide card -->
+      <a href="wf-game-map.html" class="board-card card-wide" style="background:#E8F4FF;border:2px solid #2B6CB0">
+        <div class="pin" style="background:#2B6CB0"></div>
+        <div class="card-icon">🗺️</div>
+        <div class="card-wide-info">
+          <div class="card-title" style="color:var(--p);font-size:20px">Spillkart — Din detektivrute</div>
+          <div class="card-sub" style="font-size:13px;color:var(--m);margin:4px 0 8px">2 av 7 stopp fullført · Neste: Fotografen</div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar"><div class="progress-fill" style="width:28%"></div></div>
+          </div>
+        </div>
+        <div style="background:var(--a);color:#7C4A00;border-radius:999px;padding:8px 18px;font-weight:800;font-size:14px;flex-shrink:0;white-space:nowrap">
+          Spill nå! →
+        </div>
+      </a>
+
+      <!-- MEDALS -->
+      <a href="#" class="board-card">
+        <div class="pin" style="background:#E53E3E"></div>
+        <div class="card-badge">2 opptjent</div>
+        <div class="card-icon">🏅</div>
+        <div class="card-title">Medaljer</div>
+        <div class="card-sub">Samle alle 7</div>
+        <div style="display:flex;justify-content:center;gap:4px;margin-top:8px;font-size:18px">
+          🥇🥇⬜⬜⬜⬜⬜
+        </div>
+      </a>
+
+      <!-- NOTEBOOK -->
+      <a href="#" class="board-card">
+        <div class="pin" style="background:#38A169"></div>
+        <div class="card-badge card-badge-new">Nytt!</div>
+        <div class="card-icon">📓</div>
+        <div class="card-title">Notatblokk</div>
+        <div class="card-sub">5 tips lagret</div>
+      </a>
+
+      <!-- AVATAR -->
+      <a href="#" class="board-card">
+        <div class="pin" style="background:#805AD5"></div>
+        <div class="card-icon">🧑‍🕵️</div>
+        <div class="card-title">Min avatar</div>
+        <div class="card-sub">Tilpass detektiven</div>
+      </a>
+
+      <!-- LEADERBOARD -->
+      <a href="#" class="board-card">
+        <div class="pin" style="background:#F6AD55"></div>
+        <div class="card-icon">🏆</div>
+        <div class="card-title">Ledertavle</div>
+        <div class="card-sub">7A · Plass: #4</div>
+      </a>
+
+      <!-- WEEKLY MYSTERY -->
+      <a href="#" class="board-card" style="background:#FFF5E6">
+        <div class="pin" style="background:#DD6B20"></div>
+        <div class="card-badge card-badge-new">Ny!</div>
+        <div class="card-icon">🕯️</div>
+        <div class="card-title">Ukens mysterium</div>
+        <div class="card-sub">Send inn et funn</div>
+      </a>
+
+      <!-- HELP -->
+      <a href="#" class="board-card" style="background:#F0FFF4">
+        <div class="pin" style="background:#2F855A"></div>
+        <div class="card-icon">❓</div>
+        <div class="card-title">Hjelp</div>
+        <div class="card-sub">Instruksjoner og tips</div>
+      </a>
+
+    </div>
+
+    <!-- Footer note -->
+    <div style="text-align:center;margin:24px 20px 0;font-size:13px;color:rgba(255,255,255,.6);text-shadow:0 1px 2px rgba(0,0,0,.3)">
+      🔒 Klasse: 7A Blindern skole · Venter på godkjenning av lærer
+    </div>
+  </div>
+</div>
+
+<div class="proto-bar">
+  <div class="ps">
+    <a href="wf-index.html">Index</a>
+    <a href="wf-student-login.html">Elev login</a>
+    <a href="wf-student-intro.html">Intro</a>
+    <a href="wf-join-classroom.html">Bli med</a>
+    <a href="wf-corkboard.html" class="ac">Korkboard</a>
+    <a href="wf-game-map.html">Kart</a>
+    <a href="wf-task-fakenews.html">Nyheter</a>
+    <a href="wf-task-fakenews-result.html">Nyheter res.</a>
+    <a href="wf-task-phishing.html">Phishing</a>
+    <a href="wf-task-phishing-result.html">Phishing res.</a>
+    <a href="wf-teacher-register.html">Registrer</a>
+    <a href="wf-teacher-login.html">Lærer login</a>
+    <a href="wf-teacher-dashboard.html">Dashboard</a>
+    <a href="wf-classroom-detail.html">Klasse</a>
+  </div>
+</div>
+<script src="wf-utils.js"></script>
+</body>
+</html>

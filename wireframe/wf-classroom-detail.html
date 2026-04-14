@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WF — Klassedetaljer</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#2B6CB0;--pl:#EBF8FF;--pd:#1A4A7A;--a:#F6AD55;--ad:#DD6B20;--s:#38A169;--sl:#C6F6D5;--d:#E53E3E;--dl:#FED7D7;--t:#1A202C;--m:#718096;--b:#E2E8F0;--shadow:0 4px 16px rgba(43,108,176,.1)}
+body{font-family:'Nunito',system-ui,sans-serif;background:#F7FAFC;color:var(--t);min-height:100vh}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:999px;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:13px;transition:all .15s;text-decoration:none}
+.btn-p{background:var(--p);color:#fff}
+.btn-p:hover{background:var(--pd)}
+.btn-s{background:var(--s);color:#fff}
+.btn-d{background:var(--d);color:#fff}
+.btn-outline{background:#fff;color:var(--p);border:1.5px solid var(--p)}
+.btn-ghost{background:#fff;color:var(--m);border:1.5px solid var(--b)}
+.proto-bar{position:fixed;bottom:0;left:0;right:0;background:#1A202C;display:flex;align-items:center;padding:0 12px;font-size:11px;z-index:9999;font-family:monospace;height:40px}
+.proto-bar a{color:#90CDF4;text-decoration:none;padding:3px 7px;border-radius:4px;white-space:nowrap}
+.proto-bar a.ac{background:var(--p);color:#fff}
+.ps{display:flex;gap:3px;overflow-x:auto;flex:1}
+/* Layout */
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+/* Sidebar (same as dashboard) */
+.sidebar{background:var(--pd);color:#fff;padding:0;display:flex;flex-direction:column}
+.sidebar-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px}
+.sidebar-logo-text{font-size:16px;font-weight:900}
+.sidebar-logo-sub{font-size:11px;opacity:.7;font-weight:600}
+.sidebar-user{padding:16px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px}
+.sidebar-avatar{width:40px;height:40px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.sidebar-user-name{font-size:14px;font-weight:800}
+.sidebar-user-school{font-size:11px;opacity:.7}
+.nav-list{list-style:none;padding:12px 0;flex:1}
+.nav-item a{display:flex;align-items:center;gap:10px;padding:11px 20px;color:rgba(255,255,255,.8);text-decoration:none;font-size:14px;font-weight:700;transition:all .15s;border-left:3px solid transparent}
+.nav-item a:hover,.nav-item a.active{background:rgba(255,255,255,.1);color:#fff;border-left-color:var(--a)}
+.nav-icon{width:20px;text-align:center;font-size:16px}
+.nav-badge{margin-left:auto;background:var(--d);color:#fff;border-radius:999px;font-size:10px;font-weight:800;padding:2px 7px}
+.sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,.1)}
+.logout-btn{color:rgba(255,255,255,.6);font-size:13px;font-weight:700;cursor:pointer;background:none;border:none;font-family:inherit;display:flex;align-items:center;gap:6px}
+/* Main */
+.main{padding:24px;padding-bottom:64px;background:#F7FAFC;overflow-x:hidden}
+/* Class header */
+.class-header{background:#fff;border-radius:16px;padding:20px 24px;box-shadow:var(--shadow);margin-bottom:20px;display:flex;align-items:center;gap:20px}
+.class-icon{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--p),var(--pd));display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.class-name{font-size:22px;font-weight:900;margin-bottom:4px}
+.class-meta{font-size:13px;color:var(--m)}
+.join-code-box{margin-left:auto;text-align:center;background:var(--pl);border-radius:12px;padding:12px 20px;border:2px solid var(--p)}
+.join-code-label{font-size:11px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.join-code-value{font-size:22px;font-weight:900;color:var(--pd);font-family:monospace;letter-spacing:2px}
+.join-code-sub{font-size:11px;color:var(--m);margin-top:2px}
+/* Tabs */
+.tabs{display:flex;gap:0;background:#fff;border-radius:12px;padding:4px;box-shadow:var(--shadow);margin-bottom:20px;border:1px solid var(--b)}
+.tab{flex:1;padding:9px;border-radius:8px;font-size:13px;font-weight:800;text-align:center;cursor:pointer;color:var(--m);transition:all .15s;border:none;background:none;font-family:inherit}
+.tab.active{background:var(--p);color:#fff;box-shadow:0 2px 8px rgba(43,108,176,.3)}
+/* Student table */
+.table-wrap{background:#fff;border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.table-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--b)}
+.table-header-title{font-size:15px;font-weight:800}
+.search-input{height:36px;border:1.5px solid var(--b);border-radius:999px;padding:0 14px;font-family:inherit;font-size:13px;outline:none;width:200px;color:var(--t)}
+.search-input:focus{border-color:var(--p)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--m);padding:10px 16px;border-bottom:2px solid var(--b);background:#FAFAFA}
+td{padding:12px 16px;border-bottom:1px solid var(--b);font-size:14px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFA}
+/* Status badges */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800}
+.badge-approved{background:var(--sl);color:#276749}
+.badge-pending{background:#FEFCBF;color:#975A16}
+/* Progress mini */
+.prog-mini{display:flex;align-items:center;gap:8px}
+.prog-bar-sm{flex:1;height:6px;border-radius:3px;background:var(--b);overflow:hidden;min-width:60px}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--s),#48BB78)}
+.prog-label{font-size:12px;font-weight:700;color:var(--m);white-space:nowrap}
+/* Stop dots */
+.stop-dots{display:flex;gap:3px}
+.sdot{width:14px;height:14px;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center}
+.sdot-done{background:var(--s);color:#fff}
+.sdot-active{background:var(--p);color:#fff}
+.sdot-locked{background:var(--b)}
+/* Pending count */
+.pending-banner{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:2px solid var(--a);border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div style="font-size:28px">🔍</div>
+      <div>
+        <div class="sidebar-logo-text">Nettdetektivene</div>
+        <div class="sidebar-logo-sub">Lærerportal</div>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">👩‍🏫</div>
+      <div>
+        <div class="sidebar-user-name">Maria Hansen</div>
+        <div class="sidebar-user-school">Blindern skole</div>
+      </div>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="wf-teacher-dashboard.html"><span class="nav-icon">🏠</span> Mine klasser</a></li>
+      <li class="nav-item"><a href="wf-classroom-detail.html" class="active"><span class="nav-icon">👥</span> Elever <span class="nav-badge">3</span></a></li>
+      <li class="nav-item"><a href="#"><span class="nav-icon">📊</span> Fremgang</a></li>
+      <li class="nav-item"><a href="#"><span class="nav-icon">🕯️</span> Ukens mysterium <span class="nav-badge">2</span></a></li>
+      <li class="nav-item"><a href="#"><span class="nav-icon">🔔</span> Varsler <span class="nav-badge">5</span></a></li>
+      <li class="nav-item"><a href="#"><span class="nav-icon">⚙️</span> Innstillinger</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <button class="logout-btn">← Logg ut</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Class header -->
+    <a href="wf-teacher-dashboard.html" style="display:inline-flex;align-items:center;gap:6px;color:var(--p);font-size:13px;font-weight:700;text-decoration:none;margin-bottom:14px">← Tilbake til klasser</a>
+
+    <div class="class-header">
+      <div class="class-icon">🏫</div>
+      <div>
+        <div class="class-name">7A — Blindern skole</div>
+        <div class="class-meta">Vår 2026 · Maria Hansen · 24 elever · Startet 15. april</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-left:auto;align-items:flex-start">
+        <div class="join-code-box">
+          <div class="join-code-label">Klassekode</div>
+          <div class="join-code-value">FJORD-TIGER</div>
+          <div class="join-code-sub">Del med elevene</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active">👥 Elever (24)</button>
+      <button class="tab">📊 Fremgang</button>
+      <button class="tab">🕯️ Ukens mysterium (2)</button>
+      <button class="tab">⚙️ Innstillinger</button>
+    </div>
+
+    <!-- Pending banner -->
+    <div class="pending-banner">
+      <span style="font-size:24px">⏳</span>
+      <div>
+        <div style="font-weight:800;font-size:14px;color:#92400E">3 elever venter på godkjenning</div>
+        <div style="font-size:13px;color:#B45309">Godkjenn eller avvis dem for å gi dem tilgang til spillet.</div>
+      </div>
+      <button class="btn btn-a" style="margin-left:auto;flex-shrink:0">Godkjenn alle 3 →</button>
+    </div>
+
+    <!-- Student table -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <div class="table-header-title">Elevliste</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input class="search-input" type="text" placeholder="🔍 Søk elever..." value="">
+          <button class="btn btn-p" style="font-size:13px">+ Legg til manuelt</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Elev</th>
+            <th>Visningsnavn</th>
+            <th>Status</th>
+            <th>Fremgang</th>
+            <th>Stopp</th>
+            <th>Handlinger</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Approved students -->
+          <tr>
+            <td><div style="font-weight:800">elev001</div><div style="font-size:11px;color:var(--m)">Ola Nordmann</div></td>
+            <td>Detektiv Ola</td>
+            <td><span class="badge badge-approved">✓ Godkjent</span></td>
+            <td><div class="prog-mini"><div class="prog-bar-sm"><div class="prog-fill" style="width:71%"></div></div><div class="prog-label">2/7</div></div></td>
+            <td><div class="stop-dots"><div class="sdot sdot-done">✓</div><div class="sdot sdot-done">✓</div><div class="sdot sdot-active">▶</div><div class="sdot sdot-locked"></div><div class="sdot sdot-locked"></div><div class="sdot sdot-locked"></div><div class="sdot sdot-locked"></div></div></td>
+            <td><div style="display:flex;gap:6px"><button class="btn btn-outline">📓 Notat</button><button class="btn btn-ghost">Spark</button></div></td>
+          </tr>
+          <tr>
+            <td><div style="font-weight:800">elev042</div><div style="font-size:11px;color:var(--m)">Kari Larsen</div></td>
+            <td>Krim-Kari</td>
+            <td><span class="badge badge-approved">✓ Godkjent</span></td>
+            <td><div class="prog-mini"><div class="prog-bar-sm"><div class="prog-fill" style="width:100%"></div></div><div class="prog-label">7/7</div></div></td>
+            <td><div class="stop-dots"><div class="sdot sdot-done">✓</div><div class="sdot sdot-done">✓</div><div class="sdot sdot-done">✓</div><div class="sdot sdot-done">✓</div><div class="sdot sdot-done">✓</div><div class="sdot sdot-done">✓</div><div class="sdot sdot-done">✓</div></div></td>
+            <td><div style="display:flex;gap:6px"><button class="btn btn-outline">📓 Notat</button><button class="btn btn-ghost">Spark</button></div></td>
+          </tr>
+          <tr>
+            <td><div style="font-weight:800">elev015</div><div style="font-size:11px;color:var(--m)">Bjørn Eriksen</div></td>
+            <td>Agent Bjørnsen</td>
+            <td><span class="badge badge-approved">✓ Godkjent</span></td>
+            <td><div class="prog-mini"><div class="prog-bar-sm"><div class="prog-fill" style="width:14%"></div></div><div class="prog-label">1/7</div></div></td>
+            <td><div class="stop-dots"><div class="sdot sdot-done">✓</div><div class="sdot sdot-active">▶</div><div class="sdot sdot-locked"></div><div class="sdot sdot-locked"></div><div class="sdot sdot-locked"></div><div class="sdot sdot-locked"></div><div class="sdot sdot-locked"></div></div></td>
+            <td><div style="display:flex;gap:6px"><button class="btn btn-outline">📓 Notat</button><button class="btn btn-ghost">Spark</button></div></td>
+          </tr>
+
+          <!-- Pending students -->
+          <tr style="background:#FFFBEB">
+            <td><div style="font-weight:800">elev088</div><div style="font-size:11px;color:var(--m)">Lise Hansen</div></td>
+            <td>Detektiv Lunde</td>
+            <td><span class="badge badge-pending">⏳ Venter</span></td>
+            <td style="color:var(--m);font-size:13px">—</td>
+            <td style="color:var(--m);font-size:13px">Ikke startet</td>
+            <td><div style="display:flex;gap:6px"><button class="btn btn-s">✓ Godkjenn</button><button class="btn btn-d">✗ Avvis</button></div></td>
+          </tr>
+          <tr style="background:#FFFBEB">
+            <td><div style="font-weight:800">elev099</div><div style="font-size:11px;color:var(--m)">Per Olsen</div></td>
+            <td>Sherlock Sjur</td>
+            <td><span class="badge badge-pending">⏳ Venter</span></td>
+            <td style="color:var(--m);font-size:13px">—</td>
+            <td style="color:var(--m);font-size:13px">Ikke startet</td>
+            <td><div style="display:flex;gap:6px"><button class="btn btn-s">✓ Godkjenn</button><button class="btn btn-d">✗ Avvis</button></div></td>
+          </tr>
+          <tr style="background:#FFFBEB">
+            <td><div style="font-weight:800">elev103</div><div style="font-size:11px;color:var(--m)">Emma Pettersen</div></td>
+            <td>Detektiv Emma</td>
+            <td><span class="badge badge-pending">⏳ Venter</span></td>
+            <td style="color:var(--m);font-size:13px">—</td>
+            <td style="color:var(--m);font-size:13px">Ikke startet</td>
+            <td><div style="display:flex;gap:6px"><button class="btn btn-s">✓ Godkjenn</button><button class="btn btn-d">✗ Avvis</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding:12px 16px;border-top:2px solid var(--b);font-size:13px;color:var(--m);display:flex;justify-content:space-between;align-items:center">
+        <span>Viser 6 av 24 elever</span>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm">← Forrige</button>
+          <span style="background:var(--p);color:#fff;border-radius:4px;padding:4px 10px;font-size:13px;font-weight:800">1</span>
+          <button class="btn btn-ghost btn-sm">2</button>
+          <button class="btn btn-ghost btn-sm">3</button>
+          <button class="btn btn-ghost btn-sm">Neste →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="proto-bar">
+  <div class="ps">
+    <a href="wf-index.html">Index</a>
+    <a href="wf-student-login.html">Elev login</a>
+    <a href="wf-student-intro.html">Intro</a>
+    <a href="wf-join-classroom.html">Bli med</a>
+    <a href="wf-corkboard.html">Korkboard</a>
+    <a href="wf-game-map.html">Kart</a>
+    <a href="wf-task-fakenews.html">Nyheter</a>
+    <a href="wf-task-fakenews-result.html">Nyheter res.</a>
+    <a href="wf-task-phishing.html">Phishing</a>
+    <a href="wf-task-phishing-result.html">Phishing res.</a>
+    <a href="wf-teacher-register.html">Registrer</a>
+    <a href="wf-teacher-login.html">Lærer login</a>
+    <a href="wf-teacher-dashboard.html">Dashboard</a>
+    <a href="wf-classroom-detail.html" class="ac">Klasse</a>
+  </div>
+</div>
+<script src="wf-utils.js"></script>
+</body>
+</html>
