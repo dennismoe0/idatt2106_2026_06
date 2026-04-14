@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WF — Nyheter: Resultat</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#2B6CB0;--pl:#EBF8FF;--pd:#1A4A7A;--a:#F6AD55;--ad:#DD6B20;--s:#38A169;--sl:#C6F6D5;--d:#E53E3E;--dl:#FED7D7;--t:#1A202C;--m:#718096;--b:#E2E8F0}
+body{font-family:'Nunito',system-ui,sans-serif;background:#F7FAFC;color:var(--t);min-height:100vh}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border-radius:999px;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:16px;transition:all .15s;text-decoration:none}
+.btn-p{background:var(--p);color:#fff;box-shadow:0 4px 12px rgba(43,108,176,.35)}
+.btn-p:hover{background:var(--pd);transform:translateY(-1px)}
+.btn-s{background:var(--s);color:#fff;box-shadow:0 4px 12px rgba(56,161,105,.35)}
+.btn-s:hover{transform:translateY(-1px)}
+.btn-a{background:var(--a);color:#7C4A00;box-shadow:0 4px 12px rgba(246,173,85,.4)}
+.btn-full{width:100%}
+.proto-bar{position:fixed;bottom:0;left:0;right:0;background:#1A202C;display:flex;align-items:center;padding:0 12px;font-size:11px;z-index:9999;font-family:monospace;height:40px}
+.proto-bar a{color:#90CDF4;text-decoration:none;padding:3px 7px;border-radius:4px;white-space:nowrap}
+.proto-bar a.ac{background:var(--p);color:#fff}
+.ps{display:flex;gap:3px;overflow-x:auto;flex:1}
+/* Nav */
+.top-nav{background:#fff;border-bottom:2px solid var(--b);padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.back-btn{background:none;border:2px solid var(--b);border-radius:999px;font-weight:700;color:var(--p);display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:13px;padding:5px 12px;text-decoration:none}
+/* Result hero */
+.result-hero{background:linear-gradient(135deg,#22543D,#38A169);color:#fff;padding:32px 20px;text-align:center}
+.result-emoji{font-size:80px;line-height:1;display:block;margin-bottom:16px;animation:pop .4s ease-out}
+@keyframes pop{0%{transform:scale(.5);opacity:0}80%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.result-title{font-size:32px;font-weight:900;margin-bottom:8px}
+.result-sub{font-size:16px;opacity:.9}
+/* Stars */
+.stars-row{display:flex;justify-content:center;gap:6px;margin-top:16px}
+.star-item{font-size:40px;animation:starPop .3s ease-out both}
+.star-item:nth-child(2){animation-delay:.1s}
+.star-item:nth-child(3){animation-delay:.2s}
+@keyframes starPop{0%{transform:scale(0) rotate(-20deg)}80%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+/* Content */
+.content{max-width:680px;margin:0 auto;padding:24px 20px 80px}
+.explanation-card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 16px rgba(43,108,176,.1);margin-bottom:16px}
+.explanation-card h3{font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.flag-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--b)}
+.flag-item:last-child{border-bottom:none}
+.flag-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px}
+.flag-bad{background:var(--dl)}
+.flag-text strong{display:block;font-size:14px;font-weight:800;margin-bottom:2px}
+.flag-text p{font-size:13px;color:var(--m);line-height:1.4}
+/* Notebook tip */
+.notebook-tip{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:2px solid var(--a);border-radius:16px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:flex-start;gap:12px}
+.tip-icon{font-size:32px;flex-shrink:0}
+.tip-text strong{display:block;font-size:14px;font-weight:800;color:#92400E;margin-bottom:4px}
+.tip-text p{font-size:13px;color:#78350F;line-height:1.4}
+.tip-saved{font-size:11px;color:var(--s);font-weight:800;margin-top:6px}
+/* Next task teaser */
+.next-card{background:var(--pl);border-radius:16px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px}
+.next-card .icon{font-size:40px;flex-shrink:0}
+.next-card-info strong{display:block;font-size:15px;font-weight:800;margin-bottom:2px}
+.next-card-info p{font-size:13px;color:var(--m)}
+.btn-row{display:flex;gap:12px}
+</style>
+</head>
+<body>
+<div class="top-nav">
+  <a href="wf-task-fakenews.html" class="back-btn">← Oppgave</a>
+  <span style="font-weight:900;font-size:15px;color:var(--t)">📰 Nyhetskvartalet — Resultat</span>
+  <span style="margin-left:auto;font-size:13px;font-weight:700;color:var(--s)">✓ Fullført!</span>
+</div>
+
+<!-- Result hero -->
+<div class="result-hero">
+  <span class="result-emoji">🎉</span>
+  <div class="result-title">Riktig! Du er en ekte nyhetsdetektiv!</div>
+  <div class="result-sub">Du identifiserte den falske artikkelen. Godt jobbet!</div>
+  <div class="stars-row">
+    <span class="star-item">⭐</span>
+    <span class="star-item">⭐</span>
+    <span class="star-item">⭐</span>
+  </div>
+  <div style="font-size:13px;opacity:.8;margin-top:10px">3 av 3 stjerner · Perfekt resultat!</div>
+</div>
+
+<div class="content">
+
+  <!-- Red flags explanation -->
+  <div class="explanation-card">
+    <h3><span style="font-size:20px">🔴</span> Slik avslørte du den: 3 røde flagg</h3>
+
+    <div class="flag-item">
+      <div class="flag-icon flag-bad">🌐</div>
+      <div class="flag-text">
+        <strong>Mistenkelig URL: nrk-nyheter24.blogspot.com</strong>
+        <p>Ekte NRK bruker nrk.no. En blogg-URL (blogspot.com) er et klart tegn på at dette IKKE er en ekte nyhetsside.</p>
+      </div>
+    </div>
+    <div class="flag-item">
+      <div class="flag-icon flag-bad">🔠</div>
+      <div class="flag-text">
+        <strong>Overdrevne store bokstaver og utropstegn</strong>
+        <p>«AVSLØRT!», «EKSKLUSIVT», «!!» — ekte journalister bruker ikke dette. Det er designet for å skape panikk.</p>
+      </div>
+    </div>
+    <div class="flag-item">
+      <div class="flag-icon flag-bad">👤</div>
+      <div class="flag-text">
+        <strong>Ingen forfatter oppgitt</strong>
+        <p>Alle seriøse nyhetsartikler har en journalist med navn. Anonym kilde = ingen ansvarlig = ikke pålitelig.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notebook auto-tip -->
+  <div class="notebook-tip">
+    <div class="tip-icon">📓</div>
+    <div class="tip-text">
+      <strong>Automatisk lagret i din notatblokk:</strong>
+      <p>«Falske nyheter bruker ofte overdrevne overskrifter, mangler forfatter og har mistenkelige URL-er som ligner ekte sider.»</p>
+      <div class="tip-saved">✓ Tip lagret · Se Notatblokk fra korkboardet</div>
+    </div>
+  </div>
+
+  <!-- Next task in stop -->
+  <div class="next-card">
+    <div class="icon">📰</div>
+    <div class="next-card-info">
+      <strong>Neste oppgave i Nyhetskvartalet</strong>
+      <p>Oppgave 3 av 3 · Identifiser manipulerte sitater</p>
+    </div>
+    <a href="wf-task-phishing.html" class="btn btn-p" style="flex-shrink:0;font-size:14px;padding:10px 20px">Neste →</a>
+  </div>
+
+  <div class="btn-row">
+    <a href="wf-game-map.html" class="btn" style="background:#fff;color:var(--p);border:2px solid var(--p);flex:1">← Tilbake til kartet</a>
+    <a href="wf-task-phishing.html" class="btn btn-a" style="flex:1">Neste stopp: Postkontoret →</a>
+  </div>
+</div>
+
+<div class="proto-bar">
+  <div class="ps">
+    <a href="wf-index.html">Index</a>
+    <a href="wf-student-login.html">Elev login</a>
+    <a href="wf-student-intro.html">Intro</a>
+    <a href="wf-join-classroom.html">Bli med</a>
+    <a href="wf-corkboard.html">Korkboard</a>
+    <a href="wf-game-map.html">Kart</a>
+    <a href="wf-task-fakenews.html">Nyheter</a>
+    <a href="wf-task-fakenews-result.html" class="ac">Nyheter res.</a>
+    <a href="wf-task-phishing.html">Phishing</a>
+    <a href="wf-task-phishing-result.html">Phishing res.</a>
+    <a href="wf-teacher-register.html">Registrer</a>
+    <a href="wf-teacher-login.html">Lærer login</a>
+    <a href="wf-teacher-dashboard.html">Dashboard</a>
+    <a href="wf-classroom-detail.html">Klasse</a>
+  </div>
+</div>
+<script src="wf-utils.js"></script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WF — Lærerdashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#2B6CB0;--pl:#EBF8FF;--pd:#1A4A7A;--a:#F6AD55;--ad:#DD6B20;--s:#38A169;--sl:#C6F6D5;--d:#E53E3E;--t:#1A202C;--m:#718096;--b:#E2E8F0;--shadow:0 4px 16px rgba(43,108,176,.1)}
+body{font-family:'Nunito',system-ui,sans-serif;background:#F7FAFC;color:var(--t);min-height:100vh}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:999px;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:14px;transition:all .15s;text-decoration:none}
+.btn-p{background:var(--p);color:#fff;box-shadow:0 4px 12px rgba(43,108,176,.35)}
+.btn-p:hover{background:var(--pd);transform:translateY(-1px)}
+.btn-a{background:var(--a);color:#7C4A00}
+.btn-sm{padding:7px 14px;font-size:13px}
+.btn-outline{background:#fff;color:var(--p);border:2px solid var(--p)}
+.proto-bar{position:fixed;bottom:0;left:0;right:0;background:#1A202C;display:flex;align-items:center;padding:0 12px;font-size:11px;z-index:9999;font-family:monospace;height:40px}
+.proto-bar a{color:#90CDF4;text-decoration:none;padding:3px 7px;border-radius:4px;white-space:nowrap}
+.proto-bar a.ac{background:var(--p);color:#fff}
+.ps{display:flex;gap:3px;overflow-x:auto;flex:1}
+/* Sidebar layout */
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+/* Sidebar */
+.sidebar{background:var(--pd);color:#fff;padding:0;display:flex;flex-direction:column}
+.sidebar-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px}
+.sidebar-logo-text{font-size:16px;font-weight:900}
+.sidebar-logo-sub{font-size:11px;opacity:.7;font-weight:600}
+.sidebar-user{padding:16px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px}
+.sidebar-avatar{width:40px;height:40px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.sidebar-user-name{font-size:14px;font-weight:800}
+.sidebar-user-school{font-size:11px;opacity:.7}
+.nav-list{list-style:none;padding:12px 0;flex:1}
+.nav-item a{display:flex;align-items:center;gap:10px;padding:11px 20px;color:rgba(255,255,255,.8);text-decoration:none;font-size:14px;font-weight:700;transition:all .15s;border-left:3px solid transparent}
+.nav-item a:hover,.nav-item a.active{background:rgba(255,255,255,.1);color:#fff;border-left-color:var(--a)}
+.nav-item a .nav-icon{width:20px;text-align:center;font-size:16px}
+.nav-badge{margin-left:auto;background:var(--d);color:#fff;border-radius:999px;font-size:10px;font-weight:800;padding:2px 7px;min-width:20px;text-align:center}
+.sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,.1)}
+.logout-btn{color:rgba(255,255,255,.6);font-size:13px;font-weight:700;cursor:pointer;background:none;border:none;font-family:inherit;display:flex;align-items:center;gap:6px}
+/* Main */
+.main{padding:24px;padding-bottom:64px;background:#F7FAFC}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-size:24px;font-weight:900}
+.page-sub{font-size:14px;color:var(--m);margin-top:2px}
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+.stat-value{font-size:28px;font-weight:900;color:var(--p);line-height:1}
+.stat-label{font-size:12px;font-weight:700;color:var(--m);margin-top:4px}
+.stat-change{font-size:12px;font-weight:700;margin-top:4px}
+.up{color:var(--s)}
+.down{color:var(--d)}
+/* Classroom cards */
+.classrooms-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.classroom-card{background:#fff;border-radius:16px;padding:20px;box-shadow:var(--shadow);border:2px solid transparent;text-decoration:none;color:var(--t);display:block;transition:all .2s}
+.classroom-card:hover{border-color:var(--p);transform:translateY(-1px);box-shadow:0 8px 24px rgba(43,108,176,.15)}
+.cc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cc-name{font-size:18px;font-weight:900;color:var(--t)}
+.cc-code{background:var(--pl);color:var(--p);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:800;font-family:monospace;letter-spacing:1px}
+.cc-school{font-size:13px;color:var(--m);margin-bottom:12px}
+.cc-stats{display:flex;gap:16px;margin-bottom:14px}
+.cc-stat{font-size:13px;font-weight:700;color:var(--m)}
+.cc-stat strong{color:var(--t);font-weight:900}
+/* Progress mini bar */
+.mini-progress{height:6px;border-radius:3px;background:var(--b);overflow:hidden;margin-bottom:6px}
+.mini-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--s),#48BB78)}
+.progress-label{font-size:11px;font-weight:700;color:var(--m)}
+.cc-footer{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--b)}
+/* Pending badge */
+.pending-badge{background:var(--dl);color:#9B2C2C;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800}
+/* New classroom card */
+.new-classroom-card{background:#F7FAFC;border-radius:16px;padding:20px;box-shadow:var(--shadow);border:3px dashed var(--b);text-decoration:none;color:var(--m);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:200px;transition:all .2s;cursor:pointer}
+.new-classroom-card:hover{border-color:var(--p);color:var(--p);background:var(--pl)}
+.new-classroom-card .plus{font-size:40px;font-weight:900;line-height:1}
+.new-classroom-card span{font-size:15px;font-weight:800}
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div style="font-size:28px">🔍</div>
+      <div>
+        <div class="sidebar-logo-text">Nettdetektivene</div>
+        <div class="sidebar-logo-sub">Lærerportal</div>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">👩‍🏫</div>
+      <div>
+        <div class="sidebar-user-name">Maria Hansen</div>
+        <div class="sidebar-user-school">Blindern skole</div>
+      </div>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="wf-teacher-dashboard.html" class="active"><span class="nav-icon">🏠</span> Mine klasser</a></li>
+      <li class="nav-item"><a href="wf-classroom-detail.html"><span class="nav-icon">👥</span> Elever <span class="nav-badge">3</span></a></li>
+      <li class="nav-item"><a href="#"><span class="nav-icon">📊</span> Fremgang</a></li>
+      <li class="nav-item"><a href="#"><span class="nav-icon">🕯️</span> Ukens mysterium <span class="nav-badge">2</span></a></li>
+      <li class="nav-item"><a href="#"><span class="nav-icon">🔔</span> Varsler <span class="nav-badge">5</span></a></li>
+      <li class="nav-item"><a href="#"><span class="nav-icon">⚙️</span> Innstillinger</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <button class="logout-btn">← Logg ut</button>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Mine klasser 👋</div>
+        <div class="page-sub">Hei Maria! Du har 2 aktive klasser · Mandag 13. april 2026</div>
+      </div>
+      <button class="btn btn-p">+ Opprett ny klasse</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value">47</div>
+        <div class="stat-label">Aktive elever</div>
+        <div class="stat-change up">↑ 3 nye i dag</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">2</div>
+        <div class="stat-label">Klasser</div>
+        <div class="stat-change" style="color:var(--m)">Begge aktive</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">68%</div>
+        <div class="stat-label">Gj.sn. fremgang</div>
+        <div class="stat-change up">↑ 12% denne uka</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">2</div>
+        <div class="stat-label">Mysterier til godkjenning</div>
+        <div class="stat-change down">Venter på deg!</div>
+      </div>
+    </div>
+
+    <!-- Classroom cards -->
+    <div style="font-size:14px;font-weight:800;color:var(--m);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Dine klasser</div>
+    <div class="classrooms-grid">
+
+      <!-- Classroom 1 -->
+      <a href="wf-classroom-detail.html" class="classroom-card">
+        <div class="cc-header">
+          <div class="cc-name">7A — Blindern skole</div>
+          <div class="cc-code">FJORD-TIGER</div>
+        </div>
+        <div class="cc-school">📍 Blindern skole, Oslo · Vår 2026</div>
+        <div class="cc-stats">
+          <div class="cc-stat"><strong>24</strong> elever</div>
+          <div class="cc-stat"><strong>21</strong> godkjent</div>
+          <div class="cc-stat pending-badge">3 venter</div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--m);margin-bottom:6px">Klasse-fremgang</div>
+          <div class="mini-progress"><div class="mini-fill" style="width:71%"></div></div>
+          <div class="progress-label">⌀ 71% · Stopp 2.3 av 7</div>
+        </div>
+        <div class="cc-footer">
+          <span class="btn btn-p btn-sm">Se klassen →</span>
+          <span class="btn btn-sm btn-outline">📊 Fremgang</span>
+          <span class="btn btn-sm" style="background:#F7FAFC;color:var(--m);border:1px solid var(--b)">🕯️ Mysterium (2)</span>
+        </div>
+      </a>
+
+      <!-- Classroom 2 -->
+      <a href="wf-classroom-detail.html" class="classroom-card">
+        <div class="cc-header">
+          <div class="cc-name">6B — Blindern skole</div>
+          <div class="cc-code">SNØBJØRN</div>
+        </div>
+        <div class="cc-school">📍 Blindern skole, Oslo · Vår 2026</div>
+        <div class="cc-stats">
+          <div class="cc-stat"><strong>23</strong> elever</div>
+          <div class="cc-stat"><strong>23</strong> godkjent</div>
+          <div class="cc-stat" style="color:var(--s);font-weight:800">✓ Alle godkjent</div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--m);margin-bottom:6px">Klasse-fremgang</div>
+          <div class="mini-progress"><div class="mini-fill" style="width:64%"></div></div>
+          <div class="progress-label">⌀ 64% · Stopp 2.0 av 7</div>
+        </div>
+        <div class="cc-footer">
+          <span class="btn btn-p btn-sm">Se klassen →</span>
+          <span class="btn btn-sm btn-outline">📊 Fremgang</span>
+          <span class="btn btn-sm" style="background:#F7FAFC;color:var(--m);border:1px solid var(--b)">🕯️ Mysterium (0)</span>
+        </div>
+      </a>
+
+      <!-- New classroom -->
+      <div class="new-classroom-card" onclick="alert('Opprett ny klasse-modal ville åpnet her')">
+        <div class="plus">+</div>
+        <span>Opprett ny klasse</span>
+        <div style="font-size:12px">Få en ny klassekode på sekunder</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="proto-bar">
+  <div class="ps">
+    <a href="wf-index.html">Index</a>
+    <a href="wf-student-login.html">Elev login</a>
+    <a href="wf-student-intro.html">Intro</a>
+    <a href="wf-join-classroom.html">Bli med</a>
+    <a href="wf-corkboard.html">Korkboard</a>
+    <a href="wf-game-map.html">Kart</a>
+    <a href="wf-task-fakenews.html">Nyheter</a>
+    <a href="wf-task-fakenews-result.html">Nyheter res.</a>
+    <a href="wf-task-phishing.html">Phishing</a>
+    <a href="wf-task-phishing-result.html">Phishing res.</a>
+    <a href="wf-teacher-register.html">Registrer</a>
+    <a href="wf-teacher-login.html">Lærer login</a>
+    <a href="wf-teacher-dashboard.html" class="ac">Dashboard</a>
+    <a href="wf-classroom-detail.html">Klasse</a>
+  </div>
+</div>
+<script src="wf-utils.js"></script>
+</body>
+</html>
