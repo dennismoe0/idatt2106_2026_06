@@ -8,7 +8,7 @@ dev:
 	docker-compose up -d
 	@echo "Waiting for MySQL..."
 	@sleep 8
-	JAVA_HOME=/usr/lib/jvm/java-21-openjdk backend/mvnw -f backend/pom.xml spring-boot:run &
+	backend/mvnw -f backend/pom.xml spring-boot:run &
 	cd frontend && npm run dev
 
 stop:
