@@ -122,24 +122,29 @@ onMounted(loadTasks)
 
 async function loadTasks() {
   if (!stopId.value) {
+    console.warn('[TaskView] No stopId found in URL query')
     error.value = 'Mangler stopId i URL.'
     return
   }
 
   if (!classroomId.value) {
+    console.warn('[TaskView] No classroomId available (store/query/localStorage)')
     error.value = 'Mangler classroomId for å hente oppgaver.'
     return
   }
 
+  console.log('[TaskView] Loading tasks — stopId:', stopId.value, 'classroomId:', classroomId.value)
   loading.value = true
   error.value = ''
 
   try {
     tasks.value = await gameStore.fetchTasks(stopId.value, classroomId.value)
+    console.log('[TaskView] Loaded', tasks.value.length, 'tasks from API')
     isMockMode.value = false
   } catch (apiError) {
     console.warn('[TaskView] Failed to fetch tasks, switching to mock mode.', apiError)
     tasks.value = MOCK_TASKS.filter((task) => task.stopId === stopId.value)
+    console.log('[TaskView] Mock mode — loaded', tasks.value.length, 'mock tasks')
     isMockMode.value = true
   } finally {
     loading.value = false
@@ -149,8 +154,11 @@ async function loadTasks() {
 async function handleSubmit(answer) {
   if (!currentTask.value) return
 
+  console.log('[TaskView] Submitting answer for task:', currentTask.value.id, 'type:', currentTask.value.taskType)
+
   try {
     result.value = await gameStore.submitAnswer(currentTask.value.id, answer, classroomId.value)
+    console.log('[TaskView] Submit result — correct:', result.value.correct, 'stopCompleted:', result.value.stopCompleted)
     handleCelebration(result.value)
     isMockMode.value = false
   } catch (apiError) {
@@ -197,8 +205,10 @@ function goNext() {
   if (currentTaskIndex.value < tasks.value.length - 1) {
     currentTaskIndex.value += 1
     result.value = null
+    console.log('[TaskView] Advancing to task', currentTaskIndex.value + 1, 'of', tasks.value.length)
     return
   }
+  console.log('[TaskView] All tasks done — navigating to map')
   goToMap()
 }
 
