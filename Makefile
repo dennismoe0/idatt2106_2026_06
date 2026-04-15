@@ -1,23 +1,20 @@
-.PHONY: dev stop logs db setup
+.PHONY: dev-db backend frontend start stop logs
 
-setup:
-	docker-compose pull
-	cd frontend && npm install
+dev-db:
+	docker compose -f docker-compose.dev.yml up -d --wait
 
-dev:
-	docker-compose up -d
-	@echo "Waiting for MySQL..."
-	@sleep 8
-	backend/mvnw -f backend/pom.xml spring-boot:run &
+backend:
+	cd backend && ./mvnw spring-boot:run
+
+frontend:
 	cd frontend && npm run dev
 
+start:
+	docker compose up --build
+
 stop:
-	docker-compose down
-	@pkill -f "spring-boot:run" 2>/dev/null || true
-	@pkill -f "vite" 2>/dev/null || true
+	docker compose down
+	docker compose -f docker-compose.dev.yml down
 
 logs:
-	docker-compose logs -f db
-
-db:
-	docker-compose up -d
+	docker compose logs -f
