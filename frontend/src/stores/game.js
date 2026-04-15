@@ -46,10 +46,10 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  async function submitAnswer(taskId, classroomId, answer) {
+  async function submitAnswer(taskId, answer, classroomId) {
     console.log('[game] Submitting answer for task:', taskId)
     try {
-      const { data } = await gameService.submitAnswer(taskId, classroomId, answer)
+      const { data } = await gameService.submitAnswer(taskId, answer, classroomId)
       console.log('[game] Answer result — correct:', data.correct, 'stopCompleted:', data.stopCompleted)
       return data
     } catch (err) {

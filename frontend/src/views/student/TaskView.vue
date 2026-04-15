@@ -48,13 +48,16 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import api from '@/services/api'
+import { useGameStore } from '@/stores/game'
+import { useClassroomStore } from '@/stores/classroom'
 import FakeNewsTask from '@/components/student/FakeNewsTask.vue'
 import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
 import TaskResult from '@/components/student/TaskResult.vue'
 
 const route = useRoute()
 const router = useRouter()
+const gameStore = useGameStore()
+const classroomStore = useClassroomStore()
 
 const tasks = ref([])
 const currentTaskIndex = ref(0)
@@ -65,8 +68,13 @@ const isMockMode = ref(false)
 const showConfetti = ref(false)
 const medalToast = ref(null)
 
-const stopId = computed(() => Number(route.query.stopId ?? route.params.taskId ?? 0) || null)
-const classroomId = computed(() => Number(route.query.classroomId ?? localStorage.getItem('classroomId') ?? 0) || 1)
+const stopId = computed(() => Number(route.query.stopId ?? 0) || null)
+const classroomId = computed(() => {
+  const fromStore = Number(classroomStore.currentClassroomId ?? 0)
+  const fromQuery = Number(route.query.classroomId ?? 0)
+  const fromLocalStorage = Number(localStorage.getItem('classroomId') ?? 0)
+  return fromStore || fromQuery || fromLocalStorage || null
+})
 const currentTask = computed(() => tasks.value[currentTaskIndex.value] ?? null)
 
 const MOCK_TASKS = [
@@ -118,14 +126,16 @@ async function loadTasks() {
     return
   }
 
+  if (!classroomId.value) {
+    error.value = 'Mangler classroomId for å hente oppgaver.'
+    return
+  }
+
   loading.value = true
   error.value = ''
 
   try {
-    const { data } = await api.get(`/api/game/stops/${stopId.value}/tasks`, {
-      params: { classroomId: classroomId.value }
-    })
-    tasks.value = data
+    tasks.value = await gameStore.fetchTasks(stopId.value, classroomId.value)
     isMockMode.value = false
   } catch (apiError) {
     console.warn('[TaskView] Failed to fetch tasks, switching to mock mode.', apiError)
@@ -140,13 +150,8 @@ async function handleSubmit(answer) {
   if (!currentTask.value) return
 
   try {
-    const { data } = await api.post(
-      `/api/game/tasks/${currentTask.value.id}/submit`,
-      { answer },
-      { params: { classroomId: classroomId.value } }
-    )
-    result.value = data
-    handleCelebration(data)
+    result.value = await gameStore.submitAnswer(currentTask.value.id, answer, classroomId.value)
+    handleCelebration(result.value)
     isMockMode.value = false
   } catch (apiError) {
     console.warn('[TaskView] Failed to submit answer, using local mock evaluator.', apiError)
