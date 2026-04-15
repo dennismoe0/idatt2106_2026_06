@@ -1,28 +1,12 @@
-<<<<<<< HEAD
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
-=======
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { classroomService } from '@/services/classroomService'
->>>>>>> dev
 
 export const useClassroomStore = defineStore('classroom', () => {
   const classrooms = ref([])
   const currentClassroom = ref(null)
   const students = ref([])
-<<<<<<< HEAD
 
-  async function fetchMyClassrooms() { }
-  async function createClassroom(data) { }
-  async function joinClassroom(data) { }
-  async function fetchStudents(classroomId) { }
-  async function updateStudentStatus(classroomId, studentId, status) { }
-
-  return { classrooms, currentClassroom, students,
-    fetchMyClassrooms, createClassroom, joinClassroom,
-    fetchStudents, updateStudentStatus }
-=======
   const currentClassroomId = ref(null)
 
   async function fetchMyClassrooms() {
@@ -93,5 +77,4 @@ export const useClassroomStore = defineStore('classroom', () => {
     classrooms, currentClassroom, students, currentClassroomId,
     fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents, updateStudentStatus
   }
->>>>>>> dev
 })
