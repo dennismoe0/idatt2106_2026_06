@@ -194,7 +194,6 @@ onMounted(async () => {
   try {
     await classroomStore.fetchMyClassrooms()
     classrooms.value = classroomStore.classrooms
-    // eslint-disable-next-line no-unused-vars
   } catch (e) {
     console.error('[Dashboard] Failed to load classrooms:', e)
     error.value = 'Kunne ikke laste klasserom. Prøv igjen.'
@@ -204,7 +203,7 @@ onMounted(async () => {
 })
 
 function goToClassroom(id) {
-  // Route registered in index.js: /teacher/classrooms/:id → name 'ClassroomDetail'
+  // TODO: register ClassroomDetail route in index.js when the view is built
   router.push({ name: 'ClassroomDetail', params: { id } })
 }
 
