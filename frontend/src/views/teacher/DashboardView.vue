@@ -194,7 +194,6 @@ onMounted(async () => {
   try {
     await classroomStore.fetchMyClassrooms()
     classrooms.value = classroomStore.classrooms
-    // eslint-disable-next-line no-unused-vars
   } catch (e) {
     console.error('[Dashboard] Failed to load classrooms:', e)
     error.value = 'Kunne ikke laste klasserom. Prøv igjen.'
@@ -484,7 +483,7 @@ function formatDate(dateStr) {
 .btn-primary {
   background: var(--color-btn-primary-bg);
   color: var(--color-btn-primary-fg);
-  box-shadow: 0 4px 12px rgba(43, 108, 176, 0.35);
+  box-shadow: 0 4px 12px var(--color-btn-primary-shadow);
 }
 .btn-primary:hover:not(:disabled) {
   background: var(--color-btn-primary-hover);
@@ -542,7 +541,7 @@ function formatDate(dateStr) {
 }
 .form-input:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.15);
+  box-shadow: 0 0 0 3px var(--color-primary-focus-ring);
 }
 .form-error {
   background: var(--color-danger-light);

@@ -34,6 +34,10 @@
   --color-text: var(--vt-c-text-light-1);
 
   --section-gap: 160px;
+
+  /* Button & focus-ring shadow tokens */
+  --color-btn-primary-shadow: rgba(43, 108, 176, 0.35);
+  --color-primary-focus-ring: rgba(43, 108, 176, 0.15);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,6 +51,9 @@
 
     --color-heading: var(--vt-c-text-dark-1);
     --color-text: var(--vt-c-text-dark-2);
+
+    --color-btn-primary-shadow: rgba(43, 108, 176, 0.20);
+    --color-primary-focus-ring: rgba(43, 108, 176, 0.25);
   }
 }
 
