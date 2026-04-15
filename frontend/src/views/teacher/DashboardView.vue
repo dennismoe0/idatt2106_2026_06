@@ -21,7 +21,7 @@
       <nav class="sidebar-nav">
         <ul>
           <li>
-            <router-link to="/teacher/dashboard" class="nav-link active">
+            <router-link to="/teacher" class="nav-link active">
               <span class="nav-icon">🏠</span> Mine klasser
             </router-link>
           </li>
