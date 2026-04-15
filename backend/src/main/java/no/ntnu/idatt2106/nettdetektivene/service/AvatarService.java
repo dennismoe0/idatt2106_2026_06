@@ -12,9 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,21 +26,12 @@ public class AvatarService {
 
     private static final Logger log = LoggerFactory.getLogger(AvatarService.class);
 
-    private static final Map<String, List<String>> AVATAR_OPTIONS = Map.of(
-        "gender", List.of("neutral", "female", "male"),
-        "eyeColor", List.of("blue", "brown", "green", "gray"),
-        "skinColor", List.of("light", "medium", "dark"),
-        "hairColor", List.of("black", "brown", "blonde", "red"),
-        "hairStyle", List.of("short", "curly", "ponytail", "buzz"),
-        "outfit", List.of("detective-coat", "hoodie", "uniform", "raincoat"),
-        "outfitColor", List.of("blue", "red", "green", "yellow"),
-        "hatColor", List.of("none", "black", "brown", "red"),
-        "accessory", List.of("none", "badge", "glasses", "magnifier")
-    );
+    private static final Map<String, List<String>> AVATAR_OPTIONS = createAvatarOptions();
 
     private final AvatarRepository avatarRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public AvatarResponse getMyAvatar() {
         Long userId = currentUserId();
         log.info("[avatar] getMyAvatar for user {}", userId);
@@ -52,12 +45,23 @@ public class AvatarService {
             });
     }
 
+    @Transactional
     public AvatarResponse updateMyAvatar(UpdateAvatarRequest request) {
         Long userId = currentUserId();
         log.info("[avatar] updateMyAvatar for user {}", userId);
 
         Avatar avatar = avatarRepository.findByStudent_Id(userId)
             .orElseGet(() -> createDefault(getAuthenticatedUser(userId)));
+
+        validateField("gender", request.gender());
+        validateField("eyeColor", request.eyeColor());
+        validateField("skinColor", request.skinColor());
+        validateField("hairColor", request.hairColor());
+        validateField("hairStyle", request.hairStyle());
+        validateField("outfit", request.outfit());
+        validateField("outfitColor", request.outfitColor());
+        validateField("hatColor", request.hatColor());
+        validateField("accessory", request.accessory());
 
         avatar.setGender(request.gender());
         avatar.setEyeColor(request.eyeColor());
@@ -75,6 +79,16 @@ public class AvatarService {
     public Map<String, List<String>> getOptions() {
         log.info("[avatar] getOptions");
         return AVATAR_OPTIONS;
+    }
+
+    private void validateField(String key, String value) {
+        List<String> allowedValues = AVATAR_OPTIONS.get(key);
+        if (value != null && allowedValues != null && !allowedValues.contains(value)) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Invalid value '%s' for field '%s'".formatted(value, key)
+            );
+        }
     }
 
     private User getAuthenticatedUser(Long userId) {
@@ -104,10 +118,24 @@ public class AvatarService {
         avatar.setHairColor("brown");
         avatar.setHairStyle("short");
         avatar.setOutfit("detective-coat");
-        avatar.setOutfitColor("beige");
+        avatar.setOutfitColor("blue");
         avatar.setHatColor("none");
         avatar.setAccessory("badge");
         return avatarRepository.save(avatar);
+    }
+
+    private static Map<String, List<String>> createAvatarOptions() {
+        Map<String, List<String>> options = new LinkedHashMap<>();
+        options.put("gender", List.of("neutral", "female", "male"));
+        options.put("eyeColor", List.of("blue", "brown", "green", "gray"));
+        options.put("skinColor", List.of("light", "medium", "dark"));
+        options.put("hairColor", List.of("black", "brown", "blonde", "red"));
+        options.put("hairStyle", List.of("short", "curly", "ponytail", "buzz"));
+        options.put("outfit", List.of("detective-coat", "hoodie", "uniform", "raincoat"));
+        options.put("outfitColor", List.of("blue", "red", "green", "yellow"));
+        options.put("hatColor", List.of("none", "black", "brown", "red"));
+        options.put("accessory", List.of("none", "badge", "glasses", "magnifier"));
+        return Map.copyOf(options);
     }
 
     private AvatarResponse toResponse(Avatar avatar) {
