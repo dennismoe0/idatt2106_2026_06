@@ -6,9 +6,9 @@
         Før du starter, får du en kort innføring i hvordan oppdragene fungerer.
       </p>
       <p class="intro-body">
-        Les oppgavene nøye, samarbeid med klassen og bruk det du lærer til å avsløre
-        falske spor og finne trygge valg på nett. Når du går videre, tar vi deg rett
-        til startsiden så du kan begynne første oppdrag.
+        Les oppgavene nøye, samarbeid med klassen og bruk det du lærer til å avsløre falske spor og
+        finne trygge valg på nett. Når du går videre, tar vi deg rett til startsiden så du kan
+        begynne første oppdrag.
       </p>
 
       <RouterLink class="intro-link" to="/">Gå til startsiden</RouterLink>
@@ -17,7 +17,12 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
+
+onMounted(() => {
+  console.log('[IntroView] Loaded')
+})
 
 onBeforeRouteLeave(() => {
   localStorage.setItem('hasSeenIntro', 'true')
