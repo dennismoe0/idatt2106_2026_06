@@ -3,3 +3,5 @@ dist/
 *.md
 .git
 cypress/
+.env*.local
+.env
