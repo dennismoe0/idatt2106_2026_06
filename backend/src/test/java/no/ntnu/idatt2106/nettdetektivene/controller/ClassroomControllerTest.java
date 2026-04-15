@@ -4,6 +4,7 @@ import no.ntnu.idatt2106.nettdetektivene.entity.Classroom;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomTeacher;
 import no.ntnu.idatt2106.nettdetektivene.entity.User;
+import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomStudentRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomTeacherRepository;
@@ -117,7 +118,7 @@ class ClassroomControllerTest {
         User teacher = saveUser("teacher-duplicate@test.no", User.Role.TEACHER);
         User student = saveUser("student-duplicate@test.no", User.Role.STUDENT);
         Classroom classroom = saveClassroom("5A", "li-hare", teacher);
-        saveClassroomStudent(classroom, student, "Agent Nora", ClassroomStudent.Status.PENDING);
+        saveClassroomStudent(classroom, student, "Agent Nora", ClassroomStudentStatus.PENDING);
         String token = tokenFor(student);
 
         mockMvc.perform(post("/api/classrooms/join")
@@ -134,7 +135,7 @@ class ClassroomControllerTest {
         User teacher = saveUser("teacher-students@test.no", User.Role.TEACHER);
         User student = saveUser("student-students@test.no", User.Role.STUDENT);
         Classroom classroom = saveClassroom("5A", "skog-ulv", teacher);
-        saveClassroomStudent(classroom, student, "Agent Nora", ClassroomStudent.Status.PENDING);
+        saveClassroomStudent(classroom, student, "Agent Nora", ClassroomStudentStatus.PENDING);
         String token = tokenFor(teacher);
 
         mockMvc.perform(get("/api/classrooms/{id}/students", classroom.getId())
@@ -151,7 +152,7 @@ class ClassroomControllerTest {
         User teacher = saveUser("teacher-update@test.no", User.Role.TEACHER);
         User student = saveUser("student-update@test.no", User.Role.STUDENT);
         Classroom classroom = saveClassroom("5A", "sol-orn", teacher);
-        saveClassroomStudent(classroom, student, "Agent Nora", ClassroomStudent.Status.PENDING);
+        saveClassroomStudent(classroom, student, "Agent Nora", ClassroomStudentStatus.PENDING);
         String token = tokenFor(teacher);
 
         mockMvc.perform(put("/api/classrooms/{id}/students/{sid}", classroom.getId(), student.getId())
@@ -193,7 +194,7 @@ class ClassroomControllerTest {
         Classroom classroom,
         User student,
         String displayName,
-        ClassroomStudent.Status status
+        ClassroomStudentStatus status
     ) {
         ClassroomStudent classroomStudent = new ClassroomStudent();
         classroomStudent.setClassroom(classroom);

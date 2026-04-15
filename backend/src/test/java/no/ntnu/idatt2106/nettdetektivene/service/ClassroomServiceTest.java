@@ -7,6 +7,7 @@ import no.ntnu.idatt2106.nettdetektivene.entity.Classroom;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
 import no.ntnu.idatt2106.nettdetektivene.entity.User;
 import no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException;
+import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomStudentRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomTeacherRepository;
@@ -74,7 +75,7 @@ class ClassroomServiceTest {
     @Test
     void joinClassroom_alreadyMember_throws() {
         Classroom classroom = classroom(10L);
-        ClassroomStudent existing = classroomStudent(classroom, user(2L, User.Role.STUDENT), ClassroomStudent.Status.PENDING);
+        ClassroomStudent existing = classroomStudent(classroom, user(2L, User.Role.STUDENT), ClassroomStudentStatus.PENDING);
 
         when(classroomRepository.findByJoinCode("fjord-tiger")).thenReturn(Optional.of(classroom));
         when(userRepository.getReferenceById(2L)).thenReturn(existing.getStudent());
@@ -92,7 +93,7 @@ class ClassroomServiceTest {
     @Test
     void joinClassroom_kickedStudentCannotRejoin_throws() {
         Classroom classroom = classroom(10L);
-        ClassroomStudent existing = classroomStudent(classroom, user(2L, User.Role.STUDENT), ClassroomStudent.Status.KICKED);
+        ClassroomStudent existing = classroomStudent(classroom, user(2L, User.Role.STUDENT), ClassroomStudentStatus.KICKED);
 
         when(classroomRepository.findByJoinCode("fjord-tiger")).thenReturn(Optional.of(classroom));
         when(userRepository.getReferenceById(2L)).thenReturn(existing.getStudent());
@@ -116,7 +117,7 @@ class ClassroomServiceTest {
             1L,
             10L,
             2L,
-            ClassroomStudent.Status.APPROVED
+            ClassroomStudentStatus.APPROVED
         ))
             .isInstanceOf(ResourceNotFoundException.class)
             .hasMessage("Classroom not found");
@@ -131,7 +132,7 @@ class ClassroomServiceTest {
             1L,
             10L,
             2L,
-            ClassroomStudent.Status.PENDING
+            ClassroomStudentStatus.PENDING
         ))
             .isInstanceOf(ResponseStatusException.class)
             .hasMessageContaining("Status must be APPROVED or KICKED");
@@ -176,7 +177,7 @@ class ClassroomServiceTest {
         return classroom;
     }
 
-    private ClassroomStudent classroomStudent(Classroom classroom, User student, ClassroomStudent.Status status) {
+    private ClassroomStudent classroomStudent(Classroom classroom, User student, ClassroomStudentStatus status) {
         ClassroomStudent classroomStudent = new ClassroomStudent();
         classroomStudent.setClassroom(classroom);
         classroomStudent.setStudent(student);
