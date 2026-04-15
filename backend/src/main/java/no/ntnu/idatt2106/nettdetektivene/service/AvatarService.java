@@ -5,13 +5,15 @@ import no.ntnu.idatt2106.nettdetektivene.dto.avatar.AvatarResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.avatar.UpdateAvatarRequest;
 import no.ntnu.idatt2106.nettdetektivene.entity.Avatar;
 import no.ntnu.idatt2106.nettdetektivene.entity.User;
+import no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException;
 import no.ntnu.idatt2106.nettdetektivene.repository.AvatarRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -19,6 +21,8 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AvatarService {
+
+    private static final Logger log = LoggerFactory.getLogger(AvatarService.class);
 
     private static final Map<String, List<String>> AVATAR_OPTIONS = Map.of(
         "gender", List.of("neutral", "female", "male"),
@@ -36,23 +40,24 @@ public class AvatarService {
     private final UserRepository userRepository;
 
     public AvatarResponse getMyAvatar() {
-        Long userId = getAuthenticatedUserId();
+        Long userId = currentUserId();
+        log.info("[avatar] getMyAvatar for user {}", userId);
 
         return avatarRepository.findByStudent_Id(userId)
             .map(this::toResponse)
             .orElseGet(() -> {
                 User user = getAuthenticatedUser(userId);
-                Avatar defaultAvatar = createDefaultAvatar(user);
-                return toResponse(avatarRepository.save(defaultAvatar));
+                Avatar defaultAvatar = createDefault(user);
+                return toResponse(defaultAvatar);
             });
     }
 
     public AvatarResponse updateMyAvatar(UpdateAvatarRequest request) {
-        Long userId = getAuthenticatedUserId();
-        User user = getAuthenticatedUser(userId);
+        Long userId = currentUserId();
+        log.info("[avatar] updateMyAvatar for user {}", userId);
 
         Avatar avatar = avatarRepository.findByStudent_Id(userId)
-            .orElseGet(() -> createDefaultAvatar(user));
+            .orElseGet(() -> createDefault(getAuthenticatedUser(userId)));
 
         avatar.setGender(request.gender());
         avatar.setEyeColor(request.eyeColor());
@@ -73,11 +78,11 @@ public class AvatarService {
 
     private User getAuthenticatedUser(Long userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
-    private Long getAuthenticatedUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    private Long currentUserId() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getName() == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         }
@@ -89,19 +94,19 @@ public class AvatarService {
         }
     }
 
-    private Avatar createDefaultAvatar(User user) {
+    private Avatar createDefault(User user) {
         Avatar avatar = new Avatar();
         avatar.setStudent(user);
         avatar.setGender("neutral");
         avatar.setEyeColor("brown");
         avatar.setSkinColor("medium");
-        avatar.setHairColor("black");
+        avatar.setHairColor("brown");
         avatar.setHairStyle("short");
         avatar.setOutfit("detective-coat");
-        avatar.setOutfitColor("blue");
+        avatar.setOutfitColor("beige");
         avatar.setHatColor("none");
         avatar.setAccessory("badge");
-        return avatar;
+        return avatarRepository.save(avatar);
     }
 
     private AvatarResponse toResponse(Avatar avatar) {
