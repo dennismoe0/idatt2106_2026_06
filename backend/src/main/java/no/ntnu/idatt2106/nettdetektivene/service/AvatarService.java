@@ -73,6 +73,7 @@ public class AvatarService {
     }
 
     public Map<String, List<String>> getOptions() {
+        log.info("[avatar] getOptions");
         return AVATAR_OPTIONS;
     }
 
