@@ -143,7 +143,7 @@ async function loadTasks() {
     console.log('[TaskView] Loaded', tasks.value.length, 'tasks from API')
     isMockMode.value = false
   } catch (apiError) {
-    console.warn('[TaskView] Failed to fetch tasks.', apiError)
+    console.error('[TaskView] Failed to fetch tasks.', apiError)
     if (import.meta.env.DEV) {
       tasks.value = MOCK_TASKS.filter((task) => task.stopId === stopId.value)
       console.log('[TaskView] Mock mode — loaded', tasks.value.length, 'mock tasks')
@@ -167,7 +167,7 @@ async function handleSubmit(answer) {
     handleCelebration(result.value)
     isMockMode.value = false
   } catch (apiError) {
-    console.warn('[TaskView] Failed to submit answer.', apiError)
+    console.error('[TaskView] Failed to submit answer.', apiError)
     if (import.meta.env.DEV) {
       result.value = buildMockResult(currentTask.value, answer)
       handleCelebration(result.value)
