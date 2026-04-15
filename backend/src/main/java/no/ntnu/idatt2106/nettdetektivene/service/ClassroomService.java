@@ -35,14 +35,10 @@ public class ClassroomService {
     private final ClassroomCodeGenerator classroomCodeGenerator;
 
     public ClassroomResponse createClassroom(Long teacherId, CreateClassroomRequest req) {
-        User teacher = userRepository.findById(teacherId)
-            .orElseThrow(() -> {
-                log.warn("Classroom creation failed: teacher not found, teacherId={}", teacherId);
-                return new ResourceNotFoundException("Teacher not found");
-            });
+        User teacher = userRepository.getReferenceById(teacherId);
 
         Classroom classroom = new Classroom();
-        classroom.setTitle(req.name());
+        classroom.setName(req.name());
         classroom.setDescription(req.description());
         classroom.setJoinCode(classroomCodeGenerator.generate(classroomRepository));
         classroom = classroomRepository.save(classroom);
@@ -58,12 +54,14 @@ public class ClassroomService {
     }
 
     public List<ClassroomResponse> getMyClassrooms(Long teacherId) {
+        log.info("Fetching classrooms for teacherId={}", teacherId);
         return classroomRepository.findByTeachers_Teacher_UserId(teacherId).stream()
             .map(this::toClassroomResponse)
             .toList();
     }
 
     public ClassroomResponse getClassroom(Long teacherId, Long classroomId) {
+        log.info("Fetching classroom: classroomId={} teacherId={}", classroomId, teacherId);
         Classroom classroom = getClassroomForTeacher(teacherId, classroomId);
         return toClassroomResponse(classroom);
     }
@@ -74,11 +72,7 @@ public class ClassroomService {
                 log.warn("Classroom join failed: invalid join code, studentId={} code={}", studentId, req.code());
                 return new ResourceNotFoundException("Classroom not found");
             });
-        User student = userRepository.findById(studentId)
-            .orElseThrow(() -> {
-                log.warn("Classroom join failed: student not found, studentId={}", studentId);
-                return new ResourceNotFoundException("Student not found");
-            });
+        User student = userRepository.getReferenceById(studentId);
 
         classroomStudentRepository.findByClassroom_IdAndStudent_UserId(classroom.getId(), studentId)
             .ifPresent(existing -> {
@@ -115,10 +109,14 @@ public class ClassroomService {
         Long teacherId,
         Long classroomId,
         Long studentId,
-        String status
+        ClassroomStudent.Status status
     ) {
         verifyTeacherOwnsClassroom(teacherId, classroomId);
-        ClassroomStudent.Status newStatus = parseStatus(status, teacherId, classroomId, studentId);
+        if (status == ClassroomStudent.Status.PENDING) {
+            log.warn("Student status update failed: invalid status, classroomId={} studentId={} teacherId={} status={}",
+                classroomId, studentId, teacherId, status);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status must be APPROVED or KICKED");
+        }
         ClassroomStudent classroomStudent = classroomStudentRepository
             .findByClassroom_IdAndStudent_UserId(classroomId, studentId)
             .orElseThrow(() -> {
@@ -127,11 +125,11 @@ public class ClassroomService {
                 return new ResourceNotFoundException("Student not found in classroom");
             });
 
-        classroomStudent.setStatus(newStatus);
+        classroomStudent.setStatus(status);
         classroomStudent = classroomStudentRepository.save(classroomStudent);
 
         log.info("Student status updated: classroomId={} studentId={} teacherId={} status={}",
-            classroomId, studentId, teacherId, newStatus);
+            classroomId, studentId, teacherId, status);
         return toStudentResponse(classroomStudent);
     }
 
@@ -154,24 +152,10 @@ public class ClassroomService {
         }
     }
 
-    private ClassroomStudent.Status parseStatus(String status, Long teacherId, Long classroomId, Long studentId) {
-        try {
-            ClassroomStudent.Status parsed = ClassroomStudent.Status.valueOf(status.toUpperCase());
-            if (parsed == ClassroomStudent.Status.APPROVED || parsed == ClassroomStudent.Status.KICKED) {
-                return parsed;
-            }
-        } catch (IllegalArgumentException ignored) {
-            // Handled below with a consistent API response.
-        }
-        log.warn("Student status update failed: invalid status, classroomId={} studentId={} teacherId={} status={}",
-            classroomId, studentId, teacherId, status);
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status must be APPROVED or KICKED");
-    }
-
     private ClassroomResponse toClassroomResponse(Classroom classroom) {
         return new ClassroomResponse(
             classroom.getId(),
-            classroom.getTitle(),
+            classroom.getName(),
             classroom.getJoinCode(),
             classroom.getDescription(),
             classroom.getCreatedAt()

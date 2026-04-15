@@ -21,13 +21,5 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
         @Param("studentId") Long studentId
     );
 
-    @Query("""
-        select count(cs) > 0
-        from ClassroomStudent cs
-        where cs.classroom.id = :classroomId and cs.student.id = :studentId
-        """)
-    boolean existsByClassroom_IdAndStudent_UserId(
-        @Param("classroomId") Long classroomId,
-        @Param("studentId") Long studentId
-    );
+    boolean existsByClassroom_IdAndStudent_Id(Long classroomId, Long studentId);
 }
