@@ -56,11 +56,12 @@ public class ClassroomController {
 
     @PostMapping("/join")
     @PreAuthorize("hasRole('STUDENT')")
-    public StudentInClassroomResponse joinClassroom(
+    public ResponseEntity<StudentInClassroomResponse> joinClassroom(
         @AuthenticationPrincipal UserDetails userDetails,
         @Valid @RequestBody JoinClassroomRequest request
     ) {
-        return classroomService.joinClassroom(currentUserId(userDetails), request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(classroomService.joinClassroom(currentUserId(userDetails), request));
     }
 
     @GetMapping("/{id}/students")

@@ -1,7 +1,8 @@
 package no.ntnu.idatt2106.nettdetektivene.dto.classroom;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
 
 public record UpdateStudentStatusRequest(
-    @NotBlank String status
+    @NotNull ClassroomStudent.Status status
 ) {}
