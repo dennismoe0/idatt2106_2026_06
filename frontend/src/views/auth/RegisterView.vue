@@ -81,6 +81,7 @@ async function handleSubmit() {
     await authStore.register({ email: form.email, password: form.password })
     router.push('/teacher')
   } catch (err) {
+    console.error('[RegisterView] Registration failed:', err)
     serverError.value = err?.response?.data?.error || 'Registrering feilet. Prøv igjen.'
   } finally {
     loading.value = false

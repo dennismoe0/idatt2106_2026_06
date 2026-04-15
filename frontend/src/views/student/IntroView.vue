@@ -1,4 +1,5 @@
 <template>
+feature/student-login-view
   <main class="intro-page">
     <section class="intro-card">
       <h1>Velkommen, detektiv</h1>
@@ -70,3 +71,4 @@ h1 {
   font-weight: var(--font-medium);
 }
 </style>
+

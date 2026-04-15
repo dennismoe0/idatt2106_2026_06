@@ -45,7 +45,8 @@ secrets/
 *.iml
 *.iws
 *.ipr
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 *.swp
 *.swo
 *~
