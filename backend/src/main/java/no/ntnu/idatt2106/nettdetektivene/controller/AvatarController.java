@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/avatars")
 @Tag(name = "Avatar")
@@ -34,5 +37,11 @@ public class AvatarController {
     @Operation(summary = "Update my avatar")
     public ResponseEntity<AvatarResponse> updateMyAvatar(@Valid @RequestBody UpdateAvatarRequest request) {
         return ResponseEntity.ok(avatarService.updateMyAvatar(request));
+    }
+
+    @GetMapping("/options")
+    @Operation(summary = "Get available avatar customization options")
+    public ResponseEntity<Map<String, List<String>>> getAvatarOptions() {
+        return ResponseEntity.ok(avatarService.getOptions());
     }
 }
