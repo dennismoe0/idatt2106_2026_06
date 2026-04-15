@@ -255,3 +255,4 @@ function goToMap() {
   color: var(--color-danger);
 }
 </style>
+
