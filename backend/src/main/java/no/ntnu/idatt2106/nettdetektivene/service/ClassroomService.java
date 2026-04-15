@@ -10,6 +10,7 @@ import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomTeacher;
 import no.ntnu.idatt2106.nettdetektivene.entity.User;
 import no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException;
+import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomStudentRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomTeacherRepository;
@@ -76,7 +77,7 @@ public class ClassroomService {
 
         classroomStudentRepository.findByClassroom_IdAndStudent_UserId(classroom.getId(), studentId)
             .ifPresent(existing -> {
-                if (existing.getStatus() == ClassroomStudent.Status.KICKED) {
+                if (existing.getStatus() == ClassroomStudentStatus.KICKED) {
                     log.warn("Classroom join blocked: kicked student tried to rejoin, classroomId={} studentId={}",
                         classroom.getId(), studentId);
                     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Student cannot rejoin this classroom");
@@ -90,7 +91,7 @@ public class ClassroomService {
         classroomStudent.setClassroom(classroom);
         classroomStudent.setStudent(student);
         classroomStudent.setDisplayName(req.displayName());
-        classroomStudent.setStatus(ClassroomStudent.Status.PENDING);
+        classroomStudent.setStatus(ClassroomStudentStatus.PENDING);
         classroomStudent = classroomStudentRepository.save(classroomStudent);
 
         log.info("Student joined classroom: classroomId={} studentId={} status={}",
@@ -109,10 +110,10 @@ public class ClassroomService {
         Long teacherId,
         Long classroomId,
         Long studentId,
-        ClassroomStudent.Status status
+        ClassroomStudentStatus status
     ) {
         verifyTeacherOwnsClassroom(teacherId, classroomId);
-        if (status == ClassroomStudent.Status.PENDING) {
+        if (status == ClassroomStudentStatus.PENDING) {
             log.warn("Student status update failed: invalid status, classroomId={} studentId={} teacherId={} status={}",
                 classroomId, studentId, teacherId, status);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status must be APPROVED or KICKED");
