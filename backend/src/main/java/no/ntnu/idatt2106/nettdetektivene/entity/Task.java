@@ -38,6 +38,9 @@ public class Task {
     @Column(nullable = false, columnDefinition = "JSON")
     private String contentJson;
 
+    @Column(name = "correct_answer_json", columnDefinition = "JSON")
+    private String correctAnswerJson;
+
     @Column(columnDefinition = "TEXT")
     private String guidanceText;
 
