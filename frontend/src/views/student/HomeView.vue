@@ -27,12 +27,12 @@ const studentName = computed(() => formatDisplayName(authStore.email))
 
 const cards = [
   { title: 'Kart', icon: '🗺️', route: '/map', locked: false },
-  { title: 'Medaljer', icon: '🏅', locked: false },
+  { title: 'Medaljer', icon: '🏅', locked: true },
   { title: 'Notatblokk', icon: '📝', locked: true },
   { title: 'Avatar', icon: '🕵️', route: '/avatar', locked: false },
   { title: 'Ledertavle', icon: '📊', locked: true },
   { title: 'Ukens Mysterium', icon: '🧩', locked: true },
-  { title: 'Hjelp', icon: '💡', locked: false },
+  { title: 'Hjelp', icon: '💡', locked: true },
 ]
 
 function formatDisplayName(email) {

@@ -22,15 +22,19 @@ describe('HomeView', () => {
     await router.isReady()
   })
 
-  it('renders the student display name and seven corkboard cards', () => {
-    const authStore = useAuthStore()
-    authStore.email = 'agent.elev@student.local'
-
-    const wrapper = mount(HomeView, {
+  function mountHomeView() {
+    return mount(HomeView, {
       global: {
         plugins: [router],
       },
     })
+  }
+
+  it('renders the student display name and seven corkboard cards', () => {
+    const authStore = useAuthStore()
+    authStore.email = 'agent.elev@student.local'
+
+    const wrapper = mountHomeView()
 
     expect(wrapper.text()).toContain('Hei, Agent Elev')
     expect(wrapper.findAllComponents(CorkboardCard)).toHaveLength(7)
@@ -38,5 +42,26 @@ describe('HomeView', () => {
     expect(wrapper.text()).toContain('Avatar')
     expect(wrapper.text()).toContain('Ukens Mysterium')
     expect(wrapper.text()).toContain('Kommer snart')
+  })
+
+  it('shows Kommer snart on locked cards', () => {
+    const wrapper = mountHomeView()
+    const lockedCards = wrapper
+      .findAllComponents(CorkboardCard)
+      .filter((component) => component.props('locked'))
+
+    expect(lockedCards).toHaveLength(5)
+    lockedCards.forEach((component) => {
+      expect(component.text()).toContain('Kommer snart')
+    })
+  })
+
+  it('formatDisplayName handles plain email', () => {
+    const authStore = useAuthStore()
+    authStore.email = 'ole.hansen@gmail.com'
+
+    const wrapper = mountHomeView()
+
+    expect(wrapper.text()).toContain('Hei, Ole Hansen')
   })
 })
