@@ -13,8 +13,8 @@
       <div class="sidebar-user">
         <div class="user-avatar">👩‍🏫</div>
         <div>
-          <div class="user-name">{{ authStore.user?.firstName }} {{ authStore.user?.lastName }}</div>
-          <div class="user-school">{{ authStore.user?.school ?? 'Min skole' }}</div>
+          <div class="user-name">{{ authStore.user?.email ?? '' }}</div>
+          <div class="user-school">Min skole</div>
         </div>
       </div>
 
@@ -59,7 +59,7 @@
         <div>
           <h1 class="page-title">Mine klasser 👋</h1>
           <p class="page-sub">
-            Hei {{ authStore.user?.firstName ?? 'Lærer' }}! Du har
+            Hei {{ authStore.user?.email ?? 'Lærer' }}! Du har
             {{ classrooms.length }} aktive klasse{{ classrooms.length !== 1 ? 'r' : '' }}
           </p>
         </div>
@@ -196,6 +196,7 @@ onMounted(async () => {
     classrooms.value = classroomStore.classrooms
     // eslint-disable-next-line no-unused-vars
   } catch (e) {
+    console.error('[Dashboard] Failed to load classrooms:', e)
     error.value = 'Kunne ikke laste klasserom. Prøv igjen.'
   } finally {
     loading.value = false
@@ -229,7 +230,8 @@ async function submitCreate() {
   try {
     createdClassroom.value = await classroomStore.createClassroom(createForm.value)
   } catch (e) {
-    createError.value = e?.response?.data?.message ?? 'Noe gikk galt. Prøv igjen.'
+    console.error('[Dashboard] Failed to create classroom:', e)
+    createError.value = e?.response?.data?.error ?? 'Noe gikk galt. Prøv igjen.'
   } finally {
     creating.value = false
   }
