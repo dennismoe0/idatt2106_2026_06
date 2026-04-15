@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -135,7 +136,7 @@ public class AvatarService {
         options.put("outfitColor", List.of("blue", "red", "green", "yellow"));
         options.put("hatColor", List.of("none", "black", "brown", "red"));
         options.put("accessory", List.of("none", "badge", "glasses", "magnifier"));
-        return Map.copyOf(options);
+        return Collections.unmodifiableMap(options);
     }
 
     private AvatarResponse toResponse(Avatar avatar) {
