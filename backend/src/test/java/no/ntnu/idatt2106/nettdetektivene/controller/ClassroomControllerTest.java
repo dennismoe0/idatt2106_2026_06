@@ -57,7 +57,7 @@ class ClassroomControllerTest {
     }
 
     @Test
-    void joinClassroom_validCode_returns200WithClassroomIdAndStatus() throws Exception {
+    void joinClassroom_validCode_returns201WithClassroomIdAndStatus() throws Exception {
         User teacher = saveUser("teacher-join@test.no", User.Role.TEACHER);
         User student = saveUser("student-join@test.no", User.Role.STUDENT);
         Classroom classroom = saveClassroom("5A", "fjord-tiger", teacher);
@@ -69,11 +69,64 @@ class ClassroomControllerTest {
                 .content("""
                     { "code": "fjord-tiger", "displayName": "Agent Nora" }
                     """))
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.userId").value(student.getId()))
             .andExpect(jsonPath("$.classroomId").value(classroom.getId()))
             .andExpect(jsonPath("$.displayName").value("Agent Nora"))
             .andExpect(jsonPath("$.status").value("PENDING"));
+    }
+
+    @Test
+    void studentCallingTeacherEndpoint_returns403() throws Exception {
+        User student = saveUser("student-rbac@test.no", User.Role.STUDENT);
+        String token = tokenFor(student);
+
+        mockMvc.perform(get("/api/classrooms")
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getClassroom_otherTeacher_returns404() throws Exception {
+        User owner = saveUser("teacher-owner@test.no", User.Role.TEACHER);
+        User otherTeacher = saveUser("teacher-other@test.no", User.Role.TEACHER);
+        Classroom classroom = saveClassroom("5A", "dal-rev", owner);
+        String token = tokenFor(otherTeacher);
+
+        mockMvc.perform(get("/api/classrooms/{id}", classroom.getId())
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void joinClassroom_invalidCode_returns404() throws Exception {
+        User student = saveUser("student-invalid-code@test.no", User.Role.STUDENT);
+        String token = tokenFor(student);
+
+        mockMvc.perform(post("/api/classrooms/join")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    { "code": "missing-code", "displayName": "Agent Nora" }
+                    """))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void joinClassroom_duplicateMember_returns409() throws Exception {
+        User teacher = saveUser("teacher-duplicate@test.no", User.Role.TEACHER);
+        User student = saveUser("student-duplicate@test.no", User.Role.STUDENT);
+        Classroom classroom = saveClassroom("5A", "li-hare", teacher);
+        saveClassroomStudent(classroom, student, "Agent Nora", ClassroomStudent.Status.PENDING);
+        String token = tokenFor(student);
+
+        mockMvc.perform(post("/api/classrooms/join")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    { "code": "li-hare", "displayName": "Agent Nora" }
+                    """))
+            .andExpect(status().isConflict());
     }
 
     @Test
@@ -122,9 +175,9 @@ class ClassroomControllerTest {
         return userRepository.save(user);
     }
 
-    private Classroom saveClassroom(String title, String joinCode, User teacher) {
+    private Classroom saveClassroom(String name, String joinCode, User teacher) {
         Classroom classroom = new Classroom();
-        classroom.setTitle(title);
+        classroom.setName(name);
         classroom.setJoinCode(joinCode);
         classroom = classroomRepository.save(classroom);
 

@@ -39,7 +39,7 @@ class ClassroomServiceTest {
     @Test
     void createClassroom_success() {
         User teacher = user(1L, User.Role.TEACHER);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(teacher));
+        when(userRepository.getReferenceById(1L)).thenReturn(teacher);
         when(classroomCodeGenerator.generate(classroomRepository)).thenReturn("fjord-tiger");
         when(classroomRepository.save(any(Classroom.class))).thenAnswer(invocation -> {
             Classroom classroom = invocation.getArgument(0);
@@ -77,7 +77,7 @@ class ClassroomServiceTest {
         ClassroomStudent existing = classroomStudent(classroom, user(2L, User.Role.STUDENT), ClassroomStudent.Status.PENDING);
 
         when(classroomRepository.findByJoinCode("fjord-tiger")).thenReturn(Optional.of(classroom));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(existing.getStudent()));
+        when(userRepository.getReferenceById(2L)).thenReturn(existing.getStudent());
         when(classroomStudentRepository.findByClassroom_IdAndStudent_UserId(10L, 2L))
             .thenReturn(Optional.of(existing));
 
@@ -95,7 +95,7 @@ class ClassroomServiceTest {
         ClassroomStudent existing = classroomStudent(classroom, user(2L, User.Role.STUDENT), ClassroomStudent.Status.KICKED);
 
         when(classroomRepository.findByJoinCode("fjord-tiger")).thenReturn(Optional.of(classroom));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(existing.getStudent()));
+        when(userRepository.getReferenceById(2L)).thenReturn(existing.getStudent());
         when(classroomStudentRepository.findByClassroom_IdAndStudent_UserId(10L, 2L))
             .thenReturn(Optional.of(existing));
 
@@ -112,7 +112,12 @@ class ClassroomServiceTest {
         when(classroomRepository.existsById(10L)).thenReturn(true);
         when(classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(10L, 1L)).thenReturn(false);
 
-        assertThatThrownBy(() -> classroomService.updateStudentStatus(1L, 10L, 2L, "APPROVED"))
+        assertThatThrownBy(() -> classroomService.updateStudentStatus(
+            1L,
+            10L,
+            2L,
+            ClassroomStudent.Status.APPROVED
+        ))
             .isInstanceOf(ResourceNotFoundException.class)
             .hasMessage("Classroom not found");
     }
@@ -122,7 +127,12 @@ class ClassroomServiceTest {
         when(classroomRepository.existsById(10L)).thenReturn(true);
         when(classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(10L, 1L)).thenReturn(true);
 
-        assertThatThrownBy(() -> classroomService.updateStudentStatus(1L, 10L, 2L, "PENDING"))
+        assertThatThrownBy(() -> classroomService.updateStudentStatus(
+            1L,
+            10L,
+            2L,
+            ClassroomStudent.Status.PENDING
+        ))
             .isInstanceOf(ResponseStatusException.class)
             .hasMessageContaining("Status must be APPROVED or KICKED");
     }
@@ -133,7 +143,7 @@ class ClassroomServiceTest {
         User student = user(2L, User.Role.STUDENT);
 
         when(classroomRepository.findByJoinCode("fjord-tiger")).thenReturn(Optional.of(classroom));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(student));
+        when(userRepository.getReferenceById(2L)).thenReturn(student);
         when(classroomStudentRepository.findByClassroom_IdAndStudent_UserId(10L, 2L))
             .thenReturn(Optional.empty());
         when(classroomStudentRepository.save(any(ClassroomStudent.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -161,7 +171,7 @@ class ClassroomServiceTest {
     private Classroom classroom(Long id) {
         Classroom classroom = new Classroom();
         classroom.setId(id);
-        classroom.setTitle("5A");
+        classroom.setName("5A");
         classroom.setJoinCode("fjord-tiger");
         return classroom;
     }
