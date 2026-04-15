@@ -37,11 +37,8 @@
       />
     </section>
 
-    <div v-if="showConfetti" class="confetti-overlay">🎉</div>
-    <aside v-if="medalToast" class="medal-toast">
-      <strong>Medalje låst opp:</strong> {{ medalToast.name }}
-      <p>{{ medalToast.description }}</p>
-    </aside>
+    <ConfettiOverlay :active="showConfetti" />
+    <MedalToast :medal="medalToast" />
   </main>
 </template>
 
@@ -53,6 +50,8 @@ import { useClassroomStore } from '@/stores/classroom'
 import FakeNewsTask from '@/components/student/FakeNewsTask.vue'
 import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
 import TaskResult from '@/components/student/TaskResult.vue'
+import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
+import MedalToast from '@/components/common/MedalToast.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -234,61 +233,25 @@ function goToMap() {
 .task-view {
   max-width: 960px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: var(--space-4);
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .progress {
-  font-weight: 600;
+  font-weight: var(--font-semibold);
 }
 
 .mock-badge {
-  color: #92400e;
-  background: #fef3c7;
-  border: 1px solid #fcd34d;
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
+  color: var(--color-warning);
+  background: var(--color-warning-light);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
   width: fit-content;
 }
 
 .error {
-  color: #b91c1c;
-}
-
-.confetti-overlay {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: 4rem;
-  pointer-events: none;
-  animation: pop 0.35s ease-out;
-}
-
-.medal-toast {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  max-width: 320px;
-  border: 1px solid #facc15;
-  background: #fef9c3;
-  border-radius: 10px;
-  padding: 0.75rem;
-}
-
-.medal-toast p {
-  margin: 0.5rem 0 0;
-}
-
-@keyframes pop {
-  from {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  color: var(--color-danger);
 }
 </style>

@@ -31,29 +31,29 @@ defineEmits(['next', 'backToMap'])
 
 <style scoped>
 .result-card {
-  border: 1px solid #cbd5e1;
-  border-radius: 12px;
-  padding: 1rem;
-  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  background: var(--color-surface);
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .score {
   margin: 0;
-  color: #334155;
+  color: var(--color-text);
 }
 
 .stop-done {
-  color: #15803d;
-  font-weight: 600;
+  color: var(--color-success);
+  font-weight: var(--font-semibold);
 }
 
 .medal {
-  border: 1px solid #facc15;
-  background: #fef9c3;
-  border-radius: 8px;
-  padding: 0.75rem;
+  border: 1px solid var(--color-accent);
+  background: var(--color-accent-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
 }
 
 .medal p {
@@ -62,14 +62,14 @@ defineEmits(['next', 'backToMap'])
 
 .actions {
   display: flex;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .actions button {
-  border: 1px solid #94a3b8;
-  background: #fff;
-  border-radius: 8px;
-  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
   cursor: pointer;
 }
 </style>

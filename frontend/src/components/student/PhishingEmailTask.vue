@@ -75,19 +75,19 @@ function submit() {
 <style scoped>
 .task-card {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .guidance {
   margin: 0;
-  color: #475569;
+  color: var(--color-text-muted);
 }
 
 .email-card {
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  padding: 1rem;
-  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  background: var(--color-surface);
 }
 
 .body {
@@ -95,37 +95,37 @@ function submit() {
 }
 
 .flag-toggle {
-  border: 1px solid #94a3b8;
-  background: #fff;
-  border-radius: 6px;
-  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
   cursor: pointer;
 }
 
 .flagged {
-  border-color: #ea580c;
-  background: #ffedd5;
+  border-color: var(--color-warning);
+  background: var(--color-warning-light);
 }
 
 .actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .actions button,
 .submit-btn {
-  border: 1px solid #94a3b8;
-  background: #fff;
-  border-radius: 8px;
-  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
   cursor: pointer;
 }
 
 .actions button.selected {
-  border-color: #0f766e;
-  background: #ccfbf1;
-  color: #134e4a;
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
 }
 
 .submit-btn:disabled {

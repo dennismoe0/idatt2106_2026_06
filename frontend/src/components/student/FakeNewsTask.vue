@@ -80,25 +80,25 @@ function submit() {
 <style scoped>
 .task-card {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .guidance {
   margin: 0;
-  color: #475569;
+  color: var(--color-text-muted);
 }
 
 .articles {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .article-card {
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  padding: 1rem;
-  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  background: var(--color-surface);
 }
 
 .article-card h3 {
@@ -106,28 +106,28 @@ function submit() {
 }
 
 .source {
-  color: #64748b;
-  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
 }
 
 .actions {
   display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
 }
 
 button {
-  border: 1px solid #94a3b8;
-  background: #fff;
-  border-radius: 8px;
-  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-1) var(--space-3);
   cursor: pointer;
 }
 
 button.selected {
-  border-color: #0f766e;
-  background: #ccfbf1;
-  color: #134e4a;
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
 }
 
 .submit-btn {

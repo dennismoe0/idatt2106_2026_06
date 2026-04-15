@@ -17,6 +17,8 @@
 
   --color-danger:        #E53E3E;
   --color-danger-light:  color-mix(in srgb, #E53E3E 40%, white);
+  --color-warning:       #DD6B20;
+  --color-warning-light: color-mix(in srgb, #DD6B20 20%, white);
   --color-success:       #38A169;
   --color-success-light: color-mix(in srgb, #38A169 40%, white);
 
