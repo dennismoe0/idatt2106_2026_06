@@ -100,6 +100,7 @@ public class ClassroomService {
     }
 
     public List<StudentInClassroomResponse> getStudents(Long teacherId, Long classroomId) {
+        log.info("Fetching students for classroomId={} teacherId={}", classroomId, teacherId);
         verifyTeacherOwnsClassroom(teacherId, classroomId);
         return classroomStudentRepository.findByClassroom_Id(classroomId).stream()
             .map(this::toStudentResponse)
