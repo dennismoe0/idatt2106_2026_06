@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
+import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
@@ -30,10 +31,8 @@ public class ClassroomStudent {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status = Status.PENDING;
+    private ClassroomStudentStatus status = ClassroomStudentStatus.PENDING;
 
     @CreationTimestamp
     private LocalDateTime joinedAt;
-
-    public enum Status { PENDING, APPROVED, KICKED }
 }
