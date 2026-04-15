@@ -15,6 +15,8 @@ import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomStudentRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomTeacherRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import no.ntnu.idatt2106.nettdetektivene.util.ClassroomCodeGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,6 +26,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ClassroomService {
+    private static final Logger log = LoggerFactory.getLogger(ClassroomService.class);
+
     private final ClassroomRepository classroomRepository;
     private final ClassroomStudentRepository classroomStudentRepository;
     private final ClassroomTeacherRepository classroomTeacherRepository;
@@ -32,7 +36,10 @@ public class ClassroomService {
 
     public ClassroomResponse createClassroom(Long teacherId, CreateClassroomRequest req) {
         User teacher = userRepository.findById(teacherId)
-            .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+            .orElseThrow(() -> {
+                log.warn("Classroom creation failed: teacher not found, teacherId={}", teacherId);
+                return new ResourceNotFoundException("Teacher not found");
+            });
 
         Classroom classroom = new Classroom();
         classroom.setTitle(req.name());
@@ -45,6 +52,8 @@ public class ClassroomService {
         classroomTeacher.setClassroom(classroom);
         classroomTeacherRepository.save(classroomTeacher);
 
+        log.info("Classroom created: classroomId={} teacherId={} joinCode={}",
+            classroom.getId(), teacherId, classroom.getJoinCode());
         return toClassroomResponse(classroom);
     }
 
@@ -61,15 +70,25 @@ public class ClassroomService {
 
     public StudentInClassroomResponse joinClassroom(Long studentId, JoinClassroomRequest req) {
         Classroom classroom = classroomRepository.findByJoinCode(req.code())
-            .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+            .orElseThrow(() -> {
+                log.warn("Classroom join failed: invalid join code, studentId={} code={}", studentId, req.code());
+                return new ResourceNotFoundException("Classroom not found");
+            });
         User student = userRepository.findById(studentId)
-            .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+            .orElseThrow(() -> {
+                log.warn("Classroom join failed: student not found, studentId={}", studentId);
+                return new ResourceNotFoundException("Student not found");
+            });
 
         classroomStudentRepository.findByClassroom_IdAndStudent_UserId(classroom.getId(), studentId)
             .ifPresent(existing -> {
                 if (existing.getStatus() == ClassroomStudent.Status.KICKED) {
+                    log.warn("Classroom join blocked: kicked student tried to rejoin, classroomId={} studentId={}",
+                        classroom.getId(), studentId);
                     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Student cannot rejoin this classroom");
                 }
+                log.warn("Classroom join blocked: student already member, classroomId={} studentId={} status={}",
+                    classroom.getId(), studentId, existing.getStatus());
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Student is already a member");
             });
 
@@ -78,8 +97,11 @@ public class ClassroomService {
         classroomStudent.setStudent(student);
         classroomStudent.setDisplayName(req.displayName());
         classroomStudent.setStatus(ClassroomStudent.Status.PENDING);
+        classroomStudent = classroomStudentRepository.save(classroomStudent);
 
-        return toStudentResponse(classroomStudentRepository.save(classroomStudent));
+        log.info("Student joined classroom: classroomId={} studentId={} status={}",
+            classroom.getId(), studentId, classroomStudent.getStatus());
+        return toStudentResponse(classroomStudent);
     }
 
     public List<StudentInClassroomResponse> getStudents(Long teacherId, Long classroomId) {
@@ -96,18 +118,30 @@ public class ClassroomService {
         String status
     ) {
         verifyTeacherOwnsClassroom(teacherId, classroomId);
-        ClassroomStudent.Status newStatus = parseStatus(status);
+        ClassroomStudent.Status newStatus = parseStatus(status, teacherId, classroomId, studentId);
         ClassroomStudent classroomStudent = classroomStudentRepository
             .findByClassroom_IdAndStudent_UserId(classroomId, studentId)
-            .orElseThrow(() -> new ResourceNotFoundException("Student not found in classroom"));
+            .orElseThrow(() -> {
+                log.warn("Student status update failed: membership not found, classroomId={} studentId={} teacherId={}",
+                    classroomId, studentId, teacherId);
+                return new ResourceNotFoundException("Student not found in classroom");
+            });
 
         classroomStudent.setStatus(newStatus);
-        return toStudentResponse(classroomStudentRepository.save(classroomStudent));
+        classroomStudent = classroomStudentRepository.save(classroomStudent);
+
+        log.info("Student status updated: classroomId={} studentId={} teacherId={} status={}",
+            classroomId, studentId, teacherId, newStatus);
+        return toStudentResponse(classroomStudent);
     }
 
     private Classroom getClassroomForTeacher(Long teacherId, Long classroomId) {
         Classroom classroom = classroomRepository.findById(classroomId)
-            .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+            .orElseThrow(() -> {
+                log.warn("Classroom fetch failed: classroom not found, classroomId={} teacherId={}",
+                    classroomId, teacherId);
+                return new ResourceNotFoundException("Classroom not found");
+            });
         verifyTeacherOwnsClassroom(teacherId, classroomId);
         return classroom;
     }
@@ -115,11 +149,12 @@ public class ClassroomService {
     private void verifyTeacherOwnsClassroom(Long teacherId, Long classroomId) {
         if (!classroomRepository.existsById(classroomId)
             || !classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(classroomId, teacherId)) {
+            log.warn("Classroom access denied: classroomId={} teacherId={}", classroomId, teacherId);
             throw new ResourceNotFoundException("Classroom not found");
         }
     }
 
-    private ClassroomStudent.Status parseStatus(String status) {
+    private ClassroomStudent.Status parseStatus(String status, Long teacherId, Long classroomId, Long studentId) {
         try {
             ClassroomStudent.Status parsed = ClassroomStudent.Status.valueOf(status.toUpperCase());
             if (parsed == ClassroomStudent.Status.APPROVED || parsed == ClassroomStudent.Status.KICKED) {
@@ -128,6 +163,8 @@ public class ClassroomService {
         } catch (IllegalArgumentException ignored) {
             // Handled below with a consistent API response.
         }
+        log.warn("Student status update failed: invalid status, classroomId={} studentId={} teacherId={} status={}",
+            classroomId, studentId, teacherId, status);
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status must be APPROVED or KICKED");
     }
 
