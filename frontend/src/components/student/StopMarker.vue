@@ -24,7 +24,6 @@ const props = defineProps({
   stop: {
     type: Object,
     required: true
-    // Shape: { id, name, orderIndex, locked, completed, taskCount }
   }
 })
 

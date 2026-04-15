@@ -1,6 +1,6 @@
 <template>
   <section class="task-card">
-    <h2>Fake News</h2>
+    <h2>Falske nyheter</h2>
     <p class="guidance">{{ task.guidanceText }}</p>
 
     <div class="articles">
@@ -16,12 +16,14 @@
         <div class="actions">
           <button
             :class="{ selected: answers[`article_${index}`] === true }"
+            :aria-label="`Marker artikkel ${index + 1} som ekte`"
             @click="setAnswer(index, true)"
           >
             Ekte
           </button>
           <button
             :class="{ selected: answers[`article_${index}`] === false }"
+            :aria-label="`Marker artikkel ${index + 1} som falsk`"
             @click="setAnswer(index, false)"
           >
             Falsk

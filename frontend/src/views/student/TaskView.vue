@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { useClassroomStore } from '@/stores/classroom'
@@ -67,6 +67,8 @@ const error = ref('')
 const isMockMode = ref(false)
 const showConfetti = ref(false)
 const medalToast = ref(null)
+let confettiTimer = null
+let medalTimer = null
 
 const stopId = computed(() => Number(route.query.stopId ?? 0) || null)
 const classroomId = computed(() => {
@@ -142,10 +144,14 @@ async function loadTasks() {
     console.log('[TaskView] Loaded', tasks.value.length, 'tasks from API')
     isMockMode.value = false
   } catch (apiError) {
-    console.warn('[TaskView] Failed to fetch tasks, switching to mock mode.', apiError)
-    tasks.value = MOCK_TASKS.filter((task) => task.stopId === stopId.value)
-    console.log('[TaskView] Mock mode — loaded', tasks.value.length, 'mock tasks')
-    isMockMode.value = true
+    console.warn('[TaskView] Failed to fetch tasks.', apiError)
+    if (import.meta.env.DEV) {
+      tasks.value = MOCK_TASKS.filter((task) => task.stopId === stopId.value)
+      console.log('[TaskView] Mock mode — loaded', tasks.value.length, 'mock tasks')
+      isMockMode.value = true
+    } else {
+      error.value = 'Oppgaver utilgjengelige. Prøv igjen.'
+    }
   } finally {
     loading.value = false
   }
@@ -162,10 +168,14 @@ async function handleSubmit(answer) {
     handleCelebration(result.value)
     isMockMode.value = false
   } catch (apiError) {
-    console.warn('[TaskView] Failed to submit answer, using local mock evaluator.', apiError)
-    result.value = buildMockResult(currentTask.value, answer)
-    handleCelebration(result.value)
-    isMockMode.value = true
+    console.warn('[TaskView] Failed to submit answer.', apiError)
+    if (import.meta.env.DEV) {
+      result.value = buildMockResult(currentTask.value, answer)
+      handleCelebration(result.value)
+      isMockMode.value = true
+    } else {
+      error.value = 'Kunne ikke sende svar. Prøv igjen.'
+    }
   }
 }
 
@@ -188,18 +198,21 @@ function buildMockResult(task, answer) {
 function handleCelebration(submitResult) {
   if (submitResult?.stopCompleted) {
     showConfetti.value = true
-    window.setTimeout(() => {
-      showConfetti.value = false
-    }, 3000)
+    clearTimeout(confettiTimer)
+    confettiTimer = setTimeout(() => { showConfetti.value = false }, 3000)
   }
 
   if (submitResult?.medalEarned) {
     medalToast.value = submitResult.medalEarned
-    window.setTimeout(() => {
-      medalToast.value = null
-    }, 4000)
+    clearTimeout(medalTimer)
+    medalTimer = setTimeout(() => { medalToast.value = null }, 4000)
   }
 }
+
+onBeforeUnmount(() => {
+  clearTimeout(confettiTimer)
+  clearTimeout(medalTimer)
+})
 
 function goNext() {
   if (currentTaskIndex.value < tasks.value.length - 1) {
@@ -213,11 +226,7 @@ function goNext() {
 }
 
 function goToMap() {
-  if (router.hasRoute('Map')) {
-    router.push('/map')
-    return
-  }
-  router.push('/')
+  router.push('/map')
 }
 </script>
 

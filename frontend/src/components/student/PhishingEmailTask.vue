@@ -1,6 +1,6 @@
 <template>
   <section class="task-card">
-    <h2>Phishing Email</h2>
+    <h2>Phishing-epost</h2>
     <p class="guidance">{{ task.guidanceText }}</p>
 
     <article class="email-card">
