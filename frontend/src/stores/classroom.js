@@ -6,6 +6,7 @@ export const useClassroomStore = defineStore('classroom', () => {
   const classrooms = ref([])
   const currentClassroom = ref(null)
   const students = ref([])
+
   const currentClassroomId = ref(null)
 
   async function fetchMyClassrooms() {
