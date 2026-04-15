@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -90,6 +91,27 @@ class ClassroomControllerTest {
             .andExpect(jsonPath("$[0].classroomId").value(classroom.getId()))
             .andExpect(jsonPath("$[0].displayName").value("Agent Nora"))
             .andExpect(jsonPath("$[0].status").value("PENDING"));
+    }
+
+    @Test
+    void updateStudentStatus_approved_returnsUpdatedStudent() throws Exception {
+        User teacher = saveUser("teacher-update@test.no", User.Role.TEACHER);
+        User student = saveUser("student-update@test.no", User.Role.STUDENT);
+        Classroom classroom = saveClassroom("5A", "sol-orn", teacher);
+        saveClassroomStudent(classroom, student, "Agent Nora", ClassroomStudent.Status.PENDING);
+        String token = tokenFor(teacher);
+
+        mockMvc.perform(put("/api/classrooms/{id}/students/{sid}", classroom.getId(), student.getId())
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    { "status": "APPROVED" }
+                    """))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.userId").value(student.getId()))
+            .andExpect(jsonPath("$.classroomId").value(classroom.getId()))
+            .andExpect(jsonPath("$.displayName").value("Agent Nora"))
+            .andExpect(jsonPath("$.status").value("APPROVED"));
     }
 
     private User saveUser(String email, User.Role role) {
