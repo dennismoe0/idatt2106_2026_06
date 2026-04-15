@@ -68,14 +68,9 @@ async function handleSubmit() {
 	loading.value = true
 	try {
 		await authStore.studentLogin(normalizedUsername)
-
-		if (hasSeenIntro) {
-			router.push('/')
-			return
-		}
-
-		router.push('/intro')
+		await router.push({ name: hasSeenIntro ? 'Home' : 'Intro' })
 	} catch (err) {
+		console.error('[StudentLoginView] Student login failed:', err)
 		serverError.value = err?.response?.data?.error || 'Innlogging feilet. Prøv igjen.'
 	} finally {
 		loading.value = false
@@ -88,60 +83,80 @@ async function handleSubmit() {
 	min-height: 100vh;
 	display: grid;
 	place-items: center;
-	padding: 1rem;
+	background: var(--color-bg);
+	padding: var(--space-4);
 }
 
 .student-login-card {
 	width: min(100%, 28rem);
-	padding: 1.25rem;
-	border: 1px solid #d8dee6;
-	border-radius: 0.75rem;
-	background: #fff;
+	padding: var(--space-8);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg);
+	background: var(--color-surface);
+	box-shadow: var(--shadow-lg);
+}
+
+h1 {
+	font-size: var(--text-3xl);
+	color: var(--color-primary);
+	margin-bottom: var(--space-2);
 }
 
 .subtitle {
-	margin-top: 0.25rem;
-	margin-bottom: 1rem;
-	color: #4b5563;
+	color: var(--color-text-muted);
+	margin-bottom: var(--space-6);
 }
 
 .student-login-form {
 	display: grid;
-	gap: 0.75rem;
+	gap: var(--space-3);
 }
 
 .field {
 	display: grid;
-	gap: 0.4rem;
+	gap: var(--space-1);
 }
 
 label {
-	font-weight: 600;
+	font-weight: var(--font-semibold);
+	font-size: var(--text-sm);
 }
 
 input {
-	padding: 0.65rem 0.75rem;
-	border: 1px solid #94a3b8;
-	border-radius: 0.5rem;
-	font-size: 1rem;
+	padding: var(--space-3);
+	border: 2px solid var(--color-border);
+	border-radius: var(--radius-md);
+	font-size: var(--text-base);
+	transition: border-color var(--transition-fast);
 }
 
 input:focus {
-	outline: 2px solid #2563eb;
-	outline-offset: 1px;
-	border-color: #2563eb;
+	border-color: var(--color-primary);
+	outline: none;
 }
 
 .submit-btn {
-	margin-top: 0.25rem;
+	margin-top: var(--space-1);
 }
 
 .error {
-	color: #b91c1c;
-	font-size: 0.9rem;
+	color: var(--color-danger);
+	font-size: var(--text-sm);
+}
+
+input[aria-invalid='true'] {
+	border-color: var(--color-danger);
 }
 
 .auth-links {
-	margin-top: 1rem;
+	margin-top: var(--space-6);
+	text-align: center;
+	font-size: var(--text-sm);
+	color: var(--color-text-muted);
+}
+
+.auth-links a {
+	color: var(--color-primary);
+	font-weight: var(--font-medium);
 }
 </style>

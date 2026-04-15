@@ -10,7 +10,7 @@ const routes = [
 
   // Student
   { path: '/',             name: 'Home',      component: () => import('@/views/student/HomeView.vue'),     meta: { role: 'STUDENT' } },
-  { path: '/intro',        name: 'StudentIntro', component: () => import('@/views/student/StudentIntroView.vue'), meta: { role: 'STUDENT' } },
+  { path: '/intro',        name: 'Intro',     component: () => import('@/views/student/IntroView.vue'),    meta: { role: 'STUDENT' } },
 
   // Teacher
   { path: '/teacher',      name: 'Dashboard', component: () => import('@/views/teacher/DashboardView.vue'), meta: { role: 'TEACHER' } },
