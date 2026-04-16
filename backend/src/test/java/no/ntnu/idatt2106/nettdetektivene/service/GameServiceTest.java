@@ -103,6 +103,22 @@ class GameServiceTest {
     }
 
     @Test
+    void getStops_zeroTaskPreviousStopDoesNotUnlockNextStop() {
+        Stop first = stop(1L, 1, "Nyhetskvartalet");
+        Stop second = stop(2L, 2, "Postkontoret");
+        when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first, second));
+        when(taskRepository.countByStop_Id(1L)).thenReturn(0L);
+        when(taskRepository.countByStop_Id(2L)).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndClassroom_IdAndCompletedTrue(
+            STUDENT_ID, 2L, CLASSROOM_ID
+        )).thenReturn(0L);
+
+        var response = gameService.getStops(STUDENT_ID, CLASSROOM_ID);
+
+        assertThat(response.get(1).locked()).isTrue();
+    }
+
+    @Test
     void submitAnswer_correct_recordsProgress() {
         Stop stop = stop(1L, 1, "Nyhetskvartalet");
         Task task = fakeNewsTask(20L, stop);
@@ -212,6 +228,40 @@ class GameServiceTest {
         assertThatThrownBy(() -> gameService.getTasks(STUDENT_ID, CLASSROOM_ID, 2L))
             .isInstanceOf(ResponseStatusException.class)
             .hasMessageContaining("Stop is locked");
+    }
+
+    @Test
+    void getTask_fakeNews_sanitizesAnswerFieldsFromContent() throws Exception {
+        Stop stop = stop(1L, 1, "Nyhetskvartalet");
+        Task task = fakeNewsTask(20L, stop);
+        when(taskRepository.findById(20L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_IdAndClassroom_Id(
+            STUDENT_ID, 20L, CLASSROOM_ID
+        )).thenReturn(Optional.empty());
+
+        var response = gameService.getTask(STUDENT_ID, CLASSROOM_ID, 20L);
+        var content = new ObjectMapper().readTree(response.contentJson());
+
+        assertThat(content.has("explanation")).isFalse();
+        assertThat(content.path("articles").get(0).has("isReal")).isFalse();
+        assertThat(content.path("articles").get(1).has("isReal")).isFalse();
+    }
+
+    @Test
+    void getTask_phishingEmail_sanitizesAnswerFieldsFromContent() throws Exception {
+        Stop stop = stop(2L, 1, "Postkontoret");
+        Task task = phishingTask(21L, stop);
+        when(taskRepository.findById(21L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_IdAndClassroom_Id(
+            STUDENT_ID, 21L, CLASSROOM_ID
+        )).thenReturn(Optional.empty());
+
+        var response = gameService.getTask(STUDENT_ID, CLASSROOM_ID, 21L);
+        var content = new ObjectMapper().readTree(response.contentJson());
+
+        assertThat(content.has("explanation")).isFalse();
+        assertThat(content.path("email").has("correctAction")).isFalse();
+        assertThat(content.path("email").has("suspiciousElements")).isFalse();
     }
 
     @Test
