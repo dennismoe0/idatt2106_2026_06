@@ -119,8 +119,10 @@ async function approve(studentId) {
   console.log('[ClassroomDetailView] Approving student:', studentId)
   try {
     await classroomStore.updateStudentStatus(classroomId, studentId, 'APPROVED')
+    await loadStudents()
   } catch (err) {
     console.error('[ClassroomDetailView] Failed to approve student:', err)
+    error.value = 'Kunne ikke godkjenne elev.'
   }
 }
 
@@ -133,8 +135,10 @@ async function kick(studentId) {
   try {
     await classroomStore.updateStudentStatus(classroomId, studentId, 'KICKED')
     kickTarget.value = null
+    await loadStudents()
   } catch (err) {
     console.error('[ClassroomDetailView] Failed to kick student:', err)
+    error.value = 'Kunne ikke kaste ut elev.'
   }
 }
 
