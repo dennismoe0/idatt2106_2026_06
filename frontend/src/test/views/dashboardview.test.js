@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { createTestingPinia } from '@pinia/testing'
 import { createRouter, createMemoryHistory } from 'vue-router'
 
 //Stub child components
@@ -29,13 +28,6 @@ async function mountDashboard () {
   return mount(DashboardView, {
     global: {
       plugins: [
-        createTestingPinia({
-          createSpy: vi.fn,
-          stubActions: false,
-          initialState: {
-            auth: { user: { email: 'teacher@test.no' }, role: 'TEACHER' }
-          }
-        }),
         router
       ],
       stubs: { RouterLink: true }
@@ -51,6 +43,12 @@ describe('DashboardView', () => {
   //Error banner
   describe('when fetchMyClassrooms fails', () => {
     it('renders the error banner and hides the loading spinner', async () => {
+      vi.doMock('@/stores/auth', () => ({
+        useAuthStore: () => ({
+          user: { email: 'teacher@test.no' },
+          logout: vi.fn()
+        })
+      }))
       vi.doMock('@/stores/classroom', () => ({
         useClassroomStore: () => ({
           classrooms: [],
@@ -77,6 +75,12 @@ describe('DashboardView', () => {
         createdAt: new Date().toISOString()
       }
 
+      vi.doMock('@/stores/auth', () => ({
+        useAuthStore: () => ({
+          user: { email: 'teacher@test.no' },
+          logout: vi.fn()
+        })
+      }))
       vi.doMock('@/stores/classroom', () => ({
         useClassroomStore: () => ({
           classrooms: [],
