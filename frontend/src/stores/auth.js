@@ -77,6 +77,18 @@ export const useAuthStore = defineStore('auth', () => {
     console.log('[auth] Student login successful — userId:', data.userId)
   }
 
-  return { token, role, userId, email, isAuthenticated, isTeacher, isStudent,
-           login, register, studentLogin, logout, rehydrate }
+  return {
+    token,
+    role,
+    userId,
+    email,
+    isAuthenticated,
+    isTeacher,
+    isStudent,
+    login,
+    register,
+    studentLogin,
+    logout,
+    rehydrate,
+  }
 })
