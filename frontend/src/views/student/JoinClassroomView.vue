@@ -47,7 +47,7 @@
 
         <span v-if="serverError" class="field-error" role="alert">{{ serverError }}</span>
 
-        <BaseButton type="submit" :loading="loading" style="width: 100%; margin-top: var(--space-4)">
+        <BaseButton type="submit" :loading="loading" class="submit-button">
           Bli med i klassen
         </BaseButton>
       </form>
@@ -100,6 +100,9 @@ function validate() {
   } else if (form.displayName.trim().length < 2) {
     errors.displayName = 'Visningsnavnet må være minst 2 tegn'
     valid = false
+  } else if (form.displayName.trim().length > 20) {
+    errors.displayName = 'Visningsnavnet kan ikke være mer enn 20 tegn'
+    valid = false
   }
 
   return valid
@@ -119,6 +122,7 @@ async function handleSubmit() {
     })
     router.push('/waiting')
   } catch (err) {
+    console.error('[JoinClassroom] handleSubmit failed:', err)
     serverError.value = err?.response?.data?.error || 'Kunne ikke bli med i klassen. Prøv igjen.'
   } finally {
     loading.value = false
@@ -144,7 +148,7 @@ async function handleSubmit() {
   box-shadow: var(--shadow-lg);
 }
 
-h1 {
+.join-card h1 {
   margin-bottom: var(--space-2);
   color: var(--color-primary);
   font-size: var(--text-3xl);
@@ -200,5 +204,10 @@ input[aria-invalid='true'] {
   color: var(--color-primary);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
+}
+
+.submit-button {
+  width: 100%;
+  margin-top: var(--space-4);
 }
 </style>
