@@ -168,6 +168,31 @@ class ClassroomControllerTest {
             .andExpect(jsonPath("$.status").value("APPROVED"));
     }
 
+    @Test
+    void getMyStatus_studentMember_returnsStatus() throws Exception {
+        User teacher = saveUser("teacher-my-status@test.no", User.Role.TEACHER);
+        User student = saveUser("student-my-status@test.no", User.Role.STUDENT);
+        Classroom classroom = saveClassroom("5A", "status-rev", teacher);
+        saveClassroomStudent(classroom, student, "Agent Nora", ClassroomStudentStatus.APPROVED);
+        String token = tokenFor(student);
+
+        mockMvc.perform(get("/api/classrooms/{id}/my-status", classroom.getId())
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("APPROVED"));
+    }
+
+    @Test
+    void getMyStatus_teacherReturns403() throws Exception {
+        User teacher = saveUser("teacher-status-forbidden@test.no", User.Role.TEACHER);
+        Classroom classroom = saveClassroom("5A", "status-ulv", teacher);
+        String token = tokenFor(teacher);
+
+        mockMvc.perform(get("/api/classrooms/{id}/my-status", classroom.getId())
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isForbidden());
+    }
+
     private User saveUser(String email, User.Role role) {
         User user = new User();
         user.setEmail(email);
