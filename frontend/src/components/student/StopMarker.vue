@@ -2,9 +2,10 @@
   <button
     class="stop-marker"
     :class="{
-      'stop-marker--locked':    stop.locked,
+      'stop-marker--locked':    stop.locked && !flash,
       'stop-marker--completed': stop.completed,
-      'stop-marker--unlocked':  !stop.locked && !stop.completed
+      'stop-marker--unlocked':  !stop.locked && !stop.completed,
+      'stop-marker--flash':     flash
     }"
     :disabled="stop.locked"
     @click="handleClick"
@@ -24,6 +25,10 @@ const props = defineProps({
   stop: {
     type: Object,
     required: true
+  },
+  flash: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -59,6 +64,16 @@ function handleClick() {
 .stop-marker--unlocked  { border-color: var(--color-primary); }
 .stop-marker--completed { border-color: var(--color-success); background: var(--color-success-light); }
 .stop-marker--locked    { border-color: var(--color-border); }
+
+@keyframes flash-border-red {
+  0%   { border-color: var(--color-danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 25%, transparent); }
+  50%  { border-color: var(--color-border); box-shadow: none; }
+  100% { border-color: var(--color-danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 25%, transparent); }
+}
+.stop-marker--flash {
+  animation: flash-border-red 0.35s ease-in-out 2;
+  border-color: var(--color-danger);
+}
 
 .stop-marker__icon { font-size: var(--text-2xl); }
 .stop-marker__name { font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--color-text); }
