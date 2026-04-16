@@ -21,6 +21,12 @@
   --color-warning-light: color-mix(in srgb, #DD6B20 20%, white);
   --color-success:       #38A169;
   --color-success-light: color-mix(in srgb, #38A169 40%, white);
+  --color-confetti-1:    #ED8936;
+  --color-confetti-2:    #2B6CB0;
+  --color-confetti-3:    #38A169;
+  --color-confetti-4:    #E53E3E;
+  --color-confetti-5:    #ECC94B;
+  --color-confetti-6:    #9F7AEA;
 
   /* Semantic — use these in components, never raw brand */
   --color-bg:           #F7FAFC;

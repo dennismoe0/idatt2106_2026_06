@@ -59,6 +59,7 @@ describe('game store', () => {
     const result = await store.submitAnswer(1, { answer: 'FAKE' }, 1)
     expect(result.correct).toBe(true)
     expect(result.score).toBe(10)
+    expect(gameService.submitAnswer).toHaveBeenCalledWith(1, { answer: 'FAKE' }, 1)
   })
 
   it('submitAnswer with stopCompleted returns medal data', async () => {
