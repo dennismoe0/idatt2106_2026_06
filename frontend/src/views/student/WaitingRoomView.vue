@@ -1,9 +1,12 @@
 <template>
   <main class="waiting-page">
     <section class="waiting-card">
-      <h1>Venter på godkjenning</h1>
-      <p>
+      <h1>{{ kicked ? 'Du ble fjernet fra klassen' : 'Venter på godkjenning' }}</h1>
+      <p v-if="!kicked">
         Forespørselen din er sendt til læreren. Når du er godkjent, kan du fortsette inn i klassen.
+      </p>
+      <p v-else>
+        Læreren har avvist eller fjernet forespørselen din. Du kan prøve igjen med en gyldig klassekode.
       </p>
 
       <p v-if="pendingJoin?.displayName" class="waiting-detail">
@@ -11,13 +14,15 @@
         <span v-if="pendingJoin.code"> med klassekode <strong>{{ pendingJoin.code }}</strong></span>.
       </p>
 
-      <RouterLink class="waiting-link" to="/login">Tilbake til innlogging</RouterLink>
+      <RouterLink class="waiting-link" :to="kicked ? '/join' : '/login'">
+        {{ kicked ? 'Tilbake til bli med i klasse' : 'Tilbake til innlogging' }}
+      </RouterLink>
     </section>
   </main>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useClassroomStore } from '@/stores/classroom'
@@ -25,11 +30,38 @@ import { useClassroomStore } from '@/stores/classroom'
 const router = useRouter()
 const classroomStore = useClassroomStore()
 const { pendingJoin } = storeToRefs(classroomStore)
+const kicked = ref(false)
+
+let pollInterval = null
 
 onMounted(() => {
   if (!pendingJoin.value) {
-    console.warn('[WaitingView] No pending join — redirecting to join page')
-    router.replace('/join')
+    console.warn('[WaitingRoomView] No pending join — redirecting to join page')
+    router.replace({ name: 'Join' })
+    return
+  }
+
+  pollInterval = setInterval(async () => {
+    try {
+      const status = await classroomStore.fetchMyStatus(pendingJoin.value.classroomId)
+      if (status === 'APPROVED') {
+        clearInterval(pollInterval)
+        pollInterval = null
+        router.push({ name: 'Home' })
+      } else if (status === 'KICKED') {
+        clearInterval(pollInterval)
+        pollInterval = null
+        kicked.value = true
+      }
+    } catch (err) {
+      console.error('[WaitingRoomView] Failed to poll status:', err)
+    }
+  }, 3000)
+})
+
+onUnmounted(() => {
+  if (pollInterval) {
+    clearInterval(pollInterval)
   }
 })
 </script>

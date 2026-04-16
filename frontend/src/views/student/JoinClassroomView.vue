@@ -15,7 +15,7 @@
             type="text"
             inputmode="text"
             autocomplete="off"
-            placeholder="F.eks. FJORD-TIGER"
+            placeholder="F.eks. tiger-blue"
             :aria-describedby="errors.code ? 'code-error' : 'code-help'"
             :aria-invalid="!!errors.code"
             required
@@ -80,7 +80,7 @@ const loading = ref(false)
 const serverError = ref('')
 
 function formatCode() {
-  form.code = form.code.toUpperCase().replace(/\s+/g, '')
+  form.code = form.code.replace(/\s+/g, '')
 }
 
 function validate() {
@@ -120,7 +120,7 @@ async function handleSubmit() {
       code: form.code,
       displayName: form.displayName
     })
-    router.push('/waiting')
+    router.push({ name: 'Waiting' })
   } catch (err) {
     console.error('[JoinClassroom] handleSubmit failed:', err)
     serverError.value = err?.response?.data?.error || 'Kunne ikke bli med i klassen. Prøv igjen.'
