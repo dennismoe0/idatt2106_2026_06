@@ -4,7 +4,7 @@
       <div
         v-for="i in 40"
         :key="i"
-        class="confetti-piece"
+        :class="['confetti-piece', colorClass(i)]"
         :style="pieceStyle(i)"
       />
     </div>
@@ -31,21 +31,17 @@ watch(() => props.active, (val) => {
 
 onBeforeUnmount(() => clearTimeout(timer))
 
-const COLORS = [
-  'var(--color-confetti-1)',
-  'var(--color-confetti-2)',
-  'var(--color-confetti-3)',
-  'var(--color-confetti-4)',
-  'var(--color-confetti-5)',
-  'var(--color-confetti-6)'
-]
+const COLOR_COUNT = 6
+
+function colorClass(i) {
+  return `confetti-piece--color-${(i % COLOR_COUNT) + 1}`
+}
 
 function pieceStyle(i) {
   return {
     left:              `${(i * 37 + 11) % 100}%`,
     animationDelay:    `${((i * 0.09) % 0.8).toFixed(2)}s`,
     animationDuration: `${(0.8 + (i % 5) * 0.2).toFixed(1)}s`,
-    backgroundColor:   COLORS[i % COLORS.length],
     width:             `${6 + (i % 4) * 2}px`,
     height:            `${8 + (i % 3) * 3}px`,
   }
@@ -67,6 +63,13 @@ function pieceStyle(i) {
   border-radius: 2px;
   animation: confetti-fall linear forwards;
 }
+
+.confetti-piece--color-1 { background-color: var(--color-confetti-1); }
+.confetti-piece--color-2 { background-color: var(--color-confetti-2); }
+.confetti-piece--color-3 { background-color: var(--color-confetti-3); }
+.confetti-piece--color-4 { background-color: var(--color-confetti-4); }
+.confetti-piece--color-5 { background-color: var(--color-confetti-5); }
+.confetti-piece--color-6 { background-color: var(--color-confetti-6); }
 
 @keyframes confetti-fall {
   0%   { transform: translateY(0)     rotate(0deg);   opacity: 1; }

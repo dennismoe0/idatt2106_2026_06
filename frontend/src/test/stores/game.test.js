@@ -56,9 +56,10 @@ describe('game store', () => {
       data: { correct: true, score: 10, explanation: 'Riktig!', stopCompleted: false, medalEarned: null }
     })
     const store = useGameStore()
-    const result = await store.submitAnswer(1, 1, { answer: 'FAKE' })
+    const result = await store.submitAnswer(1, { answer: 'FAKE' }, 1)
     expect(result.correct).toBe(true)
     expect(result.score).toBe(10)
+    expect(gameService.submitAnswer).toHaveBeenCalledWith(1, { answer: 'FAKE' }, 1)
   })
 
   it('submitAnswer with stopCompleted returns medal data', async () => {
@@ -70,7 +71,7 @@ describe('game store', () => {
       }
     })
     const store = useGameStore()
-    const result = await store.submitAnswer(1, 1, { answer: 'FAKE' })
+    const result = await store.submitAnswer(1, { answer: 'FAKE' }, 1)
     expect(result.stopCompleted).toBe(true)
     expect(result.medalEarned.name).toBe('Nyhetsdetektiv')
   })

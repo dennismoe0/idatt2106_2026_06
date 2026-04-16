@@ -10,8 +10,8 @@ export const gameService = {
   getTask: (taskId, classroomId) =>
     api.get(`/api/game/tasks/${taskId}`, { params: { classroomId } }),
 
-  submitAnswer: (taskId, classroomId, answer) =>
-    api.post(`/api/game/tasks/${taskId}/submit`, { classroomId, answer }),
+  submitAnswer: (taskId, answer, classroomId) =>
+    api.post(`/api/game/tasks/${taskId}/submit`, { answer }, { params: { classroomId } }),
 
   getProgress: (classroomId) =>
     api.get('/api/game/progress', { params: { classroomId } }),

@@ -2,8 +2,11 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import api from '@/services/api'
+import { useClassroomStore } from '@/stores/classroom'
 
 const router = useRouter()
+const classroomStore = useClassroomStore()
 
 const isLoading = ref(true)
 const errorMessage = ref('')
@@ -15,15 +18,13 @@ let pollInterval = null
 async function fetchStudentStatus() {
   try {
     errorMessage.value = ''
+    const classroomId = classroomStore.currentClassroomId
 
-    // placeholder
-    const response = await fetch('/api/student/status')
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch student status')
+    if (!classroomId) {
+      throw new Error('Missing current classroom context')
     }
 
-    const data = await response.json()
+    const { data } = await api.get(`/api/classrooms/${classroomId}/students/me/status`)
     const status = data.status
 
     if (currentStatus.value !== status) {
@@ -42,13 +43,13 @@ async function fetchStudentStatus() {
 
     if (status === 'KICKED') {
       console.warn('[WaitingRoom] Student was kicked')
-      kickedMessage.value = 'Du ble kastet ut.'
+      kickedMessage.value = 'Du har blitt fjernet fra venteværelset.'
       stopPolling()
       return
     }
   } catch (error) {
     isLoading.value = false
-    errorMessage.value = 'Kunne ikke oppdatere status i venterommet.'
+    errorMessage.value = 'Kunne ikke hente venteværelsesstatus.'
 
     console.error('[WaitingRoom] fetchStudentStatus failed:', error)
   }
@@ -89,13 +90,13 @@ onUnmounted(() => {
 
     <div v-if="isLoading" class="waiting-room-view__loading">
       <LoadingSpinner />
-      <p>Venter på godkjenning fra lærer...</p>
+      <p>Du venter på godkjenning.</p>
     </div>
 
     <p v-else-if="kickedMessage">{{ kickedMessage }}</p>
 
     <div v-else>
-      <p>Venter på godkjenning fra lærer...</p>
+      <p>Du venter på godkjenning.</p>
       <p v-if="currentStatus">Status: {{ currentStatus }}</p>
     </div>
 
@@ -106,9 +107,28 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.waiting-room-view {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  min-height: 100vh;
+  padding: var(--space-6);
+  background: var(--color-bg);
+}
+
+.waiting-room-view h1 {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text);
+}
+
 .waiting-room-view__loading {
   display: grid;
   justify-items: start;
   gap: var(--space-3);
+}
+
+.error-message {
+  color: var(--color-danger);
 }
 </style>
