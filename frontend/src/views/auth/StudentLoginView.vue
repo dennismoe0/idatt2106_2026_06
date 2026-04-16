@@ -1,5 +1,4 @@
 <template>
-feature/student-login-view
   <main class="student-login-page">
     <div class="student-login-card">
       <h1>Elevinnlogging</h1>
