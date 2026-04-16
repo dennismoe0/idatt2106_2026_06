@@ -54,11 +54,17 @@
 
 /* Non-color tokens — use var() directly in style blocks */
 :root {
+
   --shadow-sm:       0 1px 3px rgba(0,0,0,.12);
   --shadow-md:       0 4px 6px rgba(0,0,0,.07);
   --shadow-lg:       0 10px 15px rgba(0,0,0,.10);
   --color-btn-primary-shadow: rgba(43, 108, 176, 0.35);
   --color-primary-focus-ring: rgba(43, 108, 176, 0.15);
+  --color-warning-light: #FC8181;
+  --color-warning:  #E53E3E;
+  --color-muted:       #718096;
+  --color-muted-light: #A0AEC0;
+  --color-danger-border: #FC8181;
   --radius-sm:       0.25rem;
   --radius-md:       0.5rem;
   --radius-lg:       1rem;
