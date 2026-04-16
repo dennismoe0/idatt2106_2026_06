@@ -6,8 +6,8 @@ export const useClassroomStore = defineStore('classroom', () => {
   const classrooms = ref([])
   const currentClassroom = ref(null)
   const students = ref([])
-
   const currentClassroomId = ref(null)
+  const pendingJoin = ref(null)
 
   async function fetchMyClassrooms() {
     console.log('[classroom] Fetching my classrooms')
@@ -35,11 +35,17 @@ export const useClassroomStore = defineStore('classroom', () => {
   }
 
   async function joinClassroom(payload) {
-    console.log('[classroom] Joining with code:', payload.code)
+    console.log('[classroom] Joining classroom with code:', payload.code)
     try {
       const { data } = await classroomService.joinClassroom(payload)
       currentClassroomId.value = data.classroomId
       localStorage.setItem('classroomId', data.classroomId)
+      pendingJoin.value = {
+        code: payload.code,
+        displayName: payload.displayName,
+        classroomId: data.classroomId,
+        status: data.status
+      }
       console.log('[classroom] Joined classroom id:', data.classroomId, 'status:', data.status)
       return data
     } catch (err) {
@@ -60,6 +66,24 @@ export const useClassroomStore = defineStore('classroom', () => {
     }
   }
 
+  async function fetchMyStatus(classroomId) {
+    console.log('[classroom] Fetching my status for classroom:', classroomId)
+    try {
+      const { data } = await classroomService.getMyStatus(classroomId)
+      if (pendingJoin.value?.classroomId === classroomId) {
+        pendingJoin.value = {
+          ...pendingJoin.value,
+          status: data.status
+        }
+      }
+      console.log('[classroom] My status is:', data.status)
+      return data.status
+    } catch (err) {
+      console.error('[classroom] Failed to fetch my status:', err)
+      throw err
+    }
+  }
+
   async function updateStudentStatus(classroomId, studentId, status) {
     console.log('[classroom] Updating student', studentId, 'to', status)
     try {
@@ -74,21 +98,8 @@ export const useClassroomStore = defineStore('classroom', () => {
     }
   }
 
-  async function fetchMyStatus(classroomId) {
-    console.log('[classroom] Fetching my status for classroom:', classroomId)
-    try {
-      const { data } = await classroomService.getMyStatus(classroomId)
-      console.log('[classroom] My status:', data.status)
-      return data.status
-    } catch (err) {
-      console.error('[classroom] Failed to fetch status:', err)
-      throw err
-    }
-  }
-
   return {
-    classrooms, currentClassroom, students, currentClassroomId,
-    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents,
-    updateStudentStatus, fetchMyStatus
+    classrooms, currentClassroom, students, currentClassroomId, pendingJoin,
+    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents, fetchMyStatus, updateStudentStatus
   }
 })

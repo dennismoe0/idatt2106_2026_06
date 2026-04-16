@@ -47,7 +47,7 @@
       <div class="auth-links">
         <RouterLink to="/register">Opprett lærerkonto</RouterLink>
         <span class="divider">·</span>
-        <RouterLink to="/student-login">Elev? Logg inn her</RouterLink>
+        <RouterLink to="/student-login">Elev? Bli med i klasse</RouterLink>
       </div>
     </div>
   </main>
