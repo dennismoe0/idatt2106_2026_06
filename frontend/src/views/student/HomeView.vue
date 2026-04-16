@@ -23,10 +23,14 @@ import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import CorkboardCard from '@/components/student/CorkboardCard.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useClassroomStore } from '@/stores/classroom'
 
 const authStore = useAuthStore()
+const classroomStore = useClassroomStore()
 const router = useRouter()
-const studentName = computed(() => formatDisplayName(authStore.email))
+const studentName = computed(() =>
+  classroomStore.displayName || formatDisplayName(authStore.email)
+)
 
 const cards = [
   { title: 'Kart', icon: '🗺️', route: { name: 'Map' }, locked: false },

@@ -1,6 +1,6 @@
 <template>
   <div class="map-view">
-    <h1 class="map-view__title">Kart over Nettdetektivene</h1>
+    <StudentHeader title="Kart" :back-to="{ name: 'Home' }" />
 
     <LoadingSpinner v-if="loading" />
 
@@ -29,6 +29,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { useClassroomStore } from '@/stores/classroom'
+import StudentHeader from '@/components/common/StudentHeader.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import StopMarker from '@/components/student/StopMarker.vue'
 
@@ -44,14 +45,22 @@ const lockedMessage = ref(false)
 let lockedTimer = null
 
 onMounted(async () => {
+  // No classroomId at all — student hasn't joined yet
+  if (!classroomStore.currentClassroomId) {
+    console.warn('[MapView] No classroomId — redirecting to join')
+    router.push({ name: 'JoinClassroom' })
+    return
+  }
+
   loading.value = true
   console.log('[MapView] Loading stops for classroom:', classroomStore.currentClassroomId)
   try {
     await gameStore.fetchStops(classroomStore.currentClassroomId)
   } catch (err) {
     console.error('[MapView] Failed to load stops:', err)
-    if (err?.response?.status === 404) {
-      console.warn('[MapView] Classroom not found — clearing state and redirecting to join')
+    const status = err?.response?.status
+    if (status === 400 || status === 404 || status === 403) {
+      console.warn('[MapView] Invalid/stale classroomId (%s) — clearing and redirecting to join', status)
       classroomStore.reset()
       router.push({ name: 'JoinClassroom' })
       return
@@ -86,13 +95,6 @@ function handleStopClick(stop) {
   padding: var(--space-6);
   min-height: 100vh;
   background: var(--color-bg);
-}
-
-.map-view__title {
-  font-size: var(--text-2xl);
-  font-weight: var(--font-bold);
-  color: var(--color-text);
-  margin-bottom: var(--space-6);
 }
 
 .map-view__error {
