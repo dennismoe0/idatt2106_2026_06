@@ -7,11 +7,11 @@
       </p>
       <p class="intro-body">
         Les oppgavene nøye, samarbeid med klassen og bruk det du lærer til å avsløre falske spor og
-        finne trygge valg på nett. Når du går videre, tar vi deg rett til startsiden så du kan
-        begynne første oppdrag.
+        finne trygge valg på nett. Når du går videre, kan du bli med i et klasserom og starte
+        første oppdrag.
       </p>
 
-      <RouterLink class="intro-link" :to="{ name: 'Home' }">Gå til startsiden</RouterLink>
+      <RouterLink class="intro-link" :to="{ name: 'JoinClassroom' }">Bli med i en klasse</RouterLink>
     </section>
   </main>
 </template>
