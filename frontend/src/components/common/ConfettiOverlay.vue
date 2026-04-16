@@ -1,81 +1,81 @@
 <template>
-  <Transition name="fade">
-    <div v-if="visible" class="confetti-overlay" aria-hidden="true">
-      <div
-        v-for="i in 40"
-        :key="i"
-        :class="['confetti-piece', colorClass(i)]"
-        :style="pieceStyle(i)"
-      />
-    </div>
-  </Transition>
+  <!-- canvas-confetti renders directly to a full-screen canvas — no DOM needed here -->
 </template>
 
 <script setup>
-import { ref, watch, onBeforeUnmount } from 'vue'
+import { watch, onBeforeUnmount } from 'vue'
+import confetti from 'canvas-confetti'
 
 const props = defineProps({
-  active: { type: Boolean, required: true }
+  /**
+   * 'correct'  — small burst on a correct answer
+   * 'stop'     — big triple-burst for stop completion
+   * false/null — not active
+   */
+  active: { type: [String, Boolean], default: false }
 })
 
-const visible = ref(props.active)
-let timer = null
+const COLORS = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98FB98']
+
+const timers = []
+
+function clearTimers() {
+  timers.forEach(clearTimeout)
+  timers.length = 0
+}
+
+function burstFromBottom(origin, angle, count, velocity) {
+  confetti({
+    particleCount: count,
+    angle,
+    spread: 70,
+    origin,
+    startVelocity: velocity,
+    gravity: 0.75,
+    scalar: 1.1,
+    ticks: 280,
+    colors: COLORS,
+    disableForReducedMotion: true,
+  })
+}
+
+function fireCorrect() {
+  // Single upward burst from bottom-center
+  burstFromBottom({ x: 0.5, y: 1 }, 90, 80, 55)
+  // Two side bursts half a beat later — gives the "spreading across screen" feel
+  timers.push(setTimeout(() => {
+    burstFromBottom({ x: 0.2, y: 1 }, 65, 50, 45)
+    burstFromBottom({ x: 0.8, y: 1 }, 115, 50, 45)
+  }, 120))
+}
+
+function fireStop() {
+  // Big center burst
+  burstFromBottom({ x: 0.5, y: 1 }, 90, 160, 70)
+  // Left sweep
+  timers.push(setTimeout(() => {
+    burstFromBottom({ x: 0.15, y: 1 }, 60, 100, 55)
+    burstFromBottom({ x: 0.85, y: 1 }, 120, 100, 55)
+  }, 150))
+  // Final extra pop from center
+  timers.push(setTimeout(() => {
+    burstFromBottom({ x: 0.5, y: 0.9 }, 90, 80, 40)
+  }, 350))
+}
 
 watch(() => props.active, (val) => {
-  if (val) {
-    visible.value = true
-    clearTimeout(timer)
-    timer = setTimeout(() => { visible.value = false }, 3000)
+  clearTimers()
+  if (!val) return
+  if (val === 'stop') {
+    fireStop()
+  } else {
+    // 'correct' or any truthy string
+    fireCorrect()
   }
 }, { immediate: true })
 
-onBeforeUnmount(() => clearTimeout(timer))
-
-const COLOR_COUNT = 6
-
-function colorClass(i) {
-  return `confetti-piece--color-${(i % COLOR_COUNT) + 1}`
-}
-
-function pieceStyle(i) {
-  return {
-    left:              `${(i * 37 + 11) % 100}%`,
-    animationDelay:    `${((i * 0.09) % 0.8).toFixed(2)}s`,
-    animationDuration: `${(0.8 + (i % 5) * 0.2).toFixed(1)}s`,
-    width:             `${6 + (i % 4) * 2}px`,
-    height:            `${8 + (i % 3) * 3}px`,
-  }
-}
+onBeforeUnmount(() => {
+  clearTimers()
+  confetti.reset()
+})
 </script>
-
-<style scoped>
-.confetti-overlay {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-  overflow: hidden;
-}
-
-.confetti-piece {
-  position: absolute;
-  top: -10px;
-  border-radius: 2px;
-  animation: confetti-fall linear forwards;
-}
-
-.confetti-piece--color-1 { background-color: var(--color-confetti-1); }
-.confetti-piece--color-2 { background-color: var(--color-confetti-2); }
-.confetti-piece--color-3 { background-color: var(--color-confetti-3); }
-.confetti-piece--color-4 { background-color: var(--color-confetti-4); }
-.confetti-piece--color-5 { background-color: var(--color-confetti-5); }
-.confetti-piece--color-6 { background-color: var(--color-confetti-6); }
-
-@keyframes confetti-fall {
-  0%   { transform: translateY(0)     rotate(0deg);   opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
-
-.fade-enter-active, .fade-leave-active { transition: opacity var(--transition-normal); }
-.fade-enter-from, .fade-leave-to       { opacity: 0; }
-</style>
