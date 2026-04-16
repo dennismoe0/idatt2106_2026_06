@@ -240,7 +240,7 @@ class GameServiceTest {
         )).thenReturn(Optional.empty());
 
         var response = gameService.getTask(STUDENT_ID, CLASSROOM_ID, 20L);
-        var content = new ObjectMapper().readTree(response.contentJson());
+        var content = response.contentJson();
 
         assertThat(content.has("explanation")).isFalse();
         assertThat(content.path("articles").get(0).has("isReal")).isFalse();
@@ -257,11 +257,11 @@ class GameServiceTest {
         )).thenReturn(Optional.empty());
 
         var response = gameService.getTask(STUDENT_ID, CLASSROOM_ID, 21L);
-        var content = new ObjectMapper().readTree(response.contentJson());
+        var content = response.contentJson();
 
         assertThat(content.has("explanation")).isFalse();
         assertThat(content.path("email").has("correctAction")).isFalse();
-        assertThat(content.path("email").has("suspiciousElements")).isFalse();
+        assertThat(content.path("email").has("suspiciousElements")).isTrue();
     }
 
     @Test

@@ -332,7 +332,7 @@ public class GameService {
         }
     }
 
-    private String sanitizeContentForClient(TaskType type, String contentJson) {
+    private JsonNode sanitizeContentForClient(TaskType type, String contentJson) {
         try {
             JsonNode parsed = objectMapper.readTree(contentJson);
             if (!parsed.isObject()) {
@@ -354,10 +354,9 @@ public class GameService {
             if (type == TaskType.PHISHING_EMAIL && root.path("email").isObject()) {
                 ObjectNode email = (ObjectNode) root.path("email");
                 email.remove("correctAction");
-                email.remove("suspiciousElements");
             }
 
-            return objectMapper.writeValueAsString(root);
+            return root;
         } catch (JsonProcessingException exception) {
             log.error("[GameService] failed to sanitize content taskType={}", type, exception);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Task content invalid");
