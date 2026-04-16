@@ -5,6 +5,7 @@ import no.ntnu.idatt2106.nettdetektivene.dto.classroom.ClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.CreateClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
 import no.ntnu.idatt2106.nettdetektivene.entity.Classroom;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomTeacher;
@@ -133,6 +134,18 @@ public class ClassroomService {
         log.info("Student status updated: classroomId={} studentId={} teacherId={} status={}",
             classroomId, studentId, teacherId, status);
         return toStudentResponse(classroomStudent);
+    }
+
+    public StudentStatusResponse getMyStatus(Long studentId, Long classroomId) {
+        log.info("[ClassroomService] getMyStatus studentId={} classroomId={}", studentId, classroomId);
+        ClassroomStudent entry = classroomStudentRepository
+            .findByClassroom_IdAndStudent_UserId(classroomId, studentId)
+            .orElseThrow(() -> {
+                log.warn("[ClassroomService] Student {} not in classroom {}", studentId, classroomId);
+                return new ResourceNotFoundException("Student not in classroom");
+            });
+        log.info("[ClassroomService] Student {} status: {}", studentId, entry.getStatus());
+        return new StudentStatusResponse(entry.getStatus().name());
     }
 
     private Classroom getClassroomForTeacher(Long teacherId, Long classroomId) {

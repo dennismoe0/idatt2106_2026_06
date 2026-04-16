@@ -139,6 +139,28 @@ class ClassroomServiceTest {
     }
 
     @Test
+    void getMyStatus_member_returnsStatus() {
+        Classroom classroom = classroom(10L);
+        ClassroomStudent existing = classroomStudent(classroom, user(2L, User.Role.STUDENT), ClassroomStudentStatus.APPROVED);
+        when(classroomStudentRepository.findByClassroom_IdAndStudent_UserId(10L, 2L))
+            .thenReturn(Optional.of(existing));
+
+        var response = classroomService.getMyStatus(2L, 10L);
+
+        assertThat(response.status()).isEqualTo("APPROVED");
+    }
+
+    @Test
+    void getMyStatus_notMember_throws() {
+        when(classroomStudentRepository.findByClassroom_IdAndStudent_UserId(10L, 2L))
+            .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> classroomService.getMyStatus(2L, 10L))
+            .isInstanceOf(ResourceNotFoundException.class)
+            .hasMessage("Student not in classroom");
+    }
+
+    @Test
     void joinClassroom_success_returnsClassroomId() {
         Classroom classroom = classroom(10L);
         User student = user(2L, User.Role.STUDENT);
