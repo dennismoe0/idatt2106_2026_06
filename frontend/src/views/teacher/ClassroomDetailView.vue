@@ -42,7 +42,6 @@
       <p v-if="students.length === 0" class="student-empty">Ingen elever har meldt seg på enda.</p>
     </section>
 
-    <!-- Kick confirmation modal -->
     <BaseModal v-if="kickTarget" @close="kickTarget = null" title="Kick Student">
       <template #header>
         <h2 class="modal-title">Kast ut elev</h2>
