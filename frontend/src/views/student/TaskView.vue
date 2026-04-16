@@ -1,43 +1,55 @@
 <template>
   <main class="task-view">
-    <header>
-      <h1>Oppgaver</h1>
-      <p v-if="stopId">Stopp {{ stopId }}</p>
-      <p v-if="isMockMode" class="mock-badge">Mock mode aktiv (backend/store ikke klar)</p>
-    </header>
+    <StudentHeader title="Oppgaver" :back-to="{ name: 'Map' }" />
+    <p v-if="isMockMode" class="mock-badge">Mock mode aktiv (backend/store ikke klar)</p>
 
     <p v-if="loading">Laster oppgaver...</p>
     <p v-else-if="error" class="error">{{ error }}</p>
     <p v-else-if="!currentTask">Ingen oppgaver funnet for dette stoppet.</p>
 
     <section v-else>
-      <p class="progress">Oppgave {{ currentTaskIndex + 1 }} / {{ tasks.length }}</p>
+      <!-- Progress dots -->
+      <div class="task-dots" role="list" :aria-label="`Oppgave ${currentTaskIndex + 1} av ${tasks.length}`">
+        <span
+          v-for="(t, i) in tasks"
+          :key="t.id"
+          class="dot"
+          role="listitem"
+          :class="{
+            'dot--current': i === currentTaskIndex && !taskResults[t.id],
+            'dot--correct': taskResults[t.id]?.correct === true,
+            'dot--wrong':   taskResults[t.id] && !taskResults[t.id].correct
+          }"
+          :aria-label="`Oppgave ${i + 1}${taskResults[t.id] ? (taskResults[t.id].correct ? ': riktig' : ': feil') : ''}`"
+        />
+      </div>
 
       <FakeNewsTask
-        v-if="currentTask.taskType === 'FAKE_NEWS' && !result"
+        v-if="currentTask.taskType === 'FAKE_NEWS'"
         :task="currentTask"
+        :result="result"
+        :is-last-task="currentTaskIndex === tasks.length - 1"
         @submitted="handleSubmit"
+        @next="goNext"
+        @back-to-map="goToMap"
       />
 
       <PhishingEmailTask
-        v-else-if="currentTask.taskType === 'PHISHING_EMAIL' && !result"
+        v-else-if="currentTask.taskType === 'PHISHING_EMAIL'"
         :task="currentTask"
+        :result="result"
+        :is-last-task="currentTaskIndex === tasks.length - 1"
         @submitted="handleSubmit"
+        @next="goNext"
+        @back-to-map="goToMap"
       />
 
-      <p v-else-if="!result" class="error">
+      <p v-else class="error">
         Ukjent taskType: {{ currentTask.taskType }}
       </p>
-
-      <TaskResult
-        v-if="result"
-        :result="result"
-        @next="goNext"
-        @backToMap="goToMap"
-      />
     </section>
 
-    <ConfettiOverlay :active="showConfetti" />
+    <ConfettiOverlay :active="confettiMode" />
     <MedalToast :medal="medalToast" />
   </main>
 </template>
@@ -47,11 +59,14 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { useClassroomStore } from '@/stores/classroom'
+import StudentHeader from '@/components/common/StudentHeader.vue'
 import FakeNewsTask from '@/components/student/FakeNewsTask.vue'
 import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
-import TaskResult from '@/components/student/TaskResult.vue'
 import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
 import MedalToast from '@/components/common/MedalToast.vue'
+import { useSound } from '@/composables/useSound'
+
+const { playCorrect, playWrong, playFanfare } = useSound()
 
 const route = useRoute()
 const router = useRouter()
@@ -61,10 +76,12 @@ const classroomStore = useClassroomStore()
 const tasks = ref([])
 const currentTaskIndex = ref(0)
 const result = ref(null)
+const taskResults = ref({}) // keyed by task.id → SubmitAnswerResponse
 const loading = ref(false)
 const error = ref('')
 const isMockMode = ref(false)
-const showConfetti = ref(false)
+// 'correct' = per-answer burst, 'stop' = big stop-completion blast, false = off
+const confettiMode = ref(false)
 const medalToast = ref(null)
 let confettiTimer = null
 let medalTimer = null
@@ -129,8 +146,8 @@ async function loadTasks() {
   }
 
   if (!classroomId.value) {
-    console.warn('[TaskView] No classroomId available (store/query/localStorage)')
-    error.value = 'Mangler classroomId for å hente oppgaver.'
+    console.warn('[TaskView] No classroomId — redirecting to join')
+    router.push({ name: 'JoinClassroom' })
     return
   }
 
@@ -199,10 +216,20 @@ function buildMockResult(task, answer) {
 }
 
 function handleCelebration(submitResult) {
-  if (submitResult?.stopCompleted) {
-    showConfetti.value = true
-    clearTimeout(confettiTimer)
-    confettiTimer = setTimeout(() => { showConfetti.value = false }, 3000)
+  clearTimeout(confettiTimer)
+
+  if (submitResult?.correct) {
+    if (submitResult.stopCompleted) {
+      confettiMode.value = 'stop'
+      playFanfare()
+    } else {
+      confettiMode.value = 'correct'
+      playCorrect()
+    }
+    confettiTimer = setTimeout(() => { confettiMode.value = false }, 3200)
+  } else {
+    confettiMode.value = false
+    playWrong()
   }
 
   if (submitResult?.medalEarned) {
@@ -218,6 +245,10 @@ onBeforeUnmount(() => {
 })
 
 function goNext() {
+  // Archive the current result into history before clearing
+  if (result.value && currentTask.value) {
+    taskResults.value[currentTask.value.id] = result.value
+  }
   if (currentTaskIndex.value < tasks.value.length - 1) {
     currentTaskIndex.value += 1
     result.value = null
@@ -242,9 +273,28 @@ function goToMap() {
   gap: var(--space-4);
 }
 
-.progress {
-  font-weight: var(--font-semibold);
+.task-dots {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+  padding: var(--space-2) 0;
 }
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  border: 2px solid transparent;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+.dot--current {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  transform: scale(1.2);
+}
+.dot--correct { background: var(--color-success); }
+.dot--wrong   { background: var(--color-danger); }
 
 .mock-badge {
   color: var(--color-warning);
