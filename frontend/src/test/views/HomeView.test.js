@@ -9,9 +9,9 @@ import { useAuthStore } from '@/stores/auth'
 const router = createRouter({
   history: createMemoryHistory(),
   routes: [
-    { path: '/', component: HomeView },
-    { path: '/map', component: { template: '<div>Map</div>' } },
-    { path: '/avatar', component: { template: '<div>Avatar</div>' } },
+    { path: '/', name: 'Home', component: HomeView },
+    { path: '/map', name: 'Map', component: { template: '<div>Map</div>' } },
+    { path: '/avatar', name: 'Avatar', component: { template: '<div>Avatar</div>' } },
     { path: '/student-login', name: 'StudentLogin', component: { template: '<div>Student login</div>' } },
   ],
 })
@@ -19,7 +19,7 @@ const router = createRouter({
 describe('HomeView', () => {
   beforeEach(async () => {
     setActivePinia(createPinia())
-    await router.push('/')
+    await router.push({ name: 'Home' })
     await router.isReady()
   })
 

@@ -29,10 +29,10 @@ const router = useRouter()
 const studentName = computed(() => formatDisplayName(authStore.email))
 
 const cards = [
-  { title: 'Kart', icon: '🗺️', route: '/map', locked: false },
+  { title: 'Kart', icon: '🗺️', route: { name: 'Map' }, locked: false },
   { title: 'Medaljer', icon: '🏅', locked: true },
   { title: 'Notatblokk', icon: '📝', locked: true },
-  { title: 'Avatar', icon: '🕵️', route: '/avatar', locked: false },
+  { title: 'Avatar', icon: '🕵️', route: { name: 'Avatar' }, locked: false },
   { title: 'Ledertavle', icon: '📊', locked: true },
   { title: 'Ukens Mysterium', icon: '🧩', locked: true },
   { title: 'Hjelp', icon: '💡', locked: true },
@@ -55,6 +55,7 @@ function formatDisplayName(email) {
 }
 
 async function handleLogout() {
+  console.log('[HomeView] Student logout')
   authStore.logout()
   await router.push({ name: 'StudentLogin' })
 }

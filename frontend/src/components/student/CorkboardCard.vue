@@ -20,7 +20,7 @@ import { RouterLink } from 'vue-router'
 const props = defineProps({
   title: { type: String, required: true },
   icon: { type: String, default: '📌' },
-  route: { type: String, default: '' },
+  route: { type: [String, Object], default: '' },
   locked: { type: Boolean, default: false },
 })
 
@@ -62,11 +62,11 @@ function handleClick() {
 
 .corkboard-card--locked {
   opacity: 0.6;
-  background: var(--color-background-mute);
+  background: var(--color-bg);
 }
 
 .corkboard-card__icon {
-  font-size: 2rem;
+  font-size: var(--text-4xl);
 }
 
 .corkboard-card__title {
