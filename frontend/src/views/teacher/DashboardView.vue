@@ -109,7 +109,7 @@
     </main>
 
     <!-- Create Classroom Modal -->
-    <BaseModal v-if="showCreateModal" @close="closeCreateModal" title="Create Classroom">
+    <BaseModal v-if="showCreateModal" :model-value="true" @update:modelValue="closeCreateModal" title="Create Classroom">
       <template #header>
         <h2 class="modal-title">Opprett nytt klasserom</h2>
       </template>
