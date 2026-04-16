@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import HomeView from '@/views/student/HomeView.vue'
@@ -12,6 +12,7 @@ const router = createRouter({
     { path: '/', component: HomeView },
     { path: '/map', component: { template: '<div>Map</div>' } },
     { path: '/avatar', component: { template: '<div>Avatar</div>' } },
+    { path: '/student-login', name: 'StudentLogin', component: { template: '<div>Student login</div>' } },
   ],
 })
 
@@ -63,5 +64,20 @@ describe('HomeView', () => {
     const wrapper = mountHomeView()
 
     expect(wrapper.text()).toContain('Hei, Ole Hansen')
+  })
+
+  it('logs out and redirects to student login from the header button', async () => {
+    const authStore = useAuthStore()
+    authStore.token = 'token'
+    authStore.email = 'agent.elev@student.local'
+
+    const wrapper = mountHomeView()
+
+    await wrapper.get('button.home-view__logout').trigger('click')
+    await flushPromises()
+
+    expect(authStore.isAuthenticated).toBe(false)
+    expect(authStore.email).toBe(null)
+    expect(router.currentRoute.value.name).toBe('StudentLogin')
   })
 })

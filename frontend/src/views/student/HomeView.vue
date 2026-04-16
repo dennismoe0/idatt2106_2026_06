@@ -2,6 +2,7 @@
   <main class="home-view">
     <header class="home-view__header">
       <h1 class="home-view__title">Hei, {{ studentName }}</h1>
+      <button type="button" class="home-view__logout" @click="handleLogout">Logg ut</button>
     </header>
 
     <section class="home-view__grid" aria-label="Studentmeny">
@@ -19,10 +20,12 @@
 
 <script setup>
 import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import CorkboardCard from '@/components/student/CorkboardCard.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
+const router = useRouter()
 const studentName = computed(() => formatDisplayName(authStore.email))
 
 const cards = [
@@ -51,6 +54,11 @@ function formatDisplayName(email) {
   )
 }
 
+async function handleLogout() {
+  authStore.logout()
+  await router.push({ name: 'StudentLogin' })
+}
+
 onMounted(() => {
   console.log('[HomeView] Loaded student corkboard for:', studentName.value, 'cards:', cards.length)
 })
@@ -64,6 +72,10 @@ onMounted(() => {
 }
 
 .home-view__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
   margin-bottom: var(--space-6);
 }
 
@@ -71,6 +83,33 @@ onMounted(() => {
   margin: 0;
   color: var(--color-text);
   font-size: var(--text-2xl);
+}
+
+.home-view__logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.home-view__logout:hover {
+  background-color: var(--color-bg);
+}
+
+.home-view__logout:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .home-view__grid {
@@ -82,6 +121,11 @@ onMounted(() => {
 @media (max-width: 640px) {
   .home-view {
     padding: var(--space-4);
+  }
+
+  .home-view__header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>
