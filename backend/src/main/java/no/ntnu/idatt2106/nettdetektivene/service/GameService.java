@@ -58,6 +58,7 @@ public class GameService {
     @Transactional(readOnly = true)
     public List<StopResponse> getStops(Long studentId, Long classroomId) {
         log.info("[GameService] getStops studentId={} classroomId={}", studentId, classroomId);
+        requireClassroomExists(classroomId);
         return stopRepository.findAllByOrderByOrderIndexAsc().stream()
             .map(stop -> toStopResponse(studentId, classroomId, stop))
             .toList();
@@ -299,6 +300,13 @@ public class GameService {
 
     private MedalDto toMedalDto(Medal medal) {
         return new MedalDto(medal.getId(), medal.getName(), medal.getDescription());
+    }
+
+    private void requireClassroomExists(Long classroomId) {
+        if (!classroomRepository.existsById(classroomId)) {
+            log.warn("[GameService] classroom not found classroomId={}", classroomId);
+            throw new ResourceNotFoundException("Classroom not found");
+        }
     }
 
     private void requireUnlocked(Long studentId, Long classroomId, Stop stop) {
