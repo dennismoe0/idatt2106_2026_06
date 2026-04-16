@@ -39,6 +39,7 @@ export const useClassroomStore = defineStore('classroom', () => {
     try {
       const { data } = await classroomService.joinClassroom(payload)
       currentClassroomId.value = data.classroomId
+      localStorage.setItem('classroomId', data.classroomId)
       console.log('[classroom] Joined classroom id:', data.classroomId, 'status:', data.status)
       return data
     } catch (err) {
