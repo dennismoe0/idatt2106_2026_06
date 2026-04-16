@@ -1,134 +1,109 @@
+<template>
+  <main class="waiting-page">
+    <section class="waiting-card">
+      <h1>{{ kicked ? 'Du ble fjernet fra klassen' : 'Venter på godkjenning' }}</h1>
+      <p v-if="!kicked">
+        Forespørselen din er sendt til læreren. Når du er godkjent, kan du fortsette inn i klassen.
+      </p>
+      <p v-else>
+        Læreren har avvist eller fjernet forespørselen din. Du kan prøve igjen med en gyldig klassekode.
+      </p>
+
+      <p v-if="pendingJoin?.displayName" class="waiting-detail">
+        Du er registrert som <strong>{{ pendingJoin.displayName }}</strong>
+        <span v-if="pendingJoin.code"> med klassekode <strong>{{ pendingJoin.code }}</strong></span>.
+      </p>
+
+      <RouterLink class="waiting-link" :to="kicked ? '/join' : '/login'">
+        {{ kicked ? 'Tilbake til bli med i klasse' : 'Tilbake til innlogging' }}
+      </RouterLink>
+    </section>
+  </main>
+</template>
+
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import api from '@/services/api'
 import { useClassroomStore } from '@/stores/classroom'
 
 const router = useRouter()
 const classroomStore = useClassroomStore()
-
-const isLoading = ref(true)
-const errorMessage = ref('')
-const kickedMessage = ref('')
-const currentStatus = ref('')
+const { pendingJoin } = storeToRefs(classroomStore)
+const kicked = ref(false)
 
 let pollInterval = null
 
-async function fetchStudentStatus() {
-  try {
-    errorMessage.value = ''
-    const classroomId = classroomStore.currentClassroomId
-
-    if (!classroomId) {
-      throw new Error('Missing current classroom context')
-    }
-
-    const { data } = await api.get(`/api/classrooms/${classroomId}/students/me/status`)
-    const status = data.status
-
-    if (currentStatus.value !== status) {
-      console.log('[WaitingRoom] Status changed:', currentStatus.value, '→', status)
-    }
-
-    currentStatus.value = status
-    isLoading.value = false
-
-    if (status === 'APPROVED') {
-      console.log('[WaitingRoom] Student approved → redirecting to /')
-      stopPolling()
-      router.push('/')
-      return
-    }
-
-    if (status === 'KICKED') {
-      console.warn('[WaitingRoom] Student was kicked')
-      kickedMessage.value = 'Du har blitt fjernet fra venteværelset.'
-      stopPolling()
-      return
-    }
-  } catch (error) {
-    isLoading.value = false
-    errorMessage.value = 'Kunne ikke hente venteværelsesstatus.'
-
-    console.error('[WaitingRoom] fetchStudentStatus failed:', error)
-  }
-}
-
-function startPolling() {
-  console.log('[WaitingRoom] Starting polling...')
-
-  fetchStudentStatus()
-
-  pollInterval = setInterval(() => {
-    fetchStudentStatus()
-  }, 3000)
-}
-
-function stopPolling() {
-  if (pollInterval) {
-    console.log('[WaitingRoom] Stopping polling')
-    clearInterval(pollInterval)
-    pollInterval = null
-  }
-}
-
 onMounted(() => {
-  console.log('[WaitingRoom] Component mounted')
-  startPolling()
+  if (!pendingJoin.value) {
+    console.warn('[WaitingRoomView] No pending join — redirecting to join page')
+    router.replace({ name: 'JoinClassroom' })
+    return
+  }
+
+  pollInterval = setInterval(async () => {
+    try {
+      const status = await classroomStore.fetchMyStatus(pendingJoin.value.classroomId)
+      if (status === 'APPROVED') {
+        clearInterval(pollInterval)
+        pollInterval = null
+        router.push({ name: 'Home' })
+      } else if (status === 'KICKED') {
+        clearInterval(pollInterval)
+        pollInterval = null
+        kicked.value = true
+      }
+    } catch (err) {
+      console.error('[WaitingRoomView] Failed to poll status:', err)
+    }
+  }, 3000)
 })
 
 onUnmounted(() => {
-  console.log('[WaitingRoom] Component unmounted')
-  stopPolling()
+  if (pollInterval) {
+    clearInterval(pollInterval)
+  }
 })
 </script>
 
-<template>
-  <section class="waiting-room-view">
-    <h1>Venterom</h1>
-
-    <div v-if="isLoading" class="waiting-room-view__loading">
-      <LoadingSpinner />
-      <p>Du venter på godkjenning.</p>
-    </div>
-
-    <p v-else-if="kickedMessage">{{ kickedMessage }}</p>
-
-    <div v-else>
-      <p>Du venter på godkjenning.</p>
-      <p v-if="currentStatus">Status: {{ currentStatus }}</p>
-    </div>
-
-    <p v-if="errorMessage" class="error-message">
-      {{ errorMessage }}
-    </p>
-  </section>
-</template>
-
 <style scoped>
-.waiting-room-view {
-  display: grid;
-  gap: var(--space-4);
-  align-content: start;
+.waiting-page {
   min-height: 100vh;
-  padding: var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
   background: var(--color-bg);
 }
 
-.waiting-room-view h1 {
-  font-size: var(--text-2xl);
-  font-weight: var(--font-bold);
+.waiting-card {
+  width: min(100%, 460px);
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.waiting-card h1 {
+  margin-bottom: var(--space-4);
+  color: var(--color-primary);
+  font-size: var(--text-3xl);
+}
+
+.waiting-card p {
   color: var(--color-text);
+  line-height: 1.5;
 }
 
-.waiting-room-view__loading {
-  display: grid;
-  justify-items: start;
-  gap: var(--space-3);
+.waiting-detail {
+  margin-top: var(--space-4);
+  color: var(--color-text-muted);
 }
 
-.error-message {
-  color: var(--color-danger);
+.waiting-link {
+  display: inline-block;
+  margin-top: var(--space-6);
+  color: var(--color-primary);
+  font-weight: var(--font-medium);
 }
 </style>
