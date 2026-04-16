@@ -21,7 +21,8 @@ describe('AvatarPreview', () => {
     })
 
     const image = wrapper.get('img')
-    expect(image.attributes('alt')).toContain('medium skin tone')
+    expect(image.attributes('alt')).toContain('medium')
+    expect(image.attributes('alt')).toContain('hudtone')
     expect(image.attributes('src')).toContain('adventurer-neutral.svg')
   })
 
