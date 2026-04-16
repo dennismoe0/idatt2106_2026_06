@@ -132,7 +132,7 @@ const optionTranslations = {
   uniform: 'Uniform',
   raincoat: 'Regnjakke',
   none: 'Ingen',
-  badge: 'Badge',
+  badge: 'Merke',
   glasses: 'Briller',
   magnifier: 'Forstørrelsesglass',
 }
