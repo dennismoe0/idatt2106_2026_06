@@ -87,6 +87,7 @@ export const useClassroomStore = defineStore('classroom', () => {
 
   return {
     classrooms, currentClassroom, students, currentClassroomId,
-    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents, updateStudentStatus
+    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents,
+    updateStudentStatus, fetchMyStatus
   }
 })
