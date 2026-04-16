@@ -10,7 +10,7 @@
       </div>
 
       <div class="avatar-meta">
-        <h3>Forhandsvisning</h3>
+        <h3>Forhåndsvisning</h3>
         <p>{{ previewLabel }}</p>
       </div>
 
@@ -41,6 +41,34 @@ const props = defineProps({
   },
 })
 
+const optionTranslations = {
+  neutral: 'Nøytral',
+  female: 'Jente',
+  male: 'Gutt',
+  blue: 'Blå',
+  brown: 'Brun',
+  green: 'Grønn',
+  gray: 'Grå',
+  light: 'Lys',
+  medium: 'Middels',
+  dark: 'Mørk',
+  black: 'Svart',
+  blonde: 'Blond',
+  red: 'Rød',
+  short: 'Kort',
+  curly: 'Krøllete',
+  ponytail: 'Hestehale',
+  buzz: 'Kortklipt',
+  'detective-coat': 'Detektivfrakk',
+  hoodie: 'Hettegenser',
+  uniform: 'Uniform',
+  raincoat: 'Regnjakke',
+  none: 'Ingen',
+  badge: 'Merke',
+  glasses: 'Briller',
+  magnifier: 'Forstørrelsesglass',
+}
+
 const avatarImage = computed(() => {
   switch (props.selections.skinColor) {
     case 'light':
@@ -65,7 +93,7 @@ const previewAlt = computed(() =>
 )
 
 function formatOption(value) {
-  return value
+  return optionTranslations[value] || value
     .split('-')
     .map(part => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ')
