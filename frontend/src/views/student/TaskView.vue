@@ -139,7 +139,11 @@ async function loadTasks() {
   error.value = ''
 
   try {
-    tasks.value = await gameStore.fetchTasks(stopId.value, classroomId.value)
+    tasks.value = (await gameStore.fetchTasks(stopId.value, classroomId.value))
+      .map(t => ({
+        ...t,
+        contentJson: typeof t.contentJson === 'string' ? JSON.parse(t.contentJson) : t.contentJson
+      }))
     console.log('[TaskView] Loaded', tasks.value.length, 'tasks from API')
     isMockMode.value = false
   } catch (apiError) {
