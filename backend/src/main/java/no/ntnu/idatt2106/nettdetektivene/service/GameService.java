@@ -1,8 +1,10 @@
 package no.ntnu.idatt2106.nettdetektivene.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.MedalDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ProgressResponse;
@@ -24,6 +26,8 @@ import no.ntnu.idatt2106.nettdetektivene.repository.StudentMedalRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentProgressRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +43,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GameService {
 
+    private static final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int CORRECT_SCORE = 100;
 
     private final StopRepository stopRepository;
@@ -52,6 +57,7 @@ public class GameService {
 
     @Transactional(readOnly = true)
     public List<StopResponse> getStops(Long studentId, Long classroomId) {
+        log.info("[GameService] getStops studentId={} classroomId={}", studentId, classroomId);
         return stopRepository.findAllByOrderByOrderIndexAsc().stream()
             .map(stop -> toStopResponse(studentId, classroomId, stop))
             .toList();
@@ -59,8 +65,17 @@ public class GameService {
 
     @Transactional(readOnly = true)
     public List<TaskResponse> getTasks(Long studentId, Long classroomId, Long stopId) {
+        log.info(
+            "[GameService] getTasks studentId={} classroomId={} stopId={}",
+            studentId,
+            classroomId,
+            stopId
+        );
         Stop stop = stopRepository.findById(stopId)
-            .orElseThrow(() -> new ResourceNotFoundException("Stop not found"));
+            .orElseThrow(() -> {
+                log.warn("[GameService] stop not found stopId={} studentId={} classroomId={}", stopId, studentId, classroomId);
+                return new ResourceNotFoundException("Stop not found");
+            });
         requireUnlocked(studentId, classroomId, stop);
 
         return taskRepository.findByStop_IdOrderByIdAsc(stopId).stream()
@@ -70,8 +85,17 @@ public class GameService {
 
     @Transactional(readOnly = true)
     public TaskResponse getTask(Long studentId, Long classroomId, Long taskId) {
+        log.info(
+            "[GameService] getTask studentId={} classroomId={} taskId={}",
+            studentId,
+            classroomId,
+            taskId
+        );
         Task task = taskRepository.findById(taskId)
-            .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+            .orElseThrow(() -> {
+                log.warn("[GameService] task not found taskId={} studentId={} classroomId={}", taskId, studentId, classroomId);
+                return new ResourceNotFoundException("Task not found");
+            });
         requireUnlocked(studentId, classroomId, task.getStop());
         return toTaskResponse(studentId, classroomId, task);
     }
@@ -83,8 +107,17 @@ public class GameService {
         Long taskId,
         SubmitAnswerRequest req
     ) {
+        log.info(
+            "[GameService] submitAnswer studentId={} classroomId={} taskId={}",
+            studentId,
+            classroomId,
+            taskId
+        );
         Task task = taskRepository.findById(taskId)
-            .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+            .orElseThrow(() -> {
+                log.warn("[GameService] task not found taskId={} studentId={} classroomId={}", taskId, studentId, classroomId);
+                return new ResourceNotFoundException("Task not found");
+            });
         requireUnlocked(studentId, classroomId, task.getStop());
 
         String explanation = extractExplanation(task);
@@ -102,6 +135,7 @@ public class GameService {
         }
 
         if (!checkAnswer(task, req == null ? null : req.answer())) {
+            log.info("[GameService] wrong answer studentId={} taskId={}", studentId, taskId);
             return new SubmitAnswerResponse(false, 0, explanation, false, null);
         }
 
@@ -117,6 +151,9 @@ public class GameService {
         studentProgressRepository.save(progress);
 
         boolean stopCompleted = isStopComplete(studentId, classroomId, task.getStop().getId());
+        if (stopCompleted) {
+            log.info("[GameService] stop completed studentId={} classroomId={} stopId={}", studentId, classroomId, task.getStop().getId());
+        }
         MedalDto medalEarned = stopCompleted
             ? checkAndAwardMedal(studentId, classroomId, task.getStop().getId()).map(this::toMedalDto).orElse(null)
             : null;
@@ -126,6 +163,7 @@ public class GameService {
 
     @Transactional(readOnly = true)
     public ProgressResponse getProgress(Long studentId, Long classroomId) {
+        log.info("[GameService] getProgress studentId={} classroomId={}", studentId, classroomId);
         List<StopResponse> stops = getStops(studentId, classroomId);
         int stopsCompleted = (int) stops.stream().filter(StopResponse::completed).count();
         return new ProgressResponse(stopsCompleted, stops.size(), stops);
@@ -164,6 +202,13 @@ public class GameService {
         studentMedal.setClassroom(classroomRepository.getReferenceById(classroomId));
         studentMedal.setMedal(medal.get());
         studentMedalRepository.save(studentMedal);
+        log.info(
+            "[GameService] awarded medal studentId={} classroomId={} stopId={} medalId={}",
+            studentId,
+            classroomId,
+            stopId,
+            medal.get().getId()
+        );
         return medal;
     }
 
@@ -182,6 +227,7 @@ public class GameService {
             }
             return false;
         } catch (JsonProcessingException exception) {
+            log.error("[GameService] failed to parse correct answer JSON taskId={}", task.getId(), exception);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Task answer data is invalid");
         }
     }
@@ -245,7 +291,7 @@ public class GameService {
             task.getId(),
             task.getStop().getId(),
             task.getTaskType().name(),
-            task.getContentJson(),
+            sanitizeContentForClient(task.getTaskType(), task.getContentJson()),
             task.getGuidanceText(),
             alreadyCompleted
         );
@@ -257,13 +303,19 @@ public class GameService {
 
     private void requireUnlocked(Long studentId, Long classroomId, Stop stop) {
         if (!isStopUnlocked(studentId, classroomId, stop)) {
+            log.warn(
+                "[GameService] locked stop access studentId={} classroomId={} stopId={}",
+                studentId,
+                classroomId,
+                stop.getId()
+            );
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Stop is locked");
         }
     }
 
     private boolean allTasksCompleted(Long studentId, Long classroomId, Long stopId) {
         long taskCount = taskRepository.countByStop_Id(stopId);
-        return completedTaskCount(studentId, classroomId, stopId) == taskCount;
+        return taskCount > 0 && completedTaskCount(studentId, classroomId, stopId) == taskCount;
     }
 
     private long completedTaskCount(Long studentId, Long classroomId, Long stopId) {
@@ -275,7 +327,40 @@ public class GameService {
         try {
             return objectMapper.readTree(task.getContentJson()).path("explanation").asText("");
         } catch (JsonProcessingException exception) {
+            log.error("[GameService] failed to parse content JSON taskId={}", task.getId(), exception);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Task content data is invalid");
+        }
+    }
+
+    private String sanitizeContentForClient(TaskType type, String contentJson) {
+        try {
+            JsonNode parsed = objectMapper.readTree(contentJson);
+            if (!parsed.isObject()) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Task content invalid");
+            }
+
+            ObjectNode root = (ObjectNode) parsed;
+            root.remove("explanation");
+
+            if (type == TaskType.FAKE_NEWS && root.path("articles").isArray()) {
+                ArrayNode articles = (ArrayNode) root.path("articles");
+                articles.forEach(article -> {
+                    if (article.isObject()) {
+                        ((ObjectNode) article).remove("isReal");
+                    }
+                });
+            }
+
+            if (type == TaskType.PHISHING_EMAIL && root.path("email").isObject()) {
+                ObjectNode email = (ObjectNode) root.path("email");
+                email.remove("correctAction");
+                email.remove("suspiciousElements");
+            }
+
+            return objectMapper.writeValueAsString(root);
+        } catch (JsonProcessingException exception) {
+            log.error("[GameService] failed to sanitize content taskType={}", type, exception);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Task content invalid");
         }
     }
 }

@@ -1,5 +1,8 @@
 package no.ntnu.idatt2106.nettdetektivene.seed;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.entity.Medal;
 import no.ntnu.idatt2106.nettdetektivene.entity.Stop;
@@ -21,6 +24,7 @@ public class DataLoader implements ApplicationRunner {
     private final StopRepository stopRepository;
     private final TaskRepository taskRepository;
     private final MedalRepository medalRepository;
+    private final ObjectMapper objectMapper;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -126,7 +130,7 @@ public class DataLoader implements ApplicationRunner {
                 "support@dnb-kundeservice.com",
                 "Viktig: Bekreft kontoen din",
                 "Kjære kunde, kontoen din blir stengt om 2 timer. Klikk på lenken og bekreft BankID-informasjonen din.",
-                "[\"fromEmail\", \"link\", \"urgency\"]",
+                List.of("fromEmail", "link", "urgency"),
                 "Avsenderadressen er ikke dnb.no, meldingen haster kunstig og ber deg klikke på en mistenkelig lenke."
             ),
             phishingTask(
@@ -138,7 +142,7 @@ public class DataLoader implements ApplicationRunner {
                 "pakke@posten-levering.net",
                 "Pakken din mangler porto",
                 "Hei! Betal 19 kroner innen i kveld for å unngå at pakken returneres. Betal her.",
-                "[\"fromEmail\", \"payment\", \"urgency\"]",
+                List.of("fromEmail", "payment", "urgency"),
                 "Avsenderadressen ligner på Posten, men er ikke offisiell. Små gebyrer og hastverk brukes ofte i svindel."
             ),
             phishingTask(
@@ -150,7 +154,7 @@ public class DataLoader implements ApplicationRunner {
                 "it-hjelp@skole-login.com",
                 "Passordet ditt utløper i dag",
                 "Logg inn med skolebrukeren din på lenken under for å beholde tilgang til Teams og e-post.",
-                "[\"fromEmail\", \"loginRequest\", \"link\"]",
+                List.of("fromEmail", "loginRequest", "link"),
                 "E-posten ber om innlogging via et ukjent domene. IT-meldinger bør sjekkes mot skolens offisielle kanaler."
             )
         ));
@@ -198,23 +202,18 @@ public class DataLoader implements ApplicationRunner {
         String fromEmail,
         String subject,
         String body,
-        String suspiciousElementsJson,
+        List<String> suspiciousElements,
         String explanation
     ) {
         Task task = baseTask(stop, orderIndex, title, description, TaskType.PHISHING_EMAIL);
-        task.setContentJson("""
-            {
-              "email": {
-                "fromName": "%s",
-                "fromEmail": "%s",
-                "subject": "%s",
-                "body": "%s",
-                "suspiciousElements": %s,
-                "correctAction": "REPORT"
-              },
-              "explanation": "%s"
-            }
-            """.formatted(fromName, fromEmail, subject, body, suspiciousElementsJson, explanation));
+        task.setContentJson(phishingContentJson(
+            fromName,
+            fromEmail,
+            subject,
+            body,
+            suspiciousElements,
+            explanation
+        ));
         task.setCorrectAnswerJson("""
             {
               "action": "REPORT"
@@ -222,6 +221,33 @@ public class DataLoader implements ApplicationRunner {
             """);
         task.setGuidanceText("Se nøye på avsender, lenker, hastverk og hva e-posten ber deg gjøre.");
         return task;
+    }
+
+    private String phishingContentJson(
+        String fromName,
+        String fromEmail,
+        String subject,
+        String body,
+        List<String> suspiciousElements,
+        String explanation
+    ) {
+        ObjectNode email = objectMapper.createObjectNode();
+        email.put("fromName", fromName);
+        email.put("fromEmail", fromEmail);
+        email.put("subject", subject);
+        email.put("body", body);
+        email.set("suspiciousElements", objectMapper.valueToTree(suspiciousElements));
+        email.put("correctAction", "REPORT");
+
+        ObjectNode root = objectMapper.createObjectNode();
+        root.set("email", email);
+        root.put("explanation", explanation);
+
+        try {
+            return objectMapper.writeValueAsString(root);
+        } catch (JsonProcessingException exception) {
+            throw new IllegalStateException("Failed to build phishing task seed content", exception);
+        }
     }
 
     private Task baseTask(Stop stop, int orderIndex, String title, String description, TaskType taskType) {
