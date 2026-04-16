@@ -66,4 +66,28 @@ describe('StudentLoginView', () => {
 
     expect(authStore.studentLogin).toHaveBeenCalledWith('agent.nora')
   })
+
+  it('routes to intro after login when intro has not been seen', async () => {
+    const { wrapper, router, authStore } = await mountView()
+    authStore.studentLogin = vi.fn().mockResolvedValue({})
+
+    await wrapper.find('input').setValue('agent.nora')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('Intro')
+  })
+
+  it('routes to home after login when intro has been seen', async () => {
+    localStorage.setItem('hasSeenIntro', 'true')
+
+    const { wrapper, router, authStore } = await mountView()
+    authStore.studentLogin = vi.fn().mockResolvedValue({})
+
+    await wrapper.find('input').setValue('agent.nora')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('Home')
+  })
 })

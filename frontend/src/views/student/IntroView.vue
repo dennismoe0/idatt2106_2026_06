@@ -11,7 +11,7 @@
         begynne første oppdrag.
       </p>
 
-      <RouterLink class="intro-link" to="/">Gå til startsiden</RouterLink>
+      <RouterLink class="intro-link" :to="{ name: 'Home' }">Gå til startsiden</RouterLink>
     </section>
   </main>
 </template>
