@@ -4,8 +4,8 @@ import { useAuthStore } from '@/stores/auth'
 
 vi.mock('@/services/api', () => ({
   default: {
-    post: vi.fn()
-  }
+    post: vi.fn(),
+  },
 }))
 
 import api from '@/services/api'
@@ -25,7 +25,7 @@ describe('auth store', () => {
 
   it('login sets token, role, user and persists to localStorage', async () => {
     api.post.mockResolvedValue({
-      data: { token: 'test-jwt', role: 'TEACHER', userId: 1, email: 'teacher@test.no' }
+      data: { token: 'test-jwt', role: 'TEACHER', userId: 1, email: 'teacher@test.no' },
     })
     const store = useAuthStore()
     await store.login({ email: 'teacher@test.no', password: 'password' })

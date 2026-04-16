@@ -1,0 +1,41 @@
+name: Documentation
+description: Add or update documentation — README, API docs, architecture notes, decisions
+labels: ["documentation"]
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      placeholder: What needs to be documented or updated
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: What is missing, outdated, or unclear
+    validations:
+      required: true
+
+  - type: dropdown
+    id: doc_type
+    attributes:
+      label: Document type
+      options:
+        - README / setup guide
+        - API reference
+        - Architecture / decision record
+        - Code comments / Javadoc
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: sprint
+    attributes:
+      label: Sprint
+      options:
+        - S1
+        - S2
+        - S3
