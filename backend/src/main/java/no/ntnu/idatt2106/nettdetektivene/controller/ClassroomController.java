@@ -6,8 +6,11 @@ import no.ntnu.idatt2106.nettdetektivene.dto.classroom.ClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.CreateClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.UpdateStudentStatusRequest;
 import no.ntnu.idatt2106.nettdetektivene.service.ClassroomService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +30,8 @@ import java.util.List;
 @RequestMapping("/api/classrooms")
 @RequiredArgsConstructor
 public class ClassroomController {
+    private static final Logger log = LoggerFactory.getLogger(ClassroomController.class);
+
     private final ClassroomService classroomService;
 
     @PostMapping
@@ -82,6 +87,17 @@ public class ClassroomController {
         @Valid @RequestBody UpdateStudentStatusRequest request
     ) {
         return classroomService.updateStudentStatus(currentUserId(userDetails), id, sid, request.status());
+    }
+
+    @GetMapping("/{id}/my-status")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<StudentStatusResponse> getMyStatus(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+        Long studentId = currentUserId(userDetails);
+        log.info("[ClassroomController] GET /api/classrooms/{}/my-status studentId={}", id, studentId);
+        return ResponseEntity.ok(classroomService.getMyStatus(studentId, id));
     }
 
     private Long currentUserId(UserDetails userDetails) {
