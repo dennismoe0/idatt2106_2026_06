@@ -60,11 +60,8 @@
   --shadow-lg:       0 10px 15px rgba(0,0,0,.10);
   --color-btn-primary-shadow: rgba(43, 108, 176, 0.35);
   --color-primary-focus-ring: rgba(43, 108, 176, 0.15);
-  --color-warning-light: #FC8181;
-  --color-warning:  #E53E3E;
-  --color-muted:       #718096;
-  --color-muted-light: #A0AEC0;
-  --color-danger-border: #FC8181;
+  --color-warning:  #DD6B20;
+  --color-warning-light: color-mix(in srgb, #DD6B20 40%, white);
   --radius-sm:       0.25rem;
   --radius-md:       0.5rem;
   --radius-lg:       1rem;

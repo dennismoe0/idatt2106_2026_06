@@ -275,6 +275,6 @@ async function copyCode() {
 }
 .btn-danger {
   background: var(--color-danger);
-  color: #fff;
+  color: var(--color-text-on-dark);
 }
 </style>
