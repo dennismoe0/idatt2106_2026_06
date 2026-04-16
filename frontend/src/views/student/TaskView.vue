@@ -229,7 +229,7 @@ function goNext() {
 }
 
 function goToMap() {
-  router.push('/map')
+  router.push({ name: 'Map' })
 }
 </script>
 
