@@ -81,6 +81,7 @@ import BackButton from '@/components/common/BackButton.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import { useAvatarStore } from '@/stores/avatar'
+import { formatOption } from '@/utils/avatarOptions'
 
 const avatarStore = useAvatarStore()
 
@@ -109,34 +110,6 @@ const hasChanges = computed(() =>
   fields.some(({ key }) => form[key] !== originalAvatar.value[key])
 )
 
-const optionTranslations = {
-  neutral: 'Nøytral',
-  female: 'Jente',
-  male: 'Gutt',
-  blue: 'Blå',
-  brown: 'Brun',
-  green: 'Grønn',
-  gray: 'Grå',
-  light: 'Lys',
-  medium: 'Middels',
-  dark: 'Mørk',
-  black: 'Svart',
-  blonde: 'Blond',
-  red: 'Rød',
-  short: 'Kort',
-  curly: 'Krøllete',
-  ponytail: 'Hestehale',
-  buzz: 'Kortklipt',
-  'detective-coat': 'Detektivfrakk',
-  hoodie: 'Hettegenser',
-  uniform: 'Uniform',
-  raincoat: 'Regnjakke',
-  none: 'Ingen',
-  badge: 'Merke',
-  glasses: 'Briller',
-  magnifier: 'Forstørrelsesglass',
-}
-
 function createEmptyAvatar() {
   return {
     gender: '',
@@ -155,13 +128,6 @@ function applyAvatar(target, source) {
   for (const { key } of fields) {
     target[key] = source?.[key] ?? ''
   }
-}
-
-function formatOption(value) {
-  return optionTranslations[value] || value
-    .split('-')
-    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ')
 }
 
 function resetForm() {
@@ -225,7 +191,7 @@ loadAvatarPage()
 <style scoped>
 .avatar-view {
   min-height: 100vh;
-  padding: 2rem 1rem 3rem;
+  padding: var(--space-8) var(--space-4) var(--space-12);
   background:
     radial-gradient(circle at top left, var(--color-primary-soft-strong), transparent 30%),
     radial-gradient(circle at bottom right, var(--color-accent-soft), transparent 28%),
@@ -239,8 +205,8 @@ loadAvatarPage()
 
 .avatar-header {
   display: grid;
-  gap: 1rem;
-  margin-bottom: 1.75rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
 }
 
 .eyebrow {
@@ -261,20 +227,20 @@ loadAvatarPage()
 
 .subtitle {
   max-width: 42rem;
-  margin: 0.75rem 0 0;
+  margin: var(--space-3) 0 0;
   color: var(--color-text-muted);
-  font-size: 1.02rem;
+  font-size: var(--text-base);
 }
 
 .avatar-layout {
   display: grid;
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 .avatar-panel,
 .state-card {
-  padding: 1.4rem;
-  border-radius: 1.5rem;
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
   background: var(--color-surface-glass);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-lg);
@@ -283,39 +249,39 @@ loadAvatarPage()
 
 .avatar-panel--preview {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
   align-content: start;
 }
 
 .avatar-panel--form {
   display: grid;
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 .selector-grid {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .selector-field {
   display: grid;
-  gap: 0.45rem;
+  gap: var(--space-2);
 }
 
 .selector-field span {
-  font-size: 0.92rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: var(--color-text);
 }
 
 .selector-field select {
   width: 100%;
-  padding: 0.9rem 1rem;
-  border-radius: 1rem;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--color-border-strong);
   background: var(--color-surface);
   color: var(--color-text);
-  font-size: 0.98rem;
+  font-size: var(--text-base);
   outline: none;
 }
 
@@ -326,7 +292,7 @@ loadAvatarPage()
 
 .actions {
   display: flex;
-  gap: 0.85rem;
+  gap: var(--space-3);
   justify-content: flex-end;
   flex-wrap: wrap;
 }
@@ -335,7 +301,7 @@ loadAvatarPage()
   min-height: 18rem;
   display: grid;
   place-items: center;
-  gap: 0.75rem;
+  gap: var(--space-3);
   text-align: center;
 }
 
@@ -349,9 +315,9 @@ loadAvatarPage()
 }
 
 .feedback {
-  padding: 0.9rem 1rem;
-  border-radius: 1rem;
-  font-size: 0.95rem;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 

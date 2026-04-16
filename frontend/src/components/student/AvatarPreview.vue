@@ -33,6 +33,7 @@ import { computed } from 'vue'
 import neutralAvatar from '@/assets/avatar/presets/adventurer-neutral.svg'
 import lightAvatar from '@/assets/avatar/presets/adventurer-light.svg'
 import warmAvatar from '@/assets/avatar/presets/adventurer-warm.svg'
+import { formatOption } from '@/utils/avatarOptions'
 
 const props = defineProps({
   selections: {
@@ -40,34 +41,6 @@ const props = defineProps({
     required: true,
   },
 })
-
-const optionTranslations = {
-  neutral: 'Nøytral',
-  female: 'Jente',
-  male: 'Gutt',
-  blue: 'Blå',
-  brown: 'Brun',
-  green: 'Grønn',
-  gray: 'Grå',
-  light: 'Lys',
-  medium: 'Middels',
-  dark: 'Mørk',
-  black: 'Svart',
-  blonde: 'Blond',
-  red: 'Rød',
-  short: 'Kort',
-  curly: 'Krøllete',
-  ponytail: 'Hestehale',
-  buzz: 'Kortklipt',
-  'detective-coat': 'Detektivfrakk',
-  hoodie: 'Hettegenser',
-  uniform: 'Uniform',
-  raincoat: 'Regnjakke',
-  none: 'Ingen',
-  badge: 'Merke',
-  glasses: 'Briller',
-  magnifier: 'Forstørrelsesglass',
-}
 
 const avatarImage = computed(() => {
   switch (props.selections.skinColor) {
@@ -91,13 +64,6 @@ const previewLabel = computed(() => {
 const previewAlt = computed(() =>
   `Avatarforhåndsvisning med ${props.selections.skinColor || 'medium'} hudtone`
 )
-
-function formatOption(value) {
-  return optionTranslations[value] || value
-    .split('-')
-    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ')
-}
 </script>
 
 <style scoped>
@@ -107,10 +73,10 @@ function formatOption(value) {
 
 .avatar-card {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
   justify-items: center;
-  padding: 1.5rem;
-  border-radius: 1.5rem;
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
   background:
     radial-gradient(circle at top, var(--color-surface-glass-strong), var(--color-surface-glass)),
     linear-gradient(145deg, var(--color-surface-glass-strong), var(--color-primary-soft));
@@ -123,8 +89,8 @@ function formatOption(value) {
   aspect-ratio: 1 / 1;
   display: grid;
   place-items: center;
-  padding: 0.75rem;
-  border-radius: 1.4rem;
+  padding: var(--space-3);
+  border-radius: var(--radius-xl);
   background:
     radial-gradient(circle at top, var(--color-surface-glass-strong), var(--color-surface-glass)),
     linear-gradient(180deg, var(--color-surface-glass), var(--color-primary-soft));
@@ -143,7 +109,7 @@ function formatOption(value) {
 
 .avatar-meta h3 {
   margin: 0 0 0.35rem;
-  font-size: 1.05rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: var(--color-text);
 }
@@ -151,22 +117,22 @@ function formatOption(value) {
 .avatar-meta p {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.95rem;
+  font-size: var(--text-sm);
 }
 
 .avatar-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--space-2);
   justify-content: center;
 }
 
 .avatar-tag {
-  padding: 0.45rem 0.7rem;
-  border-radius: 999px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
   background: var(--color-primary-soft);
   color: var(--color-primary);
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   font-weight: 700;
 }
 
@@ -174,7 +140,7 @@ function formatOption(value) {
   margin: 0;
   text-align: center;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   line-height: 1.45;
 }
 </style>
