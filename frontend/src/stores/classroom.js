@@ -73,8 +73,21 @@ export const useClassroomStore = defineStore('classroom', () => {
     }
   }
 
+  async function fetchMyStatus(classroomId) {
+    console.log('[classroom] Fetching my status for classroom:', classroomId)
+    try {
+      const { data } = await classroomService.getMyStatus(classroomId)
+      console.log('[classroom] My status:', data.status)
+      return data.status
+    } catch (err) {
+      console.error('[classroom] Failed to fetch status:', err)
+      throw err
+    }
+  }
+
   return {
     classrooms, currentClassroom, students, currentClassroomId,
-    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents, updateStudentStatus
+    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents,
+    updateStudentStatus, fetchMyStatus
   }
 })
