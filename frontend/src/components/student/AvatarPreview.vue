@@ -10,7 +10,7 @@
       </div>
 
       <div class="avatar-meta">
-        <h3>Live Preview</h3>
+        <h3>Forhandsvisning</h3>
         <p>{{ previewLabel }}</p>
       </div>
 
@@ -22,7 +22,7 @@
       </div>
 
       <p class="avatar-note">
-        Initial test version using three imported SVG presets. More detailed layered parts can be added later.
+        Første testversjon med tre importerte SVG-forhåndsinnstillinger. Mer detaljerte lagdelte deler kan legges til senere.
       </p>
     </div>
   </section>
@@ -57,11 +57,11 @@ const previewLabel = computed(() => {
   const outfit = props.selections.outfit || 'detective-coat'
   const hair = props.selections.hairStyle || 'short'
   const accessory = props.selections.accessory || 'badge'
-  return `${formatOption(outfit)} with ${formatOption(hair)} hair and ${formatOption(accessory)}`
+  return `${formatOption(outfit)} med ${formatOption(hair)} og ${formatOption(accessory)}`
 })
 
 const previewAlt = computed(() =>
-  `Avatar preview with ${props.selections.skinColor || 'medium'} skin tone`
+  `Avatarforhåndsvisning med ${props.selections.skinColor || 'medium'} hudtone`
 )
 
 function formatOption(value) {
@@ -84,10 +84,10 @@ function formatOption(value) {
   padding: 1.5rem;
   border-radius: 1.5rem;
   background:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.95), rgba(230, 238, 255, 0.88)),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(214, 229, 255, 0.86));
-  border: 1px solid rgba(79, 124, 255, 0.18);
-  box-shadow: 0 18px 42px rgba(58, 86, 130, 0.12);
+    radial-gradient(circle at top, var(--color-surface-glass-strong), var(--color-surface-glass)),
+    linear-gradient(145deg, var(--color-surface-glass-strong), var(--color-primary-soft));
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
 }
 
 .avatar-illustration-wrap {
@@ -98,15 +98,15 @@ function formatOption(value) {
   padding: 0.75rem;
   border-radius: 1.4rem;
   background:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.9), rgba(236, 241, 255, 0.75)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(232, 239, 255, 0.95));
+    radial-gradient(circle at top, var(--color-surface-glass-strong), var(--color-surface-glass)),
+    linear-gradient(180deg, var(--color-surface-glass), var(--color-primary-soft));
 }
 
 .avatar-illustration {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 20px 28px rgba(38, 58, 93, 0.15));
+  filter: drop-shadow(0 20px 28px var(--color-primary-focus-ring));
 }
 
 .avatar-meta {
@@ -117,12 +117,12 @@ function formatOption(value) {
   margin: 0 0 0.35rem;
   font-size: 1.05rem;
   font-weight: 700;
-  color: #20304a;
+  color: var(--color-text);
 }
 
 .avatar-meta p {
   margin: 0;
-  color: #56657e;
+  color: var(--color-text-muted);
   font-size: 0.95rem;
 }
 
@@ -136,8 +136,8 @@ function formatOption(value) {
 .avatar-tag {
   padding: 0.45rem 0.7rem;
   border-radius: 999px;
-  background: rgba(79, 124, 255, 0.12);
-  color: #2b4675;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
   font-size: 0.82rem;
   font-weight: 700;
 }
@@ -145,7 +145,7 @@ function formatOption(value) {
 .avatar-note {
   margin: 0;
   text-align: center;
-  color: #6b7b96;
+  color: var(--color-text-muted);
   font-size: 0.85rem;
   line-height: 1.45;
 }
