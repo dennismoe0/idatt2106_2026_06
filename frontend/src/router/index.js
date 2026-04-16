@@ -3,6 +3,8 @@ import { useAuthStore } from '@/stores/auth'
 
 const routes = [
   // Public
+
+
   { path: '/login',         name: 'Login',        component: () => import('@/views/auth/LoginView.vue'),              meta: { public: true } },
   { path: '/register',      name: 'Register',     component: () => import('@/views/auth/RegisterView.vue'),           meta: { public: true } },
   { path: '/unauthorized',  name: 'Unauthorized', component: () => import('@/views/UnauthorizedView.vue'),            meta: { public: true } },
@@ -16,6 +18,7 @@ const routes = [
   { path: '/map',           name: 'Map',            component: () => import('@/views/student/MapView.vue'),           meta: { role: 'STUDENT' } },
   { path: '/task',          name: 'Task',           component: () => import('@/views/student/TaskView.vue'),          meta: { role: 'STUDENT' } },
   { path: '/avatar',        name: 'Avatar',         component: () => import('@/views/student/AvatarView.vue'),        meta: { role: 'STUDENT' } },
+
 
   // Teacher
   { path: '/teacher',                 name: 'Dashboard',       component: () => import('@/views/teacher/DashboardView.vue'),       meta: { role: 'TEACHER' } },
