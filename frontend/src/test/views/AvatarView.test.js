@@ -89,7 +89,7 @@ describe('AvatarView', () => {
 
     expect(store.fetchAvatar).toHaveBeenCalledTimes(1)
     expect(store.fetchOptions).toHaveBeenCalledTimes(1)
-    expect(wrapper.find('h1').text()).toContain('Build Your Detective')
+    expect(wrapper.find('h1').text()).toContain('Bygg din detektiv')
     expect(wrapper.find('select').element.value).toBe('neutral')
     expect(wrapper.find('[data-testid="avatar-preview"]').text()).toContain('detective-coat|short|badge')
   })
@@ -215,7 +215,7 @@ describe('AvatarView', () => {
       hatColor: 'none',
       accessory: 'glasses',
     })
-    expect(wrapper.text()).toContain('Avatar saved successfully.')
+    expect(wrapper.text()).toContain('Avatar lagret.')
   })
 
   it('shows an error state when loading fails', async () => {
@@ -229,7 +229,7 @@ describe('AvatarView', () => {
     const wrapper = await mountAvatarView(() => store)
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Could not load avatar')
-    expect(wrapper.text()).toContain('Something went wrong while loading avatar data.')
+    expect(wrapper.text()).toContain('Kunne ikke laste avatar')
+    expect(wrapper.text()).toContain('Noe gikk galt ved lasting av avatardata.')
   })
 })
