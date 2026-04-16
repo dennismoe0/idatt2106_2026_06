@@ -31,7 +31,14 @@ watch(() => props.active, (val) => {
 
 onBeforeUnmount(() => clearTimeout(timer))
 
-const COLORS = ['#ED8936', '#2B6CB0', '#38A169', '#E53E3E', '#ECC94B', '#9F7AEA']
+const COLORS = [
+  'var(--color-confetti-1)',
+  'var(--color-confetti-2)',
+  'var(--color-confetti-3)',
+  'var(--color-confetti-4)',
+  'var(--color-confetti-5)',
+  'var(--color-confetti-6)'
+]
 
 function pieceStyle(i) {
   return {

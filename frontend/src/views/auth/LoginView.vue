@@ -46,8 +46,6 @@
 
       <div class="auth-links">
         <RouterLink to="/register">Opprett lærerkonto</RouterLink>
-        <span class="divider">·</span>
-        <RouterLink to="/student-login">Elev? Logg inn her</RouterLink>
       </div>
     </div>
   </main>
@@ -132,5 +130,4 @@ input[aria-invalid="true"] { border-color: var(--color-danger); }
   color: var(--color-text-muted);
 }
 .auth-links a { color: var(--color-primary); font-weight: var(--font-medium); }
-.divider { margin: 0 var(--space-2); }
 </style>
