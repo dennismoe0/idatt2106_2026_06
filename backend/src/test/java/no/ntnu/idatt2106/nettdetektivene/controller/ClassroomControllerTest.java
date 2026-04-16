@@ -193,6 +193,19 @@ class ClassroomControllerTest {
             .andExpect(status().isForbidden());
     }
 
+    @Test
+    void getMyStatus_studentNotMember_returns404() throws Exception {
+        User teacher = saveUser("teacher-status-missing@test.no", User.Role.TEACHER);
+        User student = saveUser("student-status-missing@test.no", User.Role.STUDENT);
+        Classroom classroom = saveClassroom("5A", "status-hare", teacher);
+        String token = tokenFor(student);
+
+        mockMvc.perform(get("/api/classrooms/{id}/my-status", classroom.getId())
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.error").value("Student not in classroom"));
+    }
+
     private User saveUser(String email, User.Role role) {
         User user = new User();
         user.setEmail(email);
