@@ -37,7 +37,7 @@ let pollInterval = null
 onMounted(() => {
   if (!pendingJoin.value) {
     console.warn('[WaitingRoomView] No pending join — redirecting to join page')
-    router.replace({ name: 'Join' })
+    router.replace({ name: 'JoinClassroom' })
     return
   }
 

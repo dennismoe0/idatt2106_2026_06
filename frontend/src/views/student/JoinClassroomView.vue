@@ -120,7 +120,7 @@ async function handleSubmit() {
       code: form.code,
       displayName: form.displayName
     })
-    router.push({ name: 'Waiting' })
+    router.push({ name: 'WaitingRoom' })
   } catch (err) {
     console.error('[JoinClassroom] handleSubmit failed:', err)
     serverError.value = err?.response?.data?.error || 'Kunne ikke bli med i klassen. Prøv igjen.'

@@ -85,6 +85,7 @@ async function handleSubmit() {
     await authStore.login({ email: form.email, password: form.password })
     router.push(authStore.isTeacher ? '/teacher' : '/')
   } catch (err) {
+    console.error('[LoginView] Login failed:', err)
     serverError.value = err?.response?.data?.error || 'Innlogging feilet. Prøv igjen.'
   } finally {
     loading.value = false

@@ -17,17 +17,30 @@
 
   --color-danger:        #E53E3E;
   --color-danger-light:  color-mix(in srgb, #E53E3E 40%, white);
+  --color-warning:       #DD6B20;
+  --color-warning-light: color-mix(in srgb, #DD6B20 20%, white);
   --color-success:       #38A169;
   --color-success-light: color-mix(in srgb, #38A169 40%, white);
 
   /* Semantic — use these in components, never raw brand */
   --color-bg:           #F7FAFC;
   --color-surface:      #FFFFFF;
+  --color-surface-soft: #F6F8FF;
+  --color-surface-soft-alt: #EEF3FF;
   --color-text:         #1A202C;
   --color-text-muted:   #718096;
   --color-text-on-dark: #FFFFFF;
   --color-border:       #E2E8F0;
+  --color-border-strong: #CBD5E0;
   --color-focus:        #ED8936;
+  --color-primary-soft: color-mix(in srgb, var(--color-primary) 14%, white);
+  --color-primary-soft-strong: color-mix(in srgb, var(--color-primary) 22%, white);
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 20%, white);
+  --color-success-soft: color-mix(in srgb, var(--color-success) 12%, white);
+  --color-danger-soft: color-mix(in srgb, var(--color-danger) 12%, white);
+  --color-surface-glass: color-mix(in srgb, var(--color-surface) 88%, var(--color-bg));
+  --color-surface-glass-strong: color-mix(in srgb, var(--color-surface) 94%, var(--color-bg));
+  --color-heading: #20304A;
 
   /* Button semantic tokens */
   --color-btn-primary-bg:   #2B6CB0;
@@ -54,9 +67,14 @@
 
 /* Non-color tokens — use var() directly in style blocks */
 :root {
+
   --shadow-sm:       0 1px 3px rgba(0,0,0,.12);
   --shadow-md:       0 4px 6px rgba(0,0,0,.07);
   --shadow-lg:       0 10px 15px rgba(0,0,0,.10);
+  --color-btn-primary-shadow: rgba(43, 108, 176, 0.35);
+  --color-primary-focus-ring: rgba(43, 108, 176, 0.15);
+  --color-warning:  #DD6B20;
+  --color-warning-light: color-mix(in srgb, #DD6B20 40%, white);
   --radius-sm:       0.25rem;
   --radius-md:       0.5rem;
   --radius-lg:       1rem;
@@ -68,6 +86,7 @@
   --space-4:         1rem;
   --space-6:         1.5rem;
   --space-8:         2rem;
+  --space-12:        3rem;
   --transition-fast:   150ms ease;
   --transition-normal: 250ms ease;
 }
