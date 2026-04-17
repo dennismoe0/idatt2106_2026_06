@@ -126,7 +126,7 @@ onMounted(load)
 @keyframes spin { to { transform: rotate(360deg); } }
 .leaderboard-view__retry {
   padding: var(--space-2) var(--space-4);
-  background: var(--color-primary); color: #fff;
+  background: var(--color-primary); color: var(--color-text-on-dark, #fff);
   border: none; border-radius: var(--radius-md); cursor: pointer;
   font-size: var(--text-sm); font-weight: var(--font-semibold);
 }

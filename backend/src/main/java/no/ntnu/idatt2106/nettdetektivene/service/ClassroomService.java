@@ -17,12 +17,14 @@ import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomStudentRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomTeacherRepository;
+import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import no.ntnu.idatt2106.nettdetektivene.util.ClassroomCodeGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -40,13 +42,20 @@ public class ClassroomService {
     private final ClassroomCodeGenerator classroomCodeGenerator;
     private final TaskRepository taskRepository;
 
+    @Transactional
     public ClassroomResponse createClassroom(Long teacherId, CreateClassroomRequest req) {
-        User teacher = userRepository.getReferenceById(teacherId);
+        log.info("[ClassroomService] createClassroom teacherId={} name={}", teacherId, req.name());
+        User teacher = userRepository.findById(teacherId)
+            .orElseThrow(() -> {
+                log.warn("[ClassroomService] Teacher not found: {}", teacherId);
+                return new ResourceNotFoundException("User not found");
+            });
 
         Classroom classroom = new Classroom();
         classroom.setName(req.name());
         classroom.setDescription(req.description());
         classroom.setJoinCode(classroomCodeGenerator.generate(classroomRepository));
+        classroom.setSchool(teacher.getSchool()); // attach school if teacher has one (null is fine)
         classroom = classroomRepository.save(classroom);
 
         ClassroomTeacher classroomTeacher = new ClassroomTeacher();
@@ -54,8 +63,9 @@ public class ClassroomService {
         classroomTeacher.setClassroom(classroom);
         classroomTeacherRepository.save(classroomTeacher);
 
-        log.info("Classroom created: classroomId={} teacherId={} joinCode={}",
-            classroom.getId(), teacherId, classroom.getJoinCode());
+        log.info("[ClassroomService] Classroom created: classroomId={} teacherId={} joinCode={} schoolId={}",
+            classroom.getId(), teacherId, classroom.getJoinCode(),
+            teacher.getSchool() != null ? teacher.getSchool().getId() : null);
         return toClassroomResponse(classroom);
     }
 
@@ -70,6 +80,18 @@ public class ClassroomService {
         log.info("Fetching classroom: classroomId={} teacherId={}", classroomId, teacherId);
         Classroom classroom = getClassroomForTeacher(teacherId, classroomId);
         return toClassroomResponse(classroom);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LeaderboardEntryDto> getLeaderboard(Long teacherId, Long classroomId) {
+        log.info("[ClassroomService] getLeaderboard teacherId={} classroomId={}", teacherId, classroomId);
+        verifyTeacherOwnsClassroom(teacherId, classroomId);
+        int totalTasks = Math.toIntExact(taskRepository.count());
+        List<LeaderboardEntryDto> entries = classroomStudentRepository.getLeaderboard(classroomId).stream()
+            .map(row -> new LeaderboardEntryDto(row.getDisplayName(), row.getCompletedTasks().intValue(), totalTasks))
+            .toList();
+        log.info("[ClassroomService] Leaderboard fetched: classroomId={} entries={}", classroomId, entries.size());
+        return entries;
     }
 
     public StudentInClassroomResponse joinClassroom(Long studentId, JoinClassroomRequest req) {
@@ -179,8 +201,11 @@ public class ClassroomService {
     }
 
     private void verifyTeacherOwnsClassroom(Long teacherId, Long classroomId) {
-        if (!classroomRepository.existsById(classroomId)
-            || !classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(classroomId, teacherId)) {
+        if (!classroomRepository.existsById(classroomId)) {
+            log.warn("Classroom not found: classroomId={}", classroomId);
+            throw new ResourceNotFoundException("Classroom not found");
+        }
+        if (!classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(classroomId, teacherId)) {
             log.warn("Classroom access denied: classroomId={} teacherId={}", classroomId, teacherId);
             throw new ResourceNotFoundException("Classroom not found");
         }

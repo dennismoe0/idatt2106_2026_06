@@ -2,30 +2,37 @@ package no.ntnu.idatt2106.nettdetektivene.service;
 
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.CreateClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.entity.Classroom;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
+import no.ntnu.idatt2106.nettdetektivene.entity.School;
 import no.ntnu.idatt2106.nettdetektivene.entity.User;
 import no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException;
 import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomStudentRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomTeacherRepository;
+import no.ntnu.idatt2106.nettdetektivene.repository.LeaderboardRow;
+import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import no.ntnu.idatt2106.nettdetektivene.util.ClassroomCodeGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,12 +42,13 @@ class ClassroomServiceTest {
     @Mock ClassroomTeacherRepository classroomTeacherRepository;
     @Mock UserRepository userRepository;
     @Mock ClassroomCodeGenerator classroomCodeGenerator;
+    @Mock TaskRepository taskRepository;
     @InjectMocks ClassroomService classroomService;
 
     @Test
     void createClassroom_success() {
         User teacher = user(1L, User.Role.TEACHER);
-        when(userRepository.getReferenceById(1L)).thenReturn(teacher);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(teacher));
         when(classroomCodeGenerator.generate(classroomRepository)).thenReturn("fjord-tiger");
         when(classroomRepository.save(any(Classroom.class))).thenAnswer(invocation -> {
             Classroom classroom = invocation.getArgument(0);
@@ -58,6 +66,60 @@ class ClassroomServiceTest {
         assertThat(response.name()).isEqualTo("5A");
         assertThat(response.joinCode()).isEqualTo("fjord-tiger");
         assertThat(response.description()).isEqualTo("Digital detective class");
+    }
+
+    @Test
+    void createClassroom_attachesSchoolFromTeacher() {
+        School school = school(42L);
+        User teacher = user(1L, User.Role.TEACHER);
+        teacher.setSchool(school);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(teacher));
+        when(classroomCodeGenerator.generate(classroomRepository)).thenReturn("fjord-tiger");
+
+        ArgumentCaptor<Classroom> captor = ArgumentCaptor.forClass(Classroom.class);
+        when(classroomRepository.save(captor.capture())).thenAnswer(invocation -> {
+            Classroom classroom = invocation.getArgument(0);
+            classroom.setId(10L);
+            classroom.setCreatedAt(LocalDateTime.now());
+            return classroom;
+        });
+
+        classroomService.createClassroom(1L, new CreateClassroomRequest("5A", "desc"));
+
+        assertThat(captor.getValue().getSchool()).isEqualTo(school);
+    }
+
+    @Test
+    void getLeaderboard_returnsRankedEntries() {
+        when(classroomRepository.existsById(10L)).thenReturn(true);
+        when(classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(10L, 1L)).thenReturn(true);
+        when(taskRepository.count()).thenReturn(7L);
+        when(classroomStudentRepository.getLeaderboard(10L)).thenReturn(List.of(
+            leaderboardRow("Agent Alfa", 7L),
+            leaderboardRow("Agent Beta", 4L),
+            leaderboardRow("Agent Gamma", 1L)
+        ));
+
+        List<LeaderboardEntryDto> result = classroomService.getLeaderboard(1L, 10L);
+
+        assertThat(result).hasSize(3);
+        assertThat(result.get(0).displayName()).isEqualTo("Agent Alfa");
+        assertThat(result.get(0).completedTasks()).isEqualTo(7);
+        assertThat(result.get(0).totalTasks()).isEqualTo(7);
+        assertThat(result.get(1).displayName()).isEqualTo("Agent Beta");
+        assertThat(result.get(1).completedTasks()).isEqualTo(4);
+        assertThat(result.get(2).displayName()).isEqualTo("Agent Gamma");
+        assertThat(result.get(2).completedTasks()).isEqualTo(1);
+    }
+
+    @Test
+    void getLeaderboard_throwsIfTeacherDoesNotOwnClassroom() {
+        when(classroomRepository.existsById(10L)).thenReturn(true);
+        when(classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(10L, 99L)).thenReturn(false);
+
+        assertThatThrownBy(() -> classroomService.getLeaderboard(99L, 10L))
+            .isInstanceOf(ResourceNotFoundException.class)
+            .hasMessage("Classroom not found");
     }
 
     @Test
@@ -181,6 +243,21 @@ class ClassroomServiceTest {
         assertThat(response.classroomId()).isEqualTo(10L);
         assertThat(response.displayName()).isEqualTo("Agent Nora");
         assertThat(response.status()).isEqualTo("PENDING");
+    }
+
+    private School school(Long id) {
+        School school = new School();
+        school.setId(id);
+        school.setName("Testskole");
+        school.setJoinCode("TEST01");
+        return school;
+    }
+
+    private LeaderboardRow leaderboardRow(String displayName, Long completedTasks) {
+        return new LeaderboardRow() {
+            @Override public String getDisplayName() { return displayName; }
+            @Override public Long getCompletedTasks() { return completedTasks; }
+        };
     }
 
     private User user(Long id, User.Role role) {

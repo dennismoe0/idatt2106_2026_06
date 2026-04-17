@@ -108,6 +108,15 @@ public class ClassroomController {
         return ResponseEntity.ok(classroomService.getMyStatus(studentId, id));
     }
 
+    @GetMapping("/{id}/leaderboard")
+    @PreAuthorize("hasRole('TEACHER')")
+    public List<LeaderboardEntryDto> getLeaderboard(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+        return classroomService.getLeaderboard(currentUserId(userDetails), id);
+    }
+
     private Long currentUserId(UserDetails userDetails) {
         return Long.parseLong(userDetails.getUsername());
     }
