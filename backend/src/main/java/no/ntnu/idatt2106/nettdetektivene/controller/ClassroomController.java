@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.ClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.CreateClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.UpdateStudentStatusRequest;
@@ -98,6 +99,15 @@ public class ClassroomController {
         Long studentId = currentUserId(userDetails);
         log.info("[ClassroomController] GET /api/classrooms/{}/my-status studentId={}", id, studentId);
         return ResponseEntity.ok(classroomService.getMyStatus(studentId, id));
+    }
+
+    @GetMapping("/{id}/leaderboard")
+    @PreAuthorize("hasRole('TEACHER')")
+    public List<LeaderboardEntryDto> getLeaderboard(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+        return classroomService.getLeaderboard(currentUserId(userDetails), id);
     }
 
     private Long currentUserId(UserDetails userDetails) {
