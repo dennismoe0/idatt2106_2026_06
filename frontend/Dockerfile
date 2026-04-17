@@ -12,4 +12,8 @@ RUN npm run build
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx-prod.conf /etc/nginx/nginx-prod.conf
+# When VITE_API_URL is set (prod/Railway), use the no-proxy config
+ARG VITE_API_URL=""
+RUN if [ -n "$VITE_API_URL" ]; then cp /etc/nginx/nginx-prod.conf /etc/nginx/conf.d/default.conf; fi
 EXPOSE 80
