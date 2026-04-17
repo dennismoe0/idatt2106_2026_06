@@ -24,6 +24,12 @@
             {{ statusLabel(student.status) }}
           </span>
           <div class="student-actions">
+            <RouterLink
+              :to="{ name: 'TeacherNotebook', params: { studentId: student.userId }, query: { studentName: student.displayName } }"
+              class="notebook-link"
+            >
+              Se Notatblokk
+            </RouterLink>
             <BaseButton
               v-if="student.status === 'PENDING'"
               size="sm"
@@ -61,7 +67,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useClassroomStore } from '@/stores/classroom'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
@@ -232,6 +238,18 @@ async function copyCode() {
 .student-actions {
   display: flex;
   gap: var(--space-2);
+}
+.notebook-link {
+  font-size: var(--text-sm);
+  color: var(--color-primary);
+  text-decoration: none;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+}
+.notebook-link:hover {
+  background: var(--color-primary-soft);
 }
 .student-empty {
   color: var(--color-text-muted);
