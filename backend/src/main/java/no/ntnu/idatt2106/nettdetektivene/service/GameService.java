@@ -54,6 +54,7 @@ public class GameService {
     private final UserRepository userRepository;
     private final ClassroomRepository classroomRepository;
     private final ObjectMapper objectMapper;
+    private final NotebookService notebookService;
 
     @Transactional(readOnly = true)
     public List<StopResponse> getStops(Long studentId, Long classroomId) {
@@ -154,6 +155,7 @@ public class GameService {
         boolean stopCompleted = isStopComplete(studentId, classroomId, task.getStop().getId());
         if (stopCompleted) {
             log.info("[GameService] stop completed studentId={} classroomId={} stopId={}", studentId, classroomId, task.getStop().getId());
+            notebookService.createAutoTipIfNotExists(studentId, task.getStop());
         }
         MedalDto medalEarned = stopCompleted
             ? checkAndAwardMedal(studentId, classroomId, task.getStop().getId()).map(this::toMedalDto).orElse(null)
@@ -299,7 +301,7 @@ public class GameService {
     }
 
     private MedalDto toMedalDto(Medal medal) {
-        return new MedalDto(medal.getId(), medal.getName(), medal.getDescription());
+        return new MedalDto(medal.getId(), medal.getName(), medal.getDescription(), medal.getImageUrl());
     }
 
     private void requireClassroomExists(Long classroomId) {

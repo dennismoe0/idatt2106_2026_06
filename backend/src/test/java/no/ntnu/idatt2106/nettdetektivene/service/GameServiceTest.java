@@ -49,6 +49,7 @@ class GameServiceTest {
     @Mock StudentMedalRepository studentMedalRepository;
     @Mock UserRepository userRepository;
     @Mock ClassroomRepository classroomRepository;
+    @Mock NotebookService notebookService;
 
     GameService gameService;
 
@@ -62,13 +63,15 @@ class GameServiceTest {
             studentMedalRepository,
             userRepository,
             classroomRepository,
-            new ObjectMapper()
+            new ObjectMapper(),
+            notebookService
         );
     }
 
     @Test
     void getStops_firstStopAlwaysUnlocked() {
         Stop first = stop(1L, 1, "Nyhetskvartalet");
+        when(classroomRepository.existsById(CLASSROOM_ID)).thenReturn(true);
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first));
         when(taskRepository.countByStop_Id(1L)).thenReturn(3L);
         when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndClassroom_IdAndCompletedTrue(
@@ -86,6 +89,7 @@ class GameServiceTest {
     void getStops_secondStopLockedUntilFirstComplete() {
         Stop first = stop(1L, 1, "Nyhetskvartalet");
         Stop second = stop(2L, 2, "Postkontoret");
+        when(classroomRepository.existsById(CLASSROOM_ID)).thenReturn(true);
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first, second));
         when(taskRepository.countByStop_Id(1L)).thenReturn(2L);
         when(taskRepository.countByStop_Id(2L)).thenReturn(3L);
@@ -106,6 +110,7 @@ class GameServiceTest {
     void getStops_zeroTaskPreviousStopDoesNotUnlockNextStop() {
         Stop first = stop(1L, 1, "Nyhetskvartalet");
         Stop second = stop(2L, 2, "Postkontoret");
+        when(classroomRepository.existsById(CLASSROOM_ID)).thenReturn(true);
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first, second));
         when(taskRepository.countByStop_Id(1L)).thenReturn(0L);
         when(taskRepository.countByStop_Id(2L)).thenReturn(1L);
