@@ -4,5 +4,6 @@ public record StudentInClassroomResponse(
     Long userId,
     Long classroomId,
     String displayName,
+    String username,
     String status
 ) {}

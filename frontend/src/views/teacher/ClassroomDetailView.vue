@@ -19,7 +19,10 @@
 
       <ul class="student-list">
         <li v-for="student in students" :key="student.userId" class="student-row">
-          <span class="student-name">{{ student.displayName }}</span>
+          <span class="student-name">
+            {{ student.displayName }}
+            <span class="student-username">{{ student.username }}</span>
+          </span>
           <span class="badge" :class="`badge--${student.status.toLowerCase()}`">
             {{ statusLabel(student.status) }}
           </span>
@@ -224,6 +227,14 @@ async function copyCode() {
 .student-name {
   flex: 1;
   font-weight: var(--font-medium);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.student-username {
+  font-size: var(--text-xs);
+  font-weight: var(--font-normal);
+  color: var(--color-text-muted);
 }
 .badge {
   padding: var(--space-1) var(--space-2);
