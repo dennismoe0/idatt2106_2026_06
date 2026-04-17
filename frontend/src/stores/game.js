@@ -7,6 +7,7 @@ export const useGameStore = defineStore('game', () => {
   const tasks = ref([])
   const currentTask = ref(null)
   const progress = ref(null)
+  const leaderboard = ref([])
 
   async function fetchStops(classroomId) {
     console.log('[game] Fetching stops for classroom:', classroomId)
@@ -71,8 +72,22 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  async function fetchLeaderboard(classroomId) {
+    console.log('[game] Fetching leaderboard for classroom:', classroomId)
+    try {
+      const { data } = await gameService.getLeaderboard(classroomId)
+      leaderboard.value = data
+      console.log('[game] Fetched leaderboard:', data.length, 'entries')
+      return data
+    } catch (err) {
+      console.error('[game] Failed to fetch leaderboard:', err)
+      throw err
+    }
+  }
+
   return {
-    stops, tasks, currentTask, progress,
-    fetchStops, fetchTasks, fetchTask, submitAnswer, fetchProgress
+    stops, tasks, currentTask, progress, leaderboard,
+    fetchStops, fetchTasks, fetchTask, submitAnswer, fetchProgress,
+    fetchLeaderboard
   }
 })
