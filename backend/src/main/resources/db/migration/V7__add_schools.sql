@@ -1,7 +1,3 @@
--- V4__add_schools.sql
--- NOTE: When merging after feature/notatblokk (V4,V5) and feature/medaljer-og-dekobling (V6),
--- rename this file to V7__add_schools.sql to avoid version conflicts.
-
 CREATE TABLE schools (
     id         BIGINT       NOT NULL AUTO_INCREMENT,
     name       VARCHAR(200) NOT NULL,
