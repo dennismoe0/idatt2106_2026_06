@@ -18,6 +18,9 @@ const routes = [
   { path: '/map',           name: 'Map',            component: () => import('@/views/student/MapView.vue'),           meta: { role: 'STUDENT' } },
   { path: '/task',          name: 'Task',           component: () => import('@/views/student/TaskView.vue'),          meta: { role: 'STUDENT' } },
   { path: '/avatar',        name: 'Avatar',         component: () => import('@/views/student/AvatarView.vue'),        meta: { role: 'STUDENT' } },
+  { path: '/medals',        name: 'Medals',         component: () => import('@/views/student/MedalsView.vue'),        meta: { role: 'STUDENT', requiresClassroom: true } },
+  { path: '/notebook',      name: 'Notebook',       component: () => import('@/views/student/NotebookView.vue'),      meta: { role: 'STUDENT', requiresClassroom: true } },
+  { path: '/leaderboard',  name: 'Leaderboard',    component: () => import('@/views/student/LeaderboardView.vue'),   meta: { role: 'STUDENT', requiresClassroom: true } },
 
 
   // Teacher
