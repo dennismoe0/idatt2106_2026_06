@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.ClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.CreateClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
+import no.ntnu.idatt2106.nettdetektivene.repository.LeaderboardRow;
 import no.ntnu.idatt2106.nettdetektivene.entity.Classroom;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomTeacher;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +38,7 @@ public class ClassroomService {
     private final ClassroomTeacherRepository classroomTeacherRepository;
     private final UserRepository userRepository;
     private final ClassroomCodeGenerator classroomCodeGenerator;
+    private final TaskRepository taskRepository;
 
     public ClassroomResponse createClassroom(Long teacherId, CreateClassroomRequest req) {
         User teacher = userRepository.getReferenceById(teacherId);
@@ -139,6 +143,18 @@ public class ClassroomService {
         return toStudentResponse(classroomStudent);
     }
 
+    public List<LeaderboardEntryDto> getLeaderboard(Long classroomId) {
+        log.info("[ClassroomService] getLeaderboard classroomId={}", classroomId);
+        int totalTasks = (int) taskRepository.count();
+        return classroomStudentRepository.getLeaderboard(classroomId).stream()
+            .map(row -> new LeaderboardEntryDto(
+                row.getDisplayName(),
+                row.getCompletedTasks() == null ? 0 : row.getCompletedTasks().intValue(),
+                totalTasks
+            ))
+            .toList();
+    }
+
     public StudentStatusResponse getMyStatus(Long studentId, Long classroomId) {
         log.info("[ClassroomService] getMyStatus studentId={} classroomId={}", studentId, classroomId);
         ClassroomStudent entry = classroomStudentRepository
@@ -185,6 +201,7 @@ public class ClassroomService {
             classroomStudent.getStudent().getId(),
             classroomStudent.getClassroom().getId(),
             classroomStudent.getDisplayName(),
+            classroomStudent.getStudent().getEmail(),
             classroomStudent.getStatus().name()
         );
     }
