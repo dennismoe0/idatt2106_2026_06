@@ -1,7 +1,7 @@
 <template>
   <main class="teacher-notebook">
     <header class="teacher-notebook__header">
-      <RouterLink :to="{ name: 'Dashboard' }" class="teacher-notebook__back">← Tilbake til dashboard</RouterLink>
+      <RouterLink :to="backRoute" class="teacher-notebook__back">← Tilbake</RouterLink>
       <div>
         <h1 class="teacher-notebook__title">📝 Notatblokk</h1>
         <p class="teacher-notebook__student">{{ studentName || 'Elev' }}</p>
@@ -55,6 +55,10 @@ import { notebookService } from '@/services/notebookService'
 const route = useRoute()
 const studentId = Number(route.params.studentId)
 const studentName = route.query.studentName || ''
+const classroomId = route.query.classroomId ? Number(route.query.classroomId) : null
+const backRoute = classroomId
+  ? { name: 'ClassroomDetail', params: { id: classroomId } }
+  : { name: 'Dashboard' }
 
 const rawEntries = ref([])
 const loading = ref(true)

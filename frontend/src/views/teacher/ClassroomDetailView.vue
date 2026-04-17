@@ -25,7 +25,7 @@
           </span>
           <div class="student-actions">
             <RouterLink
-              :to="{ name: 'TeacherNotebook', params: { studentId: student.userId }, query: { studentName: student.displayName } }"
+              :to="{ name: 'TeacherNotebook', params: { studentId: student.userId }, query: { studentName: student.displayName, classroomId: classroomId } }"
               class="notebook-link"
             >
               Se Notatblokk
