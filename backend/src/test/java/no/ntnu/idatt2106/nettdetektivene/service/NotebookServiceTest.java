@@ -62,7 +62,9 @@ class NotebookServiceTest {
 
     @Test
     void getEntries_returnsEmptyListWhenNoEntries() {
-        when(notebookRepository.findByStudent_IdOrderByStop_OrderIndexAscCreatedAtAsc(1L))
+        when(notebookRepository.findByStudent_IdAndStop_IsNullOrderByCreatedAtAsc(1L))
+            .thenReturn(List.of());
+        when(notebookRepository.findByStudent_IdAndStop_IsNotNullOrderByStop_OrderIndexAscCreatedAtAsc(1L))
             .thenReturn(List.of());
         assertThat(notebookService.getEntries(1L)).isEmpty();
     }
@@ -72,7 +74,9 @@ class NotebookServiceTest {
         Stop stop = makeStop(5L, 1);
         NotebookEntry entry = makeEntry(42L, stop, NotebookEntry.EntryType.AUTO_TIP, "Falske nyheter...");
 
-        when(notebookRepository.findByStudent_IdOrderByStop_OrderIndexAscCreatedAtAsc(1L))
+        when(notebookRepository.findByStudent_IdAndStop_IsNullOrderByCreatedAtAsc(1L))
+            .thenReturn(List.of());
+        when(notebookRepository.findByStudent_IdAndStop_IsNotNullOrderByStop_OrderIndexAscCreatedAtAsc(1L))
             .thenReturn(List.of(entry));
 
         List<NotebookEntryDto> result = notebookService.getEntries(1L);
@@ -89,7 +93,9 @@ class NotebookServiceTest {
     void getEntriesForTeacher_returnsEntriesWhenAuthorized() {
         Stop stop = makeStop(1L, 1);
         when(classroomStudentRepository.existsStudentInTeacherClassroom(10L, 5L)).thenReturn(true);
-        when(notebookRepository.findByStudent_IdOrderByStop_OrderIndexAscCreatedAtAsc(5L))
+        when(notebookRepository.findByStudent_IdAndStop_IsNullOrderByCreatedAtAsc(5L))
+            .thenReturn(List.of());
+        when(notebookRepository.findByStudent_IdAndStop_IsNotNullOrderByStop_OrderIndexAscCreatedAtAsc(5L))
             .thenReturn(List.of(makeEntry(1L, stop, NotebookEntry.EntryType.AUTO_TIP, "tip")));
 
         List<NotebookEntryDto> result = notebookService.getEntriesForTeacher(10L, 5L);
