@@ -14,7 +14,7 @@
         <div class="user-avatar">👩‍🏫</div>
         <div>
           <div class="user-name">{{ authStore.user?.email ?? '' }}</div>
-          <div class="user-school">Min skole</div>
+          <div class="user-school">{{ schoolStore.school?.name ?? 'Ingen skole' }}</div>
         </div>
       </div>
 
@@ -77,6 +77,30 @@
       </div>
 
       <template v-else>
+        <!-- School section -->
+        <div class="school-section">
+          <div class="section-label">Skoletilknytning</div>
+
+          <!-- Teacher has a school -->
+          <SchoolOverview
+            v-if="schoolStore.school"
+            :school="schoolStore.school"
+            :classrooms="schoolClassrooms"
+            @copy-code="copySchoolCode"
+          />
+
+          <!-- No school yet -->
+          <div v-else class="no-school-banner">
+            <div class="no-school-text">
+              <strong>Du er ikke koblet til en skole.</strong>
+              <span>Opprett en skole eller bli med i en eksisterende for å se sammenligninger mellom klasser.</span>
+            </div>
+            <button class="btn btn-primary btn-sm" @click="showSchoolModal = true">
+              Koble til skole
+            </button>
+          </div>
+        </div>
+
         <!-- Classroom grid -->
         <div class="section-label">Dine klasser</div>
         <div class="classrooms-grid">
@@ -107,6 +131,9 @@
         </div>
       </template>
     </main>
+
+    <!-- School Setup Modal -->
+    <SchoolSetupModal v-model="showSchoolModal" @school-set="onSchoolSet" />
 
     <!-- Create Classroom Modal -->
     <BaseModal v-if="showCreateModal" :model-value="true" @update:modelValue="closeCreateModal" title="Create Classroom">
@@ -170,12 +197,18 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useClassroomStore } from '@/stores/classroom'
+import { useSchoolStore } from '@/stores/school'
 import BaseModal from '@/components/common/BaseModal.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import SchoolSetupModal from '@/components/teacher/SchoolSetupModal.vue'
+import SchoolOverview from '@/components/teacher/SchoolOverview.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const classroomStore = useClassroomStore()
+const schoolStore = useSchoolStore()
+const showSchoolModal = ref(false)
+const schoolClassrooms = ref([])
 
 const loading = ref(false)
 const error = ref(null)
@@ -199,6 +232,18 @@ onMounted(async () => {
     error.value = 'Kunne ikke laste klasserom. Prøv igjen.'
   } finally {
     loading.value = false
+  }
+
+  // Try to load school data (teacher may not have a school yet)
+  try {
+    await schoolStore.fetchMySchool()
+    if (schoolStore.school) {
+      await schoolStore.fetchSchoolClassrooms()
+      schoolClassrooms.value = schoolStore.classrooms
+    }
+  } catch (schoolErr) {
+    console.warn('[Dashboard] School not found or teacher has no school:', schoolErr)
+    // Not an error state — teacher simply hasn't joined a school yet
   }
 })
 
@@ -244,6 +289,24 @@ async function copyCode(code) {
     setTimeout(() => { copied.value = false }, 2000)
   } catch (e) {
     console.warn('[Dashboard] Clipboard write failed:', e)
+  }
+}
+
+async function onSchoolSet() {
+  try {
+    await schoolStore.fetchSchoolClassrooms()
+    schoolClassrooms.value = schoolStore.classrooms
+  } catch (e) {
+    console.error('[Dashboard] Failed to load school classrooms:', e)
+  }
+}
+
+async function copySchoolCode(code) {
+  try {
+    await navigator.clipboard.writeText(code)
+    console.log('[Dashboard] School code copied:', code)
+  } catch (e) {
+    console.warn('[Dashboard] Failed to copy school code:', e)
   }
 }
 
@@ -632,4 +695,28 @@ function formatDate(dateStr) {
     gap: var(--space-3);
   }
 }
+
+/* ─── School section ──────────────────────────────────────── */
+.school-section {
+  margin-bottom: var(--space-8);
+}
+.no-school-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4) var(--space-6);
+  box-shadow: var(--shadow-md);
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.no-school-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+.no-school-text strong { color: var(--color-text); }
 </style>
