@@ -18,6 +18,7 @@ const routes = [
   { path: '/map',           name: 'Map',            component: () => import('@/views/student/MapView.vue'),           meta: { role: 'STUDENT' } },
   { path: '/task',          name: 'Task',           component: () => import('@/views/student/TaskView.vue'),          meta: { role: 'STUDENT' } },
   { path: '/avatar',        name: 'Avatar',         component: () => import('@/views/student/AvatarView.vue'),        meta: { role: 'STUDENT' } },
+  { path: '/leaderboard',  name: 'Leaderboard',    component: () => import('@/views/student/LeaderboardView.vue'),   meta: { role: 'STUDENT' } },
 
 
   // Teacher
