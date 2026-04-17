@@ -95,7 +95,7 @@ public class SchoolService {
             return List.of();
         }
         Long schoolId = teacher.getSchool().getId();
-        int totalTasks = (int) taskRepository.count();
+        int totalTasks = Math.toIntExact(taskRepository.count());
         return classroomRepository.findBySchool_Id(schoolId).stream()
             .map(classroom -> toSchoolClassroomSummary(classroom, totalTasks))
             .toList();

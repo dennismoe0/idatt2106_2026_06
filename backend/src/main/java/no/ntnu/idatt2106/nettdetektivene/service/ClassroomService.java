@@ -84,7 +84,7 @@ public class ClassroomService {
     public List<LeaderboardEntryDto> getLeaderboard(Long teacherId, Long classroomId) {
         log.info("[ClassroomService] getLeaderboard teacherId={} classroomId={}", teacherId, classroomId);
         verifyTeacherOwnsClassroom(teacherId, classroomId);
-        int totalTasks = (int) taskRepository.count();
+        int totalTasks = Math.toIntExact(taskRepository.count());
         List<LeaderboardEntryDto> entries = classroomStudentRepository.getLeaderboard(classroomId).stream()
             .map(row -> new LeaderboardEntryDto(row.getDisplayName(), row.getCompletedTasks().intValue(), totalTasks))
             .toList();
@@ -184,8 +184,11 @@ public class ClassroomService {
     }
 
     private void verifyTeacherOwnsClassroom(Long teacherId, Long classroomId) {
-        if (!classroomRepository.existsById(classroomId)
-            || !classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(classroomId, teacherId)) {
+        if (!classroomRepository.existsById(classroomId)) {
+            log.warn("Classroom not found: classroomId={}", classroomId);
+            throw new ResourceNotFoundException("Classroom not found");
+        }
+        if (!classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(classroomId, teacherId)) {
             log.warn("Classroom access denied: classroomId={} teacherId={}", classroomId, teacherId);
             throw new ResourceNotFoundException("Classroom not found");
         }
