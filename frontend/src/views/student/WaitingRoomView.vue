@@ -47,7 +47,8 @@ onMounted(() => {
       if (status === 'APPROVED') {
         clearInterval(pollInterval)
         pollInterval = null
-        router.push({ name: 'Home' })
+        const hasSeenIntro = localStorage.getItem('hasSeenIntro') === 'true'
+        router.push({ name: hasSeenIntro ? 'Home' : 'Intro' })
       } else if (status === 'KICKED') {
         clearInterval(pollInterval)
         pollInterval = null

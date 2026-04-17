@@ -98,15 +98,22 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useClassroomStore } from '@/stores/classroom'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const classroomStore = useClassroomStore()
+
+function postLoginDestination() {
+  if (!classroomStore.currentClassroomId) return { name: 'JoinClassroom' }
+  const hasSeenIntro = localStorage.getItem('hasSeenIntro') === 'true'
+  return { name: hasSeenIntro ? 'Home' : 'Intro' }
+}
 
 onMounted(() => {
   if (authStore.isAuthenticated && authStore.isStudent) {
-    console.log('[StudentLoginView] Already logged in as student — redirecting to home')
-    const hasSeenIntro = localStorage.getItem('hasSeenIntro') === 'true'
-    router.replace({ name: hasSeenIntro ? 'Home' : 'Intro' })
+    console.log('[StudentLoginView] Already logged in as student — redirecting')
+    router.replace(postLoginDestination())
   }
 })
 
@@ -138,13 +145,12 @@ async function handleSubmit() {
   if (!validate()) return
 
   const username = form.username.trim()
-  const hasSeenIntro = localStorage.getItem('hasSeenIntro') === 'true'
-
   loading.value = true
   try {
     await authStore.studentLogin(username)
-    console.log('[StudentLoginView] Login success, hasSeenIntro:', hasSeenIntro)
-    await router.push({ name: hasSeenIntro ? 'Home' : 'Intro' })
+    const dest = postLoginDestination()
+    console.log('[StudentLoginView] Login success — navigating to', dest.name)
+    await router.push(dest)
   } catch (err) {
     console.error('[StudentLoginView] Student login failed:', err)
     const status = err?.response?.status

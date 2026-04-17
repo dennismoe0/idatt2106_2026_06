@@ -28,6 +28,7 @@ public class DevSeeder implements ApplicationRunner {
     private final ClassroomRepository classroomRepository;
     private final ClassroomTeacherRepository classroomTeacherRepository;
     private final ClassroomStudentRepository classroomStudentRepository;
+    private final SchoolRepository schoolRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -56,14 +57,23 @@ public class DevSeeder implements ApplicationRunner {
                 log.info("[DevSeeder] Deleted user: {}", email);
             });
         }
+        for (String code : List.of("skole-a", "skole-b")) {
+            schoolRepository.findByJoinCode(code).ifPresent(s -> {
+                schoolRepository.delete(s);
+                log.info("[DevSeeder] Deleted school: {}", code);
+            });
+        }
     }
 
     private void seed() {
-        User grethe = createTeacher("grethe@teacher.no");
-        User ali    = createTeacher("ali@teacher.no");
+        School skoleA = createSchool("Nettdetektiv videregående skole", "skole-a");
+        School skoleB = createSchool("Detektiv ungdomsskole",           "skole-b");
 
-        Classroom c1 = createClassroom("DATAING 2. klasse", "dataing-2", grethe);
-        Classroom c2 = createClassroom("Norsk 3. klasse",   "norsk-3",   ali);
+        User grethe = createTeacher("grethe@teacher.no", skoleA);
+        User ali    = createTeacher("ali@teacher.no",    skoleB);
+
+        Classroom c1 = createClassroom("DATAING 2. klasse", "dataing-2", grethe, skoleA);
+        Classroom c2 = createClassroom("Norsk 3. klasse",   "norsk-3",   ali,    skoleB);
 
         for (String[] s : List.of(
             new String[]{"dennis",    "Dennis"},
@@ -74,7 +84,7 @@ public class DevSeeder implements ApplicationRunner {
             new String[]{"ola",       "Ola"},
             new String[]{"christian", "Christian"}
         )) {
-            enroll(createStudent(s[0]), c1, s[1]);
+            enroll(createStudent(s[0], skoleA), c1, s[1]);
         }
 
         for (String[] s : List.of(
@@ -84,33 +94,43 @@ public class DevSeeder implements ApplicationRunner {
             new String[]{"lars",       "Lars"},
             new String[]{"emma",       "Emma"}
         )) {
-            enroll(createStudent(s[0]), c2, s[1]);
+            enroll(createStudent(s[0], skoleB), c2, s[1]);
         }
 
-        log.info("[DevSeeder] Seeded: 2 teachers, 2 classrooms, 12 students");
+        log.info("[DevSeeder] Seeded: 2 schools, 2 teachers, 2 classrooms, 12 students");
     }
 
-    private User createTeacher(String email) {
+    private School createSchool(String name, String joinCode) {
+        School s = new School();
+        s.setName(name);
+        s.setJoinCode(joinCode);
+        return schoolRepository.save(s);
+    }
+
+    private User createTeacher(String email, School school) {
         User u = new User();
         u.setEmail(email);
         u.setPasswordHash(passwordEncoder.encode("password123"));
         u.setRole(User.Role.TEACHER);
+        u.setSchool(school);
         return userRepository.save(u);
     }
 
-    private User createStudent(String username) {
+    private User createStudent(String username, School school) {
         User u = new User();
         u.setEmail(username + "@student.local");
         u.setPasswordHash(passwordEncoder.encode(java.util.UUID.randomUUID().toString()));
         u.setRole(User.Role.STUDENT);
+        u.setSchool(school);
         return userRepository.save(u);
     }
 
-    private Classroom createClassroom(String name, String joinCode, User teacher) {
+    private Classroom createClassroom(String name, String joinCode, User teacher, School school) {
         Classroom c = new Classroom();
         c.setName(name);
         c.setJoinCode(joinCode);
         c.setActive(true);
+        c.setSchool(school);
         classroomRepository.save(c);
 
         ClassroomTeacher ct = new ClassroomTeacher();
