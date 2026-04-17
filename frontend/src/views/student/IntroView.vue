@@ -79,8 +79,9 @@
 </template>
 
 <script setup>
+
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
 const router = useRouter()
 
@@ -149,16 +150,20 @@ function prev() {
   }
 }
 
+onBeforeRouteLeave(() => {
+  localStorage.setItem('hasSeenIntro', 'true')
+})
+
 function skip() {
   console.log('[IntroView] Skipped intro')
   localStorage.setItem('hasSeenIntro', 'true')
-  router.push({ name: 'Home' })
+  router.replace({ name: 'Home' })
 }
 
 function startGame() {
   console.log('[IntroView] Intro completed — setting hasSeenIntro')
   localStorage.setItem('hasSeenIntro', 'true')
-  router.push({ name: 'Home' })
+  router.replace({ name: 'Home' })
 }
 </script>
 
