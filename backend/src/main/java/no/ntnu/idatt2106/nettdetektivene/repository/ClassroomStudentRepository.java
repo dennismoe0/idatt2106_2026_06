@@ -22,4 +22,15 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
     );
 
     boolean existsByClassroom_IdAndStudent_Id(Long classroomId, Long studentId);
+
+    @Query("""
+        select count(cs) > 0
+        from ClassroomStudent cs
+        join ClassroomTeacher ct on ct.classroom.id = cs.classroom.id
+        where ct.teacher.id = :teacherId and cs.student.id = :studentId
+        """)
+    boolean existsStudentInTeacherClassroom(
+        @Param("teacherId") Long teacherId,
+        @Param("studentId") Long studentId
+    );
 }
