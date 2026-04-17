@@ -136,11 +136,7 @@
     <SchoolSetupModal v-model="showSchoolModal" @school-set="onSchoolSet" />
 
     <!-- Create Classroom Modal -->
-    <BaseModal v-if="showCreateModal" :model-value="true" @update:modelValue="closeCreateModal" title="Create Classroom">
-      <template #header>
-        <h2 class="modal-title">Opprett nytt klasserom</h2>
-      </template>
-
+    <BaseModal v-if="showCreateModal" :model-value="true" @update:modelValue="closeCreateModal" title="Opprett nytt klasserom">
       <template #default>
         <!-- Success view: show join code -->
         <div v-if="createdClassroom" class="join-code-result">
@@ -294,8 +290,10 @@ async function copyCode(code) {
 
 async function onSchoolSet() {
   try {
+    await schoolStore.fetchMySchool()
     await schoolStore.fetchSchoolClassrooms()
     schoolClassrooms.value = schoolStore.classrooms
+    console.log('[Dashboard] School classrooms reloaded after school-set, count:', schoolClassrooms.value.length)
   } catch (e) {
     console.error('[Dashboard] Failed to load school classrooms:', e)
   }
@@ -304,7 +302,7 @@ async function onSchoolSet() {
 async function copySchoolCode(code) {
   try {
     await navigator.clipboard.writeText(code)
-    console.log('[Dashboard] School code copied:', code)
+    console.log('[Dashboard] School join code copied to clipboard')
   } catch (e) {
     console.warn('[Dashboard] Failed to copy school code:', e)
   }

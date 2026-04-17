@@ -4,12 +4,12 @@
       <button
         class="tab-btn"
         :class="{ active: activeTab === 'create' }"
-        @click="activeTab = 'create'"
+        @click="setTab('create')"
       >Opprett skole</button>
       <button
         class="tab-btn"
         :class="{ active: activeTab === 'join' }"
-        @click="activeTab = 'join'"
+        @click="setTab('join')"
       >Bli med i skole</button>
     </div>
 
@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import { useSchoolStore } from '@/stores/school'
 
@@ -58,6 +58,22 @@ const name = ref('')
 const code = ref('')
 const loading = ref(false)
 const error = ref('')
+
+watch(() => props.modelValue, (open) => {
+  if (open) {
+    activeTab.value = 'create'
+    name.value = ''
+    code.value = ''
+    error.value = ''
+  }
+})
+
+function setTab(tab) {
+  activeTab.value = tab
+  if (tab === 'create') code.value = ''
+  else name.value = ''
+  error.value = ''
+}
 
 async function submit() {
   error.value = ''
@@ -97,7 +113,7 @@ async function submit() {
 }
 .tab-btn.active {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-text-on-dark);
   border-color: var(--color-primary);
   font-weight: var(--font-semibold);
 }
@@ -116,7 +132,7 @@ async function submit() {
 .btn-submit {
   padding: var(--space-2) var(--space-4);
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-text-on-dark);
   border-radius: var(--radius-md);
   font-weight: var(--font-semibold);
   font-size: var(--text-base);
