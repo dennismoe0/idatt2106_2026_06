@@ -80,17 +80,20 @@ public class ClassroomService {
             });
         User student = userRepository.getReferenceById(studentId);
 
-        classroomStudentRepository.findByClassroom_IdAndStudent_UserId(classroom.getId(), studentId)
-            .ifPresent(existing -> {
-                if (existing.getStatus() == ClassroomStudentStatus.KICKED) {
-                    log.warn("Classroom join blocked: kicked student tried to rejoin, classroomId={} studentId={}",
-                        classroom.getId(), studentId);
-                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Student cannot rejoin this classroom");
-                }
-                log.warn("Classroom join blocked: student already member, classroomId={} studentId={} status={}",
-                    classroom.getId(), studentId, existing.getStatus());
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Student is already a member");
-            });
+        var existing = classroomStudentRepository.findByClassroom_IdAndStudent_UserId(classroom.getId(), studentId);
+        if (existing.isPresent()) {
+            ClassroomStudent record = existing.get();
+            if (record.getStatus() == ClassroomStudentStatus.KICKED) {
+                record.setStatus(ClassroomStudentStatus.PENDING);
+                record.setDisplayName(req.displayName());
+                record = classroomStudentRepository.save(record);
+                log.info("Kicked student re-applied: classroomId={} studentId={} → PENDING", classroom.getId(), studentId);
+                return toStudentResponse(record);
+            }
+            log.warn("Classroom join blocked: student already member, classroomId={} studentId={} status={}",
+                classroom.getId(), studentId, record.getStatus());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Student is already a member");
+        }
 
         ClassroomStudent classroomStudent = new ClassroomStudent();
         classroomStudent.setClassroom(classroom);
