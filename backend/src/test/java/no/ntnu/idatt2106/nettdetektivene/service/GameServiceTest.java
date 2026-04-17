@@ -2,7 +2,6 @@ package no.ntnu.idatt2106.nettdetektivene.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.SubmitAnswerRequest;
-import no.ntnu.idatt2106.nettdetektivene.entity.Classroom;
 import no.ntnu.idatt2106.nettdetektivene.entity.Medal;
 import no.ntnu.idatt2106.nettdetektivene.entity.StudentMedal;
 import no.ntnu.idatt2106.nettdetektivene.entity.StudentProgress;
@@ -74,8 +73,8 @@ class GameServiceTest {
         when(classroomRepository.existsById(CLASSROOM_ID)).thenReturn(true);
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first));
         when(taskRepository.countByStop_Id(1L)).thenReturn(3L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndClassroom_IdAndCompletedTrue(
-            STUDENT_ID, 1L, CLASSROOM_ID
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
+            STUDENT_ID, 1L
         )).thenReturn(0L);
 
         var response = gameService.getStops(STUDENT_ID, CLASSROOM_ID);
@@ -93,11 +92,11 @@ class GameServiceTest {
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first, second));
         when(taskRepository.countByStop_Id(1L)).thenReturn(2L);
         when(taskRepository.countByStop_Id(2L)).thenReturn(3L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndClassroom_IdAndCompletedTrue(
-            STUDENT_ID, 1L, CLASSROOM_ID
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
+            STUDENT_ID, 1L
         )).thenReturn(1L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndClassroom_IdAndCompletedTrue(
-            STUDENT_ID, 2L, CLASSROOM_ID
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
+            STUDENT_ID, 2L
         )).thenReturn(0L);
 
         var response = gameService.getStops(STUDENT_ID, CLASSROOM_ID);
@@ -114,8 +113,8 @@ class GameServiceTest {
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first, second));
         when(taskRepository.countByStop_Id(1L)).thenReturn(0L);
         when(taskRepository.countByStop_Id(2L)).thenReturn(1L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndClassroom_IdAndCompletedTrue(
-            STUDENT_ID, 2L, CLASSROOM_ID
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
+            STUDENT_ID, 2L
         )).thenReturn(0L);
 
         var response = gameService.getStops(STUDENT_ID, CLASSROOM_ID);
@@ -128,15 +127,10 @@ class GameServiceTest {
         Stop stop = stop(1L, 1, "Nyhetskvartalet");
         Task task = fakeNewsTask(20L, stop);
         when(taskRepository.findById(20L)).thenReturn(Optional.of(task));
-        when(studentProgressRepository.findByStudent_IdAndTask_IdAndClassroom_Id(
-            STUDENT_ID, 20L, CLASSROOM_ID
-        )).thenReturn(Optional.empty());
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 20L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
-        when(classroomRepository.getReferenceById(CLASSROOM_ID)).thenReturn(classroom());
         when(taskRepository.countByStop_Id(1L)).thenReturn(3L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndClassroom_IdAndCompletedTrue(
-            STUDENT_ID, 1L, CLASSROOM_ID
-        )).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(1L);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -162,19 +156,12 @@ class GameServiceTest {
         Medal medal = medal(30L, stop);
 
         when(taskRepository.findById(20L)).thenReturn(Optional.of(task));
-        when(studentProgressRepository.findByStudent_IdAndTask_IdAndClassroom_Id(
-            STUDENT_ID, 20L, CLASSROOM_ID
-        )).thenReturn(Optional.empty());
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 20L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
-        when(classroomRepository.getReferenceById(CLASSROOM_ID)).thenReturn(classroom());
         when(taskRepository.countByStop_Id(1L)).thenReturn(1L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndClassroom_IdAndCompletedTrue(
-            STUDENT_ID, 1L, CLASSROOM_ID
-        )).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(1L);
         when(medalRepository.findByStop_Id(1L)).thenReturn(Optional.of(medal));
-        when(studentMedalRepository.existsByStudent_IdAndMedal_IdAndClassroom_Id(
-            STUDENT_ID, 30L, CLASSROOM_ID
-        )).thenReturn(false);
+        when(studentMedalRepository.existsByStudent_IdAndMedal_Id(STUDENT_ID, 30L)).thenReturn(false);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -198,13 +185,9 @@ class GameServiceTest {
         progress.setScore(100);
 
         when(taskRepository.findById(20L)).thenReturn(Optional.of(task));
-        when(studentProgressRepository.findByStudent_IdAndTask_IdAndClassroom_Id(
-            STUDENT_ID, 20L, CLASSROOM_ID
-        )).thenReturn(Optional.of(progress));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 20L)).thenReturn(Optional.of(progress));
         when(taskRepository.countByStop_Id(1L)).thenReturn(1L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndClassroom_IdAndCompletedTrue(
-            STUDENT_ID, 1L, CLASSROOM_ID
-        )).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(1L);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -226,9 +209,7 @@ class GameServiceTest {
         when(stopRepository.findById(2L)).thenReturn(Optional.of(second));
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first, second));
         when(taskRepository.countByStop_Id(1L)).thenReturn(1L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndClassroom_IdAndCompletedTrue(
-            STUDENT_ID, 1L, CLASSROOM_ID
-        )).thenReturn(0L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(0L);
 
         assertThatThrownBy(() -> gameService.getTasks(STUDENT_ID, CLASSROOM_ID, 2L))
             .isInstanceOf(ResponseStatusException.class)
@@ -240,9 +221,7 @@ class GameServiceTest {
         Stop stop = stop(1L, 1, "Nyhetskvartalet");
         Task task = fakeNewsTask(20L, stop);
         when(taskRepository.findById(20L)).thenReturn(Optional.of(task));
-        when(studentProgressRepository.findByStudent_IdAndTask_IdAndClassroom_Id(
-            STUDENT_ID, 20L, CLASSROOM_ID
-        )).thenReturn(Optional.empty());
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 20L)).thenReturn(Optional.empty());
 
         var response = gameService.getTask(STUDENT_ID, CLASSROOM_ID, 20L);
         var content = response.contentJson();
@@ -257,9 +236,7 @@ class GameServiceTest {
         Stop stop = stop(2L, 1, "Postkontoret");
         Task task = phishingTask(21L, stop);
         when(taskRepository.findById(21L)).thenReturn(Optional.of(task));
-        when(studentProgressRepository.findByStudent_IdAndTask_IdAndClassroom_Id(
-            STUDENT_ID, 21L, CLASSROOM_ID
-        )).thenReturn(Optional.empty());
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 21L)).thenReturn(Optional.empty());
 
         var response = gameService.getTask(STUDENT_ID, CLASSROOM_ID, 21L);
         var content = response.contentJson();
@@ -274,9 +251,7 @@ class GameServiceTest {
         Stop stop = stop(1L, 1, "Nyhetskvartalet");
         Task task = fakeNewsTask(20L, stop);
         when(taskRepository.findById(20L)).thenReturn(Optional.of(task));
-        when(studentProgressRepository.findByStudent_IdAndTask_IdAndClassroom_Id(
-            STUDENT_ID, 20L, CLASSROOM_ID
-        )).thenReturn(Optional.empty());
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 20L)).thenReturn(Optional.empty());
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -295,9 +270,7 @@ class GameServiceTest {
         Stop stop = stop(1L, 1, "Nyhetskvartalet");
         Task task = fakeNewsTask(20L, stop);
         when(taskRepository.findById(20L)).thenReturn(Optional.of(task));
-        when(studentProgressRepository.findByStudent_IdAndTask_IdAndClassroom_Id(
-            STUDENT_ID, 20L, CLASSROOM_ID
-        )).thenReturn(Optional.empty());
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 20L)).thenReturn(Optional.empty());
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -315,15 +288,10 @@ class GameServiceTest {
         Stop stop = stop(2L, 1, "Postkontoret");
         Task task = phishingTask(21L, stop);
         when(taskRepository.findById(21L)).thenReturn(Optional.of(task));
-        when(studentProgressRepository.findByStudent_IdAndTask_IdAndClassroom_Id(
-            STUDENT_ID, 21L, CLASSROOM_ID
-        )).thenReturn(Optional.empty());
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 21L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
-        when(classroomRepository.getReferenceById(CLASSROOM_ID)).thenReturn(classroom());
         when(taskRepository.countByStop_Id(2L)).thenReturn(2L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndClassroom_IdAndCompletedTrue(
-            STUDENT_ID, 2L, CLASSROOM_ID
-        )).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 2L)).thenReturn(1L);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -411,13 +379,5 @@ class GameServiceTest {
         user.setEmail("student@test.no");
         user.setPasswordHash("hash");
         return user;
-    }
-
-    private Classroom classroom() {
-        Classroom classroom = new Classroom();
-        classroom.setId(CLASSROOM_ID);
-        classroom.setName("5A");
-        classroom.setJoinCode("fjord-tiger");
-        return classroom;
     }
 }

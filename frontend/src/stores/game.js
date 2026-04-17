@@ -7,6 +7,7 @@ export const useGameStore = defineStore('game', () => {
   const tasks = ref([])
   const currentTask = ref(null)
   const progress = ref(null)
+  const medals = ref([])
   const leaderboard = ref([])
 
   async function fetchStops(classroomId) {
@@ -72,6 +73,31 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  async function fetchMedals() {
+    console.log('[game] Fetching earned medals')
+    try {
+      const { data } = await gameService.getMedals()
+      medals.value = data
+      console.log('[game] Fetched', data.length, 'medals')
+      return data
+    } catch (err) {
+      console.error('[game] Failed to fetch medals:', err)
+      throw err
+    }
+  }
+
+  async function fetchAllMedals() {
+    console.log('[game] Fetching all medals')
+    try {
+      const { data } = await gameService.getAllMedals()
+      console.log('[game] Fetched', data.length, 'total medals')
+      return data
+    } catch (err) {
+      console.error('[game] Failed to fetch all medals:', err)
+      throw err
+    }
+  }
+
   async function fetchLeaderboard(classroomId) {
     console.log('[game] Fetching leaderboard for classroom:', classroomId)
     try {
@@ -86,8 +112,8 @@ export const useGameStore = defineStore('game', () => {
   }
 
   return {
-    stops, tasks, currentTask, progress, leaderboard,
+    stops, tasks, currentTask, progress, medals, leaderboard,
     fetchStops, fetchTasks, fetchTask, submitAnswer, fetchProgress,
-    fetchLeaderboard
+    fetchMedals, fetchAllMedals, fetchLeaderboard
   }
 })
