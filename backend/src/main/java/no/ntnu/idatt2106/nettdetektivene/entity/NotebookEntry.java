@@ -16,14 +16,14 @@ public class NotebookEntry {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "student_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "student_id", nullable = true)
     private User student;
 
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "stop_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "stop_id", nullable = true)
     private Stop stop;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private EntryType entryType;
 
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -32,5 +32,5 @@ public class NotebookEntry {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    public enum EntryType { AUTO_TIP, REFLECTION }
+    public enum EntryType { AUTO_TIP, REFLECTION, GENERAL_NOTE }
 }

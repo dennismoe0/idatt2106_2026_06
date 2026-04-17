@@ -24,6 +24,7 @@ const routes = [
   { path: '/leaderboard',  name: 'Leaderboard',    component: () => import('@/views/student/LeaderboardView.vue'),   meta: { role: 'STUDENT', requiresClassroom: true } },
 
 
+
   // Teacher
   { path: '/teacher',                 name: 'Dashboard',       component: () => import('@/views/teacher/DashboardView.vue'),       meta: { role: 'TEACHER' } },
   { path: '/teacher/classrooms/:id',  name: 'ClassroomDetail', component: () => import('@/views/teacher/ClassroomDetailView.vue'), meta: { role: 'TEACHER' } },

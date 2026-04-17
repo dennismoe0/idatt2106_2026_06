@@ -2,6 +2,7 @@ package no.ntnu.idatt2106.nettdetektivene.controller;
 
 import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.dto.notebook.CreateReflectionRequest;
+import no.ntnu.idatt2106.nettdetektivene.dto.notebook.GeneralNoteRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.notebook.NotebookEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.service.NotebookService;
 import org.slf4j.Logger;
@@ -42,6 +43,39 @@ public class NotebookController {
         log.info("[NotebookController] POST /notebook studentId={} stopId={}", studentId, request.stopId());
         NotebookEntryDto created = notebookService.createReflection(studentId, request.stopId(), request.content());
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PostMapping("/general")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<NotebookEntryDto> createGeneralNote(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody GeneralNoteRequest request) {
+        Long studentId = Long.parseLong(userDetails.getUsername());
+        log.info("[NotebookController] POST /notebook/general studentId={}", studentId);
+        NotebookEntryDto created = notebookService.createGeneralNote(studentId, request.content());
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('STUDENT')")
+    public NotebookEntryDto updateEntry(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long id,
+            @RequestBody GeneralNoteRequest request) {
+        Long studentId = Long.parseLong(userDetails.getUsername());
+        log.info("[NotebookController] PUT /notebook/{} studentId={}", id, studentId);
+        return notebookService.updateEntry(studentId, id, request.content());
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<Void> deleteEntry(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long id) {
+        Long studentId = Long.parseLong(userDetails.getUsername());
+        log.info("[NotebookController] DELETE /notebook/{} studentId={}", id, studentId);
+        notebookService.deleteEntry(studentId, id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/student/{studentId}")

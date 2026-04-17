@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -32,9 +33,12 @@ public class NotebookService {
     @Transactional(readOnly = true)
     public List<NotebookEntryDto> getEntries(Long studentId) {
         log.info("[NotebookService] getEntries studentId={}", studentId);
-        return notebookRepository
-            .findByStudent_IdOrderByStop_OrderIndexAscCreatedAtAsc(studentId)
-            .stream().map(this::toDto).toList();
+        List<NotebookEntryDto> result = new ArrayList<>();
+        notebookRepository.findByStudent_IdAndStop_IsNullOrderByCreatedAtAsc(studentId)
+            .stream().map(this::toDto).forEach(result::add);
+        notebookRepository.findByStudent_IdAndStop_IsNotNullOrderByStop_OrderIndexAscCreatedAtAsc(studentId)
+            .stream().map(this::toDto).forEach(result::add);
+        return result;
     }
 
     @Transactional(readOnly = true)
@@ -44,9 +48,12 @@ public class NotebookService {
             log.warn("[NotebookService] teacher {} not authorized for student {}", teacherId, studentId);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Student not in your classroom");
         }
-        return notebookRepository
-            .findByStudent_IdOrderByStop_OrderIndexAscCreatedAtAsc(studentId)
-            .stream().map(this::toDto).toList();
+        List<NotebookEntryDto> result = new ArrayList<>();
+        notebookRepository.findByStudent_IdAndStop_IsNullOrderByCreatedAtAsc(studentId)
+            .stream().map(this::toDto).forEach(result::add);
+        notebookRepository.findByStudent_IdAndStop_IsNotNullOrderByStop_OrderIndexAscCreatedAtAsc(studentId)
+            .stream().map(this::toDto).forEach(result::add);
+        return result;
     }
 
     @Transactional
@@ -85,12 +92,59 @@ public class NotebookService {
         return toDto(saved);
     }
 
+    @Transactional
+    public NotebookEntryDto createGeneralNote(Long studentId, String content) {
+        NotebookEntry entry = new NotebookEntry();
+        entry.setStudent(userRepository.getReferenceById(studentId));
+        entry.setEntryType(NotebookEntry.EntryType.GENERAL_NOTE);
+        entry.setContent(content.strip());
+        NotebookEntry saved = notebookRepository.save(entry);
+        log.info("[NotebookService] general note created studentId={} id={}", studentId, saved.getId());
+        return toDto(saved);
+    }
+
+    @Transactional
+    public NotebookEntryDto updateEntry(Long studentId, Long entryId, String content) {
+        NotebookEntry entry = notebookRepository.findById(entryId).orElseThrow(() -> {
+            log.warn("[NotebookService] entry not found id={}", entryId);
+            return new ResourceNotFoundException("Entry not found");
+        });
+        if (!entry.getStudent().getId().equals(studentId)) {
+            log.warn("[NotebookService] update rejected — not owner studentId={} entryId={}", studentId, entryId);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your entry");
+        }
+        if (entry.getEntryType() == NotebookEntry.EntryType.AUTO_TIP) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot edit auto-tips");
+        }
+        entry.setContent(content.strip());
+        log.info("[NotebookService] entry updated studentId={} id={}", studentId, entryId);
+        return toDto(entry);
+    }
+
+    @Transactional
+    public void deleteEntry(Long studentId, Long entryId) {
+        NotebookEntry entry = notebookRepository.findById(entryId).orElseThrow(() -> {
+            log.warn("[NotebookService] entry not found id={}", entryId);
+            return new ResourceNotFoundException("Entry not found");
+        });
+        if (!entry.getStudent().getId().equals(studentId)) {
+            log.warn("[NotebookService] delete rejected — not owner studentId={} entryId={}", studentId, entryId);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your entry");
+        }
+        if (entry.getEntryType() == NotebookEntry.EntryType.AUTO_TIP) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot delete auto-tips");
+        }
+        notebookRepository.delete(entry);
+        log.info("[NotebookService] entry deleted studentId={} id={}", studentId, entryId);
+    }
+
     private NotebookEntryDto toDto(NotebookEntry e) {
+        Stop stop = e.getStop();
         return new NotebookEntryDto(
             e.getId(),
-            e.getStop().getId(),
-            e.getStop().getName(),
-            e.getStop().getOrderIndex(),
+            stop != null ? stop.getId() : null,
+            stop != null ? stop.getName() : null,
+            stop != null ? stop.getOrderIndex() : null,
             e.getEntryType().name(),
             e.getContent(),
             e.getCreatedAt()

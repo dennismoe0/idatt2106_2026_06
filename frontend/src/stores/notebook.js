@@ -5,9 +5,14 @@ import { notebookService } from '@/services/notebookService'
 export const useNotebookStore = defineStore('notebook', () => {
   const entries = ref([])
 
+  const generalNotes = computed(() =>
+    entries.value.filter(e => e.entryType === 'GENERAL_NOTE')
+  )
+
   const grouped = computed(() => {
     const map = new Map()
     for (const e of entries.value) {
+      if (e.entryType === 'GENERAL_NOTE') continue
       if (!map.has(e.stopId)) {
         map.set(e.stopId, {
           stopId: e.stopId,
@@ -52,9 +57,48 @@ export const useNotebookStore = defineStore('notebook', () => {
     }
   }
 
+  async function addGeneralNote(content) {
+    console.log('[notebook] addGeneralNote')
+    try {
+      const { data } = await notebookService.createGeneralNote(content)
+      entries.value.unshift(data)
+      console.log('[notebook] General note added id:', data.id)
+      return data
+    } catch (err) {
+      console.error('[notebook] Failed to add general note:', err)
+      throw err
+    }
+  }
+
+  async function updateNote(id, content) {
+    console.log('[notebook] updateNote id:', id)
+    try {
+      const { data } = await notebookService.updateNote(id, content)
+      const idx = entries.value.findIndex(e => e.id === id)
+      if (idx !== -1) entries.value[idx] = data
+      console.log('[notebook] Note updated id:', id)
+      return data
+    } catch (err) {
+      console.error('[notebook] Failed to update note:', err)
+      throw err
+    }
+  }
+
+  async function deleteNote(id) {
+    console.log('[notebook] deleteNote id:', id)
+    try {
+      await notebookService.deleteNote(id)
+      entries.value = entries.value.filter(e => e.id !== id)
+      console.log('[notebook] Note deleted id:', id)
+    } catch (err) {
+      console.error('[notebook] Failed to delete note:', err)
+      throw err
+    }
+  }
+
   function reset() {
     entries.value = []
   }
 
-  return { entries, grouped, fetchEntries, addReflection, reset }
+  return { entries, generalNotes, grouped, fetchEntries, addReflection, addGeneralNote, updateNote, deleteNote, reset }
 })
