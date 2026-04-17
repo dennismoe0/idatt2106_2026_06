@@ -78,7 +78,7 @@ const form = reactive({ email: '', password: '' })
 const errors = reactive({ email: '', password: '' })
 const serverError = ref('')
 const loading = ref(false)
-const isDev = import.meta.env.DEV
+const isDev = true
 
 function validate() {
   errors.email = ''
