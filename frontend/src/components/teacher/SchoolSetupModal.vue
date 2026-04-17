@@ -1,5 +1,5 @@
 <template>
-  <BaseModal v-model="modelValue" title="Koble til skole" @update:modelValue="$emit('update:modelValue', $event)">
+  <BaseModal :modelValue="modelValue" title="Koble til skole" @update:modelValue="$emit('update:modelValue', $event)">
     <div class="tabs">
       <button
         class="tab-btn"
