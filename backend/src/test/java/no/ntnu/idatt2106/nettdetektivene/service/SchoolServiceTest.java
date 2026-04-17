@@ -102,6 +102,16 @@ class SchoolServiceTest {
     }
 
     @Test
+    void joinSchool_throwsIfTeacherAlreadyHasSchool() {
+        User teacher = teacher(school());
+        when(userRepository.findById(TEACHER_ID)).thenReturn(Optional.of(teacher));
+
+        assertThatThrownBy(() -> schoolService.joinSchool(TEACHER_ID, new JoinSchoolRequest("nord-01")))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("already belongs");
+    }
+
+    @Test
     void joinSchool_throwsOnInvalidCode() {
         User teacher = teacher(null);
         when(userRepository.findById(TEACHER_ID)).thenReturn(Optional.of(teacher));

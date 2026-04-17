@@ -60,6 +60,10 @@ public class SchoolService {
     public SchoolResponse joinSchool(Long teacherId, JoinSchoolRequest req) {
         log.info("[SchoolService] joinSchool teacherId={} code={}", teacherId, req.code());
         User teacher = findTeacher(teacherId);
+        if (teacher.getSchool() != null) {
+            log.warn("[SchoolService] Teacher {} already belongs to school {} — cannot join another", teacherId, teacher.getSchool().getId());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Teacher already belongs to a school");
+        }
         School school = schoolRepository.findByJoinCode(req.code())
             .orElseThrow(() -> {
                 log.warn("[SchoolService] Invalid school code: {} teacherId={}", req.code(), teacherId);
