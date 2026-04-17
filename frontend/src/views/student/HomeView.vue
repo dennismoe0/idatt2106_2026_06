@@ -51,10 +51,10 @@ function formatDisplayName(email) {
 
   return (
     base
-      .split(/[._-]+/)
-      .filter(Boolean)
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(' ') || 'Detektiv'
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ') || 'Detektiv'
   )
 }
 
@@ -65,6 +65,11 @@ async function handleLogout() {
 }
 
 onMounted(() => {
+  if (!localStorage.getItem('hasSeenIntro')) {
+    console.log('[HomeView] First visit — redirecting to intro')
+    router.replace({ name: 'Intro' })
+    return
+  }
   console.log('[HomeView] Loaded student corkboard for:', studentName.value, 'cards:', cards.length)
 })
 </script>
