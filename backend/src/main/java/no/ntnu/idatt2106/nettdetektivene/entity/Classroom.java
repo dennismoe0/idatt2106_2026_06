@@ -28,6 +28,10 @@ public class Classroom {
     @Column(nullable = false)
     private boolean isActive = true;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_id")
+    private School school;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 }
