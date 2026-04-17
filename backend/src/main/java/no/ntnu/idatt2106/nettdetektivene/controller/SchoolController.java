@@ -61,12 +61,12 @@ public class SchoolController {
 
     @GetMapping("/mine/classrooms")
     @PreAuthorize("hasRole('TEACHER')")
-    public List<SchoolClassroomSummary> getSchoolClassrooms(
+    public ResponseEntity<List<SchoolClassroomSummary>> getSchoolClassrooms(
         @AuthenticationPrincipal UserDetails userDetails
     ) {
         Long teacherId = currentUserId(userDetails);
         log.info("[SchoolController] GET /api/schools/mine/classrooms teacherId={}", teacherId);
-        return schoolService.getSchoolClassrooms(teacherId);
+        return ResponseEntity.ok(schoolService.getSchoolClassrooms(teacherId));
     }
 
     private Long currentUserId(UserDetails userDetails) {
