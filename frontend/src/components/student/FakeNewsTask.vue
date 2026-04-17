@@ -164,7 +164,7 @@ button.selected {
 /* Inline result */
 .inline-result {
   border-radius: var(--radius-lg);
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-4) var(--space-6);
   display: grid;
   gap: var(--space-2);
 }
@@ -204,7 +204,7 @@ button.selected {
   color: var(--color-text-on-dark);
   border: none;
   border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-5);
+  padding: var(--space-2) var(--space-6);
   font-weight: var(--font-semibold);
   font-size: var(--text-base);
   cursor: pointer;

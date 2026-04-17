@@ -59,7 +59,7 @@
       title="Kast ut elev"
     >
       <p>Er du sikker på at du vil kaste ut <strong>{{ kickTarget.displayName }}</strong>?</p>
-      <p class="kick-warning">Eleven kan ikke melde seg på igjen.</p>
+      <p class="kick-warning">Eleven kan søke om å bli med igjen, men du må godkjenne dem på nytt.</p>
       <div class="modal-actions">
         <button class="btn btn-outline" @click="kickTarget = null">Avbryt</button>
         <button class="btn btn-danger" @click="kick(kickTarget.userId)">Ja, kast ut</button>

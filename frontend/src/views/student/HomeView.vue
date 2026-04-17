@@ -37,7 +37,7 @@ const cards = [
   { title: 'Medaljer', icon: '🏅', route: { name: 'Medals' }, locked: false },
   { title: 'Notatblokk', icon: '📝', route: { name: 'Notebook' }, locked: false },
   { title: 'Avatar', icon: '🕵️', route: { name: 'Avatar' }, locked: false },
-  { title: 'Ledertavle', icon: '📊', locked: true },
+  { title: 'Ledertavle', icon: '📊', route: { name: 'Leaderboard' }, locked: false },
   { title: 'Ukens Mysterium', icon: '🧩', locked: true },
   { title: 'Hjelp', icon: '💡', locked: true },
 ]
@@ -51,10 +51,10 @@ function formatDisplayName(email) {
 
   return (
     base
-      .split(/[._-]+/)
-      .filter(Boolean)
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(' ') || 'Detektiv'
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ') || 'Detektiv'
   )
 }
 
@@ -65,6 +65,11 @@ async function handleLogout() {
 }
 
 onMounted(() => {
+  if (!localStorage.getItem('hasSeenIntro')) {
+    console.log('[HomeView] First visit — redirecting to intro')
+    router.replace({ name: 'Intro' })
+    return
+  }
   console.log('[HomeView] Loaded student corkboard for:', studentName.value, 'cards:', cards.length)
 })
 </script>
