@@ -1,6 +1,6 @@
 <template>
   <div class="map-view">
-    <h1 class="map-view__title">Kart over Nettdetektivene</h1>
+    <StudentHeader title="Kart" :back-to="{ name: 'Home' }" />
 
     <LoadingSpinner v-if="loading" />
 
@@ -11,17 +11,25 @@
         v-for="stop in stops"
         :key="stop.id"
         :stop="stop"
+        :flash="lockedStopId === stop.id"
         @click="handleStopClick"
       />
     </div>
+
+    <Transition name="fade">
+      <p v-if="lockedMessage" class="map-view__locked-msg" role="status">
+        🔒 Spill de tidligere stoppene for å låse opp denne!
+      </p>
+    </Transition>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { useClassroomStore } from '@/stores/classroom'
+import StudentHeader from '@/components/common/StudentHeader.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import StopMarker from '@/components/student/StopMarker.vue'
 
@@ -32,23 +40,49 @@ const classroomStore = useClassroomStore()
 const loading = ref(false)
 const error = ref(null)
 const stops = computed(() => gameStore.stops)
+const lockedStopId = ref(null)
+const lockedMessage = ref(false)
+let lockedTimer = null
 
 onMounted(async () => {
+  // No classroomId at all — student hasn't joined yet
+  if (!classroomStore.currentClassroomId) {
+    console.warn('[MapView] No classroomId — redirecting to join')
+    router.push({ name: 'JoinClassroom' })
+    return
+  }
+
   loading.value = true
   console.log('[MapView] Loading stops for classroom:', classroomStore.currentClassroomId)
   try {
     await gameStore.fetchStops(classroomStore.currentClassroomId)
   } catch (err) {
     console.error('[MapView] Failed to load stops:', err)
+    const status = err?.response?.status
+    if (status === 400 || status === 404 || status === 403) {
+      console.warn('[MapView] Invalid/stale classroomId (%s) — clearing and redirecting to join', status)
+      classroomStore.reset()
+      router.push({ name: 'JoinClassroom' })
+      return
+    }
     error.value = 'Kunne ikke laste kartet. Prøv igjen.'
   } finally {
     loading.value = false
   }
 })
 
+onUnmounted(() => clearTimeout(lockedTimer))
+
 function handleStopClick(stop) {
   if (stop.locked) {
-    console.log('[MapView] Stop is locked, ignoring click:', stop.id)
+    console.log('[MapView] Stop is locked:', stop.id)
+    lockedStopId.value = stop.id
+    lockedMessage.value = true
+    clearTimeout(lockedTimer)
+    lockedTimer = setTimeout(() => {
+      lockedStopId.value = null
+      lockedMessage.value = false
+    }, 2000)
     return
   }
   console.log('[MapView] Navigating to task for stop:', stop.id)
@@ -63,13 +97,6 @@ function handleStopClick(stop) {
   background: var(--color-bg);
 }
 
-.map-view__title {
-  font-size: var(--text-2xl);
-  font-weight: var(--font-bold);
-  color: var(--color-text);
-  margin-bottom: var(--space-6);
-}
-
 .map-view__error {
   color: var(--color-danger);
   text-align: center;
@@ -79,9 +106,25 @@ function handleStopClick(stop) {
 .stops-path {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: var(--space-4);
   max-width: 24rem;
   margin: 0 auto;
 }
+
+.map-view__locked-msg {
+  max-width: 24rem;
+  margin: var(--space-4) auto 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  text-align: center;
+}
+
+.fade-enter-active, .fade-leave-active { transition: opacity var(--transition-fast); }
+.fade-enter-from, .fade-leave-to       { opacity: 0; }
 </style>

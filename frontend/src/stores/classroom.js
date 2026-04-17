@@ -8,6 +8,7 @@ export const useClassroomStore = defineStore('classroom', () => {
   const students = ref([])
   const currentClassroomId = ref(null)
   const pendingJoin = ref(null)
+  const displayName = ref(null)
 
   async function fetchMyClassrooms() {
     console.log('[classroom] Fetching my classrooms')
@@ -39,7 +40,9 @@ export const useClassroomStore = defineStore('classroom', () => {
     try {
       const { data } = await classroomService.joinClassroom(payload)
       currentClassroomId.value = data.classroomId
+      displayName.value = payload.displayName
       localStorage.setItem('classroomId', data.classroomId)
+      localStorage.setItem('classroomDisplayName', payload.displayName)
       pendingJoin.value = {
         code: payload.code,
         displayName: payload.displayName,
@@ -63,6 +66,31 @@ export const useClassroomStore = defineStore('classroom', () => {
     } catch (err) {
       console.error('[classroom] Failed to fetch students:', err)
       throw err
+    }
+  }
+
+  function reset() {
+    classrooms.value = []
+    currentClassroom.value = null
+    students.value = []
+    currentClassroomId.value = null
+    pendingJoin.value = null
+    displayName.value = null
+    localStorage.removeItem('classroomId')
+    localStorage.removeItem('classroomDisplayName')
+    console.log('[classroom] State reset')
+  }
+
+  function rehydrate() {
+    const storedId = localStorage.getItem('classroomId')
+    const storedName = localStorage.getItem('classroomDisplayName')
+    if (storedId) {
+      currentClassroomId.value = parseInt(storedId, 10)
+      console.log('[classroom] Rehydrated classroomId:', currentClassroomId.value)
+    }
+    if (storedName) {
+      displayName.value = storedName
+      console.log('[classroom] Rehydrated displayName:', storedName)
     }
   }
 
@@ -99,7 +127,7 @@ export const useClassroomStore = defineStore('classroom', () => {
   }
 
   return {
-    classrooms, currentClassroom, students, currentClassroomId, pendingJoin,
-    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents, fetchMyStatus, updateStudentStatus
+    classrooms, currentClassroom, students, currentClassroomId, pendingJoin, displayName,
+    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents, fetchMyStatus, updateStudentStatus, rehydrate, reset
   }
 })

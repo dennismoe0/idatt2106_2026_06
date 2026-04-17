@@ -1,5 +1,6 @@
 <template>
   <div class="dashboard-layout">
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-logo">
         <span class="logo-icon">🔍</span>
@@ -52,6 +53,7 @@
       </div>
     </aside>
 
+    <!-- Main content -->
     <main class="main-content">
       <div class="page-header">
         <div>
@@ -64,15 +66,18 @@
         <button class="btn btn-primary" @click="openCreateModal">+ Opprett ny klasse</button>
       </div>
 
+      <!-- Loading state -->
       <div v-if="loading" class="loading-state">
         <LoadingSpinner />
       </div>
 
+      <!-- Error state -->
       <div v-else-if="error" class="error-banner">
         {{ error }}
       </div>
 
       <template v-else>
+        <!-- Classroom grid -->
         <div class="section-label">Dine klasser</div>
         <div class="classrooms-grid">
           <a
@@ -93,6 +98,7 @@
             </div>
           </a>
 
+          <!-- New classroom card -->
           <button class="new-classroom-card" @click="openCreateModal">
             <span class="plus-icon">+</span>
             <span class="new-label">Opprett ny klasse</span>
@@ -102,12 +108,14 @@
       </template>
     </main>
 
-    <BaseModal v-if="showCreateModal" @close="closeCreateModal" title="Create Classroom">
+    <!-- Create Classroom Modal -->
+    <BaseModal v-if="showCreateModal" :model-value="true" @update:modelValue="closeCreateModal" title="Create Classroom">
       <template #header>
         <h2 class="modal-title">Opprett nytt klasserom</h2>
       </template>
 
       <template #default>
+        <!-- Success view: show join code -->
         <div v-if="createdClassroom" class="join-code-result">
           <div class="success-icon">🎉</div>
           <p class="success-msg">Klasserommet <strong>{{ createdClassroom.name }}</strong> er opprettet!</p>
@@ -121,6 +129,7 @@
           <p class="join-code-hint">Del denne koden med elevene dine så de kan bli med i klasserommet.</p>
         </div>
 
+        <!-- Create form -->
         <form v-else @submit.prevent="submitCreate" class="create-form">
           <div class="form-group">
             <label class="form-label">Klassenavn *</label>
@@ -194,6 +203,7 @@ onMounted(async () => {
 })
 
 function goToClassroom(id) {
+  // TODO: register ClassroomDetail route in index.js when the view is built
   router.push({ name: 'ClassroomDetail', params: { id } })
 }
 
@@ -245,6 +255,7 @@ function formatDate(dateStr) {
 </script>
 
 <style scoped>
+/* ─── Layout ─────────────────────────────────────────────── */
 .dashboard-layout {
   display: grid;
   grid-template-columns: 240px 1fr;
@@ -254,6 +265,7 @@ function formatDate(dateStr) {
   color: var(--color-text);
 }
 
+/* ─── Sidebar ─────────────────────────────────────────────── */
 .sidebar {
   background: var(--color-primary-dark);
   color: var(--color-text-on-dark);
@@ -338,6 +350,7 @@ function formatDate(dateStr) {
 }
 .logout-btn:hover { color: var(--color-text-on-dark); }
 
+/* ─── Main ────────────────────────────────────────────────── */
 .main-content {
   padding: 28px 32px 64px;
   background: var(--color-bg);
@@ -361,6 +374,7 @@ function formatDate(dateStr) {
   margin-bottom: 14px;
 }
 
+/* ─── Classroom grid ──────────────────────────────────────── */
 .classrooms-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -424,6 +438,7 @@ function formatDate(dateStr) {
   border-top: 1px solid var(--color-border);
 }
 
+/* ─── New classroom card ──────────────────────────────────── */
 .new-classroom-card {
   background: var(--color-bg);
   border-radius: var(--radius-xl);
@@ -450,6 +465,7 @@ function formatDate(dateStr) {
 .new-label { font-size: var(--text-base); font-weight: 800; }
 .new-sub   { font-size: var(--text-xs); }
 
+/* ─── Buttons ─────────────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -483,6 +499,7 @@ function formatDate(dateStr) {
 .btn-outline:hover { background: var(--color-primary-light); }
 .btn-sm { padding: var(--space-2) var(--space-4); font-size: var(--text-xs); }
 
+/* ─── Loading / Error ─────────────────────────────────────── */
 .loading-state {
   display: flex;
   justify-content: center;
@@ -498,6 +515,7 @@ function formatDate(dateStr) {
   font-size: var(--text-sm);
 }
 
+/* ─── Modal internals ─────────────────────────────────────── */
 .modal-title {
   font-size: var(--text-xl);
   font-weight: 900;
@@ -541,6 +559,7 @@ function formatDate(dateStr) {
   padding-top: var(--space-1);
 }
 
+/* ─── Join code result ────────────────────────────────────── */
 .join-code-result {
   display: flex;
   flex-direction: column;
@@ -595,6 +614,7 @@ function formatDate(dateStr) {
   max-width: 320px;
 }
 
+/* ─── Responsive ──────────────────────────────────────────── */
 @media (max-width: 768px) {
   .dashboard-layout {
     grid-template-columns: 1fr;

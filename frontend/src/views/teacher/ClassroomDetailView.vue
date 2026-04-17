@@ -42,18 +42,19 @@
       <p v-if="students.length === 0" class="student-empty">Ingen elever har meldt seg på enda.</p>
     </section>
 
-    <BaseModal v-if="kickTarget" @close="kickTarget = null" title="Kick Student">
-      <template #header>
-        <h2 class="modal-title">Kast ut elev</h2>
-      </template>
-      <template #default>
-        <p>Er du sikker på at du vil kaste ut <strong>{{ kickTarget.displayName }}</strong>?</p>
-        <p class="kick-warning">Eleven kan ikke melde seg på igjen.</p>
-        <div class="modal-actions">
-          <button class="btn btn-outline" @click="kickTarget = null">Avbryt</button>
-          <button class="btn btn-danger" @click="kick(kickTarget.userId)">Ja, kast ut</button>
-        </div>
-      </template>
+    <!-- Kick confirmation modal -->
+    <BaseModal
+      v-if="kickTarget"
+      :model-value="true"
+      @update:model-value="kickTarget = null"
+      title="Kast ut elev"
+    >
+      <p>Er du sikker på at du vil kaste ut <strong>{{ kickTarget.displayName }}</strong>?</p>
+      <p class="kick-warning">Eleven kan ikke melde seg på igjen.</p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" @click="kickTarget = null">Avbryt</button>
+        <button class="btn btn-danger" @click="kick(kickTarget.userId)">Ja, kast ut</button>
+      </div>
     </BaseModal>
   </main>
 </template>
@@ -239,11 +240,6 @@ async function copyCode() {
 }
 .detail-error {
   color: var(--color-danger);
-}
-.modal-title {
-  font-size: var(--text-xl);
-  font-weight: 900;
-  margin: 0;
 }
 .kick-warning {
   color: var(--color-text-muted);

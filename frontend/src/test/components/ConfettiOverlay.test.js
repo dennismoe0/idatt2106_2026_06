@@ -24,4 +24,13 @@ describe('ConfettiOverlay', () => {
     await flushPromises()
     expect(wrapper.find('.confetti-overlay').exists()).toBe(false)
   })
+
+  it('assigns token-backed color classes to confetti pieces', () => {
+    const wrapper = mount(ConfettiOverlay, { props: { active: true } })
+    const pieces = wrapper.findAll('.confetti-piece')
+
+    expect(pieces).toHaveLength(40)
+    expect(pieces[0].classes()).toContain('confetti-piece--color-2')
+    expect(pieces[5].classes()).toContain('confetti-piece--color-1')
+  })
 })

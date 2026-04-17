@@ -26,6 +26,8 @@ watch(() => props.medal, (val) => {
     visible.value = true
     clearTimeout(timer)
     timer = setTimeout(() => { visible.value = false }, 4000)
+  } else {
+    visible.value = false
   }
 }, { immediate: true })
 

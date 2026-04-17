@@ -16,4 +16,8 @@ import { useAuthStore } from './stores/auth'
 const authStore = useAuthStore()
 authStore.rehydrate()
 
+import { useClassroomStore } from './stores/classroom'
+const classroomStore = useClassroomStore()
+classroomStore.rehydrate()
+
 app.mount('#app')
