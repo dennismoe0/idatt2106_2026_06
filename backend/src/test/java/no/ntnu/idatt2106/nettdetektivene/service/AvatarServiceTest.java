@@ -72,7 +72,6 @@ class AvatarServiceTest {
             new UsernamePasswordAuthenticationToken("7", null, AuthorityUtils.createAuthorityList("ROLE_STUDENT"))
         );
 
-        when(userRepository.findById(7L)).thenReturn(Optional.of(user));
         when(avatarRepository.findByStudent_Id(7L)).thenReturn(Optional.of(avatar));
         when(avatarRepository.save(any(Avatar.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
