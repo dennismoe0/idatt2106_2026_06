@@ -28,4 +28,7 @@ public class Stop {
 
     @Column(nullable = false)
     private boolean isFinalBoss = false;
+
+    @Column(columnDefinition = "TEXT")
+    private String autoTip;
 }
