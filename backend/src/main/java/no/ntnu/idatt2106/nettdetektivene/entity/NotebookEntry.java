@@ -19,9 +19,6 @@ public class NotebookEntry {
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "student_id", nullable = false)
     private User student;
 
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "classroom_id", nullable = false)
-    private Classroom classroom;
-
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "stop_id", nullable = false)
     private Stop stop;
 

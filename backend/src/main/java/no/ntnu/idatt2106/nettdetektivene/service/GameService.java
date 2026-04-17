@@ -54,6 +54,7 @@ public class GameService {
     private final UserRepository userRepository;
     private final ClassroomRepository classroomRepository;
     private final ObjectMapper objectMapper;
+    private final NotebookService notebookService;
 
     @Transactional(readOnly = true)
     public List<StopResponse> getStops(Long studentId, Long classroomId) {
@@ -123,14 +124,14 @@ public class GameService {
 
         String explanation = extractExplanation(task);
         Optional<StudentProgress> existingProgress = studentProgressRepository
-            .findByStudent_IdAndTask_IdAndClassroom_Id(studentId, taskId, classroomId);
+            .findByStudent_IdAndTask_Id(studentId, taskId);
 
         if (existingProgress.map(StudentProgress::isCompleted).orElse(false)) {
             return new SubmitAnswerResponse(
                 true,
                 existingProgress.get().getScore(),
                 explanation,
-                isStopComplete(studentId, classroomId, task.getStop().getId()),
+                isStopComplete(studentId, task.getStop().getId()),
                 null
             );
         }
@@ -142,7 +143,6 @@ public class GameService {
 
         StudentProgress progress = existingProgress.orElseGet(StudentProgress::new);
         progress.setStudent(userRepository.getReferenceById(studentId));
-        progress.setClassroom(classroomRepository.getReferenceById(classroomId));
         progress.setStop(task.getStop());
         progress.setTask(task);
         progress.setCompleted(true);
@@ -151,12 +151,13 @@ public class GameService {
         progress.setCompletedAt(LocalDateTime.now());
         studentProgressRepository.save(progress);
 
-        boolean stopCompleted = isStopComplete(studentId, classroomId, task.getStop().getId());
+        boolean stopCompleted = isStopComplete(studentId, task.getStop().getId());
         if (stopCompleted) {
-            log.info("[GameService] stop completed studentId={} classroomId={} stopId={}", studentId, classroomId, task.getStop().getId());
+            log.info("[GameService] stop completed studentId={} stopId={}", studentId, task.getStop().getId());
+            notebookService.createAutoTipIfNotExists(studentId, task.getStop());
         }
         MedalDto medalEarned = stopCompleted
-            ? checkAndAwardMedal(studentId, classroomId, task.getStop().getId()).map(this::toMedalDto).orElse(null)
+            ? checkAndAwardMedal(studentId, task.getStop().getId()).map(this::toMedalDto).orElse(null)
             : null;
 
         return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned);
@@ -178,38 +179,31 @@ public class GameService {
         return stopRepository.findAllByOrderByOrderIndexAsc().stream()
             .filter(candidate -> candidate.getOrderIndex().equals(stop.getOrderIndex() - 1))
             .findFirst()
-            .map(previous -> allTasksCompleted(studentId, classroomId, previous.getId()))
+            .map(previous -> allTasksCompleted(studentId, previous.getId()))
             .orElse(false);
     }
 
-    private boolean isStopComplete(Long studentId, Long classroomId, Long stopId) {
+    private boolean isStopComplete(Long studentId, Long stopId) {
         long taskCount = taskRepository.countByStop_Id(stopId);
-        return taskCount > 0 && completedTaskCount(studentId, classroomId, stopId) == taskCount;
+        return taskCount > 0 && completedTaskCount(studentId, stopId) == taskCount;
     }
 
-    private Optional<Medal> checkAndAwardMedal(Long studentId, Long classroomId, Long stopId) {
+    private Optional<Medal> checkAndAwardMedal(Long studentId, Long stopId) {
         Optional<Medal> medal = medalRepository.findByStop_Id(stopId);
         if (medal.isEmpty()) {
             return Optional.empty();
         }
 
         Long medalId = medal.get().getId();
-        if (studentMedalRepository.existsByStudent_IdAndMedal_IdAndClassroom_Id(studentId, medalId, classroomId)) {
+        if (studentMedalRepository.existsByStudent_IdAndMedal_Id(studentId, medalId)) {
             return Optional.empty();
         }
 
         StudentMedal studentMedal = new StudentMedal();
         studentMedal.setStudent(userRepository.getReferenceById(studentId));
-        studentMedal.setClassroom(classroomRepository.getReferenceById(classroomId));
         studentMedal.setMedal(medal.get());
         studentMedalRepository.save(studentMedal);
-        log.info(
-            "[GameService] awarded medal studentId={} classroomId={} stopId={} medalId={}",
-            studentId,
-            classroomId,
-            stopId,
-            medal.get().getId()
-        );
+        log.info("[GameService] awarded medal studentId={} stopId={} medalId={}", studentId, stopId, medal.get().getId());
         return medal;
     }
 
@@ -277,14 +271,14 @@ public class GameService {
             stop.getOrderIndex(),
             stop.getDescription(),
             !unlocked,
-            isStopComplete(studentId, classroomId, stop.getId()),
+            isStopComplete(studentId, stop.getId()),
             taskCount
         );
     }
 
     private TaskResponse toTaskResponse(Long studentId, Long classroomId, Task task) {
         boolean alreadyCompleted = studentProgressRepository
-            .findByStudent_IdAndTask_IdAndClassroom_Id(studentId, task.getId(), classroomId)
+            .findByStudent_IdAndTask_Id(studentId, task.getId())
             .map(StudentProgress::isCompleted)
             .orElse(false);
 
@@ -299,7 +293,7 @@ public class GameService {
     }
 
     private MedalDto toMedalDto(Medal medal) {
-        return new MedalDto(medal.getId(), medal.getName(), medal.getDescription());
+        return new MedalDto(medal.getId(), medal.getName(), medal.getDescription(), medal.getImageUrl());
     }
 
     private void requireClassroomExists(Long classroomId) {
@@ -321,14 +315,13 @@ public class GameService {
         }
     }
 
-    private boolean allTasksCompleted(Long studentId, Long classroomId, Long stopId) {
+    private boolean allTasksCompleted(Long studentId, Long stopId) {
         long taskCount = taskRepository.countByStop_Id(stopId);
-        return taskCount > 0 && completedTaskCount(studentId, classroomId, stopId) == taskCount;
+        return taskCount > 0 && completedTaskCount(studentId, stopId) == taskCount;
     }
 
-    private long completedTaskCount(Long studentId, Long classroomId, Long stopId) {
-        return studentProgressRepository
-            .countByStudent_IdAndTask_Stop_IdAndClassroom_IdAndCompletedTrue(studentId, stopId, classroomId);
+    private long completedTaskCount(Long studentId, Long stopId) {
+        return studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(studentId, stopId);
     }
 
     private String extractExplanation(Task task) {

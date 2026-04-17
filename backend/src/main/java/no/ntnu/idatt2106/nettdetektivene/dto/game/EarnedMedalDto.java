@@ -1,8 +1,11 @@
 package no.ntnu.idatt2106.nettdetektivene.dto.game;
 
-public record MedalDto(
+import java.time.LocalDateTime;
+
+public record EarnedMedalDto(
     Long id,
     String name,
     String description,
-    String imageUrl
+    String imageUrl,
+    LocalDateTime earnedAt
 ) {}

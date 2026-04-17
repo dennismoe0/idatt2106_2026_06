@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.ClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.CreateClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.UpdateStudentStatusRequest;
@@ -87,6 +88,13 @@ public class ClassroomController {
         @Valid @RequestBody UpdateStudentStatusRequest request
     ) {
         return classroomService.updateStudentStatus(currentUserId(userDetails), id, sid, request.status());
+    }
+
+    @GetMapping("/{id}/leaderboard")
+    @PreAuthorize("isAuthenticated()")
+    public List<LeaderboardEntryDto> getLeaderboard(@PathVariable Long id) {
+        log.info("[ClassroomController] GET /api/classrooms/{}/leaderboard", id);
+        return classroomService.getLeaderboard(id);
     }
 
     @GetMapping("/{id}/my-status")
