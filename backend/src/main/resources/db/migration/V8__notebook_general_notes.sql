@@ -1,0 +1,2 @@
+ALTER TABLE notebook_entries MODIFY entry_type ENUM('AUTO_TIP','REFLECTION','GENERAL_NOTE') NOT NULL;
+ALTER TABLE notebook_entries MODIFY stop_id BIGINT NULL;

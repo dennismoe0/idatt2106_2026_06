@@ -9,7 +9,9 @@ import java.util.List;
 public interface NotebookRepository extends JpaRepository<NotebookEntry, Long> {
 
     @EntityGraph(attributePaths = "stop")
-    List<NotebookEntry> findByStudent_IdOrderByStop_OrderIndexAscCreatedAtAsc(Long studentId);
+    List<NotebookEntry> findByStudent_IdAndStop_IsNotNullOrderByStop_OrderIndexAscCreatedAtAsc(Long studentId);
+
+    List<NotebookEntry> findByStudent_IdAndStop_IsNullOrderByCreatedAtAsc(Long studentId);
 
     boolean existsByStudent_IdAndStop_IdAndEntryType(
             Long studentId, Long stopId, NotebookEntry.EntryType entryType);

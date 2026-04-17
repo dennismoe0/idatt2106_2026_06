@@ -6,7 +6,7 @@ public record NotebookEntryDto(
     Long id,
     Long stopId,
     String stopName,
-    int stopOrder,
+    Integer stopOrder,
     String entryType,
     String content,
     LocalDateTime createdAt
