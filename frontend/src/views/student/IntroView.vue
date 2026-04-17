@@ -151,6 +151,7 @@ function prev() {
 
 function skip() {
   console.log('[IntroView] Skipped intro')
+  localStorage.setItem('hasSeenIntro', 'true')
   router.push({ name: 'Home' })
 }
 
