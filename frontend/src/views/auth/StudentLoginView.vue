@@ -2,19 +2,30 @@
   <main class="feide-page">
     <div class="feide-card">
 
-      <!-- Header -->
+      <!-- Language picker (decorative, matches real Feide layout) -->
+      <div class="feide-lang" aria-hidden="true">
+        <span class="feide-lang__flag">🇳🇴</span>
+        Norsk
+        <span class="feide-lang__chevron">&#8964;</span>
+      </div>
+
+      <!-- Title -->
       <h1 class="feide-title">Logg inn med Feide</h1>
 
       <!-- Icon + description -->
       <div class="feide-desc">
-        <svg class="feide-lock" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-          <rect x="8" y="30" width="48" height="30" rx="5" fill="#4a7eb5"/>
-          <path d="M20 30V22C20 13.16 27.16 6 36 6s0 0 0 0C36 6 44 13.16 44 22V30"
-                stroke="#4a7eb5" stroke-width="6" fill="none" stroke-linecap="round"/>
-          <!-- building silhouette inside lock body -->
-          <rect x="27" y="38" width="10" height="14" rx="1" fill="white" opacity="0.9"/>
-          <rect x="23" y="42" width="18" height="2" fill="white" opacity="0.6"/>
-          <rect x="29" y="44" width="6" height="8" fill="#4a7eb5"/>
+        <svg class="feide-lock" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <!-- Arch / shackle -->
+          <path d="M18 30V20C18 10.6 24.3 4 32 4C39.7 4 46 10.6 46 20V30"
+                stroke="#4a7eb5" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+          <!-- Lock body -->
+          <rect x="10" y="29" width="44" height="31" rx="5" fill="#4a7eb5"/>
+          <!-- Windows -->
+          <rect x="18" y="36" width="7" height="6" rx="1.5" fill="white" opacity="0.85"/>
+          <rect x="29" y="36" width="7" height="6" rx="1.5" fill="white" opacity="0.85"/>
+          <rect x="39" y="36" width="7" height="6" rx="1.5" fill="white" opacity="0.85"/>
+          <!-- Door -->
+          <path d="M27.5 60V51C27.5 49.9 28.4 49 29.5 49H34.5C35.6 49 36.5 49.9 36.5 51V60" fill="white" opacity="0.7"/>
         </svg>
         <p class="feide-desc__text">
           Du trenger å logge inn via Feide for å bruke Nettdetektivene.
@@ -28,7 +39,7 @@
         <div class="feide-field">
           <label for="username" class="feide-label">
             Elevnavn
-            <span class="feide-label__hint" title="Bruk ditt fornavn og etternavn, f.eks. 'ola-nordmann'">ⓘ</span>
+            <span class="feide-label__hint" title="Bruk ditt fornavn og etternavn, f.eks. 'anna.hansen'" aria-label="Hjelp">&#9432;</span>
           </label>
 
           <div class="feide-input-wrap" :class="{ 'feide-input-wrap--error': errors.username }">
@@ -36,7 +47,7 @@
               id="username"
               v-model="form.username"
               type="text"
-              placeholder="fornavn.etternavn"
+              placeholder=""
               autocomplete="username"
               autocorrect="off"
               autocapitalize="none"
@@ -65,11 +76,18 @@
 
       <hr class="feide-divider" />
 
-      <div class="feide-footer-links">
-        <RouterLink to="/login" class="feide-teacher-link">
-          Lærer? Logg inn her
-        </RouterLink>
-      </div>
+      <!-- Help accordion -->
+      <details class="feide-help">
+        <summary class="feide-help__summary">
+          Trenger du hjelp?
+          <span class="feide-help__icon" aria-hidden="true">+</span>
+        </summary>
+        <div class="feide-help__body">
+          <RouterLink to="/login" class="feide-teacher-link">
+            Lærer? Logg inn her
+          </RouterLink>
+        </div>
+      </details>
     </div>
 
     <p class="feide-sikt">Feide leveres av <strong>Sikt</strong></p>
@@ -77,12 +95,20 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+onMounted(() => {
+  if (authStore.isAuthenticated && authStore.isStudent) {
+    console.log('[StudentLoginView] Already logged in as student — redirecting to home')
+    const hasSeenIntro = localStorage.getItem('hasSeenIntro') === 'true'
+    router.replace({ name: hasSeenIntro ? 'Home' : 'Intro' })
+  }
+})
 
 const form = reactive({ username: '' })
 const errors = reactive({ username: '' })
@@ -148,54 +174,71 @@ async function handleSubmit() {
 
 /* ── Card ── */
 .feide-card {
-  width: min(100%, 26rem);
+  position: relative;
+  width: min(100%, 29rem);
   background: #fff;
   border-radius: 6px;
-  padding: var(--space-7) var(--space-7) var(--space-5);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  padding: var(--space-8) var(--space-8) var(--space-6);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.13);
 }
+
+/* ── Language switcher ── */
+.feide-lang {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--text-sm);
+  color: #555;
+  cursor: default;
+  user-select: none;
+}
+.feide-lang__flag { font-size: 1rem; }
+.feide-lang__chevron { font-size: 0.7rem; opacity: 0.7; }
 
 /* ── Title ── */
 .feide-title {
-  font-size: 1.75rem;
-  font-weight: 800;
+  font-size: 1.6rem;
+  font-weight: 700;
   color: #111;
-  margin: 0 0 var(--space-5);
+  margin: 0 0 var(--space-6);
   letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 /* ── Icon + desc ── */
 .feide-desc {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 .feide-lock {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
 }
 .feide-desc__text {
   margin: 0;
   font-size: var(--text-sm);
-  color: #333;
+  color: #444;
   line-height: 1.5;
-  padding-top: 2px;
 }
 
 /* ── Divider ── */
 .feide-divider {
   border: none;
-  border-top: 1px solid #ddd;
-  margin: var(--space-4) 0;
+  border-top: 1px solid #e0e0e0;
+  margin: var(--space-6) 0;
 }
 
 /* ── Field ── */
 .feide-field {
   display: grid;
-  gap: var(--space-1);
-  margin-bottom: var(--space-4);
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
 }
 
 .feide-label {
@@ -210,6 +253,7 @@ async function handleSubmit() {
   color: #4a7eb5;
   cursor: help;
   font-size: var(--text-base);
+  line-height: 1;
 }
 
 .feide-input-wrap {
@@ -227,7 +271,7 @@ async function handleSubmit() {
   width: 100%;
   border: none;
   outline: none;
-  padding: var(--space-3) var(--space-3);
+  padding: var(--space-3) var(--space-4);
   font-size: var(--text-base);
   background: transparent;
   color: #111;
@@ -246,14 +290,14 @@ async function handleSubmit() {
 }
 .feide-error--server {
   display: block;
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
 /* ── Continue button ── */
 .feide-btn {
   width: 100%;
   padding: var(--space-3) var(--space-4);
-  background: #4a7eb5;
+  background: #6b9fcb;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -265,9 +309,9 @@ async function handleSubmit() {
   justify-content: center;
   gap: var(--space-2);
   transition: background 0.15s, transform 0.1s;
-  min-height: 48px;
+  min-height: 46px;
 }
-.feide-btn:hover:not(:disabled) { background: #3a6ea5; }
+.feide-btn:hover:not(:disabled) { background: #5a8dbc; }
 .feide-btn:active:not(:disabled) { transform: scale(0.99); }
 .feide-btn:disabled { opacity: 0.65; cursor: not-allowed; }
 
@@ -282,9 +326,33 @@ async function handleSubmit() {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Footer links ── */
-.feide-footer-links {
-  text-align: center;
+/* ── Help accordion ── */
+.feide-help {
+  margin: 0;
+}
+.feide-help__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  list-style: none;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: #333;
+  padding: var(--space-1) 0;
+  user-select: none;
+}
+.feide-help__summary::-webkit-details-marker { display: none; }
+.feide-help__summary::marker { display: none; }
+.feide-help__icon {
+  font-size: 1.1rem;
+  color: #555;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+details[open] .feide-help__icon { transform: rotate(45deg); }
+
+.feide-help__body {
+  padding: var(--space-3) 0 var(--space-1);
 }
 .feide-teacher-link {
   font-size: var(--text-sm);

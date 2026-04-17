@@ -26,6 +26,16 @@ export const gameService = {
     return api.get('/api/game/progress', { params: { classroomId } })
   },
 
+  getMedals() {
+    console.log('[gameService] getMedals')
+    return api.get('/api/medals/mine')
+  },
+
+  getAllMedals() {
+    console.log('[gameService] getAllMedals')
+    return api.get('/api/medals/all')
+  },
+
   getLeaderboard(classroomId) {
     console.log('[gameService] getLeaderboard classroomId:', classroomId)
     return api.get(`/api/classrooms/${classroomId}/leaderboard`)

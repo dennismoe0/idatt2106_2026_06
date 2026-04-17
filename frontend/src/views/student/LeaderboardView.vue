@@ -17,9 +17,9 @@
       <button class="leaderboard-view__retry" @click="load">Prøv igjen</button>
     </div>
 
-    <ol v-else class="leaderboard-list" aria-label="Ledertavle — topp 5">
+    <ol v-else class="leaderboard-list" aria-label="Ledertavle">
       <li
-        v-for="(entry, index) in top5"
+        v-for="(entry, index) in leaderboard"
         :key="entry.displayName"
         class="leaderboard-entry"
         :class="{
@@ -53,7 +53,7 @@ const classroomStore = useClassroomStore()
 const loading = ref(true)
 const error = ref(null)
 
-const top5 = computed(() => gameStore.leaderboard.slice(0, 5))
+const leaderboard = computed(() => gameStore.leaderboard)
 const myDisplayName = computed(() => classroomStore.displayName ?? '')
 
 async function load() {
@@ -67,7 +67,7 @@ async function load() {
       return
     }
     await gameStore.fetchLeaderboard(classroomId)
-    console.log('[LeaderboardView] Loaded', top5.value.length, 'entries (top 5)')
+    console.log('[LeaderboardView] Loaded', leaderboard.value.length, 'entries')
   } catch (err) {
     console.error('[LeaderboardView] Failed to load leaderboard:', err)
     error.value = 'Kunne ikke laste ledertavlen. Prøv igjen.'
@@ -126,7 +126,7 @@ onMounted(load)
 @keyframes spin { to { transform: rotate(360deg); } }
 .leaderboard-view__retry {
   padding: var(--space-2) var(--space-4);
-  background: var(--color-primary); color: var(--color-text-on-dark);
+  background: var(--color-primary); color: var(--color-text-on-dark, #fff);
   border: none; border-radius: var(--radius-md); cursor: pointer;
   font-size: var(--text-sm); font-weight: var(--font-semibold);
 }

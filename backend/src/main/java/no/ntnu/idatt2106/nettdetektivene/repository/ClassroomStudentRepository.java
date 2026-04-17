@@ -23,7 +23,7 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
 
     boolean existsByClassroom_IdAndStudent_Id(Long classroomId, Long studentId);
 
-    @org.springframework.data.jpa.repository.Query(value = """
+    @Query(value = """
         SELECT cs.display_name AS displayName,
                COUNT(sp.id)    AS completedTasks
         FROM classroom_students cs
@@ -35,5 +35,16 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
         GROUP BY cs.student_id, cs.display_name
         ORDER BY completedTasks DESC, cs.display_name ASC
         """, nativeQuery = true)
-    java.util.List<LeaderboardRow> getLeaderboard(@org.springframework.data.repository.query.Param("classroomId") Long classroomId);
+    List<LeaderboardRow> getLeaderboard(@Param("classroomId") Long classroomId);
+
+    @Query("""
+        select count(cs) > 0
+        from ClassroomStudent cs
+        join ClassroomTeacher ct on ct.classroom.id = cs.classroom.id
+        where ct.teacher.id = :teacherId and cs.student.id = :studentId
+        """)
+    boolean existsStudentInTeacherClassroom(
+        @Param("teacherId") Long teacherId,
+        @Param("studentId") Long studentId
+    );
 }

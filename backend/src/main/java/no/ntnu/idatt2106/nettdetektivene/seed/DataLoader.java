@@ -13,12 +13,14 @@ import no.ntnu.idatt2106.nettdetektivene.repository.StopRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Component
+@Order(1)
 @RequiredArgsConstructor
 public class DataLoader implements ApplicationRunner {
 
@@ -35,13 +37,34 @@ public class DataLoader implements ApplicationRunner {
         }
 
         List<Stop> stops = stopRepository.saveAll(List.of(
-            stop("Nyhetskvartalet", "Avslør hvilke nyheter som er ekte og hvilke som prøver å lure deg.", "FAKE_NEWS", 1, false),
-            stop("Postkontoret", "Undersøk e-poster og lær hvordan svindelforsøk kan se ut.", "PHISHING_EMAIL", 2, false),
-            stop("Fotografen", "Se etter spor i bilder og lær å kjenne igjen manipulasjon.", "AI_PHOTO", 3, false),
-            stop("Passordbanken", "Bygg sterke passord og beskytt kontoene dine.", "PASSWORD", 4, false),
-            stop("Markedsplassen", "Vurder annonser, betalinger og trygg handel på nett.", "MARKETPLACE", 5, false),
-            stop("Den sosiale møteplassen", "Ta gode valg i meldinger, kommentarer og deling.", "SOCIAL_MEDIA", 6, false),
-            stop("Datasenteret", "Bruk alt du har lært i den siste digitale saken.", "FINAL_BOSS", 7, true)
+            stop("Nyhetskvartalet",
+                 "Avslør hvilke nyheter som er ekte og hvilke som prøver å lure deg.",
+                 "FAKE_NEWS", 1, false,
+                 "Falske nyheter bruker gjerne skremmende overskrifter og anonyme kilder. Sjekk alltid hvem som har skrevet saken: er nettadressen til et kjent mediehus? Søk opp saken på andre seriøse nettsteder for å se om historien stemmer. Overdrevne påstander uten dokumentasjon er et varseltegn."),
+            stop("Postkontoret",
+                 "Undersøk e-poster og lær hvordan svindelforsøk kan se ut.",
+                 "PHISHING_EMAIL", 2, false,
+                 "Phishing-e-poster later som de er fra banker, skoler eller kjente selskaper for å lure deg til å gi fra deg passord eller penger. Se etter skrivefeil, ukjente avsenderadresser og lenker der nettadressen ikke stemmer med avsenderen. En ekte avsender ber aldri om passord eller betalingsinformasjon via e-post."),
+            stop("Fotografen",
+                 "Se etter spor i bilder og lær å kjenne igjen manipulasjon.",
+                 "AI_PHOTO", 3, false,
+                 "Bilder kan manipuleres og AI kan lage realistiske falske bilder. Se etter unaturlige detaljer: rare fingre, jevne bakgrunner og uskarp tekst er vanlige feil. Du kan bruke omvendt bildesøk til å sjekke om et bilde er tatt ut av en helt annen sammenheng enn det påstår."),
+            stop("Passordbanken",
+                 "Bygg sterke passord og beskytt kontoene dine.",
+                 "PASSWORD", 4, false,
+                 "Et sterkt passord er langt, tilfeldig og unikt for hver konto du bruker. En rekke tilfeldige ord er lettere å huske og vanskeligere å knekke enn korte passord med spesialtegn. Del aldri passordet ditt med andre, og bruk aldri samme passord på flere nettsteder."),
+            stop("Markedsplassen",
+                 "Vurder annonser, betalinger og trygg handel på nett.",
+                 "MARKETPLACE", 5, false,
+                 "Svindel på nett bruker priser som er for gode til å være sanne, krever betaling på forhånd og har vage eller kopierte produktbeskrivelser. Sjekk alltid selgerprofilen og les tilbakemeldinger fra andre kjøpere. Betal aldri med gavekort eller kryptovaluta — det er nesten umulig å spore."),
+            stop("Den sosiale møteplassen",
+                 "Ta gode valg i meldinger, kommentarer og deling.",
+                 "SOCIAL_MEDIA", 6, false,
+                 "Sosiale medier viser deg mest det du allerede er enig i, noe som kan gjøre det vanskelig å se helhetsbildet. Fremmede som tar kontakt og raskt ber om personlig informasjon kan ha skjulte hensikter. Del aldri telefonnummer, adresse, passord eller bilder du ikke vil at alle skal se."),
+            stop("Datasenteret",
+                 "Bruk alt du har lært i den siste digitale saken.",
+                 "FINAL_BOSS", 7, true,
+                 "Du har nå lært de viktigste detektivferdighetene: gjenkjenne falske nyheter, phishing-e-poster, manipulerte bilder, svake passord, nettsvindel og sosiale medier-feller. Den viktigste regelen er å stoppe og tenke én ekstra gang før du klikker, deler eller svarer på noe du er usikker på.")
         ));
 
         Stop newsStop = stops.get(0);
@@ -172,13 +195,14 @@ public class DataLoader implements ApplicationRunner {
         ));
     }
 
-    private Stop stop(String name, String description, String theme, int orderIndex, boolean finalBoss) {
+    private Stop stop(String name, String description, String theme, int orderIndex, boolean finalBoss, String autoTip) {
         Stop stop = new Stop();
         stop.setName(name);
         stop.setDescription(description);
         stop.setTheme(theme);
         stop.setOrderIndex(orderIndex);
         stop.setFinalBoss(finalBoss);
+        stop.setAutoTip(autoTip);
         return stop;
     }
 

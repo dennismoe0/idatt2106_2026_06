@@ -7,6 +7,7 @@ import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
+import no.ntnu.idatt2106.nettdetektivene.repository.LeaderboardRow;
 import no.ntnu.idatt2106.nettdetektivene.entity.Classroom;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomTeacher;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -100,17 +102,20 @@ public class ClassroomService {
             });
         User student = userRepository.getReferenceById(studentId);
 
-        classroomStudentRepository.findByClassroom_IdAndStudent_UserId(classroom.getId(), studentId)
-            .ifPresent(existing -> {
-                if (existing.getStatus() == ClassroomStudentStatus.KICKED) {
-                    log.warn("Classroom join blocked: kicked student tried to rejoin, classroomId={} studentId={}",
-                        classroom.getId(), studentId);
-                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Student cannot rejoin this classroom");
-                }
-                log.warn("Classroom join blocked: student already member, classroomId={} studentId={} status={}",
-                    classroom.getId(), studentId, existing.getStatus());
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Student is already a member");
-            });
+        var existing = classroomStudentRepository.findByClassroom_IdAndStudent_UserId(classroom.getId(), studentId);
+        if (existing.isPresent()) {
+            ClassroomStudent record = existing.get();
+            if (record.getStatus() == ClassroomStudentStatus.KICKED) {
+                record.setStatus(ClassroomStudentStatus.PENDING);
+                record.setDisplayName(req.displayName());
+                record = classroomStudentRepository.save(record);
+                log.info("Kicked student re-applied: classroomId={} studentId={} → PENDING", classroom.getId(), studentId);
+                return toStudentResponse(record);
+            }
+            log.warn("Classroom join blocked: student already member, classroomId={} studentId={} status={}",
+                classroom.getId(), studentId, record.getStatus());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Student is already a member");
+        }
 
         ClassroomStudent classroomStudent = new ClassroomStudent();
         classroomStudent.setClassroom(classroom);
@@ -158,6 +163,18 @@ public class ClassroomService {
         log.info("Student status updated: classroomId={} studentId={} teacherId={} status={}",
             classroomId, studentId, teacherId, status);
         return toStudentResponse(classroomStudent);
+    }
+
+    public List<LeaderboardEntryDto> getLeaderboard(Long classroomId) {
+        log.info("[ClassroomService] getLeaderboard classroomId={}", classroomId);
+        int totalTasks = (int) taskRepository.count();
+        return classroomStudentRepository.getLeaderboard(classroomId).stream()
+            .map(row -> new LeaderboardEntryDto(
+                row.getDisplayName(),
+                row.getCompletedTasks() == null ? 0 : row.getCompletedTasks().intValue(),
+                totalTasks
+            ))
+            .toList();
     }
 
     public StudentStatusResponse getMyStatus(Long studentId, Long classroomId) {
@@ -209,6 +226,7 @@ public class ClassroomService {
             classroomStudent.getStudent().getId(),
             classroomStudent.getClassroom().getId(),
             classroomStudent.getDisplayName(),
+            classroomStudent.getStudent().getEmail(),
             classroomStudent.getStatus().name()
         );
     }

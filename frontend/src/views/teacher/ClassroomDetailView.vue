@@ -19,11 +19,20 @@
 
       <ul class="student-list">
         <li v-for="student in students" :key="student.userId" class="student-row">
-          <span class="student-name">{{ student.displayName }}</span>
+          <span class="student-name">
+            {{ student.displayName }}
+            <span class="student-username">{{ student.username }}</span>
+          </span>
           <span class="badge" :class="`badge--${student.status.toLowerCase()}`">
             {{ statusLabel(student.status) }}
           </span>
           <div class="student-actions">
+            <RouterLink
+              :to="{ name: 'TeacherNotebook', params: { studentId: student.userId }, query: { studentName: student.displayName, classroomId: classroomId } }"
+              class="notebook-link"
+            >
+              Se Notatblokk
+            </RouterLink>
             <BaseButton
               v-if="student.status === 'PENDING'"
               size="sm"
@@ -50,7 +59,7 @@
       title="Kast ut elev"
     >
       <p>Er du sikker på at du vil kaste ut <strong>{{ kickTarget.displayName }}</strong>?</p>
-      <p class="kick-warning">Eleven kan ikke melde seg på igjen.</p>
+      <p class="kick-warning">Eleven kan søke om å bli med igjen, men du må godkjenne dem på nytt.</p>
       <div class="modal-actions">
         <button class="btn btn-outline" @click="kickTarget = null">Avbryt</button>
         <button class="btn btn-danger" @click="kick(kickTarget.userId)">Ja, kast ut</button>
@@ -61,7 +70,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useClassroomStore } from '@/stores/classroom'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
@@ -218,6 +227,14 @@ async function copyCode() {
 .student-name {
   flex: 1;
   font-weight: var(--font-medium);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.student-username {
+  font-size: var(--text-xs);
+  font-weight: var(--font-normal);
+  color: var(--color-text-muted);
 }
 .badge {
   padding: var(--space-1) var(--space-2);
@@ -232,6 +249,18 @@ async function copyCode() {
 .student-actions {
   display: flex;
   gap: var(--space-2);
+}
+.notebook-link {
+  font-size: var(--text-sm);
+  color: var(--color-primary);
+  text-decoration: none;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+}
+.notebook-link:hover {
+  background: var(--color-primary-soft);
 }
 .student-empty {
   color: var(--color-text-muted);

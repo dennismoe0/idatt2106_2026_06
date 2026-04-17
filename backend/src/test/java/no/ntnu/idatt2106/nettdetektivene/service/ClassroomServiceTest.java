@@ -153,7 +153,7 @@ class ClassroomServiceTest {
     }
 
     @Test
-    void joinClassroom_kickedStudentCannotRejoin_throws() {
+    void joinClassroom_kickedStudentRejoins_returnsPending() {
         Classroom classroom = classroom(10L);
         ClassroomStudent existing = classroomStudent(classroom, user(2L, User.Role.STUDENT), ClassroomStudentStatus.KICKED);
 
@@ -161,13 +161,14 @@ class ClassroomServiceTest {
         when(userRepository.getReferenceById(2L)).thenReturn(existing.getStudent());
         when(classroomStudentRepository.findByClassroom_IdAndStudent_UserId(10L, 2L))
             .thenReturn(Optional.of(existing));
+        when(classroomStudentRepository.save(existing)).thenReturn(existing);
 
-        assertThatThrownBy(() -> classroomService.joinClassroom(
+        var response = classroomService.joinClassroom(
             2L,
             new JoinClassroomRequest("fjord-tiger", "Agent Nora")
-        ))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("Student cannot rejoin this classroom");
+        );
+
+        assertThat(response.status()).isEqualTo("PENDING");
     }
 
     @Test

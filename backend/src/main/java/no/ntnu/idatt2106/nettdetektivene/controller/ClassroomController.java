@@ -90,6 +90,13 @@ public class ClassroomController {
         return classroomService.updateStudentStatus(currentUserId(userDetails), id, sid, request.status());
     }
 
+    @GetMapping("/{id}/leaderboard")
+    @PreAuthorize("isAuthenticated()")
+    public List<LeaderboardEntryDto> getLeaderboard(@PathVariable Long id) {
+        log.info("[ClassroomController] GET /api/classrooms/{}/leaderboard", id);
+        return classroomService.getLeaderboard(id);
+    }
+
     @GetMapping("/{id}/my-status")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<StudentStatusResponse> getMyStatus(
