@@ -37,7 +37,7 @@ const cards = [
   { title: 'Medaljer', icon: '🏅', locked: true },
   { title: 'Notatblokk', icon: '📝', locked: true },
   { title: 'Avatar', icon: '🕵️', route: { name: 'Avatar' }, locked: false },
-  { title: 'Ledertavle', icon: '📊', locked: true },
+  { title: 'Ledertavle', icon: '📊', route: { name: 'Leaderboard' }, locked: false },
   { title: 'Ukens Mysterium', icon: '🧩', locked: true },
   { title: 'Hjelp', icon: '💡', locked: true },
 ]
