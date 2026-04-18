@@ -97,6 +97,18 @@ public class ClassroomController {
         return classroomService.getLeaderboard(id);
     }
 
+    @GetMapping("/mine")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<StudentInClassroomResponse> getMyClassroom(
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        Long studentId = currentUserId(userDetails);
+        log.info("[ClassroomController] GET /api/classrooms/mine studentId={}", studentId);
+        return classroomService.getMyClassroom(studentId)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/{id}/my-status")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<StudentStatusResponse> getMyStatus(

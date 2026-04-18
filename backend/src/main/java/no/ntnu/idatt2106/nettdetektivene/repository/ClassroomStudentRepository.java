@@ -1,6 +1,7 @@
 package no.ntnu.idatt2106.nettdetektivene.repository;
 
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
+import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,6 +23,12 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
     );
 
     boolean existsByClassroom_IdAndStudent_Id(Long classroomId, Long studentId);
+
+    @Query("select cs from ClassroomStudent cs where cs.student.id = :studentId and cs.status = :status")
+    Optional<ClassroomStudent> findByStudentIdAndStatus(
+        @Param("studentId") Long studentId,
+        @Param("status") ClassroomStudentStatus status
+    );
 
     @Query(value = """
         SELECT cs.display_name AS displayName,

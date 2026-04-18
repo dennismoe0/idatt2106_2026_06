@@ -148,6 +148,7 @@ async function handleSubmit() {
   loading.value = true
   try {
     await authStore.studentLogin(username)
+    await classroomStore.fetchMyClassroom()
     const dest = postLoginDestination()
     console.log('[StudentLoginView] Login success — navigating to', dest.name)
     await router.push(dest)

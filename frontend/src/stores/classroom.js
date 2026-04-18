@@ -81,6 +81,26 @@ export const useClassroomStore = defineStore('classroom', () => {
     console.log('[classroom] State reset')
   }
 
+  async function fetchMyClassroom() {
+    console.log('[classroom] Fetching my classroom membership from server')
+    try {
+      const { data } = await classroomService.getMyClassroom()
+      currentClassroomId.value = data.classroomId
+      displayName.value = data.displayName
+      localStorage.setItem('classroomId', data.classroomId)
+      if (data.displayName) localStorage.setItem('classroomDisplayName', data.displayName)
+      console.log('[classroom] Restored classroom:', data.classroomId, 'displayName:', data.displayName)
+      return data
+    } catch (err) {
+      if (err?.response?.status === 404) {
+        console.log('[classroom] Student has no approved classroom membership')
+        return null
+      }
+      console.error('[classroom] Failed to fetch my classroom:', err)
+      return null
+    }
+  }
+
   function rehydrate() {
     const storedId = localStorage.getItem('classroomId')
     const storedName = localStorage.getItem('classroomDisplayName')
@@ -128,6 +148,6 @@ export const useClassroomStore = defineStore('classroom', () => {
 
   return {
     classrooms, currentClassroom, students, currentClassroomId, pendingJoin, displayName,
-    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents, fetchMyStatus, updateStudentStatus, rehydrate, reset
+    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents, fetchMyStatus, updateStudentStatus, fetchMyClassroom, rehydrate, reset
   }
 })

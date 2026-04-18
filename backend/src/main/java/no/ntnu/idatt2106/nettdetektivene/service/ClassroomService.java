@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 
 @Service
@@ -175,6 +176,13 @@ public class ClassroomService {
                 totalTasks
             ))
             .toList();
+    }
+
+    public Optional<StudentInClassroomResponse> getMyClassroom(Long studentId) {
+        log.info("[ClassroomService] getMyClassroom studentId={}", studentId);
+        return classroomStudentRepository
+            .findByStudentIdAndStatus(studentId, ClassroomStudentStatus.APPROVED)
+            .map(this::toStudentResponse);
     }
 
     public StudentStatusResponse getMyStatus(Long studentId, Long classroomId) {
