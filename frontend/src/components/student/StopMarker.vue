@@ -107,4 +107,8 @@ function handleClick() {
   background: var(--color-primary);
   color: var(--color-surface);
 }
+.stop-marker__claim-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
 </style>

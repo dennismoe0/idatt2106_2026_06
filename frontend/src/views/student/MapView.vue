@@ -74,7 +74,16 @@ onMounted(async () => {
 
 onUnmounted(() => clearTimeout(lockedTimer))
 
+const claimingStopIds = new Set()
+
 async function handleClaimXp(stop) {
+  if (!classroomStore.currentClassroomId) {
+    console.warn('[MapView] No classroomId during XP claim — redirecting')
+    router.push({ name: 'JoinClassroom' })
+    return
+  }
+  if (claimingStopIds.has(stop.id)) return
+  claimingStopIds.add(stop.id)
   console.log('[MapView] Claiming weekly XP for stop:', stop.id)
   try {
     await gameStore.claimWeeklyXp(stop.id)
@@ -82,6 +91,8 @@ async function handleClaimXp(stop) {
     console.log('[MapView] XP claimed and stops refreshed for stop:', stop.id)
   } catch (err) {
     console.error('[MapView] Failed to claim XP for stop:', stop.id, err)
+  } finally {
+    claimingStopIds.delete(stop.id)
   }
 }
 
