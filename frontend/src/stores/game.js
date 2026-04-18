@@ -135,7 +135,7 @@ export const useGameStore = defineStore('game', () => {
     console.log('[game] Claiming weekly XP for stop:', stopId)
     try {
       const { data } = await gameService.claimWeeklyXp(stopId)
-      xp.value += data.xpEarned
+      if (data.xpEarned > 0) xp.value += data.xpEarned
       console.log('[game] Weekly XP claimed xpEarned:', data.xpEarned)
       return data
     } catch (err) {
