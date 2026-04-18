@@ -1,6 +1,8 @@
 package no.ntnu.idatt2106.nettdetektivene.controller;
 
 import lombok.RequiredArgsConstructor;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.ClaimXpResponse;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.PlayerProfileDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ProgressResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.StopResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.SubmitAnswerRequest;
@@ -103,6 +105,27 @@ public class GameController {
         Long studentId = currentUserId(userDetails);
         log.info("[GameController] GET /progress studentId={} classroomId={}", studentId, classroomId);
         return gameService.getProgress(studentId, classroomId);
+    }
+
+    @GetMapping("/profile")
+    @PreAuthorize("hasRole('STUDENT')")
+    public PlayerProfileDto getProfile(
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        Long studentId = currentUserId(userDetails);
+        log.info("[GameController] GET /profile studentId={}", studentId);
+        return gameService.getProfile(studentId);
+    }
+
+    @PostMapping("/stops/{stopId}/claim-xp")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ClaimXpResponse claimWeeklyXp(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long stopId
+    ) {
+        Long studentId = currentUserId(userDetails);
+        log.info("[GameController] POST /stops/{}/claim-xp studentId={}", stopId, studentId);
+        return gameService.claimWeeklyXp(studentId, stopId);
     }
 
     private Long currentUserId(UserDetails userDetails) {
