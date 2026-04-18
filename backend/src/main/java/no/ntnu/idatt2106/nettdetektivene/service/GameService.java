@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.ClaimXpResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.MedalDto;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.PlayerProfileDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ProgressResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.StopResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.SubmitAnswerRequest;
@@ -15,15 +17,18 @@ import no.ntnu.idatt2106.nettdetektivene.dto.game.TaskResponse;
 import no.ntnu.idatt2106.nettdetektivene.entity.Medal;
 import no.ntnu.idatt2106.nettdetektivene.entity.StudentMedal;
 import no.ntnu.idatt2106.nettdetektivene.entity.StudentProgress;
+import no.ntnu.idatt2106.nettdetektivene.entity.StudentXpLog;
 import no.ntnu.idatt2106.nettdetektivene.entity.Stop;
 import no.ntnu.idatt2106.nettdetektivene.entity.Task;
 import no.ntnu.idatt2106.nettdetektivene.entity.TaskType;
+import no.ntnu.idatt2106.nettdetektivene.entity.User;
 import no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.MedalRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StopRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentMedalRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentProgressRepository;
+import no.ntnu.idatt2106.nettdetektivene.repository.StudentXpLogRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import org.slf4j.Logger;
@@ -45,6 +50,8 @@ public class GameService {
 
     private static final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int CORRECT_SCORE = 100;
+    private static final int XP_PER_TASK = 10;
+    private static final int XP_PER_STOP = 30;
 
     private final StopRepository stopRepository;
     private final TaskRepository taskRepository;
@@ -55,6 +62,7 @@ public class GameService {
     private final ClassroomRepository classroomRepository;
     private final ObjectMapper objectMapper;
     private final NotebookService notebookService;
+    private final StudentXpLogRepository studentXpLogRepository;
 
     @Transactional(readOnly = true)
     public List<StopResponse> getStops(Long studentId, Long classroomId) {
@@ -153,16 +161,35 @@ public class GameService {
         progress.setCompletedAt(LocalDateTime.now());
         studentProgressRepository.save(progress);
 
+        // Award 1 star + 10 XP for this first correct answer
+        User student = userRepository.findById(studentId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        student.setStarBalance(student.getStarBalance() + 1);
+        student.setXp(student.getXp() + XP_PER_TASK);
+
         boolean stopCompleted = isStopComplete(studentId, task.getStop().getId());
+        int xpEarned = XP_PER_TASK;
+
         if (stopCompleted) {
             log.info("[GameService] stop completed studentId={} stopId={}", studentId, task.getStop().getId());
+            student.setXp(student.getXp() + XP_PER_STOP);
+            xpEarned += XP_PER_STOP;
             notebookService.createAutoTipIfNotExists(studentId, task.getStop());
+            int taskCount = Math.toIntExact(taskRepository.countByStop_Id(task.getStop().getId()));
+            StudentXpLog xpLog = new StudentXpLog();
+            xpLog.setStudent(userRepository.getReferenceById(studentId));
+            xpLog.setStop(task.getStop());
+            xpLog.setXpAmount(XP_PER_TASK * taskCount + XP_PER_STOP);
+            studentXpLogRepository.save(xpLog);
         }
+        userRepository.save(student);
+        log.info("[GameService] awarded starsEarned=1 xpEarned={} studentId={} taskId={}", xpEarned, studentId, taskId);
+
         MedalDto medalEarned = stopCompleted
             ? checkAndAwardMedal(studentId, task.getStop().getId()).map(this::toMedalDto).orElse(null)
             : null;
 
-        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 0, 0);
+        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 1, xpEarned);
     }
 
     @Transactional(readOnly = true)
@@ -171,6 +198,55 @@ public class GameService {
         List<StopResponse> stops = getStops(studentId, classroomId);
         int stopsCompleted = (int) stops.stream().filter(StopResponse::completed).count();
         return new ProgressResponse(stopsCompleted, stops.size(), stops);
+    }
+
+    @Transactional(readOnly = true)
+    public PlayerProfileDto getProfile(Long studentId) {
+        log.info("[GameService] getProfile studentId={}", studentId);
+        User student = userRepository.findById(studentId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        int level = (int) studentProgressRepository.countDistinctCompletedStops(studentId);
+        log.info("[GameService] getProfile studentId={} level={} xp={} stars={}", studentId, level, student.getXp(), student.getStarBalance());
+        return new PlayerProfileDto(level, student.getXp(), student.getStarBalance());
+    }
+
+    @Transactional
+    public ClaimXpResponse claimWeeklyXp(Long studentId, Long stopId) {
+        log.info("[GameService] claimWeeklyXp studentId={} stopId={}", studentId, stopId);
+        Stop stop = stopRepository.findById(stopId)
+            .orElseThrow(() -> {
+                log.warn("[GameService] claimWeeklyXp stop not found stopId={}", stopId);
+                return new ResourceNotFoundException("Stop not found");
+            });
+
+        if (!isStopComplete(studentId, stopId)) {
+            log.warn("[GameService] claimWeeklyXp stop not completed studentId={} stopId={}", studentId, stopId);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Stop not yet completed");
+        }
+
+        Optional<StudentXpLog> lastLog = studentXpLogRepository
+            .findTopByStudent_IdAndStop_IdOrderByAwardedAtDesc(studentId, stopId);
+        if (lastLog.isPresent() && lastLog.get().getAwardedAt().isAfter(LocalDateTime.now().minusDays(7))) {
+            log.warn("[GameService] claimWeeklyXp too recent studentId={} stopId={} lastAt={}", studentId, stopId, lastLog.get().getAwardedAt());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "XP already claimed for this stop within the last 7 days");
+        }
+
+        int taskCount = Math.toIntExact(taskRepository.countByStop_Id(stopId));
+        int xpEarned = XP_PER_TASK * taskCount + XP_PER_STOP;
+
+        User student = userRepository.findById(studentId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        student.setXp(student.getXp() + xpEarned);
+        userRepository.save(student);
+
+        StudentXpLog xpLog = new StudentXpLog();
+        xpLog.setStudent(userRepository.getReferenceById(studentId));
+        xpLog.setStop(stop);
+        xpLog.setXpAmount(xpEarned);
+        studentXpLogRepository.save(xpLog);
+
+        log.info("[GameService] claimWeeklyXp awarded xpEarned={} studentId={} stopId={}", xpEarned, studentId, stopId);
+        return new ClaimXpResponse(xpEarned);
     }
 
     private boolean isStopUnlocked(Long studentId, Long classroomId, Stop stop) {
@@ -267,16 +343,25 @@ public class GameService {
     private StopResponse toStopResponse(Long studentId, Long classroomId, Stop stop) {
         int taskCount = Math.toIntExact(taskRepository.countByStop_Id(stop.getId()));
         boolean unlocked = isStopUnlocked(studentId, classroomId, stop);
+        boolean completed = isStopComplete(studentId, stop.getId());
+        boolean xpClaimable = completed && isXpClaimable(studentId, stop.getId());
         return new StopResponse(
             stop.getId(),
             stop.getName(),
             stop.getOrderIndex(),
             stop.getDescription(),
             !unlocked,
-            isStopComplete(studentId, stop.getId()),
+            completed,
             taskCount,
-            false
+            xpClaimable
         );
+    }
+
+    private boolean isXpClaimable(Long studentId, Long stopId) {
+        return studentXpLogRepository
+            .findTopByStudent_IdAndStop_IdOrderByAwardedAtDesc(studentId, stopId)
+            .map(logEntry -> logEntry.getAwardedAt().isBefore(LocalDateTime.now().minusDays(7)))
+            .orElse(false);
     }
 
     private TaskResponse toTaskResponse(Long studentId, Long classroomId, Task task) {
