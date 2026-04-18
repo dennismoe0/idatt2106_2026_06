@@ -1,10 +1,13 @@
 package no.ntnu.idatt2106.nettdetektivene.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.ClaimXpResponse;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.PlayerProfileDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.SubmitAnswerRequest;
 import no.ntnu.idatt2106.nettdetektivene.entity.Medal;
 import no.ntnu.idatt2106.nettdetektivene.entity.StudentMedal;
 import no.ntnu.idatt2106.nettdetektivene.entity.StudentProgress;
+import no.ntnu.idatt2106.nettdetektivene.entity.StudentXpLog;
 import no.ntnu.idatt2106.nettdetektivene.entity.Stop;
 import no.ntnu.idatt2106.nettdetektivene.entity.Task;
 import no.ntnu.idatt2106.nettdetektivene.entity.TaskType;
@@ -14,6 +17,7 @@ import no.ntnu.idatt2106.nettdetektivene.repository.MedalRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StopRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentMedalRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentProgressRepository;
+import no.ntnu.idatt2106.nettdetektivene.repository.StudentXpLogRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,6 +36,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,6 +55,7 @@ class GameServiceTest {
     @Mock UserRepository userRepository;
     @Mock ClassroomRepository classroomRepository;
     @Mock NotebookService notebookService;
+    @Mock StudentXpLogRepository studentXpLogRepository;
 
     GameService gameService;
 
@@ -63,9 +70,12 @@ class GameServiceTest {
             userRepository,
             classroomRepository,
             new ObjectMapper(),
-            notebookService
+            notebookService,
+            studentXpLogRepository
         );
     }
+
+    // ─── getStops ────────────────────────────────────────────────────────────
 
     @Test
     void getStops_firstStopAlwaysUnlocked() {
@@ -73,6 +83,7 @@ class GameServiceTest {
         when(classroomRepository.existsById(CLASSROOM_ID)).thenReturn(true);
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first));
         when(taskRepository.countByStop_Id(1L)).thenReturn(3L);
+        // 0 of 3 completed → stop not complete → isXpClaimable never called
         when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
             STUDENT_ID, 1L
         )).thenReturn(0L);
@@ -92,9 +103,11 @@ class GameServiceTest {
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first, second));
         when(taskRepository.countByStop_Id(1L)).thenReturn(2L);
         when(taskRepository.countByStop_Id(2L)).thenReturn(3L);
+        // 1 of 2 completed → stop 1 not complete → isXpClaimable never called
         when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
             STUDENT_ID, 1L
         )).thenReturn(1L);
+        // 0 of 3 completed → stop 2 not complete
         when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
             STUDENT_ID, 2L
         )).thenReturn(0L);
@@ -111,8 +124,10 @@ class GameServiceTest {
         Stop second = stop(2L, 2, "Postkontoret");
         when(classroomRepository.existsById(CLASSROOM_ID)).thenReturn(true);
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first, second));
+        // stop 1 has 0 tasks → isStopComplete returns false → isXpClaimable never called
         when(taskRepository.countByStop_Id(1L)).thenReturn(0L);
         when(taskRepository.countByStop_Id(2L)).thenReturn(1L);
+        // 0 of 1 completed → stop 2 not complete
         when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
             STUDENT_ID, 2L
         )).thenReturn(0L);
@@ -122,6 +137,8 @@ class GameServiceTest {
         assertThat(response.get(1).locked()).isTrue();
     }
 
+    // ─── submitAnswer — existing tests (fixed) ────────────────────────────────
+
     @Test
     void submitAnswer_correct_recordsProgress() {
         Stop stop = stop(1L, 1, "Nyhetskvartalet");
@@ -129,6 +146,7 @@ class GameServiceTest {
         when(taskRepository.findById(20L)).thenReturn(Optional.of(task));
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 20L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
         when(taskRepository.countByStop_Id(1L)).thenReturn(3L);
         when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(1L);
 
@@ -158,6 +176,7 @@ class GameServiceTest {
         when(taskRepository.findById(20L)).thenReturn(Optional.of(task));
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 20L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
         when(taskRepository.countByStop_Id(1L)).thenReturn(1L);
         when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(1L);
         when(medalRepository.findByStop_Id(1L)).thenReturn(Optional.of(medal));
@@ -290,6 +309,7 @@ class GameServiceTest {
         when(taskRepository.findById(21L)).thenReturn(Optional.of(task));
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 21L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
         when(taskRepository.countByStop_Id(2L)).thenReturn(2L);
         when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 2L)).thenReturn(1L);
 
@@ -303,6 +323,158 @@ class GameServiceTest {
         assertThat(response.correct()).isTrue();
         verify(studentProgressRepository).save(any(StudentProgress.class));
     }
+
+    // ─── submitAnswer — new tests ─────────────────────────────────────────────
+
+    @Test
+    void submitAnswer_awardsOneStarOnFirstCorrectAnswer() {
+        Stop stop = stop(1L, 1, "Postkontoret");
+        Task task = phishingTask(10L, stop);
+        User studentUser = student(STUDENT_ID);
+
+        when(taskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 10L)).thenReturn(Optional.empty());
+        when(taskRepository.countByStop_Id(1L)).thenReturn(3L);
+        // Not all tasks done — stop NOT complete
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(0L);
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(studentUser);
+
+        var result = gameService.submitAnswer(STUDENT_ID, CLASSROOM_ID, 10L, new SubmitAnswerRequest(Map.of("action", "REPORT")));
+
+        assertThat(result.correct()).isTrue();
+        assertThat(result.starsEarned()).isEqualTo(1);
+        assertThat(result.xpEarned()).isEqualTo(10);
+
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        assertThat(userCaptor.getValue().getStarBalance()).isEqualTo(1);
+        assertThat(userCaptor.getValue().getXp()).isEqualTo(10);
+    }
+
+    @Test
+    void submitAnswer_awardsStopBonusXpAndLogsItOnStopCompletion() {
+        Stop stop = stop(1L, 1, "Postkontoret");
+        Task task = phishingTask(10L, stop);
+        User studentUser = student(STUDENT_ID);
+
+        when(taskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 10L)).thenReturn(Optional.empty());
+        when(taskRepository.countByStop_Id(1L)).thenReturn(1L);
+        // 1 of 1 tasks complete — stop IS completed
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(1L);
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(studentUser);
+        when(medalRepository.findByStop_Id(1L)).thenReturn(Optional.empty());
+
+        var result = gameService.submitAnswer(STUDENT_ID, CLASSROOM_ID, 10L, new SubmitAnswerRequest(Map.of("action", "REPORT")));
+
+        assertThat(result.correct()).isTrue();
+        assertThat(result.stopCompleted()).isTrue();
+        // 10 (task XP) + 30 (stop bonus) = 40
+        assertThat(result.xpEarned()).isEqualTo(40);
+        assertThat(result.starsEarned()).isEqualTo(1);
+
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        assertThat(userCaptor.getValue().getXp()).isEqualTo(40);
+
+        verify(studentXpLogRepository).save(any(StudentXpLog.class));
+    }
+
+    @Test
+    void submitAnswer_doesNotAwardStarsOrXpOnWrongAnswer() {
+        Stop stop = stop(1L, 1, "Postkontoret");
+        Task task = phishingTask(10L, stop);
+
+        when(taskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 10L)).thenReturn(Optional.empty());
+
+        var result = gameService.submitAnswer(STUDENT_ID, CLASSROOM_ID, 10L, new SubmitAnswerRequest(Map.of("action", "IGNORE")));
+
+        assertThat(result.correct()).isFalse();
+        assertThat(result.starsEarned()).isEqualTo(0);
+        assertThat(result.xpEarned()).isEqualTo(0);
+        verify(userRepository, never()).save(any());
+    }
+
+    // ─── claimWeeklyXp ────────────────────────────────────────────────────────
+
+    @Test
+    void claimWeeklyXp_awardsXpIfLastClaimOlderThan7Days() {
+        Stop stop = stop(1L, 1, "Postkontoret");
+        User studentUser = student(STUDENT_ID);
+        StudentXpLog oldLog = new StudentXpLog();
+        oldLog.setAwardedAt(LocalDateTime.now().minusDays(8));
+
+        when(stopRepository.findById(1L)).thenReturn(Optional.of(stop));
+        when(taskRepository.countByStop_Id(1L)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(2L);
+        when(studentXpLogRepository.findTopByStudent_IdAndStop_IdOrderByAwardedAtDesc(STUDENT_ID, 1L))
+            .thenReturn(Optional.of(oldLog));
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
+
+        ClaimXpResponse response = gameService.claimWeeklyXp(STUDENT_ID, 1L);
+
+        // 10 * 2 tasks + 30 = 50
+        assertThat(response.xpEarned()).isEqualTo(50);
+
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        assertThat(userCaptor.getValue().getXp()).isEqualTo(50);
+
+        verify(studentXpLogRepository).save(any(StudentXpLog.class));
+    }
+
+    @Test
+    void claimWeeklyXp_throwsConflictIfClaimedTooRecently() {
+        Stop stop = stop(1L, 1, "Postkontoret");
+        StudentXpLog recentLog = new StudentXpLog();
+        recentLog.setAwardedAt(LocalDateTime.now().minusDays(1));
+
+        when(stopRepository.findById(1L)).thenReturn(Optional.of(stop));
+        when(taskRepository.countByStop_Id(1L)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(2L);
+        when(studentXpLogRepository.findTopByStudent_IdAndStop_IdOrderByAwardedAtDesc(STUDENT_ID, 1L))
+            .thenReturn(Optional.of(recentLog));
+
+        assertThatThrownBy(() -> gameService.claimWeeklyXp(STUDENT_ID, 1L))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("7 days");
+    }
+
+    @Test
+    void claimWeeklyXp_throwsConflictIfStopNotCompleted() {
+        Stop stop = stop(1L, 1, "Postkontoret");
+
+        when(stopRepository.findById(1L)).thenReturn(Optional.of(stop));
+        when(taskRepository.countByStop_Id(1L)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(0L);
+
+        assertThatThrownBy(() -> gameService.claimWeeklyXp(STUDENT_ID, 1L))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("not yet completed");
+    }
+
+    // ─── getProfile ───────────────────────────────────────────────────────────
+
+    @Test
+    void getProfile_returnsCorrectLevelXpAndStarBalance() {
+        User studentUser = student(STUDENT_ID);
+        studentUser.setXp(120);
+        studentUser.setStarBalance(9);
+
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
+        when(studentProgressRepository.countDistinctCompletedStops(STUDENT_ID)).thenReturn(3L);
+
+        PlayerProfileDto profile = gameService.getProfile(STUDENT_ID);
+
+        assertThat(profile.level()).isEqualTo(3);
+        assertThat(profile.xp()).isEqualTo(120);
+        assertThat(profile.starBalance()).isEqualTo(9);
+    }
+
+    // ─── helpers ──────────────────────────────────────────────────────────────
 
     private Stop stop(Long id, int orderIndex, String name) {
         Stop stop = new Stop();
@@ -379,5 +551,14 @@ class GameServiceTest {
         user.setEmail("student@test.no");
         user.setPasswordHash("hash");
         return user;
+    }
+
+    private User student(Long id) {
+        User u = new User();
+        u.setId(id);
+        u.setEmail("student" + id + "@student.local");
+        u.setPasswordHash("hash");
+        u.setRole(User.Role.STUDENT);
+        return u;
     }
 }
