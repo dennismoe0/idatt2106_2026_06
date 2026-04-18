@@ -1,5 +1,5 @@
 <template>
-  <button
+  <div
     class="stop-marker"
     :class="{
       'stop-marker--locked':    stop.locked && !flash,
@@ -7,8 +7,12 @@
       'stop-marker--unlocked':  !stop.locked && !stop.completed,
       'stop-marker--flash':     flash
     }"
-    :disabled="stop.locked"
+    role="button"
+    :tabindex="stop.locked ? -1 : 0"
+    :aria-disabled="stop.locked"
     @click="handleClick"
+    @keydown.enter="handleClick"
+    @keydown.space.prevent="handleClick"
   >
     <span class="stop-marker__icon" aria-hidden="true">
       {{ stop.locked ? '🔒' : stop.completed ? '✅' : '📍' }}
@@ -17,7 +21,15 @@
     <span class="stop-marker__count" v-if="!stop.completed">
       {{ stop.taskCount }} oppgaver
     </span>
-  </button>
+    <button
+      v-if="stop.xpClaimable"
+      class="stop-marker__claim-btn"
+      @click.stop="emit('claim-xp', stop)"
+      aria-label="Krev ukentlig XP for dette stoppet"
+    >
+      ⚡ Hent XP
+    </button>
+  </div>
 </template>
 
 <script setup>
@@ -32,7 +44,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['click'])
+const emit = defineEmits(['click', 'claim-xp'])
 
 function handleClick() {
   if (!props.stop.locked) {
@@ -55,11 +67,11 @@ function handleClick() {
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   min-width: 7rem;
 }
-.stop-marker:hover:not(:disabled) {
+.stop-marker:hover:not([aria-disabled="true"]) {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
-.stop-marker:disabled { opacity: 0.5; cursor: not-allowed; }
+.stop-marker[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
 
 .stop-marker--unlocked  { border-color: var(--color-primary); }
 .stop-marker--completed { border-color: var(--color-success); background: var(--color-success-light); }
@@ -78,4 +90,21 @@ function handleClick() {
 .stop-marker__icon { font-size: var(--text-2xl); }
 .stop-marker__name { font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--color-text); }
 .stop-marker__count { font-size: var(--text-xs); color: var(--color-text-muted); }
+
+.stop-marker__claim-btn {
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  cursor: pointer;
+  margin-top: var(--space-1);
+  transition: background var(--transition-fast);
+}
+.stop-marker__claim-btn:hover {
+  background: var(--color-primary);
+  color: var(--color-surface);
+}
 </style>

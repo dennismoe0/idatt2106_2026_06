@@ -8,6 +8,7 @@
     <span class="student-header__title">{{ title }}</span>
 
     <div class="student-header__right">
+      <PlayerHud />
       <SoundControls />
     </div>
   </header>
@@ -16,6 +17,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import SoundControls from '@/components/common/SoundControls.vue'
+import PlayerHud from '@/components/common/PlayerHud.vue'
 
 const router = useRouter()
 

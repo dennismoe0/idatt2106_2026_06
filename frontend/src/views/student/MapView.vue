@@ -13,6 +13,7 @@
         :stop="stop"
         :flash="lockedStopId === stop.id"
         @click="handleStopClick"
+        @claim-xp="handleClaimXp"
       />
     </div>
 
@@ -72,6 +73,17 @@ onMounted(async () => {
 })
 
 onUnmounted(() => clearTimeout(lockedTimer))
+
+async function handleClaimXp(stop) {
+  console.log('[MapView] Claiming weekly XP for stop:', stop.id)
+  try {
+    await gameStore.claimWeeklyXp(stop.id)
+    await gameStore.fetchStops(classroomStore.currentClassroomId)
+    console.log('[MapView] XP claimed and stops refreshed for stop:', stop.id)
+  } catch (err) {
+    console.error('[MapView] Failed to claim XP for stop:', stop.id, err)
+  }
+}
 
 function handleStopClick(stop) {
   if (stop.locked) {
