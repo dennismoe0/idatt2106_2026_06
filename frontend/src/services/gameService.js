@@ -40,4 +40,14 @@ export const gameService = {
     console.log('[gameService] getLeaderboard classroomId:', classroomId)
     return api.get(`/api/classrooms/${classroomId}/leaderboard`)
   },
+
+  getProfile() {
+    console.log('[gameService] getProfile')
+    return api.get('/api/game/profile')
+  },
+
+  claimWeeklyXp(stopId) {
+    console.log('[gameService] claimWeeklyXp stopId:', stopId)
+    return api.post(`/api/game/stops/${stopId}/claim-xp`)
+  },
 }

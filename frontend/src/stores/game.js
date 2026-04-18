@@ -9,6 +9,9 @@ export const useGameStore = defineStore('game', () => {
   const progress = ref(null)
   const medals = ref([])
   const leaderboard = ref([])
+  const level = ref(0)
+  const xp = ref(0)
+  const starBalance = ref(0)
 
   async function fetchStops(classroomId) {
     console.log('[game] Fetching stops for classroom:', classroomId)
@@ -53,6 +56,8 @@ export const useGameStore = defineStore('game', () => {
     try {
       const { data } = await gameService.submitAnswer(taskId, answer, classroomId)
       console.log('[game] Answer result — correct:', data.correct, 'stopCompleted:', data.stopCompleted)
+      if (data.starsEarned > 0) starBalance.value += data.starsEarned
+      if (data.xpEarned > 0)    xp.value += data.xpEarned
       return data
     } catch (err) {
       console.error('[game] Failed to submit answer:', err)
@@ -111,9 +116,39 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  async function fetchProfile() {
+    console.log('[game] Fetching player profile')
+    try {
+      const { data } = await gameService.getProfile()
+      level.value = data.level
+      xp.value = data.xp
+      starBalance.value = data.starBalance
+      console.log('[game] Profile fetched level:', data.level, 'xp:', data.xp, 'stars:', data.starBalance)
+      return data
+    } catch (err) {
+      console.error('[game] Failed to fetch profile:', err)
+      throw err
+    }
+  }
+
+  async function claimWeeklyXp(stopId) {
+    console.log('[game] Claiming weekly XP for stop:', stopId)
+    try {
+      const { data } = await gameService.claimWeeklyXp(stopId)
+      xp.value += data.xpEarned
+      console.log('[game] Weekly XP claimed xpEarned:', data.xpEarned)
+      return data
+    } catch (err) {
+      console.error('[game] Failed to claim weekly XP:', err)
+      throw err
+    }
+  }
+
   return {
     stops, tasks, currentTask, progress, medals, leaderboard,
+    level, xp, starBalance,
     fetchStops, fetchTasks, fetchTask, submitAnswer, fetchProgress,
-    fetchMedals, fetchAllMedals, fetchLeaderboard
+    fetchMedals, fetchAllMedals, fetchLeaderboard,
+    fetchProfile, claimWeeklyXp
   }
 })
