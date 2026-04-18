@@ -7,7 +7,7 @@ CREATE TABLE student_xp_log (
     student_id   BIGINT       NOT NULL,
     stop_id      BIGINT       NOT NULL,
     xp_amount    INT          NOT NULL,
-    awarded_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    awarded_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     CONSTRAINT fk_xp_log_student FOREIGN KEY (student_id) REFERENCES users(id)  ON DELETE CASCADE,
     CONSTRAINT fk_xp_log_stop    FOREIGN KEY (stop_id)    REFERENCES stops(id)   ON DELETE CASCADE,
