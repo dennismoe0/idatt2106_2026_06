@@ -36,7 +36,7 @@ const cards = [
   { title: 'Kart', icon: '🗺️', route: { name: 'Map' }, locked: false },
   { title: 'Medaljer', icon: '🏅', route: { name: 'Medals' }, locked: false },
   { title: 'Notatblokk', icon: '📝', route: { name: 'Notebook' }, locked: false },
-  { title: 'Avatar', icon: '🕵️', route: { name: 'Avatar' }, locked: false },
+  { title: 'Profil', icon: '🕵️', route: { name: 'Profile' }, locked: false },
   { title: 'Ledertavle', icon: '📊', route: { name: 'Leaderboard' }, locked: false },
   { title: 'Ukens Mysterium', icon: '🧩', locked: true },
   { title: 'Hjelp', icon: '💡', locked: true },
