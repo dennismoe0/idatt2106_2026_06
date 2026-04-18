@@ -124,7 +124,7 @@ public class GameController {
         @PathVariable Long stopId
     ) {
         Long studentId = currentUserId(userDetails);
-        log.info("[GameController] POST /stops/{}/claim-xp studentId={}", stopId, studentId);
+        log.info("[GameController] POST /stops/{}/claim-xp studentId={} stopId={}", studentId, stopId);
         return gameService.claimWeeklyXp(studentId, stopId);
     }
 
