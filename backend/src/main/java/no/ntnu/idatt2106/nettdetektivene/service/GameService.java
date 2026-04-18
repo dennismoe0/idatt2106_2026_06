@@ -177,9 +177,10 @@ public class GameService {
             notebookService.createAutoTipIfNotExists(studentId, task.getStop());
             int taskCount = Math.toIntExact(taskRepository.countByStop_Id(task.getStop().getId()));
             StudentXpLog xpLog = new StudentXpLog();
-            xpLog.setStudent(userRepository.getReferenceById(studentId));
+            xpLog.setStudent(student);
             xpLog.setStop(task.getStop());
             xpLog.setXpAmount(XP_PER_TASK * taskCount + XP_PER_STOP);
+            xpLog.setAwardedAt(LocalDateTime.now());
             studentXpLogRepository.save(xpLog);
         }
         userRepository.save(student);
@@ -240,9 +241,10 @@ public class GameService {
         userRepository.save(student);
 
         StudentXpLog xpLog = new StudentXpLog();
-        xpLog.setStudent(userRepository.getReferenceById(studentId));
+        xpLog.setStudent(student);
         xpLog.setStop(stop);
         xpLog.setXpAmount(xpEarned);
+        xpLog.setAwardedAt(LocalDateTime.now());
         studentXpLogRepository.save(xpLog);
 
         log.info("[GameService] claimWeeklyXp awarded xpEarned={} studentId={} stopId={}", xpEarned, studentId, stopId);
