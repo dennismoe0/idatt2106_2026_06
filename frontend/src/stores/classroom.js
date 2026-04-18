@@ -81,6 +81,20 @@ export const useClassroomStore = defineStore('classroom', () => {
     console.log('[classroom] State reset')
   }
 
+  async function updateMyDisplayName(newName) {
+    console.log('[classroom] Updating display name to:', newName)
+    try {
+      const { data } = await classroomService.updateMyDisplayName(currentClassroomId.value, newName)
+      displayName.value = data.displayName
+      localStorage.setItem('classroomDisplayName', data.displayName)
+      console.log('[classroom] Display name updated:', data.displayName)
+      return data
+    } catch (err) {
+      console.error('[classroom] Failed to update display name:', err)
+      throw err
+    }
+  }
+
   async function fetchMyClassroom() {
     console.log('[classroom] Fetching my classroom membership from server')
     try {
@@ -148,6 +162,6 @@ export const useClassroomStore = defineStore('classroom', () => {
 
   return {
     classrooms, currentClassroom, students, currentClassroomId, pendingJoin, displayName,
-    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents, fetchMyStatus, updateStudentStatus, fetchMyClassroom, rehydrate, reset
+    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents, fetchMyStatus, updateStudentStatus, fetchMyClassroom, updateMyDisplayName, rehydrate, reset
   }
 })

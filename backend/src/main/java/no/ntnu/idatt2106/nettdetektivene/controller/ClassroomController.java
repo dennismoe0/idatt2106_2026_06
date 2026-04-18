@@ -8,6 +8,7 @@ import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.UpdateDisplayNameRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.UpdateStudentStatusRequest;
 import no.ntnu.idatt2106.nettdetektivene.service.ClassroomService;
 import org.slf4j.Logger;
@@ -95,6 +96,18 @@ public class ClassroomController {
     public List<LeaderboardEntryDto> getLeaderboard(@PathVariable Long id) {
         log.info("[ClassroomController] GET /api/classrooms/{}/leaderboard", id);
         return classroomService.getLeaderboard(id);
+    }
+
+    @PutMapping("/{id}/my-displayname")
+    @PreAuthorize("hasRole('STUDENT')")
+    public StudentInClassroomResponse updateMyDisplayName(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id,
+        @Valid @RequestBody UpdateDisplayNameRequest request
+    ) {
+        Long studentId = currentUserId(userDetails);
+        log.info("[ClassroomController] PUT /api/classrooms/{}/my-displayname studentId={}", id, studentId);
+        return classroomService.updateMyDisplayName(studentId, id, request.displayName());
     }
 
     @GetMapping("/mine")

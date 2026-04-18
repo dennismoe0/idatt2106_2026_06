@@ -21,4 +21,7 @@ export const classroomService = {
 
   getMyClassroom: () =>
     api.get('/api/classrooms/mine'),
+
+  updateMyDisplayName: (classroomId, displayName) =>
+    api.put(`/api/classrooms/${classroomId}/my-displayname`, { displayName }),
 }

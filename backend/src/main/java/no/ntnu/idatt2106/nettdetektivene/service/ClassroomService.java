@@ -178,6 +178,20 @@ public class ClassroomService {
             .toList();
     }
 
+    public StudentInClassroomResponse updateMyDisplayName(Long studentId, Long classroomId, String displayName) {
+        log.info("[ClassroomService] updateMyDisplayName studentId={} classroomId={}", studentId, classroomId);
+        ClassroomStudent cs = classroomStudentRepository
+            .findByClassroom_IdAndStudent_UserId(classroomId, studentId)
+            .orElseThrow(() -> {
+                log.warn("[ClassroomService] updateMyDisplayName: student {} not in classroom {}", studentId, classroomId);
+                return new ResourceNotFoundException("Student not in classroom");
+            });
+        cs.setDisplayName(displayName);
+        cs = classroomStudentRepository.save(cs);
+        log.info("[ClassroomService] Display name updated: studentId={} classroomId={} name={}", studentId, classroomId, displayName);
+        return toStudentResponse(cs);
+    }
+
     public Optional<StudentInClassroomResponse> getMyClassroom(Long studentId) {
         log.info("[ClassroomService] getMyClassroom studentId={}", studentId);
         return classroomStudentRepository
