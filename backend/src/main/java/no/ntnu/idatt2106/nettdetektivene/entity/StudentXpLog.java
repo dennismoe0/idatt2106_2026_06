@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,6 +27,7 @@ public class StudentXpLog {
     @Column(nullable = false)
     private int xpAmount;
 
+    @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime awardedAt;
 }
