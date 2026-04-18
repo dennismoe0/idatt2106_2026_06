@@ -34,8 +34,8 @@
         </span>
         <span class="leaderboard-entry__name">{{ entry.displayName }}</span>
         <span class="leaderboard-entry__score">
-          {{ entry.completedTasks }} / {{ entry.totalTasks }}
-          <span class="leaderboard-entry__score-label"> stopp</span>
+          {{ entry.completedTasks }}
+          <span class="leaderboard-entry__score-label"> oppgaver</span>
         </span>
       </li>
     </ol>
