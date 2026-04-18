@@ -7,5 +7,6 @@ public record StopResponse(
     String description,
     boolean locked,
     boolean completed,
-    int taskCount
+    int taskCount,
+    boolean xpClaimable
 ) {}

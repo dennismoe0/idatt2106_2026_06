@@ -132,13 +132,15 @@ public class GameService {
                 existingProgress.get().getScore(),
                 explanation,
                 isStopComplete(studentId, task.getStop().getId()),
-                null
+                null,
+                0,
+                0
             );
         }
 
         if (!checkAnswer(task, req == null ? null : req.answer())) {
             log.info("[GameService] wrong answer studentId={} taskId={}", studentId, taskId);
-            return new SubmitAnswerResponse(false, 0, explanation, false, null);
+            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0);
         }
 
         StudentProgress progress = existingProgress.orElseGet(StudentProgress::new);
@@ -160,7 +162,7 @@ public class GameService {
             ? checkAndAwardMedal(studentId, task.getStop().getId()).map(this::toMedalDto).orElse(null)
             : null;
 
-        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned);
+        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 0, 0);
     }
 
     @Transactional(readOnly = true)
@@ -272,7 +274,8 @@ public class GameService {
             stop.getDescription(),
             !unlocked,
             isStopComplete(studentId, stop.getId()),
-            taskCount
+            taskCount,
+            false
         );
     }
 

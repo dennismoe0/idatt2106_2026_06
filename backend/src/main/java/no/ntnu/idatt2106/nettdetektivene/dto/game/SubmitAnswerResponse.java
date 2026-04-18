@@ -5,5 +5,7 @@ public record SubmitAnswerResponse(
     int score,
     String explanation,
     boolean stopCompleted,
-    MedalDto medalEarned
+    MedalDto medalEarned,
+    int starsEarned,
+    int xpEarned
 ) {}
