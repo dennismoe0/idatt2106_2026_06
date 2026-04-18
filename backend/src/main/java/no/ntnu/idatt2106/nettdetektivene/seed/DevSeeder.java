@@ -1,5 +1,6 @@
 package no.ntnu.idatt2106.nettdetektivene.seed;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.entity.*;
 import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
@@ -30,11 +31,13 @@ public class DevSeeder implements ApplicationRunner {
     private final ClassroomStudentRepository classroomStudentRepository;
     private final SchoolRepository schoolRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
         wipe();
+        entityManager.flush();
         seed();
     }
 
