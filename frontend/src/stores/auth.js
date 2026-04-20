@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import api from '@/services/api'
+import router from '@/router'
+import { useClassroomStore } from '@/stores/classroom'
+import { useAvatarStore } from '@/stores/avatar'
 
 const TOKEN_KEY = 'nettdetektivene_token'
 
@@ -20,16 +23,27 @@ export const useAuthStore = defineStore('auth', () => {
     userId.value = data.userId
     email.value = data.email
     localStorage.setItem(TOKEN_KEY, data.token)
+    if (data.role === 'STUDENT') {
+      useAvatarStore().fetchAvatar().catch(err =>
+        console.warn('[auth] Avatar prefetch failed:', err)
+      )
+    }
   }
 
-  function logout() {
-    console.log('[auth] Logging out user:', email.value)
+  function clearAuthState() {
+    console.log('[auth] Clearing auth state for user:', email.value)
     token.value = null
     role.value = null
     userId.value = null
     email.value = null
     localStorage.removeItem(TOKEN_KEY)
-    console.log('[auth] Logged out — token cleared')
+    useClassroomStore().reset()
+    console.log('[auth] Auth state cleared')
+  }
+
+  function logout() {
+    clearAuthState()
+    router.push('/login')
   }
 
   function decodeJwtPayload(t) {
@@ -54,6 +68,11 @@ export const useAuthStore = defineStore('auth', () => {
     userId.value = payload.sub ? parseInt(payload.sub, 10) : null
     email.value = payload.email ?? null
     console.log('[auth] Rehydrated session — userId:', userId.value, 'role:', role.value)
+    if (role.value === 'STUDENT') {
+      useAvatarStore().fetchAvatar().catch(err =>
+        console.warn('[auth] Avatar prefetch on rehydrate failed:', err)
+      )
+    }
   }
 
   async function login(credentials) {
@@ -72,11 +91,26 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function studentLogin(username) {
     console.log('[auth] Student login:', username)
+    // Reset classroom state so a new student never inherits the previous session's classroomId
+    useClassroomStore().reset()
     const { data } = await api.post('/api/auth/student-login', { username })
     setAuth(data)
     console.log('[auth] Student login successful — userId:', data.userId)
   }
 
-  return { token, role, userId, email, isAuthenticated, isTeacher, isStudent,
-           login, register, studentLogin, logout, rehydrate }
+  return {
+    token,
+    role,
+    userId,
+    email,
+    isAuthenticated,
+    isTeacher,
+    isStudent,
+    login,
+    register,
+    studentLogin,
+    logout,
+    clearAuthState,
+    rehydrate,
+  }
 })

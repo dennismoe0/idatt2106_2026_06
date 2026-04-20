@@ -1,0 +1,53 @@
+name: Chore / Task
+description: Technical work that is not a feature or bug — refactoring, setup, config, CI, tests, migrations
+labels: ["chore"]
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      placeholder: Short description of the task
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: What needs to be done and why
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Frontend
+        - Backend
+        - Database
+        - CI/CD
+        - Infrastructure
+        - Testing
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: definition_of_done
+    attributes:
+      label: Definition of done
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: sprint
+    attributes:
+      label: Sprint
+      options:
+        - S1
+        - S2
+        - S3

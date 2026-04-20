@@ -1,6 +1,8 @@
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   datasource:
-    url: jdbc:mysql://localhost:${MYSQL_PORT:3306}/${DB_NAME:nettdetektivene}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8&useUnicode=true
+    url: jdbc:mysql://${DB_HOST:localhost}:${MYSQL_PORT:3306}/${DB_NAME:nettdetektivene}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8&useUnicode=true
     username: ${DB_USERNAME:appuser}
     password: ${DB_PASSWORD:apppassword}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -22,12 +24,14 @@ spring:
 
 app:
   jwt:
-    secret: ${JWT_SECRET:dev-secret-change-in-production-must-be-long}
+    secret: ${JWT_SECRET:dev-secret-change-in-production-must-be-at-least-64-characters-long!}
     expiration-ms: 86400000
+  cors:
+    allowed-origin: ${ALLOWED_ORIGIN:http://localhost:5173}
 
 springdoc:
   swagger-ui:
-    path: /swagger-ui.html
+    path: /swagger-ui/index.html
 
 server:
   port: 8080

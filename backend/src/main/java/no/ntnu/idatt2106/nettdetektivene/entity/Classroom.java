@@ -17,7 +17,7 @@ public class Classroom {
     private Long id;
 
     @Column(nullable = false, length = 100)
-    private String title;
+    private String name;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -27,6 +27,10 @@ public class Classroom {
 
     @Column(nullable = false)
     private boolean isActive = true;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_id")
+    private School school;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

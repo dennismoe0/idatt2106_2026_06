@@ -26,6 +26,16 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_id")
+    private School school;
+
+    @Column(nullable = false)
+    private int starBalance = 0;
+
+    @Column(nullable = false)
+    private int xp = 0;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

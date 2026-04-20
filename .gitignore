@@ -2,6 +2,8 @@
 CLAUDE.md
 dennis_docs/
 .superpowers/
+docs/superpowers/
+
 
 # ─── Java / Maven ─────────────────────────────────────────────────────────────
 target/
@@ -45,7 +47,8 @@ secrets/
 *.iml
 *.iws
 *.ipr
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 *.swp
 *.swo
 *~

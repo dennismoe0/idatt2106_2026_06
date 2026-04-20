@@ -47,7 +47,19 @@
       <div class="auth-links">
         <RouterLink to="/register">Opprett lærerkonto</RouterLink>
         <span class="divider">·</span>
-        <RouterLink to="/student-login">Elev? Logg inn her</RouterLink>
+        <RouterLink to="/student-login">Elev? Bli med i klasse</RouterLink>
+      </div>
+
+      <div v-if="isDev" class="dev-logins">
+        <p class="dev-logins__label">Dev hurtiglogg inn</p>
+        <div class="dev-logins__buttons">
+          <button class="dev-logins__btn" :disabled="loading" @click="quickLogin('grethe@teacher.no')">
+            Grethe
+          </button>
+          <button class="dev-logins__btn" :disabled="loading" @click="quickLogin('ali@teacher.no')">
+            Ali
+          </button>
+        </div>
       </div>
     </div>
   </main>
@@ -66,6 +78,7 @@ const form = reactive({ email: '', password: '' })
 const errors = reactive({ email: '', password: '' })
 const serverError = ref('')
 const loading = ref(false)
+const isDev = true
 
 function validate() {
   errors.email = ''
@@ -85,7 +98,23 @@ async function handleSubmit() {
     await authStore.login({ email: form.email, password: form.password })
     router.push(authStore.isTeacher ? '/teacher' : '/')
   } catch (err) {
+    console.error('[LoginView] Login failed:', err)
     serverError.value = err?.response?.data?.error || 'Innlogging feilet. Prøv igjen.'
+  } finally {
+    loading.value = false
+  }
+}
+
+async function quickLogin(email) {
+  serverError.value = ''
+  loading.value = true
+  try {
+    await authStore.login({ email, password: 'password123' })
+    console.log('[LoginView] Quick login as', email)
+    router.push(authStore.isTeacher ? '/teacher' : '/')
+  } catch (err) {
+    console.error('[LoginView] Quick login failed for', email, err)
+    serverError.value = 'Hurtiglogging feilet. Er dev-seeder kjørt?'
   } finally {
     loading.value = false
   }
@@ -132,4 +161,40 @@ input[aria-invalid="true"] { border-color: var(--color-danger); }
 }
 .auth-links a { color: var(--color-primary); font-weight: var(--font-medium); }
 .divider { margin: 0 var(--space-2); }
+
+.dev-logins {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px dashed var(--color-border);
+}
+.dev-logins__label {
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.dev-logins__buttons {
+  display: flex;
+  gap: var(--space-3);
+}
+.dev-logins__btn {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.dev-logins__btn:hover:not(:disabled) {
+  background: var(--color-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.dev-logins__btn:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>

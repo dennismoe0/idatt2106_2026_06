@@ -1,17 +1,36 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useClassroomStore } from '@/stores/classroom'
 
 const routes = [
   // Public
-  { path: '/login',        name: 'Login',        component: () => import('@/views/auth/LoginView.vue'),    meta: { public: true } },
-  { path: '/register',     name: 'Register',     component: () => import('@/views/auth/RegisterView.vue'), meta: { public: true } },
-  { path: '/unauthorized', name: 'Unauthorized', component: () => import('@/views/UnauthorizedView.vue'),  meta: { public: true } },
+
+
+  { path: '/login',         name: 'Login',        component: () => import('@/views/auth/LoginView.vue'),              meta: { public: true } },
+  { path: '/register',      name: 'Register',     component: () => import('@/views/auth/RegisterView.vue'),           meta: { public: true } },
+  { path: '/unauthorized',  name: 'Unauthorized', component: () => import('@/views/UnauthorizedView.vue'),            meta: { public: true } },
+  { path: '/student-login', name: 'StudentLogin', component: () => import('@/views/auth/StudentLoginView.vue'),       meta: { public: true } },
 
   // Student
-  { path: '/',             name: 'Home',      component: () => import('@/views/student/HomeView.vue'),     meta: { role: 'STUDENT' } },
+  { path: '/',              name: 'Home',           component: () => import('@/views/student/HomeView.vue'),          meta: { role: 'STUDENT' } },
+  { path: '/intro',         name: 'Intro',          component: () => import('@/views/student/IntroView.vue'),         meta: { role: 'STUDENT' } },
+  { path: '/join',          name: 'JoinClassroom',  component: () => import('@/views/student/JoinClassroomView.vue'), meta: { role: 'STUDENT' } },
+  { path: '/waiting',       name: 'WaitingRoom',    component: () => import('@/views/student/WaitingRoomView.vue'),   meta: { role: 'STUDENT' } },
+  { path: '/map',           name: 'Map',            component: () => import('@/views/student/MapView.vue'),           meta: { role: 'STUDENT', requiresClassroom: true } },
+  { path: '/world-map',     name: 'WorldMap',       component: () => import('@/views/student/WorldMapView.vue'),       meta: { role: 'STUDENT', requiresClassroom: true } },
+  { path: '/task',          name: 'Task',           component: () => import('@/views/student/TaskView.vue'),          meta: { role: 'STUDENT', requiresClassroom: true } },
+  { path: '/avatar',        name: 'Avatar',         component: () => import('@/views/student/AvatarView.vue'),        meta: { role: 'STUDENT' } },
+  { path: '/profil',        name: 'Profile',        component: () => import('@/views/student/ProfileView.vue'),       meta: { role: 'STUDENT' } },
+  { path: '/medals',        name: 'Medals',         component: () => import('@/views/student/MedalsView.vue'),        meta: { role: 'STUDENT', requiresClassroom: true } },
+  { path: '/notebook',      name: 'Notebook',       component: () => import('@/views/student/NotebookView.vue'),      meta: { role: 'STUDENT', requiresClassroom: true } },
+  { path: '/leaderboard',  name: 'Leaderboard',    component: () => import('@/views/student/LeaderboardView.vue'),   meta: { role: 'STUDENT', requiresClassroom: true } },
+
+
 
   // Teacher
-  { path: '/teacher',      name: 'Dashboard', component: () => import('@/views/teacher/DashboardView.vue'), meta: { role: 'TEACHER' } },
+  { path: '/teacher',                 name: 'Dashboard',       component: () => import('@/views/teacher/DashboardView.vue'),       meta: { role: 'TEACHER' } },
+  { path: '/teacher/classrooms/:id',  name: 'ClassroomDetail', component: () => import('@/views/teacher/ClassroomDetailView.vue'), meta: { role: 'TEACHER' } },
+  { path: '/teacher/students/:studentId/notebook', name: 'TeacherNotebook', component: () => import('@/views/teacher/TeacherNotebookView.vue'), meta: { role: 'TEACHER' } },
 
   // Fallback
   { path: '/:pathMatch(.*)*', redirect: '/login' }
@@ -24,6 +43,7 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const auth = useAuthStore()
+  const classroom = useClassroomStore()
 
   if (to.meta.public) return true
 
@@ -49,6 +69,17 @@ router.beforeEach((to) => {
     }
     console.warn('[router] Role', auth.role, 'not allowed on', to.path)
     return { name: 'Unauthorized' }
+  }
+
+  if (to.meta.requiresClassroom) {
+    if (!classroom.currentClassroomId) {
+      console.log('[router] No classroom — redirecting to JoinClassroom from', to.path)
+      return { name: 'JoinClassroom' }
+    }
+    if (classroom.approvalStatus && classroom.approvalStatus !== 'APPROVED') {
+      console.log('[router] Student status', classroom.approvalStatus, '— redirecting to WaitingRoom from', to.path)
+      return { name: 'WaitingRoom' }
+    }
   }
 
   return true
