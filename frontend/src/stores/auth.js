@@ -24,15 +24,19 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem(TOKEN_KEY, data.token)
   }
 
-  function logout() {
-    console.log('[auth] Logging out user:', email.value)
+  function clearAuthState() {
+    console.log('[auth] Clearing auth state for user:', email.value)
     token.value = null
     role.value = null
     userId.value = null
     email.value = null
     localStorage.removeItem(TOKEN_KEY)
     useClassroomStore().reset()
-    console.log('[auth] Logged out — token and classroom state cleared')
+    console.log('[auth] Auth state cleared')
+  }
+
+  function logout() {
+    clearAuthState()
     router.push('/login')
   }
 
@@ -95,6 +99,7 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     studentLogin,
     logout,
+    clearAuthState,
     rehydrate,
   }
 })

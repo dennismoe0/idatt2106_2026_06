@@ -39,7 +39,7 @@ const { pendingJoin } = storeToRefs(classroomStore)
 
 function handleLogout() {
   console.log('[WaitingRoomView] Student logging out from waiting room')
-  authStore.logout()
+  authStore.clearAuthState()
   router.push({ name: 'StudentLogin' })
 }
 const kicked = ref(false)
