@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${MYSQL_PORT:3306}/${DB_NAME:nettdetektivene}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8&useUnicode=true
     username: ${DB_USERNAME:appuser}
@@ -22,7 +24,7 @@ spring:
 
 app:
   jwt:
-    secret: ${JWT_SECRET:dev-secret-change-in-production-must-be-long}
+    secret: ${JWT_SECRET:dev-secret-change-in-production-must-be-at-least-64-characters-long!}
     expiration-ms: 86400000
   cors:
     allowed-origin: ${ALLOWED_ORIGIN:http://localhost:5173}
