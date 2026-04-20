@@ -21,7 +21,9 @@ const router = createRouter({
   routes: [
     { path: '/waiting', name: 'WaitingRoom', component: WaitingRoomView },
     { path: '/', name: 'Home', component: { template: '<div>Home</div>' } },
+    { path: '/intro', name: 'Intro', component: { template: '<div>Intro</div>' } },
     { path: '/join', name: 'JoinClassroom', component: { template: '<div>Join</div>' } },
+    { path: '/student-login', name: 'StudentLogin', component: { template: '<div>Login</div>' } },
   ],
 })
 
@@ -31,6 +33,7 @@ describe('WaitingRoomView', () => {
   beforeEach(async () => {
     setActivePinia(createPinia())
     classroomStore = useClassroomStore()
+    localStorage.clear()
     vi.useFakeTimers()
     vi.clearAllMocks()
     await router.push('/waiting')
@@ -89,6 +92,7 @@ describe('WaitingRoomView', () => {
   })
 
   it('redirects to Home when status is APPROVED', async () => {
+    localStorage.setItem('hasSeenIntro', 'true')
     classroomStore.pendingJoin = { classroomId: 7, displayName: 'Agent Ola', code: 'tiger-blue' }
     vi.spyOn(classroomStore, 'fetchMyStatus').mockResolvedValue('APPROVED')
 

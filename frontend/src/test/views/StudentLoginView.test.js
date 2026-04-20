@@ -4,10 +4,13 @@ import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import StudentLoginView from '@/views/auth/StudentLoginView.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useClassroomStore } from '@/stores/classroom'
 
 const TestHome = { template: '<div>Home</div>' }
 const TestIntro = { template: '<div>Intro</div>' }
 const TestLogin = { template: '<div>Login</div>' }
+const TestJoin = { template: '<div>Join</div>' }
+const TestWaiting = { template: '<div>Waiting</div>' }
 
 function makeRouter() {
   return createRouter({
@@ -17,6 +20,8 @@ function makeRouter() {
       { path: '/', name: 'Home', component: TestHome },
       { path: '/intro', name: 'Intro', component: TestIntro },
       { path: '/login', name: 'Login', component: TestLogin },
+      { path: '/join', name: 'JoinClassroom', component: TestJoin },
+      { path: '/waiting', name: 'WaitingRoom', component: TestWaiting },
     ],
   })
 }
@@ -39,6 +44,7 @@ async function mountView() {
     wrapper,
     router,
     authStore: useAuthStore(),
+    classroomStore: useClassroomStore(),
   }
 }
 
@@ -53,12 +59,16 @@ describe('StudentLoginView', () => {
 
     await wrapper.find('form').trigger('submit')
 
-    expect(wrapper.text()).toContain('Brukernavn er påkrevd')
+    expect(wrapper.text()).toContain('Elevnavn er påkrevd')
   })
 
   it('calls studentLogin with trimmed username', async () => {
-    const { wrapper, authStore } = await mountView()
+    const { wrapper, authStore, classroomStore } = await mountView()
     authStore.studentLogin = vi.fn().mockResolvedValue({})
+    classroomStore.fetchMyClassroom = vi.fn().mockResolvedValue(undefined)
+    // Simulate student has a classroom and is approved so routing is predictable
+    classroomStore.currentClassroomId = 1
+    classroomStore.approvalStatus = 'APPROVED'
 
     await wrapper.find('input').setValue('  agent.nora  ')
     await wrapper.find('form').trigger('submit')
@@ -68,8 +78,12 @@ describe('StudentLoginView', () => {
   })
 
   it('routes to intro after login when intro has not been seen', async () => {
-    const { wrapper, router, authStore } = await mountView()
+    const { wrapper, router, authStore, classroomStore } = await mountView()
     authStore.studentLogin = vi.fn().mockResolvedValue({})
+    classroomStore.fetchMyClassroom = vi.fn().mockResolvedValue(undefined)
+    // Student is in an approved classroom, so routing falls through to intro check
+    classroomStore.currentClassroomId = 1
+    classroomStore.approvalStatus = 'APPROVED'
 
     await wrapper.find('input').setValue('agent.nora')
     await wrapper.find('form').trigger('submit')
@@ -81,8 +95,12 @@ describe('StudentLoginView', () => {
   it('routes to home after login when intro has been seen', async () => {
     localStorage.setItem('hasSeenIntro', 'true')
 
-    const { wrapper, router, authStore } = await mountView()
+    const { wrapper, router, authStore, classroomStore } = await mountView()
     authStore.studentLogin = vi.fn().mockResolvedValue({})
+    classroomStore.fetchMyClassroom = vi.fn().mockResolvedValue(undefined)
+    // Student is in an approved classroom, so routing falls through to hasSeenIntro check
+    classroomStore.currentClassroomId = 1
+    classroomStore.approvalStatus = 'APPROVED'
 
     await wrapper.find('input').setValue('agent.nora')
     await wrapper.find('form').trigger('submit')

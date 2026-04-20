@@ -2,35 +2,51 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
 
+// canvas-confetti renders to a full-screen canvas; stub it out.
+// Use vi.hoisted so the mock factory can reference the variable before it is hoisted.
+const { confettiMock } = vi.hoisted(() => {
+  const confettiMock = vi.fn()
+  confettiMock.reset = vi.fn()
+  return { confettiMock }
+})
+
+vi.mock('canvas-confetti', () => ({
+  default: confettiMock,
+}))
+
 describe('ConfettiOverlay', () => {
-  beforeEach(() => { vi.useFakeTimers() })
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.clearAllMocks()
+  })
   afterEach(() => { vi.useRealTimers() })
 
-  it('is not visible when active is false', () => {
-    const wrapper = mount(ConfettiOverlay, { props: { active: false } })
-    expect(wrapper.find('.confetti-overlay').exists()).toBe(false)
+  it('does not fire confetti when active is false', () => {
+    mount(ConfettiOverlay, { props: { active: false } })
+    expect(confettiMock).not.toHaveBeenCalled()
   })
 
-  it('becomes visible when active changes to true', async () => {
-    const wrapper = mount(ConfettiOverlay, { props: { active: false } })
-    await wrapper.setProps({ active: true })
-    expect(wrapper.find('.confetti-overlay').exists()).toBe(true)
-  })
-
-  it('auto-hides after 3 seconds', async () => {
-    const wrapper = mount(ConfettiOverlay, { props: { active: true } })
-    expect(wrapper.find('.confetti-overlay').exists()).toBe(true)
-    vi.advanceTimersByTime(3000)
+  it('fires confetti immediately when active is true', async () => {
+    mount(ConfettiOverlay, { props: { active: true } })
     await flushPromises()
-    expect(wrapper.find('.confetti-overlay').exists()).toBe(false)
+    expect(confettiMock).toHaveBeenCalled()
   })
 
-  it('assigns token-backed color classes to confetti pieces', () => {
-    const wrapper = mount(ConfettiOverlay, { props: { active: true } })
-    const pieces = wrapper.findAll('.confetti-piece')
+  it('fires a bigger burst when active is "stop"', async () => {
+    mount(ConfettiOverlay, { props: { active: 'stop' } })
+    await flushPromises()
+    expect(confettiMock).toHaveBeenCalled()
+    // "stop" mode fires more particles — first call should have particleCount >= 160
+    const firstCall = confettiMock.mock.calls[0][0]
+    expect(firstCall.particleCount).toBeGreaterThanOrEqual(160)
+  })
 
-    expect(pieces).toHaveLength(40)
-    expect(pieces[0].classes()).toContain('confetti-piece--color-2')
-    expect(pieces[5].classes()).toContain('confetti-piece--color-1')
+  it('fires a smaller burst for "correct"', async () => {
+    mount(ConfettiOverlay, { props: { active: 'correct' } })
+    await flushPromises()
+    expect(confettiMock).toHaveBeenCalled()
+    // "correct" mode first burst <= 80 particles
+    const firstCall = confettiMock.mock.calls[0][0]
+    expect(firstCall.particleCount).toBeLessThanOrEqual(80)
   })
 })
