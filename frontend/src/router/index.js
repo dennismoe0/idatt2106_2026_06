@@ -70,9 +70,15 @@ router.beforeEach((to) => {
     return { name: 'Unauthorized' }
   }
 
-  if (to.meta.requiresClassroom && !classroom.currentClassroomId) {
-    console.log('[router] No classroom — redirecting to JoinClassroom from', to.path)
-    return { name: 'JoinClassroom' }
+  if (to.meta.requiresClassroom) {
+    if (!classroom.currentClassroomId) {
+      console.log('[router] No classroom — redirecting to JoinClassroom from', to.path)
+      return { name: 'JoinClassroom' }
+    }
+    if (classroom.approvalStatus && classroom.approvalStatus !== 'APPROVED') {
+      console.log('[router] Student status', classroom.approvalStatus, '— redirecting to WaitingRoom from', to.path)
+      return { name: 'WaitingRoom' }
+    }
   }
 
   return true

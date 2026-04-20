@@ -106,6 +106,7 @@ const classroomStore = useClassroomStore()
 
 function postLoginDestination() {
   if (!classroomStore.currentClassroomId) return { name: 'JoinClassroom' }
+  if (classroomStore.approvalStatus !== 'APPROVED') return { name: 'WaitingRoom' }
   const hasSeenIntro = localStorage.getItem('hasSeenIntro') === 'true'
   return { name: hasSeenIntro ? 'Home' : 'Intro' }
 }
