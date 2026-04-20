@@ -17,6 +17,7 @@ const routes = [
   { path: '/join',          name: 'JoinClassroom',  component: () => import('@/views/student/JoinClassroomView.vue'), meta: { role: 'STUDENT' } },
   { path: '/waiting',       name: 'WaitingRoom',    component: () => import('@/views/student/WaitingRoomView.vue'),   meta: { role: 'STUDENT' } },
   { path: '/map',           name: 'Map',            component: () => import('@/views/student/MapView.vue'),           meta: { role: 'STUDENT', requiresClassroom: true } },
+  { path: '/world-map',     name: 'WorldMap',       component: () => import('@/views/student/WorldMapView.vue'),       meta: { role: 'STUDENT', requiresClassroom: true } },
   { path: '/task',          name: 'Task',           component: () => import('@/views/student/TaskView.vue'),          meta: { role: 'STUDENT', requiresClassroom: true } },
   { path: '/avatar',        name: 'Avatar',         component: () => import('@/views/student/AvatarView.vue'),        meta: { role: 'STUDENT' } },
   { path: '/profil',        name: 'Profile',        component: () => import('@/views/student/ProfileView.vue'),       meta: { role: 'STUDENT' } },
