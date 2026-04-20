@@ -18,9 +18,19 @@
       {{ stop.locked ? '🔒' : stop.completed ? '✅' : '📍' }}
     </span>
     <span class="stop-marker__name">{{ stop.name }}</span>
-    <span class="stop-marker__count" v-if="!stop.completed">
+    <span class="stop-marker__count" v-if="!stop.completed && stop.correctCount === 0">
       {{ stop.taskCount }} oppgaver
     </span>
+
+    <div v-if="!stop.locked && stop.correctCount > 0" class="stop-marker__stars" aria-label="{{ stop.correctCount }} av {{ stop.taskCount }} riktige">
+      <span
+        v-for="i in stop.taskCount"
+        :key="i"
+        class="stop-marker__star"
+        :class="i <= stop.correctCount ? 'stop-marker__star--earned' : 'stop-marker__star--empty'"
+        aria-hidden="true"
+      >★</span>
+    </div>
     <button
       v-if="stop.xpClaimable"
       class="stop-marker__claim-btn"
@@ -90,6 +100,19 @@ function handleClick() {
 .stop-marker__icon { font-size: var(--text-2xl); }
 .stop-marker__name { font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--color-text); }
 .stop-marker__count { font-size: var(--text-xs); color: var(--color-text-muted); }
+
+.stop-marker__stars {
+  display: flex;
+  gap: 2px;
+  margin-top: var(--space-1);
+}
+
+.stop-marker__star {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.stop-marker__star--earned { color: #f5a623; }
+.stop-marker__star--empty  { color: #ccc; }
 
 .stop-marker__claim-btn {
   font-size: var(--text-xs);

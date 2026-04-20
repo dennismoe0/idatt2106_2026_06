@@ -8,5 +8,6 @@ public record StopResponse(
     boolean locked,
     boolean completed,
     int taskCount,
+    int correctCount,
     boolean xpClaimable
 ) {}
