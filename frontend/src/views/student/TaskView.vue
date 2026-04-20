@@ -222,6 +222,8 @@ function buildMockResult(task, answer) {
   return {
     correct,
     score: correct ? 100 : 40,
+    starsEarned: correct ? 1 : 0,
+    xpEarned: correct ? 20 : 0,
     explanation: task.mockExplanation ?? 'Sammenlign svaret ditt med trygg kildekritikk.',
     stopCompleted: currentTaskIndex.value === tasks.value.length - 1,
     medalEarned: currentTaskIndex.value === tasks.value.length - 1

@@ -185,7 +185,7 @@ onUnmounted(() => {
 .world-map-view {
   position: fixed;
   inset: 0;
-  background: #1a1a2e;
+  background: var(--color-map-bg);
   overflow: hidden;
 }
 
@@ -198,7 +198,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  background: #1a1a2e;
+  background: var(--color-map-bg);
   color: #fff;
   text-align: center;
   padding: 2rem;
@@ -306,7 +306,7 @@ onUnmounted(() => {
 
 /* ---- HUD overlay ---- */
 .world-map-view__hud {
-  position: fixed !important;
+  position: fixed;
   top: 1rem;
   right: 1rem;
   z-index: 100;

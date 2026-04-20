@@ -47,6 +47,7 @@
   --color-surface-glass: color-mix(in srgb, var(--color-surface) 88%, var(--color-bg));
   --color-surface-glass-strong: color-mix(in srgb, var(--color-surface) 94%, var(--color-bg));
   --color-heading: #20304A;
+  --color-map-bg: #1a1a2e;
 
   /* Button semantic tokens */
   --color-btn-primary-bg:   #2B6CB0;
