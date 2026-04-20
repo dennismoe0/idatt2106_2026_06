@@ -20,6 +20,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -206,6 +208,32 @@ class ClassroomControllerTest {
             .andExpect(jsonPath("$.error").value("Student not in classroom"));
     }
 
+    @Test
+    void deleteClassroom_returns204_forOwningTeacher() throws Exception {
+        User teacher = saveUser("teacher-del@test.no", User.Role.TEACHER);
+        Classroom classroom = saveClassroomForTeacher(teacher, "KlasseToDelete");
+        String token = tokenFor(teacher);
+
+        mockMvc.perform(delete("/api/classrooms/" + classroom.getId())
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isNoContent());
+
+        Classroom updated = classroomRepository.findById(classroom.getId()).orElseThrow();
+        assertThat(updated.isActive()).isFalse();
+    }
+
+    @Test
+    void deleteClassroom_returns404_forNonOwner() throws Exception {
+        User owner = saveUser("owner-del@test.no", User.Role.TEACHER);
+        User other = saveUser("other-del@test.no", User.Role.TEACHER);
+        Classroom classroom = saveClassroomForTeacher(owner, "OwnerClass");
+        String token = tokenFor(other);
+
+        mockMvc.perform(delete("/api/classrooms/" + classroom.getId())
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isNotFound());
+    }
+
     private User saveUser(String email, User.Role role) {
         User user = new User();
         user.setEmail(email);
@@ -225,6 +253,19 @@ class ClassroomControllerTest {
         classroomTeacher.setTeacher(teacher);
         classroomTeacherRepository.save(classroomTeacher);
 
+        return classroom;
+    }
+
+    private Classroom saveClassroomForTeacher(User teacher, String name) {
+        Classroom classroom = new Classroom();
+        classroom.setName(name);
+        classroom.setJoinCode(name.toLowerCase().replace(" ", "-") + "-code");
+        classroom.setActive(true);
+        classroom = classroomRepository.save(classroom);
+        ClassroomTeacher ct = new ClassroomTeacher();
+        ct.setTeacher(teacher);
+        ct.setClassroom(classroom);
+        classroomTeacherRepository.save(ct);
         return classroom;
     }
 

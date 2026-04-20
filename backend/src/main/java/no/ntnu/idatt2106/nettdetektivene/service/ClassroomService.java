@@ -83,6 +83,14 @@ public class ClassroomService {
         return toClassroomResponse(classroom);
     }
 
+    @Transactional
+    public void deleteClassroom(Long teacherId, Long classroomId) {
+        Classroom classroom = getClassroomForTeacher(teacherId, classroomId);
+        classroom.setActive(false);
+        classroomRepository.save(classroom);
+        log.info("[ClassroomService] Classroom soft-deleted: classroomId={} by teacherId={}", classroomId, teacherId);
+    }
+
     @Transactional(readOnly = true)
     public List<LeaderboardEntryDto> getLeaderboard(Long teacherId, Long classroomId) {
         log.info("[ClassroomService] getLeaderboard teacherId={} classroomId={}", teacherId, classroomId);

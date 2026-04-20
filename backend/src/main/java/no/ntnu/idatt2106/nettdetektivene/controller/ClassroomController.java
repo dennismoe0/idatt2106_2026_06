@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,6 +60,17 @@ public class ClassroomController {
         @PathVariable Long id
     ) {
         return classroomService.getClassroom(currentUserId(userDetails), id);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> deleteClassroom(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+        log.info("[ClassroomController] DELETE /api/classrooms/{} by teacherId={}", id, currentUserId(userDetails));
+        classroomService.deleteClassroom(currentUserId(userDetails), id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/join")
