@@ -344,6 +344,7 @@ public class GameService {
 
     private StopResponse toStopResponse(Long studentId, Long classroomId, Stop stop) {
         int taskCount = Math.toIntExact(taskRepository.countByStop_Id(stop.getId()));
+        int correctCount = Math.toIntExact(completedTaskCount(studentId, stop.getId()));
         boolean unlocked = isStopUnlocked(studentId, classroomId, stop);
         boolean completed = isStopComplete(studentId, stop.getId());
         boolean xpClaimable = completed && isXpClaimable(studentId, stop.getId());
@@ -355,6 +356,7 @@ public class GameService {
             !unlocked,
             completed,
             taskCount,
+            correctCount,
             xpClaimable
         );
     }
