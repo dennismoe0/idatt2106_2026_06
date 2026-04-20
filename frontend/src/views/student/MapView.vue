@@ -1,6 +1,9 @@
 <template>
   <div class="map-view">
     <StudentHeader title="Kart" :back-to="{ name: 'Home' }" />
+    <button class="map-view__world-btn" @click="switchToWorldMap" aria-label="Bytt til verdenskart">
+      Verdenskart
+    </button>
 
     <LoadingSpinner v-if="loading" />
 
@@ -45,7 +48,18 @@ const lockedStopId = ref(null)
 const lockedMessage = ref(false)
 let lockedTimer = null
 
+function switchToWorldMap() {
+  localStorage.setItem('mapView', 'world')
+  router.push({ name: 'WorldMap' })
+}
+
 onMounted(async () => {
+  // Redirect to world map unless user explicitly chose simple view
+  if (localStorage.getItem('mapView') !== 'simple') {
+    router.push({ name: 'WorldMap' })
+    return
+  }
+
   // No classroomId at all — student hasn't joined yet
   if (!classroomStore.currentClassroomId) {
     console.warn('[MapView] No classroomId — redirecting to join')
@@ -124,6 +138,24 @@ function handleStopClick(stop) {
   color: var(--color-danger);
   text-align: center;
   padding: var(--space-4);
+}
+
+.map-view__world-btn {
+  display: block;
+  margin: var(--space-3) 0 0;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.map-view__world-btn:hover {
+  background: var(--color-primary-light);
 }
 
 .stops-path {

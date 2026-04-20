@@ -28,7 +28,7 @@ describe('StopMarker', () => {
 
   it('is disabled and does not emit when locked', async () => {
     const wrapper = mount(StopMarker, { props: { stop: makeStop({ locked: true }) } })
-    expect(wrapper.attributes('disabled')).toBeDefined()
+    expect(wrapper.attributes('aria-disabled')).toBe('true')
     await wrapper.trigger('click')
     expect(wrapper.emitted('click')).toBeFalsy()
   })

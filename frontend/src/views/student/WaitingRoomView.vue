@@ -14,9 +14,13 @@
         <span v-if="pendingJoin.code"> med klassekode <strong>{{ pendingJoin.code }}</strong></span>.
       </p>
 
-      <RouterLink class="waiting-link" :to="kicked ? '/join' : '/login'">
-        {{ kicked ? 'Tilbake til bli med i klasse' : 'Tilbake til innlogging' }}
+      <RouterLink v-if="kicked" class="waiting-link" to="/join">
+        Tilbake til bli med i klasse
       </RouterLink>
+
+      <button class="logout-btn" @click="handleLogout">
+        Logg ut
+      </button>
     </section>
   </main>
 </template>
@@ -25,11 +29,19 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { useClassroomStore } from '@/stores/classroom'
 
 const router = useRouter()
+const authStore = useAuthStore()
 const classroomStore = useClassroomStore()
 const { pendingJoin } = storeToRefs(classroomStore)
+
+function handleLogout() {
+  console.log('[WaitingRoomView] Student logging out from waiting room')
+  authStore.clearAuthState()
+  router.push({ name: 'StudentLogin' })
+}
 const kicked = ref(false)
 
 let pollInterval = null
@@ -107,4 +119,17 @@ onUnmounted(() => {
   color: var(--color-primary);
   font-weight: var(--font-medium);
 }
+
+.logout-btn {
+  display: block;
+  margin-top: var(--space-4);
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.logout-btn:hover { color: var(--color-danger); }
 </style>

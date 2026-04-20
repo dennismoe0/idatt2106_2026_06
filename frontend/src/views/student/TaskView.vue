@@ -1,8 +1,7 @@
 <template>
   <main class="task-view">
-    <StudentHeader title="Oppgaver" :back-to="{ name: 'Map' }" />
+    <StudentHeader title="Oppgaver" :back-to="{ name: preferredMap }" />
 
-    <!-- Summary page replaces task content -->
     <StopSummary
       v-if="showSummary"
       :tasks="tasks"
@@ -99,6 +98,8 @@ const medalToast = ref(null)
 const showSummary = ref(false)
 let confettiTimer = null
 let medalTimer = null
+
+const preferredMap = localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap'
 
 const stopId = computed(() => Number(route.query.stopId ?? 0) || null)
 const classroomId = computed(() => {
@@ -221,6 +222,8 @@ function buildMockResult(task, answer) {
   return {
     correct,
     score: correct ? 100 : 40,
+    starsEarned: correct ? 1 : 0,
+    xpEarned: correct ? 20 : 0,
     explanation: task.mockExplanation ?? 'Sammenlign svaret ditt med trygg kildekritikk.',
     stopCompleted: currentTaskIndex.value === tasks.value.length - 1,
     medalEarned: currentTaskIndex.value === tasks.value.length - 1
@@ -281,7 +284,9 @@ function handleRetry() {
 }
 
 function goToMap() {
-  router.push({ name: 'Map' })
+  const pref = localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap'
+  console.log('[TaskView] Returning to map — preference:', pref)
+  router.push({ name: pref })
 }
 </script>
 

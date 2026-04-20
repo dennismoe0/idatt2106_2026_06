@@ -18,20 +18,21 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useGameStore } from '@/stores/game'
 
 const gameStore = useGameStore()
 
-const level        = computed(() => gameStore.level)
-const xp           = computed(() => gameStore.xp)
-const starBalance  = computed(() => gameStore.starBalance)
+const level          = computed(() => gameStore.level)
+const xp             = computed(() => gameStore.xp)
 const displayBalance = computed(() => gameStore.displayStarBalance ?? gameStore.starBalance)
 
 const bumping = ref(false)
+let bumpTimer = null
 watch(displayBalance, () => {
+  clearTimeout(bumpTimer)
   bumping.value = true
-  setTimeout(() => { bumping.value = false }, 300)
+  bumpTimer = setTimeout(() => { bumping.value = false }, 300)
 })
 
 onMounted(async () => {
@@ -41,6 +42,8 @@ onMounted(async () => {
     console.warn('[PlayerHud] Could not load profile:', err)
   }
 })
+
+onUnmounted(() => clearTimeout(bumpTimer))
 </script>
 
 <style scoped>

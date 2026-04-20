@@ -239,8 +239,7 @@ function flyGoldStars() {
 }
 .summary-score strong { color: var(--color-primary); }
 
-/* ── Stars row ── */
-.summary-stars-row {
+/* ── Stars row ── */.summary-stars-row {
   display: flex;
   justify-content: center;
   gap: var(--space-3);
@@ -266,8 +265,7 @@ function flyGoldStars() {
   filter: drop-shadow(0 0 6px rgba(245, 166, 35, 0.6));
 }
 
-/* ── XP counter ── */
-.summary-xp {
+/* ── XP counter ── */.summary-xp {
   font-size: var(--text-xl);
   font-weight: var(--font-bold);
   color: var(--color-primary);
@@ -281,16 +279,14 @@ function flyGoldStars() {
 .xp-pop-enter-from   { opacity: 0; transform: translateY(8px) scale(0.85); }
 .xp-pop-leave-to     { opacity: 0; }
 
-/* ── Message ── */
-.summary-msg {
+/* ── Message ── */.summary-msg {
   font-size: var(--text-sm);
   margin: 0 0 var(--space-6);
 }
 .summary-msg--perfect  { color: var(--color-success); }
 .summary-msg--partial  { color: var(--color-text-muted); }
 
-/* ── Actions ── */
-.summary-actions {
+/* ── Actions ── */.summary-actions {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createMemoryHistory } from 'vue-router'
 
 //Stub child components
@@ -24,11 +25,14 @@ const router = createRouter({
 
 //Shared mount helper
 async function mountDashboard () {
+  const pinia = createPinia()
+  setActivePinia(pinia)
   const { default: DashboardView } = await import('@/views/teacher/DashboardView.vue')
   return mount(DashboardView, {
     global: {
       plugins: [
-        router
+        router,
+        pinia
       ],
       stubs: { RouterLink: true }
     }
@@ -53,6 +57,12 @@ describe('DashboardView', () => {
         useClassroomStore: () => ({
           classrooms: [],
           fetchMyClassrooms: vi.fn().mockRejectedValue(new Error('network error'))
+        })
+      }))
+      vi.doMock('@/stores/school', () => ({
+        useSchoolStore: () => ({
+          schools: [],
+          fetchSchools: vi.fn().mockResolvedValue([])
         })
       }))
 
@@ -86,6 +96,12 @@ describe('DashboardView', () => {
           classrooms: [],
           fetchMyClassrooms: vi.fn().mockResolvedValue(undefined),
           createClassroom: vi.fn().mockResolvedValue(fakeClassroom)
+        })
+      }))
+      vi.doMock('@/stores/school', () => ({
+        useSchoolStore: () => ({
+          schools: [],
+          fetchSchools: vi.fn().mockResolvedValue([])
         })
       }))
 
