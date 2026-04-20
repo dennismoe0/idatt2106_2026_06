@@ -5,9 +5,11 @@ import no.ntnu.idatt2106.nettdetektivene.dto.classroom.ClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.CreateClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.SchoolLeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
 import no.ntnu.idatt2106.nettdetektivene.repository.LeaderboardRow;
+import no.ntnu.idatt2106.nettdetektivene.repository.SchoolLeaderboardRow;
 import no.ntnu.idatt2106.nettdetektivene.entity.Classroom;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomTeacher;
@@ -180,6 +182,34 @@ public class ClassroomService {
         return classroomStudentRepository.getLeaderboard(classroomId).stream()
             .map(row -> new LeaderboardEntryDto(
                 row.getDisplayName(),
+                row.getCompletedTasks() == null ? 0 : row.getCompletedTasks().intValue(),
+                totalTasks
+            ))
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<SchoolLeaderboardEntryDto> getSchoolLeaderboard(Long classroomId) {
+        log.info("[ClassroomService] getSchoolLeaderboard classroomId={}", classroomId);
+        Classroom classroom = classroomRepository.findById(classroomId)
+            .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+        int totalTasks = (int) taskRepository.count();
+
+        List<Long> classroomIds;
+        if (classroom.getSchool() != null) {
+            classroomIds = classroomRepository.findBySchool_Id(classroom.getSchool().getId())
+                .stream().map(Classroom::getId).toList();
+            log.info("[ClassroomService] School {} has {} classrooms", classroom.getSchool().getId(), classroomIds.size());
+        } else {
+            classroomIds = List.of(classroomId);
+            log.info("[ClassroomService] No school for classroomId={}, using single-classroom leaderboard", classroomId);
+        }
+
+        return classroomStudentRepository.getSchoolLeaderboard(classroomIds).stream()
+            .map(row -> new SchoolLeaderboardEntryDto(
+                row.getDisplayName(),
+                row.getClassroomId(),
+                row.getClassroomName(),
                 row.getCompletedTasks() == null ? 0 : row.getCompletedTasks().intValue(),
                 totalTasks
             ))

@@ -6,6 +6,7 @@ import no.ntnu.idatt2106.nettdetektivene.dto.classroom.ClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.CreateClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.SchoolLeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.UpdateDisplayNameRequest;
@@ -108,6 +109,13 @@ public class ClassroomController {
     public List<LeaderboardEntryDto> getLeaderboard(@PathVariable Long id) {
         log.info("[ClassroomController] GET /api/classrooms/{}/leaderboard", id);
         return classroomService.getLeaderboard(id);
+    }
+
+    @GetMapping("/{id}/school-leaderboard")
+    @PreAuthorize("isAuthenticated()")
+    public List<SchoolLeaderboardEntryDto> getSchoolLeaderboard(@PathVariable Long id) {
+        log.info("[ClassroomController] GET /api/classrooms/{}/school-leaderboard", id);
+        return classroomService.getSchoolLeaderboard(id);
     }
 
     @PutMapping("/{id}/my-displayname")

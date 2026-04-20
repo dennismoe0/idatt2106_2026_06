@@ -3,11 +3,13 @@ package no.ntnu.idatt2106.nettdetektivene.service;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.CreateClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.SchoolLeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.entity.Classroom;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
 import no.ntnu.idatt2106.nettdetektivene.entity.School;
 import no.ntnu.idatt2106.nettdetektivene.entity.User;
+import no.ntnu.idatt2106.nettdetektivene.repository.SchoolLeaderboardRow;
 import no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException;
 import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomRepository;
@@ -144,6 +146,49 @@ class ClassroomServiceTest {
 
         assertThatThrownBy(() -> classroomService.deleteClassroom(1L, 10L))
             .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void getSchoolLeaderboard_returnsAllStudentsAcrossSchoolClassrooms() {
+        School school = school(5L);
+
+        Classroom c10 = classroom(10L, "Klasse A");
+        c10.setSchool(school);
+        Classroom c20 = classroom(20L, "Klasse B");
+        c20.setSchool(school);
+
+        when(classroomRepository.findById(10L)).thenReturn(Optional.of(c10));
+        when(classroomRepository.findBySchool_Id(5L)).thenReturn(List.of(c10, c20));
+        when(taskRepository.count()).thenReturn(7L);
+
+        SchoolLeaderboardRow row1 = mockSchoolRow("Alice", 10L, "Klasse A", 5L);
+        SchoolLeaderboardRow row2 = mockSchoolRow("Bob",   20L, "Klasse B", 3L);
+        when(classroomStudentRepository.getSchoolLeaderboard(List.of(10L, 20L)))
+            .thenReturn(List.of(row1, row2));
+
+        List<SchoolLeaderboardEntryDto> result = classroomService.getSchoolLeaderboard(10L);
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).displayName()).isEqualTo("Alice");
+        assertThat(result.get(0).classroomName()).isEqualTo("Klasse A");
+        assertThat(result.get(1).classroomName()).isEqualTo("Klasse B");
+    }
+
+    @Test
+    void getSchoolLeaderboard_fallsBackToSingleClassroom_whenNoSchool() {
+        Classroom c10 = classroom(10L, "Klasse A");
+        c10.setSchool(null);
+        when(classroomRepository.findById(10L)).thenReturn(Optional.of(c10));
+        when(taskRepository.count()).thenReturn(7L);
+
+        SchoolLeaderboardRow row = mockSchoolRow("Alice", 10L, "Klasse A", 5L);
+        when(classroomStudentRepository.getSchoolLeaderboard(List.of(10L)))
+            .thenReturn(List.of(row));
+
+        List<SchoolLeaderboardEntryDto> result = classroomService.getSchoolLeaderboard(10L);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).displayName()).isEqualTo("Alice");
     }
 
     @Test
@@ -318,5 +363,14 @@ class ClassroomServiceTest {
         classroomStudent.setDisplayName("Agent Nora");
         classroomStudent.setStatus(status);
         return classroomStudent;
+    }
+
+    private SchoolLeaderboardRow mockSchoolRow(String name, Long classroomId, String classroomName, Long completed) {
+        return new SchoolLeaderboardRow() {
+            public String getDisplayName()   { return name; }
+            public Long getClassroomId()     { return classroomId; }
+            public String getClassroomName() { return classroomName; }
+            public Long getCompletedTasks()  { return completed; }
+        };
     }
 }

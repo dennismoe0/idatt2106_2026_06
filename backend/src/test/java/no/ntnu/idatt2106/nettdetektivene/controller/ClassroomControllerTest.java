@@ -223,6 +223,22 @@ class ClassroomControllerTest {
     }
 
     @Test
+    void getSchoolLeaderboard_returns200WithEntries() throws Exception {
+        User teacher = saveUser("teacher-sl@test.no", User.Role.TEACHER);
+        User student = saveUser("student-sl@test.no", User.Role.STUDENT);
+        Classroom classroom = saveClassroomForTeacher(teacher, "SchoolLB");
+        saveClassroomStudent(classroom, student, "Elev Hansen", ClassroomStudentStatus.APPROVED);
+
+        String token = tokenFor(student);
+        mockMvc.perform(get("/api/classrooms/" + classroom.getId() + "/school-leaderboard")
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].displayName").value("Elev Hansen"))
+            .andExpect(jsonPath("$[0].classroomName").value("SchoolLB"))
+            .andExpect(jsonPath("$[0].classroomId").value(classroom.getId()));
+    }
+
+    @Test
     void deleteClassroom_returns404_forNonOwner() throws Exception {
         User owner = saveUser("owner-del@test.no", User.Role.TEACHER);
         User other = saveUser("other-del@test.no", User.Role.TEACHER);

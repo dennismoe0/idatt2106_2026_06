@@ -42,13 +42,30 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
         FROM classroom_students cs
         LEFT JOIN student_progress sp
             ON sp.student_id = cs.student_id
-            AND sp.completed = 1
+            AND sp.completed = true
         WHERE cs.classroom_id = :classroomId
           AND cs.status = 'APPROVED'
         GROUP BY cs.student_id, cs.display_name
         ORDER BY completedTasks DESC, cs.display_name ASC
         """, nativeQuery = true)
     List<LeaderboardRow> getLeaderboard(@Param("classroomId") Long classroomId);
+
+    @Query(value = """
+        SELECT cs.display_name       AS displayName,
+               c.id                  AS classroomId,
+               c.name                AS classroomName,
+               COUNT(sp.id)          AS completedTasks
+        FROM classroom_students cs
+        JOIN classrooms c ON c.id = cs.classroom_id
+        LEFT JOIN student_progress sp
+            ON sp.student_id = cs.student_id
+            AND sp.completed = true
+        WHERE cs.classroom_id IN :classroomIds
+          AND cs.status = 'APPROVED'
+        GROUP BY cs.student_id, cs.display_name, c.id, c.name
+        ORDER BY completedTasks DESC, cs.display_name ASC
+        """, nativeQuery = true)
+    List<SchoolLeaderboardRow> getSchoolLeaderboard(@Param("classroomIds") List<Long> classroomIds);
 
     @Query("""
         select count(cs) > 0
