@@ -106,14 +106,17 @@ onMounted(async () => {
     gameStore.prepareStarAnimation(newStarsEarned.value)
   }
 
+  // Reveal stars sequentially
   for (let i = 0; i < props.tasks.length; i++) {
     await wait(i === 0 ? 350 : 180)
     visibleStars.value = new Set([...visibleStars.value, i])
   }
 
+  // Animate XP counter
   await wait(250)
   animateXp(totalXpEarned.value)
 
+  // Fly gold stars to the HUD counter
   if (newStarsEarned.value > 0) {
     await wait(200)
     flyGoldStars()
@@ -160,6 +163,7 @@ function flyGoldStars() {
       })
       document.body.appendChild(clone)
 
+      // Two rAF frames to ensure browser has painted before transitioning
       requestAnimationFrame(() => requestAnimationFrame(() => {
         const dx = (targetRect.left + targetRect.width  / 2) - (sourceRect.left + sourceRect.width  / 2)
         const dy = (targetRect.top  + targetRect.height / 2) - (sourceRect.top  + sourceRect.height / 2)
@@ -235,7 +239,7 @@ function flyGoldStars() {
 }
 .summary-score strong { color: var(--color-primary); }
 
-.summary-stars-row {
+/* ── Stars row ── */.summary-stars-row {
   display: flex;
   justify-content: center;
   gap: var(--space-3);
@@ -261,7 +265,7 @@ function flyGoldStars() {
   filter: drop-shadow(0 0 6px rgba(245, 166, 35, 0.6));
 }
 
-.summary-xp {
+/* ── XP counter ── */.summary-xp {
   font-size: var(--text-xl);
   font-weight: var(--font-bold);
   color: var(--color-primary);
@@ -275,14 +279,14 @@ function flyGoldStars() {
 .xp-pop-enter-from   { opacity: 0; transform: translateY(8px) scale(0.85); }
 .xp-pop-leave-to     { opacity: 0; }
 
-.summary-msg {
+/* ── Message ── */.summary-msg {
   font-size: var(--text-sm);
   margin: 0 0 var(--space-6);
 }
 .summary-msg--perfect  { color: var(--color-success); }
 .summary-msg--partial  { color: var(--color-text-muted); }
 
-.summary-actions {
+/* ── Actions ── */.summary-actions {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);

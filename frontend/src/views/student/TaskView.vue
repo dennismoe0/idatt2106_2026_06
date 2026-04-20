@@ -262,7 +262,6 @@ onBeforeUnmount(() => {
 })
 
 function goNext() {
-  // Archive the current result into history before clearing
   if (result.value && currentTask.value) {
     taskResults.value[currentTask.value.id] = result.value
   }

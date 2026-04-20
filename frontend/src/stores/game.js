@@ -12,7 +12,7 @@ export const useGameStore = defineStore('game', () => {
   const level = ref(0)
   const xp = ref(0)
   const starBalance = ref(0)
-  const displayStarBalance = ref(null)
+  const displayStarBalance = ref(null) // null = show real balance; number = animating
 
   async function fetchStops(classroomId) {
     console.log('[game] Fetching stops for classroom:', classroomId)

@@ -5,6 +5,7 @@ import no.ntnu.idatt2106.nettdetektivene.security.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -41,6 +42,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/avatars/**").hasRole("STUDENT")
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
+            )
+            .exceptionHandling(e -> e
+                .authenticationEntryPoint((req, res, ex) ->
+                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .headers(h -> h
