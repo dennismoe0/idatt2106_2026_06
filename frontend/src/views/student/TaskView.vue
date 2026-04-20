@@ -1,6 +1,16 @@
 <template>
   <main class="task-view">
-    <StudentHeader title="Oppgaver" :back-to="{ name: 'Map' }" />
+    <StudentHeader title="Oppgaver" :back-to="{ name: preferredMap }" />
+
+    <StopSummary
+      v-if="showSummary"
+      :tasks="tasks"
+      :task-results="taskResults"
+      @retry="handleRetry"
+      @back-to-map="goToMap"
+    />
+
+    <template v-else>
     <p v-if="isMockMode" class="mock-badge">Mock mode aktiv (backend/store ikke klar)</p>
 
     <p v-if="loading">Laster oppgaver...</p>
@@ -48,6 +58,7 @@
         Ukjent taskType: {{ currentTask.taskType }}
       </p>
     </section>
+    </template>
 
     <ConfettiOverlay :active="confettiMode" />
     <MedalToast :medal="medalToast" />
@@ -64,6 +75,7 @@ import FakeNewsTask from '@/components/student/FakeNewsTask.vue'
 import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
 import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
 import MedalToast from '@/components/common/MedalToast.vue'
+import StopSummary from '@/components/student/StopSummary.vue'
 import { useSound } from '@/composables/useSound'
 
 const { playCorrect, playWrong, playFanfare } = useSound()
@@ -83,8 +95,11 @@ const isMockMode = ref(false)
 // 'correct' = per-answer burst, 'stop' = big stop-completion blast, false = off
 const confettiMode = ref(false)
 const medalToast = ref(null)
+const showSummary = ref(false)
 let confettiTimer = null
 let medalTimer = null
+
+const preferredMap = localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap'
 
 const stopId = computed(() => Number(route.query.stopId ?? 0) || null)
 const classroomId = computed(() => {
@@ -255,12 +270,22 @@ function goNext() {
     console.log('[TaskView] Advancing to task', currentTaskIndex.value + 1, 'of', tasks.value.length)
     return
   }
-  console.log('[TaskView] All tasks done — navigating to map')
-  goToMap()
+  console.log('[TaskView] All tasks done — showing summary')
+  showSummary.value = true
+}
+
+function handleRetry() {
+  showSummary.value = false
+  currentTaskIndex.value = 0
+  result.value = null
+  taskResults.value = {}
+  console.log('[TaskView] Retrying stop')
 }
 
 function goToMap() {
-  router.push({ name: 'Map' })
+  const pref = localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap'
+  console.log('[TaskView] Returning to map — preference:', pref)
+  router.push({ name: pref })
 }
 </script>
 

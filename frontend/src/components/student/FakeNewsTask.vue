@@ -57,7 +57,7 @@
         </p>
         <div class="inline-result__actions">
           <button class="next-btn" @click="$emit('next')">
-            {{ isLastTask ? 'Tilbake til kart 🗺️' : 'Neste oppgave →' }}
+            {{ isLastTask ? 'Se oppsummering →' : 'Neste oppgave →' }}
           </button>
         </div>
       </div>

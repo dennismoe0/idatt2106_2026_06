@@ -4,7 +4,7 @@
     <!-- Portrait guard: shown when height > width -->
     <div v-if="isPortrait" class="world-map-view__portrait-guard" role="alert" aria-live="assertive">
       <span class="world-map-view__rotate-icon" aria-hidden="true">↻</span>
-      <p>Roter enheten til liggende modus for å spille</p>
+      <p>Roter enheten til liggende modus, eller utvid nettleservinduet ditt, for å spille</p>
     </div>
 
     <template v-else>
@@ -22,6 +22,16 @@
           @node-click="handleNodeClick"
         />
       </div>
+
+      <!-- Back button top-left, outside scaled canvas -->
+      <button class="world-map-view__back-btn" @click="router.push({ name: 'Home' })" aria-label="Tilbake til hjemmesiden">
+        ← Tilbake
+      </button>
+
+      <!-- Map toggle top-left below back button -->
+      <button class="world-map-view__map-toggle" @click="switchToSimpleMap" aria-label="Bytt til enkel kartvisning">
+        Enkel visning
+      </button>
 
       <!-- HUD floats in top-right, outside scaled canvas -->
       <PlayerHud class="world-map-view__hud" />
@@ -112,6 +122,11 @@ function handleNodeClick(index, stop) {
   walkTo(index)
 }
 
+function switchToSimpleMap() {
+  localStorage.setItem('mapView', 'simple')
+  router.push({ name: 'Map' })
+}
+
 function handleEnter() {
   if (!currentStop.value || currentStop.value.locked) return
   console.log('[WorldMapView] Entering stop:', currentStop.value.id, currentStop.value.name)
@@ -125,6 +140,7 @@ function handleEnter() {
 }
 
 onMounted(async () => {
+  localStorage.setItem('mapView', 'world')
   checkOrientation()
   window.addEventListener('resize', checkOrientation)
 
@@ -235,6 +251,57 @@ onUnmounted(() => {
   color: #ff6b6b;
   text-align: center;
   font-size: 1rem;
+}
+
+/* ---- Back button ---- */
+.world-map-view__back-btn {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.world-map-view__back-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+.world-map-view__back-btn:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
+/* ---- Map toggle ---- */
+.world-map-view__map-toggle {
+  position: fixed;
+  top: 3.5rem;
+  left: 1rem;
+  z-index: 100;
+  padding: 0.4rem 0.875rem;
+  background: rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+.world-map-view__map-toggle:hover {
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+}
+.world-map-view__map-toggle:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
 }
 
 /* ---- HUD overlay ---- */

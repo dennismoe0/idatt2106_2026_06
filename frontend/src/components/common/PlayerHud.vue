@@ -10,22 +10,29 @@
       <span class="player-hud__value">{{ xp }} XP</span>
     </span>
 
-    <span class="player-hud__item player-hud__stars" :title="`${starBalance} stjerner`">
+    <span id="player-hud-stars" class="player-hud__item player-hud__stars" :title="`${displayBalance} stjerner`">
       <span class="player-hud__icon" aria-hidden="true">⭐</span>
-      <span class="player-hud__value">{{ starBalance }}</span>
+      <span class="player-hud__value player-hud__star-value" :class="{ 'player-hud__star-value--bump': bumping }">{{ displayBalance }}</span>
     </span>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useGameStore } from '@/stores/game'
 
 const gameStore = useGameStore()
 
-const level       = computed(() => gameStore.level)
-const xp          = computed(() => gameStore.xp)
-const starBalance = computed(() => gameStore.starBalance)
+const level          = computed(() => gameStore.level)
+const xp             = computed(() => gameStore.xp)
+const starBalance    = computed(() => gameStore.starBalance)
+const displayBalance = computed(() => gameStore.displayStarBalance ?? gameStore.starBalance)
+
+const bumping = ref(false)
+watch(displayBalance, () => {
+  bumping.value = true
+  setTimeout(() => { bumping.value = false }, 300)
+})
 
 onMounted(async () => {
   try {
@@ -60,5 +67,13 @@ onMounted(async () => {
 
 .player-hud__value {
   color: var(--color-primary);
+}
+
+.player-hud__star-value {
+  transition: transform 0.15s, color 0.15s;
+}
+.player-hud__star-value--bump {
+  transform: scale(1.5);
+  color: #f5a623;
 }
 </style>

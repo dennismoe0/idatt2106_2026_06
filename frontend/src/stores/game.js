@@ -12,6 +12,7 @@ export const useGameStore = defineStore('game', () => {
   const level = ref(0)
   const xp = ref(0)
   const starBalance = ref(0)
+  const displayStarBalance = ref(null)
 
   async function fetchStops(classroomId) {
     console.log('[game] Fetching stops for classroom:', classroomId)
@@ -144,11 +145,26 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  function prepareStarAnimation(earnedCount) {
+    displayStarBalance.value = starBalance.value - earnedCount
+    console.log('[game] Star animation prepared — display starts at:', displayStarBalance.value)
+  }
+
+  function incrementDisplayStar() {
+    if (displayStarBalance.value === null) return
+    displayStarBalance.value++
+    if (displayStarBalance.value >= starBalance.value) {
+      displayStarBalance.value = null
+    }
+    console.log('[game] Display star incremented to:', displayStarBalance.value ?? starBalance.value)
+  }
+
   return {
     stops, tasks, currentTask, progress, medals, leaderboard,
-    level, xp, starBalance,
+    level, xp, starBalance, displayStarBalance,
     fetchStops, fetchTasks, fetchTask, submitAnswer, fetchProgress,
     fetchMedals, fetchAllMedals, fetchLeaderboard,
-    fetchProfile, claimWeeklyXp
+    fetchProfile, claimWeeklyXp,
+    prepareStarAnimation, incrementDisplayStar
   }
 })
