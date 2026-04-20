@@ -123,6 +123,30 @@ class ClassroomServiceTest {
     }
 
     @Test
+    void deleteClassroom_setsIsActiveFalse() {
+        Classroom classroom = classroom(10L, "7A");
+        when(classroomRepository.findById(10L)).thenReturn(Optional.of(classroom));
+        when(classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(10L, 1L)).thenReturn(true);
+        when(classroomRepository.existsById(10L)).thenReturn(true);
+
+        classroomService.deleteClassroom(1L, 10L);
+
+        ArgumentCaptor<Classroom> captor = ArgumentCaptor.forClass(Classroom.class);
+        verify(classroomRepository).save(captor.capture());
+        assertThat(captor.getValue().isActive()).isFalse();
+    }
+
+    @Test
+    void deleteClassroom_throws_whenTeacherDoesNotOwnClassroom() {
+        when(classroomRepository.findById(10L)).thenReturn(Optional.of(classroom(10L, "7A")));
+        when(classroomRepository.existsById(10L)).thenReturn(true);
+        when(classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(10L, 1L)).thenReturn(false);
+
+        assertThatThrownBy(() -> classroomService.deleteClassroom(1L, 10L))
+            .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
     void joinClassroom_invalidCode_throws() {
         when(classroomRepository.findByJoinCode("bad-code")).thenReturn(Optional.empty());
 
@@ -274,7 +298,17 @@ class ClassroomServiceTest {
         classroom.setId(id);
         classroom.setName("5A");
         classroom.setJoinCode("fjord-tiger");
+        classroom.setActive(true);
         return classroom;
+    }
+
+    private Classroom classroom(Long id, String name) {
+        Classroom c = new Classroom();
+        c.setId(id);
+        c.setName(name);
+        c.setJoinCode("test-code");
+        c.setActive(true);
+        return c;
     }
 
     private ClassroomStudent classroomStudent(Classroom classroom, User student, ClassroomStudentStatus status) {
