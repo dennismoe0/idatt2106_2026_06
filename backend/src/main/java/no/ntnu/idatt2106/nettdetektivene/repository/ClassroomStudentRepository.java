@@ -30,6 +30,12 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
         @Param("status") ClassroomStudentStatus status
     );
 
+    @Query("select cs from ClassroomStudent cs where cs.student.id = :studentId and cs.status <> :status")
+    Optional<ClassroomStudent> findByStudentIdAndStatusNot(
+        @Param("studentId") Long studentId,
+        @Param("status") ClassroomStudentStatus status
+    );
+
     @Query(value = """
         SELECT cs.display_name AS displayName,
                COUNT(sp.id)    AS completedTasks

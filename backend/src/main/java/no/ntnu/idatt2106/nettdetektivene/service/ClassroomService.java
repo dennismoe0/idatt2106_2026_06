@@ -195,7 +195,7 @@ public class ClassroomService {
     public Optional<StudentInClassroomResponse> getMyClassroom(Long studentId) {
         log.info("[ClassroomService] getMyClassroom studentId={}", studentId);
         return classroomStudentRepository
-            .findByStudentIdAndStatus(studentId, ClassroomStudentStatus.APPROVED)
+            .findByStudentIdAndStatusNot(studentId, ClassroomStudentStatus.KICKED)
             .map(this::toStudentResponse);
     }
 

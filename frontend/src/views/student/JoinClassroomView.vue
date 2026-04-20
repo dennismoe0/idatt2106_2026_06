@@ -58,13 +58,24 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { useClassroomStore } from '@/stores/classroom'
 
 const router = useRouter()
 const classroomStore = useClassroomStore()
+
+onMounted(() => {
+  if (!classroomStore.currentClassroomId) return
+  if (classroomStore.approvalStatus === 'APPROVED') {
+    console.log('[JoinClassroomView] Already approved member — redirecting to Home')
+    router.replace({ name: 'Home' })
+  } else if (classroomStore.approvalStatus === 'PENDING') {
+    console.log('[JoinClassroomView] Already pending — redirecting to WaitingRoom')
+    router.replace({ name: 'WaitingRoom' })
+  }
+})
 
 const form = reactive({
   code: '',
