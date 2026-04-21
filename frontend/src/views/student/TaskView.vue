@@ -98,6 +98,14 @@
                 @next="goNext"
               />
 
+              <FinalBossTask
+                v-else-if="currentTask.taskType === 'FINAL_BOSS'"
+                :task="currentTask"
+                :result="result"
+                @submitted="handleSubmit"
+                @next="goNext"
+              />
+
               <p v-else class="task-view__state task-view__state--error">
                 Ukjent taskType: {{ currentTask.taskType }}
               </p>
@@ -107,6 +115,15 @@
       </template>
     </div>
 
+    <ClueRevealModal
+      v-if="showClueModal"
+      :clue-text="result?.clueText"
+      @close="handleClueModalClosed"
+    />
+    <SuspectLineup
+      v-if="showSuspectLineup"
+      @chosen="handleSuspectChosen"
+    />
     <ConfettiOverlay :active="confettiMode" />
     <MedalToast :medal="medalToast" />
   </div>
@@ -123,6 +140,9 @@ import TutorialScreen from '@/components/student/TutorialScreen.vue'
 import FakeNewsTask from '@/components/student/FakeNewsTask.vue'
 import MarketplaceTask from '@/components/student/MarketplaceTask.vue'
 import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
+import FinalBossTask from '@/components/student/FinalBossTask.vue'
+import ClueRevealModal from '@/components/student/ClueRevealModal.vue'
+import SuspectLineup from '@/components/student/SuspectLineup.vue'
 import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
 import MedalToast from '@/components/common/MedalToast.vue'
 import StopSummary from '@/components/student/StopSummary.vue'
@@ -148,6 +168,8 @@ const error            = ref('')
 const isMockMode       = ref(false)
 const confettiMode     = ref(false)
 const medalToast       = ref(null)
+const showClueModal    = ref(false)
+const showSuspectLineup = ref(false)
 const showSummary      = ref(false)
 const showTutorial     = ref(false)
 let confettiTimer = null
@@ -436,6 +458,20 @@ function handleCelebration(submitResult) {
     clearTimeout(medalTimer)
     medalTimer = setTimeout(() => { medalToast.value = null }, 4000)
   }
+  if (submitResult?.stopCompleted) {
+    if (submitResult.showSuspectReveal) {
+      setTimeout(() => { showSuspectLineup.value = true }, 1200)
+    } else if (submitResult.clueText) {
+      setTimeout(() => { showClueModal.value = true }, 1200)
+    }
+  }
+}
+
+function handleClueModalClosed() {
+  showClueModal.value = false
+}
+function handleSuspectChosen() {
+  showSuspectLineup.value = false
 }
 
 onBeforeUnmount(() => {

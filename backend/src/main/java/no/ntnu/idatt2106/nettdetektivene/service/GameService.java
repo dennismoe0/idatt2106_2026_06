@@ -148,7 +148,9 @@ public class GameService {
                 0,
                 0,
                 List.of(),
-                null
+                null,
+                null,
+                false
             );
         }
 
@@ -158,7 +160,7 @@ public class GameService {
                 ? correctClueIdsFor(task) : List.of();
             Integer correctArticleIndex = task.getTaskType() == TaskType.FAKE_NEWS
                 ? fakeNewsCorrectIndex(task) : null;
-            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, correctArticleIndex);
+            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, correctArticleIndex, null, false);
         }
 
         StudentProgress progress = existingProgress.orElseGet(StudentProgress::new);
@@ -202,7 +204,19 @@ public class GameService {
 
         List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
             ? correctClueIdsFor(task) : List.of();
-        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 1, xpEarned, correctClueIds, null);
+
+        String clueText = null;
+        boolean showSuspectReveal = false;
+        if (stopCompleted) {
+            Stop completedStop = task.getStop();
+            if (completedStop.getOrderIndex() == 4) {
+                showSuspectReveal = true;
+            } else {
+                clueText = completedStop.getClueText();
+            }
+        }
+
+        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 1, xpEarned, correctClueIds, null, clueText, showSuspectReveal);
     }
 
     @Transactional(readOnly = true)
@@ -316,6 +330,15 @@ public class GameService {
             if (task.getTaskType() == TaskType.PHISHING_EMAIL) {
                 return checkPhishingEmailAnswer(correctAnswer, answer);
             }
+            if (task.getTaskType() == TaskType.FINAL_BOSS) {
+                return checkFinalBossAnswer(correctAnswer, answer);
+            }
+            if (task.getTaskType() == TaskType.AI_PHOTO
+                    || task.getTaskType() == TaskType.MARKETPLACE
+                    || task.getTaskType() == TaskType.SOCIAL_MEDIA
+                    || task.getTaskType() == TaskType.PASSWORD) {
+                return checkChallengeAnswer(correctAnswer, answer);
+            }
             return false;
         } catch (JsonProcessingException exception) {
             log.error("[GameService] failed to parse correct answer JSON taskId={}", task.getId(), exception);
@@ -337,6 +360,58 @@ public class GameService {
 
     private boolean checkPhishingEmailAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
         return PhishingAnswerChecker.check(correctAnswer, answer);
+    }
+
+    private boolean checkFinalBossAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
+        for (int i = 0; i < 6; i++) {
+            String key = "challenge_" + i;
+            JsonNode challengeCorrect = correctAnswer.path(key);
+            if (challengeCorrect.isMissingNode()) {
+                log.warn("[GameService] FINAL_BOSS correctAnswer missing key: {}", key);
+                return false;
+            }
+            Object raw = answer.get(key);
+            if (raw == null) {
+                log.warn("[GameService] FINAL_BOSS submitted answer missing key: {}", key);
+                return false;
+            }
+            @SuppressWarnings("unchecked")
+            Map<String, Object> challengeAnswer = (Map<String, Object>) raw;
+            if (!checkChallengeAnswer(challengeCorrect, challengeAnswer)) {
+                log.info("[GameService] FINAL_BOSS challenge {} incorrect", i);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkChallengeAnswer(JsonNode correct, Map<String, Object> answer) {
+        if (!correct.path("action").isMissingNode()) {
+            return checkPhishingEmailAnswer(correct, answer);
+        }
+        if (!correct.path("selected").isMissingNode()) {
+            Object submitted = answer.get("selected");
+            if (submitted == null) return false;
+            return correct.path("selected").asText().equalsIgnoreCase(String.valueOf(submitted));
+        }
+        if (correct.fieldNames().hasNext()) {
+            String firstKey = correct.fieldNames().next();
+            if (firstKey.startsWith("article_")) return checkFakeNewsAnswer(correct, answer);
+            if (firstKey.startsWith("image_"))   return checkAiPhotoAnswer(correct, answer);
+        }
+        log.warn("[GameService] checkChallengeAnswer: unrecognised correct answer shape");
+        return false;
+    }
+
+    private boolean checkAiPhotoAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
+        Iterator<Map.Entry<String, JsonNode>> fields = correctAnswer.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            Object submitted = answer.get(field.getKey());
+            if (submitted == null) return false;
+            if (!field.getValue().asText().equalsIgnoreCase(String.valueOf(submitted))) return false;
+        }
+        return true;
     }
 
     private Integer fakeNewsCorrectIndex(Task task) {
