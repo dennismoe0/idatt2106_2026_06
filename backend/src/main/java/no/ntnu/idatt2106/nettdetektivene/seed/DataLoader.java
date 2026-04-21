@@ -378,7 +378,8 @@ public class DataLoader implements ApplicationRunner {
                   "explanation": "Domenet er ukjent og betalingsmåten (Western Union/gavekort) er klassiske svindeltegn."
                 }
                 """,
-                "{\"correctElementIds\": [\"domain\", \"payment\"]}"),
+                "{\"correctElementIds\": [\"domain\", \"payment\"]}",
+                "Sjekk URL, priser, kontaktinfo og betalingsvalg nøye."),
             marketplaceTask(marketStop, 3, "Elektronikksvindel", "Klikk på de delene av nettstedet som virker mistenkelige.",
                 """
                 {
@@ -404,7 +405,8 @@ public class DataLoader implements ApplicationRunner {
                   "explanation": "Domenet er ukjent og det mangler kontaktinformasjon — to alvorlige varseltegn."
                 }
                 """,
-                "{\"correctElementIds\": [\"domain\", \"contact\"]}"),
+                "{\"correctElementIds\": [\"domain\", \"contact\"]}",
+                "Mangler kontaktinfo og ukjent domene er alvorlige varseltegn."),
             marketplaceTask(marketStop, 4, "Er dette trygt?", "Sjekk nøye — er noe mistenkelig her?",
                 """
                 {
@@ -429,7 +431,8 @@ public class DataLoader implements ApplicationRunner {
                   "explanation": "Dette er en legitim nettbutikk. Det riktige svaret var å ikke flagge noe — noen ganger er alt trygt!"
                 }
                 """,
-                "{\"correctElementIds\": []}"),
+                "{\"correctElementIds\": []}",
+                "Les alt nøye — noen ganger er alt trygt og du skal ikke flagge noe."),
             socialMediaTask(socialStop, 2, "Del eller vent?", "Velg riktig handling.",
                 """
                 {
