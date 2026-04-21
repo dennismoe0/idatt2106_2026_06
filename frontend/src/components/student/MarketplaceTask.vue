@@ -1,6 +1,6 @@
 <template>
   <section class="task-card">
-    <h2>Markedsplassen</h2>
+    <h2>{{ task.stop?.name ?? 'Markedsplassen' }}</h2>
     <p class="guidance">{{ task.guidanceText }}</p>
 
     <template v-if="taskSubtype === 'IDENTIFY'">
@@ -218,7 +218,13 @@ function submit() {
 }
 
 function normalizeSubtype(type) {
-  return String(type ?? 'IDENTIFY').toUpperCase() === 'RANK' ? 'RANK' : 'IDENTIFY'
+  const upper = String(type ?? 'IDENTIFY').toUpperCase()
+
+  if (upper !== 'IDENTIFY' && upper !== 'RANK') {
+    console.warn('[MarketplaceTask] Unknown task subtype:', type, '— defaulting to IDENTIFY')
+  }
+
+  return upper === 'RANK' ? 'RANK' : 'IDENTIFY'
 }
 
 function normalizeRenderMode(renderMode) {

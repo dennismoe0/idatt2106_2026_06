@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import MarketplaceTask from '@/components/student/MarketplaceTask.vue'
 
@@ -79,12 +79,50 @@ describe('MarketplaceTask', () => {
     expect(wrapper.emitted('submitted')[0][0]).toEqual({ selected: 'cheap' })
   })
 
+  it('resets selected state when task id changes', async () => {
+    const wrapper = mount(MarketplaceTask, { props: { task: IDENTIFY_TASK } })
+
+    await wrapper.findAll('.option-btn')[0].trigger('click')
+    expect(wrapper.findAll('.option-btn')[0].classes()).toContain('option-btn--selected')
+
+    await wrapper.setProps({
+      task: {
+        ...IDENTIFY_TASK,
+        id: 99,
+      }
+    })
+
+    expect(wrapper.findAll('.option-btn')[0].classes()).not.toContain('option-btn--selected')
+    expect(wrapper.find('.submit-btn').attributes('disabled')).toBeDefined()
+  })
+
   it('defaults identify preview to image mode unless renderMode is html', () => {
     const imageWrapper = mount(MarketplaceTask, { props: { task: IDENTIFY_TASK } })
     const htmlWrapper = mount(MarketplaceTask, { props: { task: IDENTIFY_HTML_TASK } })
 
     expect(imageWrapper.find('.site-preview__mockup').exists()).toBe(false)
     expect(htmlWrapper.find('.site-preview__mockup').exists()).toBe(true)
+  })
+
+  it('warns when subtype is unknown and falls back to identify', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    const wrapper = mount(MarketplaceTask, {
+      props: {
+        task: {
+          ...IDENTIFY_TASK,
+          contentJson: {
+            ...IDENTIFY_TASK.contentJson,
+            type: 'RANK_MULTI',
+          }
+        }
+      }
+    })
+
+    expect(warnSpy).toHaveBeenCalled()
+    expect(wrapper.findAll('.option-btn')).toHaveLength(3)
+
+    warnSpy.mockRestore()
   })
 
   it('renders rank sites and emits selected site id', async () => {
@@ -97,5 +135,22 @@ describe('MarketplaceTask', () => {
 
     expect(wrapper.emitted('submitted')).toHaveLength(1)
     expect(wrapper.emitted('submitted')[0][0]).toEqual({ selected: 'site-b' })
+  })
+
+  it('emits next from the result action button', async () => {
+    const wrapper = mount(MarketplaceTask, {
+      props: {
+        task: IDENTIFY_TASK,
+        result: {
+          correct: true,
+          explanation: 'Riktig valg.',
+          stopCompleted: false,
+        }
+      }
+    })
+
+    await wrapper.find('.next-btn').trigger('click')
+
+    expect(wrapper.emitted('next')).toHaveLength(1)
   })
 })
