@@ -33,6 +33,7 @@ import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,6 +64,9 @@ public class GameService {
     private final ObjectMapper objectMapper;
     private final NotebookService notebookService;
     private final StudentXpLogRepository studentXpLogRepository;
+
+    @Value("${app.bypass-stop-lock:false}")
+    private boolean bypassStopLock;
 
     @Transactional(readOnly = true)
     public List<StopResponse> getStops(Long studentId, Long classroomId) {
@@ -257,6 +261,10 @@ public class GameService {
     }
 
     private boolean isStopUnlocked(Long studentId, Long classroomId, Stop stop) {
+        if (bypassStopLock) {
+            log.debug("[GameService] bypassStopLock active — stop {} unlocked unconditionally", stop.getId());
+            return true;
+        }
         if (stop.getOrderIndex() <= 1) {
             return true;
         }
