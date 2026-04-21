@@ -20,6 +20,13 @@ import no.ntnu.idatt2106.nettdetektivene.repository.StudentProgressRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentXpLogRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.AiPhotoTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.FakeNewsTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.MarketplaceTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.PasswordStrengthEvaluator;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.PasswordTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.PhishingEmailTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.SocialMediaTaskAnswerChecker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,7 +77,15 @@ class GameServiceTest {
             classroomRepository,
             new ObjectMapper(),
             notebookService,
-            studentXpLogRepository
+            studentXpLogRepository,
+            List.of(
+                new FakeNewsTaskAnswerChecker(),
+                new PhishingEmailTaskAnswerChecker(),
+                new AiPhotoTaskAnswerChecker(),
+                new MarketplaceTaskAnswerChecker(),
+                new PasswordTaskAnswerChecker(new ObjectMapper(), new PasswordStrengthEvaluator()),
+                new SocialMediaTaskAnswerChecker()
+            )
         );
     }
 
@@ -126,6 +141,9 @@ class GameServiceTest {
         // stop 1 has 0 tasks → isStopComplete returns false → isXpClaimable never called
         when(taskRepository.countByStop_Id(1L)).thenReturn(0L);
         when(taskRepository.countByStop_Id(2L)).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
+            STUDENT_ID, 1L
+        )).thenReturn(0L);
         // 0 of 1 completed → stop 2 not complete
         when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
             STUDENT_ID, 2L
