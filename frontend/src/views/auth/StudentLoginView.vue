@@ -118,14 +118,6 @@ onMounted(() => {
   }
 })
 
-onMounted(() => {
-  if (authStore.isAuthenticated && authStore.isStudent) {
-    console.log('[StudentLoginView] Already logged in as student — redirecting to home')
-    const hasSeenIntro = localStorage.getItem('hasSeenIntro') === 'true'
-    router.replace({ name: hasSeenIntro ? 'Home' : 'Intro' })
-  }
-})
-
 const form = reactive({ username: '' })
 const errors = reactive({ username: '' })
 const serverError = ref('')
