@@ -20,6 +20,13 @@ import no.ntnu.idatt2106.nettdetektivene.repository.StudentProgressRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentXpLogRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.AiPhotoTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.FakeNewsTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.MarketplaceTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.PasswordStrengthEvaluator;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.PasswordTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.PhishingEmailTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.SocialMediaTaskAnswerChecker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,7 +77,15 @@ class GameServiceTest {
             classroomRepository,
             new ObjectMapper(),
             notebookService,
-            studentXpLogRepository
+            studentXpLogRepository,
+            List.of(
+                new FakeNewsTaskAnswerChecker(),
+                new PhishingEmailTaskAnswerChecker(),
+                new AiPhotoTaskAnswerChecker(),
+                new MarketplaceTaskAnswerChecker(),
+                new PasswordTaskAnswerChecker(new ObjectMapper(), new PasswordStrengthEvaluator()),
+                new SocialMediaTaskAnswerChecker()
+            )
         );
     }
 
@@ -126,6 +141,9 @@ class GameServiceTest {
         // stop 1 has 0 tasks → isStopComplete returns false → isXpClaimable never called
         when(taskRepository.countByStop_Id(1L)).thenReturn(0L);
         when(taskRepository.countByStop_Id(2L)).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
+            STUDENT_ID, 1L
+        )).thenReturn(0L);
         // 0 of 1 completed → stop 2 not complete
         when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
             STUDENT_ID, 2L
@@ -320,6 +338,134 @@ class GameServiceTest {
         );
 
         assertThat(response.correct()).isTrue();
+        verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_aiPhoto_checksAllImages() {
+        Stop stop = stop(3L, 1, "Fotografen");
+        Task task = aiPhotoTask(24L, stop);
+        when(taskRepository.findById(24L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 24L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
+        when(taskRepository.countByStop_Id(3L)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 3L)).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            24L,
+            new SubmitAnswerRequest(Map.of("image_0", "AI_GENERATED", "image_1", "REAL"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_socialMedia_chooseAction_checksAction() {
+        Stop stop = stop(6L, 1, "Den sosiale møteplassen");
+        Task task = socialMediaActionTask(25L, stop);
+        when(taskRepository.findById(25L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
+        when(taskRepository.countByStop_Id(6L)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 6L)).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            25L,
+            new SubmitAnswerRequest(Map.of("action", "CHECK_SOURCES"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_socialMedia_identifyWorst_checksSelectedPost() {
+        Stop stop = stop(6L, 1, "Den sosiale møteplassen");
+        Task task = socialMediaWorstTask(26L, stop);
+        when(taskRepository.findById(26L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 26L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
+        when(taskRepository.countByStop_Id(6L)).thenReturn(3L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 6L)).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            26L,
+            new SubmitAnswerRequest(Map.of("selected", "post_1"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_passwordChoice_checksSelectedOption() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task task = passwordChoiceTask(22L, stop);
+        when(taskRepository.findById(22L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 22L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
+        when(taskRepository.countByStop_Id(4L)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 4L)).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            22L,
+            new SubmitAnswerRequest(Map.of("selected", "d"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_passwordBuilder_requiresStrongPassword() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task task = passwordBuilderTask(23L, stop);
+        when(taskRepository.findById(23L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 23L)).thenReturn(Optional.empty());
+
+        var weakResponse = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            23L,
+            new SubmitAnswerRequest(Map.of("password", "abc"))
+        );
+
+        assertThat(weakResponse.correct()).isFalse();
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_passwordBuilder_acceptsStrongPassword() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task task = passwordBuilderTask(23L, stop);
+        when(taskRepository.findById(23L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 23L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
+        when(taskRepository.countByStop_Id(4L)).thenReturn(3L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 4L)).thenReturn(1L);
+
+        var strongResponse = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            23L,
+            new SubmitAnswerRequest(Map.of("password", "Tiger!Måne#42"))
+        );
+
+        assertThat(strongResponse.correct()).isTrue();
         verify(studentProgressRepository).save(any(StudentProgress.class));
     }
 
@@ -519,6 +665,102 @@ class GameServiceTest {
             """);
         task.setCorrectAnswerJson("""
             { "action": "REPORT" }
+            """);
+        return task;
+    }
+
+    private Task aiPhotoTask(Long id, Stop stop) {
+        Task task = task(id, stop, TaskType.AI_PHOTO);
+        task.setContentJson("""
+            {
+              "images": [
+                { "id": "image_0", "src": "", "alt": "Rare fingre", "label": "Bilde A" },
+                { "id": "image_1", "src": "", "alt": "Normalt mobilbilde", "label": "Bilde B" }
+              ],
+              "question": "Sorter hvert bilde",
+              "explanation": "Det første er KI-generert."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            { "image_0": "AI_GENERATED", "image_1": "REAL" }
+            """);
+        return task;
+    }
+
+    private Task socialMediaActionTask(Long id, Stop stop) {
+        Task task = task(id, stop, TaskType.SOCIAL_MEDIA);
+        task.setContentJson("""
+            {
+              "type": "CHOOSE_ACTION",
+              "question": "Hva bør du gjøre?",
+              "options": [
+                { "id": "SHARE", "text": "Del med en gang" },
+                { "id": "CHECK_SOURCES", "text": "Sjekk kilden først" }
+              ],
+              "explanation": "Sjekk kilden først."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            { "action": "CHECK_SOURCES" }
+            """);
+        return task;
+    }
+
+    private Task socialMediaWorstTask(Long id, Stop stop) {
+        Task task = task(id, stop, TaskType.SOCIAL_MEDIA);
+        task.setContentJson("""
+            {
+              "type": "IDENTIFY_WORST",
+              "question": "Hvilket innlegg er mest illegitimt?",
+              "posts": [
+                { "id": "post_0", "content": "Kommunen jobber med saken." },
+                { "id": "post_1", "content": "JEG VET HVEM TYVEN ER!!" }
+              ],
+              "explanation": "Post 1 er mest illegitimt."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            { "selected": "post_1" }
+            """);
+        return task;
+    }
+
+    private Task passwordChoiceTask(Long id, Stop stop) {
+        Task task = task(id, stop, TaskType.PASSWORD);
+        task.setContentJson("""
+            {
+              "type": "CHOICE",
+              "question": "Hvilket passord er tryggest?",
+              "options": [
+                { "id": "a", "value": "Ola123" },
+                { "id": "b", "value": "Emma2014" },
+                { "id": "c", "value": "Katt" },
+                { "id": "d", "value": "F!sk3Taco#92" }
+              ],
+              "explanation": "F!sk3Taco#92 er sterkest."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            { "selected": "d" }
+            """);
+        return task;
+    }
+
+    private Task passwordBuilderTask(Long id, Stop stop) {
+        Task task = task(id, stop, TaskType.PASSWORD);
+        task.setContentJson("""
+            {
+              "type": "BUILDER",
+              "question": "Bygg et sterkt passord",
+              "words": ["Tiger", "Måne", "Pizza"],
+              "symbols": ["!", "#", "@"],
+              "numbers": ["7", "42", "99"],
+              "minStrength": "STRONG",
+              "explanation": "Et sterkt passord er langt og blander tegn."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            { "minStrength": "STRONG" }
             """);
         return task;
     }

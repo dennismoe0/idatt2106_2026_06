@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ClaimXpResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.MedalDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.PlayerProfileDto;
@@ -31,6 +30,7 @@ import no.ntnu.idatt2106.nettdetektivene.repository.StudentProgressRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentXpLogRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.TaskAnswerChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -39,13 +39,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class GameService {
 
     private static final Logger log = LoggerFactory.getLogger(GameService.class);
@@ -63,6 +63,34 @@ public class GameService {
     private final ObjectMapper objectMapper;
     private final NotebookService notebookService;
     private final StudentXpLogRepository studentXpLogRepository;
+    private final Map<TaskType, TaskAnswerChecker> answerCheckers;
+
+    public GameService(
+        StopRepository stopRepository,
+        TaskRepository taskRepository,
+        StudentProgressRepository studentProgressRepository,
+        MedalRepository medalRepository,
+        StudentMedalRepository studentMedalRepository,
+        UserRepository userRepository,
+        ClassroomRepository classroomRepository,
+        ObjectMapper objectMapper,
+        NotebookService notebookService,
+        StudentXpLogRepository studentXpLogRepository,
+        List<TaskAnswerChecker> answerCheckers
+    ) {
+        this.stopRepository = stopRepository;
+        this.taskRepository = taskRepository;
+        this.studentProgressRepository = studentProgressRepository;
+        this.medalRepository = medalRepository;
+        this.studentMedalRepository = studentMedalRepository;
+        this.userRepository = userRepository;
+        this.classroomRepository = classroomRepository;
+        this.objectMapper = objectMapper;
+        this.notebookService = notebookService;
+        this.studentXpLogRepository = studentXpLogRepository;
+        this.answerCheckers = answerCheckers.stream()
+            .collect(Collectors.toUnmodifiableMap(TaskAnswerChecker::supportedTaskType, Function.identity()));
+    }
 
     @Transactional(readOnly = true)
     public List<StopResponse> getStops(Long studentId, Long classroomId) {
@@ -294,52 +322,16 @@ public class GameService {
 
         try {
             JsonNode correctAnswer = objectMapper.readTree(task.getCorrectAnswerJson());
-            if (task.getTaskType() == TaskType.FAKE_NEWS) {
-                return checkFakeNewsAnswer(correctAnswer, answer);
+            TaskAnswerChecker answerChecker = answerCheckers.get(task.getTaskType());
+            if (answerChecker == null) {
+                log.warn("[GameService] no answer checker registered for taskType={}", task.getTaskType());
+                return false;
             }
-            if (task.getTaskType() == TaskType.PHISHING_EMAIL) {
-                return checkPhishingEmailAnswer(correctAnswer, answer);
-            }
-            return false;
+            return answerChecker.isCorrect(task, correctAnswer, answer);
         } catch (JsonProcessingException exception) {
             log.error("[GameService] failed to parse correct answer JSON taskId={}", task.getId(), exception);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Task answer data is invalid");
         }
-    }
-
-    private boolean checkFakeNewsAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
-        Iterator<Map.Entry<String, JsonNode>> fields = correctAnswer.fields();
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            Boolean submitted = asBoolean(answer.get(field.getKey()));
-            if (submitted == null || submitted != field.getValue().asBoolean()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean checkPhishingEmailAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
-        Object submittedAction = answer.get("action");
-        if (submittedAction == null || correctAnswer.path("action").isMissingNode()) {
-            return false;
-        }
-        return correctAnswer.path("action").asText().equalsIgnoreCase(String.valueOf(submittedAction));
-    }
-
-    private Boolean asBoolean(Object value) {
-        if (value instanceof Boolean booleanValue) {
-            return booleanValue;
-        }
-        if (value instanceof String stringValue) {
-            if ("true".equalsIgnoreCase(stringValue)) {
-                return true;
-            }
-            if ("false".equalsIgnoreCase(stringValue)) {
-                return false;
-            }
-        }
-        return null;
     }
 
     private StopResponse toStopResponse(Long studentId, Long classroomId, Stop stop) {
