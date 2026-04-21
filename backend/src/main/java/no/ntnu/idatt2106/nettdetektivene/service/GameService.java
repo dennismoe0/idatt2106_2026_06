@@ -147,7 +147,8 @@ public class GameService {
                 null,
                 0,
                 0,
-                List.of()
+                List.of(),
+                null
             );
         }
 
@@ -155,7 +156,9 @@ public class GameService {
             log.info("[GameService] wrong answer studentId={} taskId={}", studentId, taskId);
             List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
                 ? correctClueIdsFor(task) : List.of();
-            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds);
+            Integer correctArticleIndex = task.getTaskType() == TaskType.FAKE_NEWS
+                ? fakeNewsCorrectIndex(task) : null;
+            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, correctArticleIndex);
         }
 
         StudentProgress progress = existingProgress.orElseGet(StudentProgress::new);
@@ -199,7 +202,7 @@ public class GameService {
 
         List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
             ? correctClueIdsFor(task) : List.of();
-        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 1, xpEarned, correctClueIds);
+        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 1, xpEarned, correctClueIds, null);
     }
 
     @Transactional(readOnly = true)
@@ -334,6 +337,22 @@ public class GameService {
 
     private boolean checkPhishingEmailAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
         return PhishingAnswerChecker.check(correctAnswer, answer);
+    }
+
+    private Integer fakeNewsCorrectIndex(Task task) {
+        try {
+            JsonNode correct = objectMapper.readTree(task.getCorrectAnswerJson());
+            Iterator<Map.Entry<String, JsonNode>> fields = correct.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> entry = fields.next();
+                if (!entry.getValue().asBoolean()) {
+                    return Integer.parseInt(entry.getKey().replace("article_", ""));
+                }
+            }
+        } catch (Exception e) {
+            log.warn("[GameService] Failed to parse correctAnswerJson for fake news index taskId={}", task.getId());
+        }
+        return null;
     }
 
     private List<String> correctClueIdsFor(Task task) {

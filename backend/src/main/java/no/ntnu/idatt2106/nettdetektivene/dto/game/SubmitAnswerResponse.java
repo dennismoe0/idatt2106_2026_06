@@ -10,5 +10,6 @@ public record SubmitAnswerResponse(
     MedalDto medalEarned,
     int starsEarned,
     int xpEarned,
-    List<String> correctClueIds
+    List<String> correctClueIds,
+    Integer correctArticleIndex
 ) {}

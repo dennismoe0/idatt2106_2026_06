@@ -67,7 +67,7 @@ const avatarImage = computed(() => {
   margin: 0;
   font-size: var(--text-xl);
   font-weight: 700;
-  color: #3B1F08;
+  color: var(--color-ink);
   text-align: center;
 }
 
@@ -88,7 +88,7 @@ const avatarImage = computed(() => {
 .tutorial__text {
   margin: 0;
   font-size: var(--text-base);
-  color: #3B1F08;
+  color: var(--color-ink);
   line-height: 1.6;
 }
 

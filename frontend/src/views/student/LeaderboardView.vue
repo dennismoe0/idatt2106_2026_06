@@ -185,8 +185,8 @@ onMounted(load)
 
 /* ── Sections ── */
 .leaderboard-section {
-  background: #FEFCF0;
-  border: 1.5px solid #D4A96A;
+  background: var(--color-note-bg);
+  border: 1.5px solid var(--color-note-border);
   border-radius: 6px;
   padding: var(--space-4);
   box-shadow: 2px 3px 10px rgba(0,0,0,0.25);
@@ -208,7 +208,7 @@ onMounted(load)
 }
 .leaderboard-section__badge {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-text-on-dark);
   border-radius: var(--radius-full);
   padding: 2px var(--space-2);
   font-size: var(--text-xs);
@@ -237,9 +237,9 @@ onMounted(load)
   justify-content: center;
 }
 
-.leaderboard-entry--gold   { border-color: #f59e0b; background: #fffbeb; }
-.leaderboard-entry--silver { border-color: #9ca3af; background: #f9fafb; }
-.leaderboard-entry--bronze { border-color: #b45309; background: #fef3c7; }
+.leaderboard-entry--gold   { border-color: var(--color-medal-gold-border);   background: var(--color-medal-gold-bg); }
+.leaderboard-entry--silver { border-color: var(--color-medal-silver-border); background: var(--color-medal-silver-bg); }
+.leaderboard-entry--bronze { border-color: var(--color-medal-bronze-border); background: var(--color-medal-bronze-bg); }
 .leaderboard-entry--me     { outline: 2px solid var(--color-primary); outline-offset: 1px; }
 
 .leaderboard-entry__rank {

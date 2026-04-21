@@ -39,8 +39,8 @@ h1, h2, h3, h4 { line-height: 1.25; }
 
 /* ── Pinned note card ────────────────────────────────────── */
 .pinned-note {
-  background: #FEFCF0;
-  border: 1.5px solid #D4A96A;
+  background: var(--color-note-bg);
+  border: 1.5px solid var(--color-note-border);
   border-radius: 6px;
   padding: var(--space-4);
   box-shadow: 2px 3px 10px rgba(0,0,0,0.3);

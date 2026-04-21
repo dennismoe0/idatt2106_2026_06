@@ -216,8 +216,8 @@ function submit() {
   flex-shrink: 0;
 }
 
-.phishing-task__sender-name { color: #333; }
-.phishing-task__sender-email { color: #555; font-family: monospace; }
+.phishing-task__sender-name { color: var(--color-ink-body); }
+.phishing-task__sender-email { color: var(--color-ink-subtle); font-family: monospace; }
 
 .phishing-task__subject-row span:last-child {
   font-weight: 600;
@@ -227,14 +227,14 @@ function submit() {
 .phishing-task__body {
   margin: var(--space-2) 0 0;
   line-height: 1.7;
-  color: #333;
+  color: var(--color-ink-body);
 }
 
 /* Clue inline buttons */
 .clue-btn {
   display: inline;
-  background: #FFFBEB;
-  border: 1.5px dashed #DD6B20;
+  background: var(--color-clue-bg);
+  border: 1.5px dashed var(--color-clue-border);
   border-radius: 3px;
   padding: 1px 5px;
   color: inherit;
@@ -243,7 +243,7 @@ function submit() {
   transition: background var(--transition-fast), border-color var(--transition-fast);
 }
 .clue-btn:hover:not(:disabled) {
-  background: #FED7AA;
+  background: var(--color-clue-hover-bg);
   border-style: solid;
 }
 .clue-btn:focus-visible {
@@ -251,21 +251,21 @@ function submit() {
   outline-offset: 2px;
 }
 .clue-btn--flagged {
-  background: #FECACA;
+  background: var(--color-clue-flagged-bg);
   border-color: var(--color-danger);
   border-style: solid;
-  color: #991B1B;
+  color: var(--color-clue-flagged-text);
   font-weight: 600;
 }
 .clue-btn--correct {
-  background: #D1FAE5;
+  background: var(--color-clue-correct-bg);
   border-color: var(--color-success);
   border-style: solid;
-  color: #065F46;
+  color: var(--color-clue-correct-text);
 }
 .clue-btn--missed {
-  background: #FEF9C3;
-  border-color: #CA8A04;
+  background: var(--color-clue-missed-bg);
+  border-color: var(--color-clue-missed-border);
   border-style: solid;
   animation: clue-pulse 0.6s ease-out;
 }
@@ -325,7 +325,7 @@ function submit() {
 .phishing-task__result--correct .phishing-task__result-label { color: var(--color-success); }
 .phishing-task__result--wrong   .phishing-task__result-label { color: var(--color-danger); }
 
-.phishing-task__explanation { margin: 0; font-size: var(--text-sm); color: #3B1F08; line-height: 1.5; }
+.phishing-task__explanation { margin: 0; font-size: var(--text-sm); color: var(--color-ink); line-height: 1.5; }
 .phishing-task__stop-msg { margin: 0; font-weight: 600; color: var(--color-success); }
 
 /* Clue reveal list */
@@ -341,7 +341,7 @@ function submit() {
   display: flex;
   gap: var(--space-2);
   font-size: var(--text-sm);
-  color: #3B1F08;
+  color: var(--color-ink);
   line-height: 1.4;
 }
 .phishing-task__clue-icon--ok     { flex-shrink: 0; }

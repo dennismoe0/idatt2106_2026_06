@@ -83,11 +83,7 @@ watch(() => props.result, (r) => {
 })
 
 function getCorrectIndex(r) {
-  if (!r?.correctAnswer) return null
-  const entries = Object.entries(r.correctAnswer ?? {})
-  const correct = entries.find(([, v]) => v === false)
-  if (!correct) return null
-  return parseInt(correct[0].replace('article_', ''), 10)
+  return r?.correctArticleIndex ?? null
 }
 
 function articleClass(index) {
@@ -155,15 +151,15 @@ function pickCard(index) {
 
 .article-card--chosen {
   border-color: var(--color-wood);
-  background: #FFF8EC;
+  background: var(--color-note-chosen-bg);
 }
 .article-card--correct {
   border-color: var(--color-success);
-  background: #F0FFF4;
+  background: var(--color-note-correct-bg);
 }
 .article-card--wrong {
   border-color: var(--color-danger);
-  background: #FFF5F5;
+  background: var(--color-note-wrong-bg);
 }
 .article-card--muted {
   opacity: 0.55;
@@ -180,13 +176,13 @@ function pickCard(index) {
 .article-card__source {
   margin: 0 0 var(--space-2);
   font-size: var(--text-xs);
-  color: #777;
+  color: var(--color-ink-faint);
   font-style: italic;
 }
 .article-card__body {
   margin: 0;
   font-size: var(--text-sm);
-  color: #555;
+  color: var(--color-ink-subtle);
   line-height: 1.5;
 }
 
@@ -211,7 +207,7 @@ function pickCard(index) {
 .fake-news-task__explanation {
   margin: 0;
   font-size: var(--text-sm);
-  color: #3B1F08;
+  color: var(--color-ink);
   line-height: 1.5;
 }
 
