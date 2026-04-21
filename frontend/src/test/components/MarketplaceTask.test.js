@@ -95,6 +95,23 @@ describe('MarketplaceTask', () => {
     expect(wrapper.text()).toContain('Eksklusive sneakers til 79 kr')
   })
 
+  it('respects explicit renderMode html', () => {
+    const wrapper = mount(MarketplaceTask, {
+      props: {
+        task: {
+          ...IDENTIFY_TASK,
+          id: 8,
+          contentJson: {
+            ...IDENTIFY_TASK.contentJson,
+            renderMode: 'html',
+          }
+        }
+      }
+    })
+
+    expect(wrapper.findComponent(FakeWebshop).exists()).toBe(true)
+  })
+
   it('stays in image mode when an explicit image renderMode is provided', () => {
     const wrapper = mount(MarketplaceTask, {
       props: {
