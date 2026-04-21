@@ -54,6 +54,15 @@
         @back-to-map="goToMap"
       />
 
+      <MarketplaceTask
+        v-else-if="currentTask.taskType === 'MARKETPLACE'"
+        :task="currentTask"
+        :result="result"
+        :is-last-task="currentTaskIndex === tasks.length - 1"
+        @submitted="handleSubmit"
+        @next="goNext"
+      />
+
       <p v-else class="error">
         Ukjent taskType: {{ currentTask.taskType }}
       </p>
@@ -72,6 +81,7 @@ import { useGameStore } from '@/stores/game'
 import { useClassroomStore } from '@/stores/classroom'
 import StudentHeader from '@/components/common/StudentHeader.vue'
 import FakeNewsTask from '@/components/student/FakeNewsTask.vue'
+import MarketplaceTask from '@/components/student/MarketplaceTask.vue'
 import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
 import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
 import MedalToast from '@/components/common/MedalToast.vue'
@@ -148,6 +158,102 @@ const MOCK_TASKS = [
     },
     mockCorrectAnswer: { action: 'REPORT' },
     mockExplanation: 'Avsenderdomenet er ikke dnb.no, derfor bør e-posten rapporteres.'
+  },
+  {
+    id: 5001,
+    stopId: 5,
+    taskType: 'MARKETPLACE',
+    guidanceText: 'Se etter priser, betaling og hastverk før du handler.',
+    contentJson: {
+      type: 'IDENTIFY',
+      siteName: 'sneaker-blitz.shop',
+      question: 'Hva er det tydeligste faresignalet her?',
+      options: [
+        { id: 'cheap', text: 'Prisen er altfor lav sammenlignet med vanlige butikker' },
+        { id: 'colors', text: 'Butikken bruker sterke farger og store overskrifter' },
+        { id: 'shipping', text: 'Nettsiden lover rask levering' }
+      ],
+      mockup: {
+        eyebrow: 'Kun i dag',
+        headline: 'Eksklusive sneakers til 79 kr',
+        tagline: '90 % rabatt og bare noen få minutter igjen.',
+        productName: 'Street Runner X',
+        price: '79 kr',
+        originalPrice: '1 499 kr',
+        ctaText: 'Kjøp nå',
+        badges: ['90 % rabatt', 'Begrenset antall'],
+        notice: 'Betal raskt for å sikre varen din.'
+      }
+    },
+    mockCorrectAnswer: { selected: 'cheap' },
+    mockExplanation: 'Ekstreme rabatter og kunstig hastverk er vanlige faresignaler i nettsvindel.'
+  },
+  {
+    id: 5002,
+    stopId: 5,
+    taskType: 'MARKETPLACE',
+    guidanceText: 'Velg det mest mistenkelige tegnet før du betaler.',
+    contentJson: {
+      type: 'IDENTIFY',
+      siteName: 'tech-deals-market.net',
+      question: 'Hva bør gjøre deg mest skeptisk?',
+      options: [
+        { id: 'giftcard', text: 'Butikken vil bare ha betaling med gavekort eller krypto' },
+        { id: 'sale', text: 'Det står at det er sommersalg' },
+        { id: 'rating', text: 'Produktet har mange stjerner' }
+      ],
+      mockup: {
+        eyebrow: 'Ekspresssalg',
+        headline: 'Spillkonsoll til halv pris',
+        tagline: 'Kun alternative betalingsmåter godtas.',
+        productName: 'PlayBox Ultra',
+        price: '2 199 kr',
+        originalPrice: '4 399 kr',
+        ctaText: 'Betal nå',
+        badges: ['Kun gavekort', 'Ingen refusjon'],
+        notice: 'Kortbetaling er midlertidig utilgjengelig.'
+      }
+    },
+    mockCorrectAnswer: { selected: 'giftcard' },
+    mockExplanation: 'Betaling med gavekort eller krypto er vanskelig å spore og brukes ofte i svindel.'
+  },
+  {
+    id: 5003,
+    stopId: 5,
+    taskType: 'MARKETPLACE',
+    guidanceText: 'Velg nettstedet du ville styrt unna.',
+    contentJson: {
+      type: 'RANK',
+      question: 'Hvilken nettbutikk virker mest sannsynlig å være svindel?',
+      sites: [
+        {
+          id: 'site-a',
+          name: 'friluftshuset.no',
+          badge: 'Kort og Klarna',
+          description: 'Tydelig returinfo og organisasjonsnummer.'
+        },
+        {
+          id: 'site-b',
+          name: 'merkevarer-outlet-fast.com',
+          badge: 'Kun forskuddsbetaling',
+          description: 'Ekstreme rabatter, mangler kontaktinfo og presser deg til å betale raskt.'
+        },
+        {
+          id: 'site-c',
+          name: 'spillsonen.no',
+          badge: 'Kundeservice',
+          description: 'Viser åpningstider, adresse og vanlige betalingsvalg.'
+        },
+        {
+          id: 'site-d',
+          name: 'bokbyen.no',
+          badge: 'Trygg betaling',
+          description: 'Har anmeldelser, leveringsvilkår og kjent domene.'
+        }
+      ]
+    },
+    mockCorrectAnswer: { selected: 'site-b' },
+    mockExplanation: 'Nettbutikken med ekstreme rabatter, dårlig kontaktinfo og forskuddsbetaling er den mest mistenkelige.'
   }
 ]
 
@@ -335,4 +441,3 @@ function goToMap() {
   color: var(--color-danger);
 }
 </style>
-
