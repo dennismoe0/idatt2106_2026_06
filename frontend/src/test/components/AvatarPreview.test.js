@@ -2,43 +2,48 @@ import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import AvatarPreview from '@/components/student/AvatarPreview.vue'
 
+const SEL = {
+  gender: 'female',
+  skinColor: '#D08B5B',
+  hairStyle: 'short',
+  hairColor: '#8B4513',
+  eyeStyle: 'round',
+  eyeColor: '#4a3000',
+  outfit: 'hoodie',
+  outfitColor: '#2563eb',
+  accessory: 'badge',
+}
+
 describe('AvatarPreview', () => {
-  const baseSelections = {
-    gender: 'neutral',
-    eyeColor: 'brown',
-    skinColor: 'medium',
-    hairColor: 'brown',
-    hairStyle: 'short',
-    outfit: 'detective-coat',
-    outfitColor: 'blue',
-    hatColor: 'none',
-    accessory: 'badge',
-  }
-
-  it('renders an avatar image with descriptive alt text', () => {
+  it('renders without errors when given a selections object', () => {
     const wrapper = mount(AvatarPreview, {
-      props: { selections: baseSelections },
+      props: { selections: SEL },
     })
-
-    const image = wrapper.get('img')
-    expect(image.attributes('alt')).toContain('medium')
-    expect(image.attributes('alt')).toContain('hudtone')
-    expect(image.attributes('src')).toContain('adventurer-neutral.svg')
+    expect(wrapper.exists()).toBe(true)
   })
 
-  it('switches to the light SVG when light skin color is selected', async () => {
+  it('passes selections down to AvatarComposer', () => {
     const wrapper = mount(AvatarPreview, {
-      props: { selections: { ...baseSelections, skinColor: 'light' } },
+      props: { selections: SEL },
     })
-
-    expect(wrapper.get('img').attributes('src')).toContain('adventurer-light.svg')
+    const composer = wrapper.findComponent({ name: 'AvatarComposer' })
+    expect(composer.exists()).toBe(true)
+    expect(composer.props('selections')).toEqual(SEL)
   })
 
-  it('switches to the warm SVG when dark skin color is selected', async () => {
+  it('applies the default size of 120 when no size prop is given', () => {
     const wrapper = mount(AvatarPreview, {
-      props: { selections: { ...baseSelections, skinColor: 'dark' } },
+      props: { selections: SEL },
     })
+    const composer = wrapper.findComponent({ name: 'AvatarComposer' })
+    expect(composer.props('size')).toBe(120)
+  })
 
-    expect(wrapper.get('img').attributes('src')).toContain('adventurer-warm.svg')
+  it('forwards a custom size to AvatarComposer', () => {
+    const wrapper = mount(AvatarPreview, {
+      props: { selections: SEL, size: 200 },
+    })
+    const composer = wrapper.findComponent({ name: 'AvatarComposer' })
+    expect(composer.props('size')).toBe(200)
   })
 })

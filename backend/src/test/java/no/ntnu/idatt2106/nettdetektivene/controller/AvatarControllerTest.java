@@ -67,12 +67,13 @@ class AvatarControllerTest {
     void getMyAvatar_returns200WithAvatar() throws Exception {
         when(avatarService.getMyAvatar()).thenReturn(new AvatarResponse(
             "neutral",
-            "brown",
-            "medium",
-            "black",
+            "#4a3000",
+            "round",
+            "#D08B5B",
+            "#8B4513",
             "short",
             "detective-coat",
-            "blue",
+            "#2563eb",
             "none",
             "badge"
         ));
@@ -88,12 +89,13 @@ class AvatarControllerTest {
     void updateMyAvatar_validRequest_returns200WithUpdatedAvatar() throws Exception {
         when(avatarService.updateMyAvatar(any())).thenReturn(new AvatarResponse(
             "female",
-            "green",
-            "medium",
-            "black",
+            "#15803d",
+            "round",
+            "#D08B5B",
+            "#1a1a1a",
             "curly",
             "hoodie",
-            "red",
+            "#2563eb",
             "none",
             "badge"
         ));
@@ -103,20 +105,21 @@ class AvatarControllerTest {
                 .content("""
                     {
                       "gender": "female",
-                      "eyeColor": "green",
-                      "skinColor": "medium",
-                      "hairColor": "black",
+                      "eyeColor": "#15803d",
+                      "eyeStyle": "round",
+                      "skinColor": "#D08B5B",
+                      "hairColor": "#1a1a1a",
                       "hairStyle": "curly",
                       "outfit": "hoodie",
-                      "outfitColor": "red",
+                      "outfitColor": "#2563eb",
                       "hatColor": "none",
                       "accessory": "badge"
                     }
                     """))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.gender").value("female"))
-            .andExpect(jsonPath("$.eyeColor").value("green"))
-            .andExpect(jsonPath("$.outfitColor").value("red"));
+            .andExpect(jsonPath("$.eyeColor").value("#15803d"))
+            .andExpect(jsonPath("$.outfitColor").value("#2563eb"));
     }
 
     @Test
@@ -125,12 +128,12 @@ class AvatarControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
-                      "eyeColor": "green",
-                      "skinColor": "medium",
-                      "hairColor": "black",
+                      "eyeColor": "#15803d",
+                      "skinColor": "#D08B5B",
+                      "hairColor": "#1a1a1a",
                       "hairStyle": "curly",
                       "outfit": "hoodie",
-                      "outfitColor": "red"
+                      "outfitColor": "#dc2626"
                     }
                     """))
             .andExpect(status().isBadRequest());

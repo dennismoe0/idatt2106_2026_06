@@ -55,7 +55,7 @@ class AvatarServiceTest {
 
         assertThat(response.gender()).isEqualTo("neutral");
         assertThat(response.outfit()).isEqualTo("detective-coat");
-        assertThat(response.outfitColor()).isEqualTo("blue");
+        assertThat(response.outfitColor()).isEqualTo("#2563eb");
         verify(avatarRepository).save(any(Avatar.class));
     }
 
@@ -77,12 +77,13 @@ class AvatarServiceTest {
 
         var response = avatarService.updateMyAvatar(new UpdateAvatarRequest(
             "female",
-            "green",
-            "medium",
-            "black",
+            "#15803d",
+            "round",
+            "#D08B5B",
+            "#1a1a1a",
             "curly",
             "hoodie",
-            "red",
+            "#2563eb",
             "none",
             "badge"
         ));
@@ -109,12 +110,13 @@ class AvatarServiceTest {
 
         assertThatThrownBy(() -> avatarService.updateMyAvatar(new UpdateAvatarRequest(
             "toaster",
-            "green",
-            "medium",
-            "black",
+            "#15803d",
+            "round",
+            "#D08B5B",
+            "#1a1a1a",
             "curly",
             "hoodie",
-            "red",
+            "#2563eb",
             "none",
             "badge"
         )))
@@ -135,8 +137,9 @@ class AvatarServiceTest {
     void getOptions_returnsStableConfiguredOptions() {
         var options = avatarService.getOptions();
 
-        assertThat(options).containsKeys("gender", "eyeColor", "skinColor", "hairColor");
-        assertThat(options.get("outfitColor")).containsExactly("blue", "red", "green", "yellow");
+        assertThat(options).containsKeys("gender", "eyeColor", "eyeStyle", "skinColor", "hairColor");
+        assertThat(options.get("outfitColor")).containsExactly("#2563eb","#dc2626","#16a34a","#d97706","#1f2937");
+        assertThat(options.get("eyeStyle")).containsExactly("round", "narrow", "wide");
         assertThat(options.get("gender")).containsExactly("neutral", "female", "male");
     }
 }

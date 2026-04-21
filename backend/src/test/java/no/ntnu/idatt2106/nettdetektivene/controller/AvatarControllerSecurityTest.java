@@ -32,8 +32,8 @@ class AvatarControllerSecurityTest {
     UserDetailsServiceImpl userDetailsService;
 
     @Test
-    void getMyAvatar_unauthenticated_returns403() throws Exception {
+    void getMyAvatar_unauthenticated_returns401() throws Exception {
         mockMvc.perform(get("/api/avatars/me"))
-            .andExpect(status().isForbidden());
+            .andExpect(status().isUnauthorized());
     }
 }
