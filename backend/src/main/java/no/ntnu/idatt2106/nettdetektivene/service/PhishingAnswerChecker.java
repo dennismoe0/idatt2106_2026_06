@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-class PhishingAnswerChecker {
+public class PhishingAnswerChecker {
 
     private PhishingAnswerChecker() {}
 
@@ -16,7 +16,7 @@ class PhishingAnswerChecker {
      *  - New:  { "clues": ["id1", "id2"] } — checked against submitted flaggedClueIds
      *  - Old:  { "action": "REPORT" }      — checked against submitted action (backward compat)
      */
-    static boolean check(JsonNode correctAnswer, Map<String, Object> answer) {
+    public static boolean check(JsonNode correctAnswer, Map<String, Object> answer) {
         if (correctAnswer == null || answer == null) return false;
 
         // New format: clue ID list
@@ -39,7 +39,7 @@ class PhishingAnswerChecker {
         return false;
     }
 
-    static List<String> requiredClueIds(JsonNode correctAnswer) {
+    public static List<String> requiredClueIds(JsonNode correctAnswer) {
         List<String> ids = new ArrayList<>();
         if (correctAnswer == null) return ids;
         JsonNode clues = correctAnswer.path("clues");
