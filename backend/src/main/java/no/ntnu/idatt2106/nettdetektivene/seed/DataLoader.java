@@ -381,66 +381,66 @@ public class DataLoader implements ApplicationRunner {
                 """,
                 "{\"selected\": \"site-b\"}",
                 "Velg nettstedet du ville styrt unna."),
-            socialMediaTask(socialStop, 1, "Del eller vent?", "Velg riktig handling.",
+            socialMediaTask(socialStop, 1, "Melding om premie", "Velg det tryggeste svaret.",
                 """
                 {
-                  "type": "CHOOSE_ACTION",
                   "post": {
-                    "username": "TrondheimNytt", "handle": "@trondheim_nytt", "avatar": "📰",
-                    "content": "DELE DETTE NÅ!!! Ordførerens pengeskandal er MYE VERRE enn noen tror 😱😱😱 Anonym kilde avslører det ingen tør si høyt!!!",
-                    "likes": 2847, "comments": 431, "timestamp": "3 timer siden", "verified": false
+                    "platform": "Fjesbok",
+                    "username": "BesteFriend99",
+                    "avatar": "👤",
+                    "content": "Hei! Jeg vant en premie og trenger telefonnummeret ditt for å sende den."
                   },
-                  "question": "Hva bør du gjøre med dette innlegget?",
+                  "question": "Hva gjør du?",
                   "options": [
-                    { "id": "SHARE", "text": "Del det videre med en gang" },
-                    { "id": "WAIT", "text": "Vent og se om det dukker opp andre steder" },
-                    { "id": "CHECK_SOURCES", "text": "Sjekk kilden og faktasjekk før du gjør noe" },
-                    { "id": "ASK_ADULT", "text": "Spør en voksen" }
+                    { "id": "reply",  "text": "Svar med telefonnummeret mitt" },
+                    { "id": "ignore", "text": "Ignorer meldingen" },
+                    { "id": "report", "text": "Rapporter og blokker kontoen" },
+                    { "id": "ask",    "text": "Spør hvem det er" }
                   ],
-                  "explanation": "Kapslås, utropstegn, anonym kilde og oppfordring til hastedeling er alle tegn på manipulerende innhold."
+                  "explanation": "Fremmede som ber om personinfo er et varseltegn — rapporter og blokker."
                 }
                 """,
-                "{\"action\": \"CHECK_SOURCES\"}"),
-            socialMediaTask(socialStop, 2, "Følelser på sosiale medier", "Identifiser hvilke følelser innlegget prøver å skape.",
+                "{\"selected\": \"report\"}"),
+            socialMediaTask(socialStop, 2, "Delingspress", "Velg det tryggeste svaret.",
                 """
                 {
-                  "type": "CHOOSE_ACTION",
                   "post": {
-                    "username": "Bekymret Borger", "handle": "@bekymret_borger_99", "avatar": "😤",
-                    "content": "Politiet gjør INGENTING. Byen vår er UTRYGG. Del dette til ALLE du kjenner så vi kan stoppe dette galskapet en gang for alle!!!",
-                    "likes": 9432, "comments": 2109, "timestamp": "1 time siden", "verified": false
+                    "platform": "Fjesbok",
+                    "username": "Nyhetshjelperen",
+                    "avatar": "📢",
+                    "content": "Alle må dele dette nå! Skolen stenger i morgen for alltid. Ingen andre tør å si sannheten."
                   },
-                  "question": "Hva bør du gjøre?",
+                  "question": "Hva gjør du?",
                   "options": [
-                    { "id": "SHARE", "text": "Del med en gang - dette er viktig!" },
-                    { "id": "CHECK_SOURCES", "text": "Sjekk om det er sant før du deler" },
-                    { "id": "IGNORE", "text": "Ignorer innlegget" },
-                    { "id": "ASK_ADULT", "text": "Spør en voksen om råd" }
+                    { "id": "share",  "text": "Del innlegget videre med en gang" },
+                    { "id": "ignore", "text": "Ignorer innlegget" },
+                    { "id": "report", "text": "Rapporter innlegget som falskt eller skadelig" },
+                    { "id": "ask",    "text": "Sjekk om informasjonen stemmer før du gjør noe" }
                   ],
-                  "explanation": "Innlegget bruker sinne, kapslås og gruppepress for å få deg til å dele raskt uten å tenke."
+                  "explanation": "Ikke del virale påstander før du har sjekket om de stemmer."
                 }
                 """,
-                "{\"action\": \"CHECK_SOURCES\"}"),
-            socialMediaTask(socialStop, 3, "Finn det mest illegitime innlegget", "Velg innlegget med minst troverdighet.",
+                "{\"selected\": \"ask\"}"),
+            socialMediaTask(socialStop, 3, "Hjelp med passord", "Velg det tryggeste svaret.",
                 """
                 {
-                  "type": "IDENTIFY_WORST",
-                  "question": "Hvilket innlegg er mest illegitimt?",
-                  "posts": [
-                    { "id": "post_0", "username": "Ordførerens kontor", "handle": "@ordforer_trondheim", "avatar": "🏛️",
-                      "content": "Kommunen jobber aktivt med saken. Vi informerer fortløpende på kommunens offisielle nettside.",
-                      "likes": 312, "comments": 44, "timestamp": "1 time siden", "verified": true },
-                    { "id": "post_1", "username": "SannhetsJegeren99", "handle": "@sannhet99", "avatar": "👁️",
-                      "content": "JEG VET HVEM TYVEN ER!! Myndighetene prøver å dekke over sannheten!! Del dette til ALLE du kjenner FØR de sletter det 🔥🔥🔥",
-                      "likes": 18432, "comments": 2341, "timestamp": "45 min siden", "verified": false },
-                    { "id": "post_2", "username": "Lokal Reporter", "handle": "@lokal_reporter", "avatar": "📝",
-                      "content": "Politiet bekrefter at etterforskningen pågår. Ingen mistenkte er offentlig navngitt ennå.",
-                      "likes": 891, "comments": 123, "timestamp": "2 timer siden", "verified": false }
+                  "post": {
+                    "platform": "Fjesbok",
+                    "username": "Venn123",
+                    "avatar": "🧑",
+                    "content": "Kan du sende meg passordet ditt? Jeg skal bare hjelpe deg å logge inn raskt."
+                  },
+                  "question": "Hva gjør du?",
+                  "options": [
+                    { "id": "reply",  "text": "Sender passordet mitt i chatten" },
+                    { "id": "ignore", "text": "Lar være å svare" },
+                    { "id": "report", "text": "Rapporterer meldingen med en gang" },
+                    { "id": "ask",    "text": "Sier nei og forklarer at passord aldri skal deles" }
                   ],
-                  "explanation": "Innlegg 2 (SannhetsJegeren99) bruker kapslås, udokumenterte påstander, konspirasjonsspråk og oppfordrer til hastedeling."
+                  "explanation": "Selv venner skal ikke ha passordet ditt. Den tryggeste handlingen er å si nei og aldri dele det."
                 }
                 """,
-                "{\"selected\": \"post_1\"}")
+                "{\"selected\": \"ask\"}")
         ));
         taskRepository.saveAll(tasks);
 
@@ -605,7 +605,7 @@ public class DataLoader implements ApplicationRunner {
         Task task = baseTask(stop, orderIndex, title, description, TaskType.SOCIAL_MEDIA);
         task.setContentJson(contentJson);
         task.setCorrectAnswerJson(correctAnswerJson);
-        task.setGuidanceText("Les innlegget nøye. Tenk over hvilke følelser det prøver å skape.");
+        task.setGuidanceText("Les innlegget nøye og velg den tryggeste handlingen.");
         return task;
     }
 
