@@ -15,7 +15,6 @@ public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
         select ct.classroom
         from ClassroomTeacher ct
         where ct.teacher.id = :teacherId
-          and ct.classroom.isActive = true
         """)
     List<Classroom> findByTeachers_Teacher_UserId(@Param("teacherId") Long teacherId);
 

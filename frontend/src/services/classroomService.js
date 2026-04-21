@@ -24,7 +24,4 @@ export const classroomService = {
 
   updateMyDisplayName: (classroomId, displayName) =>
     api.put(`/api/classrooms/${classroomId}/my-displayname`, { displayName }),
-
-  deleteClassroom: (id) =>
-    api.delete(`/api/classrooms/${id}`),
 }
