@@ -31,7 +31,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
-import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -189,10 +188,11 @@ public class ClassroomService {
     }
 
     @Transactional(readOnly = true)
-    public List<SchoolLeaderboardEntryDto> getSchoolLeaderboard(Long classroomId) {
-        log.info("[ClassroomService] getSchoolLeaderboard classroomId={}", classroomId);
+    public List<SchoolLeaderboardEntryDto> getSchoolLeaderboard(Long userId, Long classroomId) {
+        log.info("[ClassroomService] getSchoolLeaderboard userId={} classroomId={}", userId, classroomId);
         Classroom classroom = classroomRepository.findById(classroomId)
             .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+        verifySchoolLeaderboardAccess(userId, classroomId);
         int totalTasks = (int) taskRepository.count();
 
         List<Long> classroomIds;
@@ -267,6 +267,24 @@ public class ClassroomService {
         }
         if (!classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(classroomId, teacherId)) {
             log.warn("Classroom access denied: classroomId={} teacherId={}", classroomId, teacherId);
+            throw new ResourceNotFoundException("Classroom not found");
+        }
+    }
+
+    private void verifySchoolLeaderboardAccess(Long userId, Long classroomId) {
+        boolean teacherOwnsClassroom =
+            classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(classroomId, userId);
+        if (teacherOwnsClassroom) {
+            return;
+        }
+
+        boolean approvedStudentInClassroom = classroomStudentRepository
+            .findByClassroom_IdAndStudent_UserId(classroomId, userId)
+            .map(classroomStudent -> classroomStudent.getStatus() == ClassroomStudentStatus.APPROVED)
+            .orElse(false);
+
+        if (!approvedStudentInClassroom) {
+            log.warn("[ClassroomService] School leaderboard access denied: classroomId={} userId={}", classroomId, userId);
             throw new ResourceNotFoundException("Classroom not found");
         }
     }
