@@ -32,9 +32,11 @@ import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.FakeNewsTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.MarketplaceTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.AiPhotoTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.PasswordStrengthEvaluator;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.PasswordTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.PhishingEmailTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.SocialMediaTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.TaskAnswerChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,8 +125,10 @@ public class GameService {
             List.of(
                 new FakeNewsTaskAnswerChecker(),
                 new PhishingEmailTaskAnswerChecker(),
+                new AiPhotoTaskAnswerChecker(),
                 new MarketplaceTaskAnswerChecker(),
-                new PasswordTaskAnswerChecker(objectMapper, new PasswordStrengthEvaluator())
+                new PasswordTaskAnswerChecker(objectMapper, new PasswordStrengthEvaluator()),
+                new SocialMediaTaskAnswerChecker()
             )
         );
     }
