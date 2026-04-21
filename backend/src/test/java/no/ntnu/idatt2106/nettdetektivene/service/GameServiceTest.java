@@ -323,6 +323,68 @@ class GameServiceTest {
         verify(studentProgressRepository).save(any(StudentProgress.class));
     }
 
+    @Test
+    void submitAnswer_passwordChoice_checksSelectedOption() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task task = passwordChoiceTask(22L, stop);
+        when(taskRepository.findById(22L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 22L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
+        when(taskRepository.countByStop_Id(4L)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 4L)).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            22L,
+            new SubmitAnswerRequest(Map.of("selected", "d"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_passwordBuilder_requiresStrongPassword() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task task = passwordBuilderTask(23L, stop);
+        when(taskRepository.findById(23L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 23L)).thenReturn(Optional.empty());
+
+        var weakResponse = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            23L,
+            new SubmitAnswerRequest(Map.of("password", "abc"))
+        );
+
+        assertThat(weakResponse.correct()).isFalse();
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_passwordBuilder_acceptsStrongPassword() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task task = passwordBuilderTask(23L, stop);
+        when(taskRepository.findById(23L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 23L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
+        when(taskRepository.countByStop_Id(4L)).thenReturn(3L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 4L)).thenReturn(1L);
+
+        var strongResponse = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            23L,
+            new SubmitAnswerRequest(Map.of("password", "Tiger!Måne#42"))
+        );
+
+        assertThat(strongResponse.correct()).isTrue();
+        verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
     // ─── submitAnswer — new tests ─────────────────────────────────────────────
 
     @Test
@@ -519,6 +581,46 @@ class GameServiceTest {
             """);
         task.setCorrectAnswerJson("""
             { "action": "REPORT" }
+            """);
+        return task;
+    }
+
+    private Task passwordChoiceTask(Long id, Stop stop) {
+        Task task = task(id, stop, TaskType.PASSWORD);
+        task.setContentJson("""
+            {
+              "type": "CHOICE",
+              "question": "Hvilket passord er tryggest?",
+              "options": [
+                { "id": "a", "value": "Ola123" },
+                { "id": "b", "value": "Emma2014" },
+                { "id": "c", "value": "Katt" },
+                { "id": "d", "value": "F!sk3Taco#92" }
+              ],
+              "explanation": "F!sk3Taco#92 er sterkest."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            { "selected": "d" }
+            """);
+        return task;
+    }
+
+    private Task passwordBuilderTask(Long id, Stop stop) {
+        Task task = task(id, stop, TaskType.PASSWORD);
+        task.setContentJson("""
+            {
+              "type": "BUILDER",
+              "question": "Bygg et sterkt passord",
+              "words": ["Tiger", "Måne", "Pizza"],
+              "symbols": ["!", "#", "@"],
+              "numbers": ["7", "42", "99"],
+              "minStrength": "STRONG",
+              "explanation": "Et sterkt passord er langt og blander tegn."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            { "minStrength": "STRONG" }
             """);
         return task;
     }
