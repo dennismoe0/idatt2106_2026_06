@@ -458,7 +458,7 @@ public class DataLoader implements ApplicationRunner {
             .toList();
         try {
             task.setCorrectAnswerJson(objectMapper.writeValueAsString(
-                objectMapper.createObjectNode().set("clues", objectMapper.valueToTree(requiredClueIds))
+                objectMapper.createObjectNode().set("correctClueIds", objectMapper.valueToTree(requiredClueIds))
             ));
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Failed to build phishing correctAnswerJson", e);
