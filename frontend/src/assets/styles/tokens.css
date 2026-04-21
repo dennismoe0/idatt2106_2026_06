@@ -49,6 +49,47 @@
   --color-heading: #20304A;
   --color-map-bg: #1a1a2e;
 
+  /* Cork board theme */
+  --color-cork:      #A87230;
+  --color-cork-dark: #7A4E1A;
+  --color-cork-light: #C49240;
+  --color-wood:      #3B1F08;
+  --color-wood-mid:  #5C3210;
+  --color-gold:      #EFB45C;
+  --color-red-pin:   #9B2226;
+
+  /* Note / card surfaces */
+  --color-note-bg:     #FEFCF0;
+  --color-note-border: #D4A96A;
+  --color-note-chosen-bg: #FFF8EC;
+  --color-note-correct-bg: #F0FFF4;
+  --color-note-wrong-bg:   #FFF5F5;
+
+  /* Ink — text on cork/note backgrounds */
+  --color-ink:       #3B1F08;
+  --color-ink-body:  #333333;
+  --color-ink-subtle: #555555;
+  --color-ink-faint:  #777777;
+
+  /* Clue buttons (phishing interaction) */
+  --color-clue-bg:           #FFFBEB;
+  --color-clue-border:       #DD6B20;
+  --color-clue-hover-bg:     #FED7AA;
+  --color-clue-flagged-bg:   #FECACA;
+  --color-clue-flagged-text: #991B1B;
+  --color-clue-correct-bg:   #D1FAE5;
+  --color-clue-correct-text: #065F46;
+  --color-clue-missed-bg:    #FEF9C3;
+  --color-clue-missed-border: #CA8A04;
+
+  /* Leaderboard medal tiers */
+  --color-medal-gold-border:   #f59e0b;
+  --color-medal-gold-bg:       #fffbeb;
+  --color-medal-silver-border: #9ca3af;
+  --color-medal-silver-bg:     #f9fafb;
+  --color-medal-bronze-border: #b45309;
+  --color-medal-bronze-bg:     #fef3c7;
+
   /* Button semantic tokens */
   --color-btn-primary-bg:   #2B6CB0;
   --color-btn-primary-fg:   #FFFFFF;
@@ -94,6 +135,7 @@
   --space-4:         1rem;
   --space-6:         1.5rem;
   --space-8:         2rem;
+  --space-10:        2.5rem;
   --space-12:        3rem;
   --transition-fast:   150ms ease;
   --transition-normal: 250ms ease;

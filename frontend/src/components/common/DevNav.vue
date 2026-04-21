@@ -4,10 +4,23 @@
     <RouterLink v-for="link in links" :key="link.path" :to="link.path" class="dev-link">
       {{ link.label }}
     </RouterLink>
+    <span class="dev-sep">|</span>
+    <button
+      v-for="n in 7"
+      :key="n"
+      class="dev-link dev-stop-btn"
+      @click="goToStop(n)"
+    >S{{ n }}</button>
   </nav>
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
+import { useClassroomStore } from '@/stores/classroom'
+
+const router = useRouter()
+const classroomStore = useClassroomStore()
+
 const links = [
   { path: '/login',         label: 'Login' },
   { path: '/register',      label: 'Register' },
@@ -21,6 +34,13 @@ const links = [
   { path: '/avatar',        label: 'Avatar' },
   { path: '/teacher',       label: 'Teacher' },
 ]
+
+function goToStop(stopId) {
+  const classroomId = classroomStore.currentClassroomId
+    ?? Number(localStorage.getItem('classroomId') ?? 0)
+  console.log('[DevNav] Jumping to stop', stopId, 'classroom', classroomId)
+  router.push({ name: 'Task', query: { stopId, classroomId } })
+}
 </script>
 
 <style scoped>
@@ -71,6 +91,24 @@ const links = [
 }
 .dev-link.router-link-active {
   background: rgba(255,255,255,0.18);
+  color: #fff;
+}
+
+.dev-sep {
+  color: #444;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.dev-stop-btn {
+  background: none;
+  border: 1px solid #555;
+  cursor: pointer;
+  color: #f0c040;
+}
+.dev-stop-btn:hover {
+  background: rgba(240,192,64,0.18);
+  border-color: #f0c040;
   color: #fff;
 }
 </style>

@@ -14,6 +14,7 @@ export const useGameStore = defineStore('game', () => {
   const xp = ref(0)
   const starBalance = ref(0)
   const displayStarBalance = ref(null) // null = show real balance; number = animating
+  const profileLoaded = ref(false)
 
   async function fetchStops(classroomId) {
     console.log('[game] Fetching stops for classroom:', classroomId)
@@ -132,12 +133,14 @@ export const useGameStore = defineStore('game', () => {
   }
 
   async function fetchProfile() {
+    if (profileLoaded.value) return
     console.log('[game] Fetching player profile')
     try {
       const { data } = await gameService.getProfile()
       level.value = data.level
       xp.value = data.xp
       starBalance.value = data.starBalance
+      profileLoaded.value = true
       console.log('[game] Profile fetched level:', data.level, 'xp:', data.xp, 'stars:', data.starBalance)
       return data
     } catch (err) {

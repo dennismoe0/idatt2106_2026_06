@@ -28,52 +28,35 @@ describe('FakeNewsTask', () => {
     expect(wrapper.text()).toContain('Marker hver artikkel som ekte eller falsk.')
   })
 
-  it('submit button is disabled until all articles are rated', async () => {
+  it('clicking an article card immediately emits submitted', async () => {
     const wrapper = mount(FakeNewsTask, { props: { task: TASK } })
-    const submitBtn = wrapper.find('.submit-btn')
-    expect(submitBtn.attributes('disabled')).toBeDefined()
-
-    const buttons = wrapper.findAll('.actions button')
-    await buttons[0].trigger('click')
-    expect(submitBtn.attributes('disabled')).toBeDefined()
-
-    await buttons[3].trigger('click')
-    expect(submitBtn.attributes('disabled')).toBeUndefined()
+    expect(wrapper.emitted('submitted')).toBeFalsy()
+    await wrapper.find('.article-card').trigger('click')
+    expect(wrapper.emitted('submitted')).toHaveLength(1)
   })
 
-  it('emits submitted with correct answer shape', async () => {
+  it('emits correct answer shape — picked card is false, others are true', async () => {
     const wrapper = mount(FakeNewsTask, { props: { task: TASK } })
-    const buttons = wrapper.findAll('.actions button')
-
-    await buttons[0].trigger('click')
-    await buttons[3].trigger('click')
-    await wrapper.find('.submit-btn').trigger('click')
-
-    expect(wrapper.emitted('submitted')).toHaveLength(1)
+    const cards = wrapper.findAll('.article-card')
+    await cards[0].trigger('click')
     expect(wrapper.emitted('submitted')[0][0]).toEqual({
-      article_0: true,
-      article_1: false
+      article_0: false,
+      article_1: true
     })
   })
 
-  it('toggles selection when clicking different option for same article', async () => {
+  it('chosen card gets aria-pressed true', async () => {
     const wrapper = mount(FakeNewsTask, { props: { task: TASK } })
-    const buttons = wrapper.findAll('.actions button')
-
-    await buttons[0].trigger('click')
-    expect(buttons[0].classes()).toContain('selected')
-
-    await buttons[1].trigger('click')
-    expect(buttons[0].classes()).not.toContain('selected')
-    expect(buttons[1].classes()).toContain('selected')
+    const cards = wrapper.findAll('.article-card')
+    await cards[1].trigger('click')
+    expect(cards[1].attributes('aria-pressed')).toBe('true')
+    expect(cards[0].attributes('aria-pressed')).toBe('false')
   })
 
-  it('has aria-labels on Ekte/Falsk buttons', () => {
+  it('article cards have aria-label describing action', () => {
     const wrapper = mount(FakeNewsTask, { props: { task: TASK } })
-    const buttons = wrapper.findAll('.actions button')
-    expect(buttons[0].attributes('aria-label')).toBe('Marker artikkel 1 som ekte')
-    expect(buttons[1].attributes('aria-label')).toBe('Marker artikkel 1 som falsk')
-    expect(buttons[2].attributes('aria-label')).toBe('Marker artikkel 2 som ekte')
-    expect(buttons[3].attributes('aria-label')).toBe('Marker artikkel 2 som falsk')
+    const cards = wrapper.findAll('.article-card')
+    expect(cards[0].attributes('aria-label')).toContain('Ekte overskrift')
+    expect(cards[1].attributes('aria-label')).toContain('Falsk overskrift')
   })
 })

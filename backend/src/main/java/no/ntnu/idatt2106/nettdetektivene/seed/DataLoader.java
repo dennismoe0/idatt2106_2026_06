@@ -2,6 +2,7 @@ package no.ntnu.idatt2106.nettdetektivene.seed;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.entity.Medal;
@@ -150,36 +151,50 @@ public class DataLoader implements ApplicationRunner {
                 mailStop,
                 1,
                 "Bankvarsel",
-                "Velg hva du bør gjøre med e-posten.",
+                "Klikk på alle mistenkelige deler av e-posten.",
                 "DNB Kundeservice",
                 "support@dnb-kundeservice.com",
                 "Viktig: Bekreft kontoen din",
-                "Kjære kunde, kontoen din blir stengt om 2 timer. Klikk på lenken og bekreft BankID-informasjonen din.",
-                List.of("fromEmail", "link", "urgency"),
+                "Kjære kunde, kontoen din blir stengt om 2 timer. Klikk HER umiddelbart og bekreft BankID-informasjonen din.",
+                List.of(
+                    new Clue("sender", "sender", "support@dnb-kundeservice.com", true, "Avsenderdomenet er ikke dnb.no — det er et falskt domene."),
+                    new Clue("link1", "link", "Klikk HER", true, "Lenker som ikke viser URL er et klassisk phishing-triks."),
+                    new Clue("urgency", "text", "umiddelbart", true, "Hastverk brukes for å hindre deg i å tenke deg om."),
+                    new Clue("brand", "text", "DNB Kundeservice", false, null)
+                ),
                 "Avsenderadressen er ikke dnb.no, meldingen haster kunstig og ber deg klikke på en mistenkelig lenke."
             ),
             phishingTask(
                 mailStop,
                 2,
                 "Pakkemelding",
-                "Rapporter meldingen hvis den virker mistenkelig.",
+                "Klikk på alle mistenkelige deler av e-posten.",
                 "Posten Norge",
                 "pakke@posten-levering.net",
                 "Pakken din mangler porto",
-                "Hei! Betal 19 kroner innen i kveld for å unngå at pakken returneres. Betal her.",
-                List.of("fromEmail", "payment", "urgency"),
+                "Hei! Du skylder 19 kroner i porto. Betal innen i kveld for å unngå at pakken returneres. Betal her.",
+                List.of(
+                    new Clue("sender", "sender", "pakke@posten-levering.net", true, "Avsenderadressen ligner Posten, men er ikke offisiell (posten.no)."),
+                    new Clue("link1", "link", "Betal her", true, "Lenker til betalingssider fra ukjente avsendere bør aldri klikkes."),
+                    new Clue("urgency", "text", "innen i kveld", true, "Hastverk brukes for å stresse deg til å handle uten å tenke."),
+                    new Clue("brand", "text", "Posten Norge", false, null)
+                ),
                 "Avsenderadressen ligner på Posten, men er ikke offisiell. Små gebyrer og hastverk brukes ofte i svindel."
             ),
             phishingTask(
                 mailStop,
                 3,
                 "Skolekonto",
-                "Bestem riktig handling.",
+                "Klikk på alle mistenkelige deler av e-posten.",
                 "IT-avdelingen",
                 "it-hjelp@skole-login.com",
                 "Passordet ditt utløper i dag",
-                "Logg inn med skolebrukeren din på lenken under for å beholde tilgang til Teams og e-post.",
-                List.of("fromEmail", "loginRequest", "link"),
+                "Logg inn med skolebrukeren din på lenken under for å beholde tilgang til Teams og e-post. Logg inn her.",
+                List.of(
+                    new Clue("sender", "sender", "it-hjelp@skole-login.com", true, "Skole-IT bruker skolens eget domene — ikke skole-login.com."),
+                    new Clue("link1", "link", "Logg inn her", true, "En lenke fra ukjent domene kan stjele innloggingsinformasjonen din."),
+                    new Clue("brand", "text", "IT-avdelingen", false, null)
+                ),
                 "E-posten ber om innlogging via et ukjent domene. IT-meldinger bør sjekkes mot skolens offisielle kanaler."
             )
         ));
@@ -219,6 +234,8 @@ public class DataLoader implements ApplicationRunner {
         return task;
     }
 
+    record Clue(String id, String type, String label, boolean isClue, String explanation) {}
+
     private Task phishingTask(
         Stop stop,
         int orderIndex,
@@ -228,24 +245,23 @@ public class DataLoader implements ApplicationRunner {
         String fromEmail,
         String subject,
         String body,
-        List<String> suspiciousElements,
+        List<Clue> clues,
         String explanation
     ) {
         Task task = baseTask(stop, orderIndex, title, description, TaskType.PHISHING_EMAIL);
-        task.setContentJson(phishingContentJson(
-            fromName,
-            fromEmail,
-            subject,
-            body,
-            suspiciousElements,
-            explanation
-        ));
-        task.setCorrectAnswerJson("""
-            {
-              "action": "REPORT"
-            }
-            """);
-        task.setGuidanceText("Se nøye på avsender, lenker, hastverk og hva e-posten ber deg gjøre.");
+        task.setContentJson(phishingContentJson(fromName, fromEmail, subject, body, clues, explanation));
+        List<String> requiredClueIds = clues.stream()
+            .filter(Clue::isClue)
+            .map(Clue::id)
+            .toList();
+        try {
+            task.setCorrectAnswerJson(objectMapper.writeValueAsString(
+                objectMapper.createObjectNode().set("clues", objectMapper.valueToTree(requiredClueIds))
+            ));
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Failed to build phishing correctAnswerJson", e);
+        }
+        task.setGuidanceText("Klikk på alle mistenkelige deler av e-posten og trykk 'Send svar'.");
         return task;
     }
 
@@ -254,7 +270,7 @@ public class DataLoader implements ApplicationRunner {
         String fromEmail,
         String subject,
         String body,
-        List<String> suspiciousElements,
+        List<Clue> clues,
         String explanation
     ) {
         ObjectNode email = objectMapper.createObjectNode();
@@ -262,8 +278,19 @@ public class DataLoader implements ApplicationRunner {
         email.put("fromEmail", fromEmail);
         email.put("subject", subject);
         email.put("body", body);
-        email.set("suspiciousElements", objectMapper.valueToTree(suspiciousElements));
-        email.put("correctAction", "REPORT");
+
+        ArrayNode cluesNode = objectMapper.createArrayNode();
+        for (Clue clue : clues) {
+            ObjectNode c = objectMapper.createObjectNode();
+            c.put("id", clue.id());
+            c.put("type", clue.type());
+            c.put("label", clue.label());
+            c.put("isClue", clue.isClue());
+            if (clue.explanation() != null) c.put("explanation", clue.explanation());
+            else c.putNull("explanation");
+            cluesNode.add(c);
+        }
+        email.set("clues", cluesNode);
 
         ObjectNode root = objectMapper.createObjectNode();
         root.set("email", email);
