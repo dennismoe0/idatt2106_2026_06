@@ -20,6 +20,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -206,6 +208,61 @@ class ClassroomControllerTest {
             .andExpect(jsonPath("$.error").value("Student not in classroom"));
     }
 
+    @Test
+    void deleteClassroom_returns204_forOwningTeacher() throws Exception {
+        User teacher = saveUser("teacher-del@test.no", User.Role.TEACHER);
+        Classroom classroom = saveClassroomForTeacher(teacher, "KlasseToDelete");
+        String token = tokenFor(teacher);
+
+        mockMvc.perform(delete("/api/classrooms/" + classroom.getId())
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isNoContent());
+
+        Classroom updated = classroomRepository.findById(classroom.getId()).orElseThrow();
+        assertThat(updated.isActive()).isFalse();
+    }
+
+    @Test
+    void getSchoolLeaderboard_returns200WithEntries() throws Exception {
+        User teacher = saveUser("teacher-sl@test.no", User.Role.TEACHER);
+        User student = saveUser("student-sl@test.no", User.Role.STUDENT);
+        Classroom classroom = saveClassroomForTeacher(teacher, "SchoolLB");
+        saveClassroomStudent(classroom, student, "Elev Hansen", ClassroomStudentStatus.APPROVED);
+
+        String token = tokenFor(student);
+        mockMvc.perform(get("/api/classrooms/" + classroom.getId() + "/school-leaderboard")
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].displayName").value("Elev Hansen"))
+            .andExpect(jsonPath("$[0].classroomName").value("SchoolLB"))
+            .andExpect(jsonPath("$[0].classroomId").value(classroom.getId()));
+    }
+
+    @Test
+    void getSchoolLeaderboard_nonMember_returns404() throws Exception {
+        User teacher = saveUser("teacher-sl-404@test.no", User.Role.TEACHER);
+        User outsider = saveUser("student-sl-404@test.no", User.Role.STUDENT);
+        Classroom classroom = saveClassroomForTeacher(teacher, "SchoolLBHidden");
+
+        String token = tokenFor(outsider);
+        mockMvc.perform(get("/api/classrooms/" + classroom.getId() + "/school-leaderboard")
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.error").value("Classroom not found"));
+    }
+
+    @Test
+    void deleteClassroom_returns404_forNonOwner() throws Exception {
+        User owner = saveUser("owner-del@test.no", User.Role.TEACHER);
+        User other = saveUser("other-del@test.no", User.Role.TEACHER);
+        Classroom classroom = saveClassroomForTeacher(owner, "OwnerClass");
+        String token = tokenFor(other);
+
+        mockMvc.perform(delete("/api/classrooms/" + classroom.getId())
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isNotFound());
+    }
+
     private User saveUser(String email, User.Role role) {
         User user = new User();
         user.setEmail(email);
@@ -240,6 +297,19 @@ class ClassroomControllerTest {
         classroomStudent.setDisplayName(displayName);
         classroomStudent.setStatus(status);
         return classroomStudentRepository.save(classroomStudent);
+    }
+
+    private Classroom saveClassroomForTeacher(User teacher, String name) {
+        Classroom classroom = new Classroom();
+        classroom.setName(name);
+        classroom.setJoinCode(name.toLowerCase().replace(" ", "-") + "-code");
+        classroom.setActive(true);
+        classroom = classroomRepository.save(classroom);
+        ClassroomTeacher ct = new ClassroomTeacher();
+        ct.setTeacher(teacher);
+        ct.setClassroom(classroom);
+        classroomTeacherRepository.save(ct);
+        return classroom;
     }
 
     private String tokenFor(User user) {

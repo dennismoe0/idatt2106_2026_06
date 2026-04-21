@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ClaimXpResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.MedalDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.PlayerProfileDto;
@@ -39,14 +38,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import no.ntnu.idatt2106.nettdetektivene.service.answer.TaskAnswerChecker;
+
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class GameService {
 
     private static final Logger log = LoggerFactory.getLogger(GameService.class);
@@ -64,9 +66,37 @@ public class GameService {
     private final ObjectMapper objectMapper;
     private final NotebookService notebookService;
     private final StudentXpLogRepository studentXpLogRepository;
+    private final Map<TaskType, TaskAnswerChecker> answerCheckers;
 
     @Value("${app.bypass-stop-lock:false}")
     private boolean bypassStopLock;
+
+    public GameService(
+        StopRepository stopRepository,
+        TaskRepository taskRepository,
+        StudentProgressRepository studentProgressRepository,
+        MedalRepository medalRepository,
+        StudentMedalRepository studentMedalRepository,
+        UserRepository userRepository,
+        ClassroomRepository classroomRepository,
+        ObjectMapper objectMapper,
+        NotebookService notebookService,
+        StudentXpLogRepository studentXpLogRepository,
+        List<TaskAnswerChecker> answerCheckers
+    ) {
+        this.stopRepository = stopRepository;
+        this.taskRepository = taskRepository;
+        this.studentProgressRepository = studentProgressRepository;
+        this.medalRepository = medalRepository;
+        this.studentMedalRepository = studentMedalRepository;
+        this.userRepository = userRepository;
+        this.classroomRepository = classroomRepository;
+        this.objectMapper = objectMapper;
+        this.notebookService = notebookService;
+        this.studentXpLogRepository = studentXpLogRepository;
+        this.answerCheckers = answerCheckers.stream()
+            .collect(Collectors.toUnmodifiableMap(TaskAnswerChecker::supportedTaskType, Function.identity()));
+    }
 
     @Transactional(readOnly = true)
     public List<StopResponse> getStops(Long studentId, Long classroomId) {
@@ -324,22 +354,15 @@ public class GameService {
 
         try {
             JsonNode correctAnswer = objectMapper.readTree(task.getCorrectAnswerJson());
-            if (task.getTaskType() == TaskType.FAKE_NEWS) {
-                return checkFakeNewsAnswer(correctAnswer, answer);
-            }
-            if (task.getTaskType() == TaskType.PHISHING_EMAIL) {
-                return checkPhishingEmailAnswer(correctAnswer, answer);
-            }
             if (task.getTaskType() == TaskType.FINAL_BOSS) {
                 return checkFinalBossAnswer(correctAnswer, answer);
             }
-            if (task.getTaskType() == TaskType.AI_PHOTO
-                    || task.getTaskType() == TaskType.MARKETPLACE
-                    || task.getTaskType() == TaskType.SOCIAL_MEDIA
-                    || task.getTaskType() == TaskType.PASSWORD) {
-                return checkChallengeAnswer(correctAnswer, answer);
+            TaskAnswerChecker checker = answerCheckers.get(task.getTaskType());
+            if (checker == null) {
+                log.warn("[GameService] no answer checker registered for taskType={}", task.getTaskType());
+                return false;
             }
-            return false;
+            return checker.isCorrect(task, correctAnswer, answer);
         } catch (JsonProcessingException exception) {
             log.error("[GameService] failed to parse correct answer JSON taskId={}", task.getId(), exception);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Task answer data is invalid");

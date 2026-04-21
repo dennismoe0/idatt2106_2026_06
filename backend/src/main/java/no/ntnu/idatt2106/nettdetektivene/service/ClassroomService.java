@@ -5,9 +5,11 @@ import no.ntnu.idatt2106.nettdetektivene.dto.classroom.ClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.CreateClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.SchoolLeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
 import no.ntnu.idatt2106.nettdetektivene.repository.LeaderboardRow;
+import no.ntnu.idatt2106.nettdetektivene.repository.SchoolLeaderboardRow;
 import no.ntnu.idatt2106.nettdetektivene.entity.Classroom;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomTeacher;
@@ -29,7 +31,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
-import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -81,6 +82,14 @@ public class ClassroomService {
         log.info("Fetching classroom: classroomId={} teacherId={}", classroomId, teacherId);
         Classroom classroom = getClassroomForTeacher(teacherId, classroomId);
         return toClassroomResponse(classroom);
+    }
+
+    @Transactional
+    public void deleteClassroom(Long teacherId, Long classroomId) {
+        Classroom classroom = getClassroomForTeacher(teacherId, classroomId);
+        classroom.setActive(false);
+        classroomRepository.save(classroom);
+        log.info("[ClassroomService] Classroom soft-deleted: classroomId={} by teacherId={}", classroomId, teacherId);
     }
 
     @Transactional(readOnly = true)
@@ -178,6 +187,35 @@ public class ClassroomService {
             .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<SchoolLeaderboardEntryDto> getSchoolLeaderboard(Long userId, Long classroomId) {
+        log.info("[ClassroomService] getSchoolLeaderboard userId={} classroomId={}", userId, classroomId);
+        Classroom classroom = classroomRepository.findById(classroomId)
+            .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+        verifySchoolLeaderboardAccess(userId, classroomId);
+        int totalTasks = (int) taskRepository.count();
+
+        List<Long> classroomIds;
+        if (classroom.getSchool() != null) {
+            classroomIds = classroomRepository.findBySchool_Id(classroom.getSchool().getId())
+                .stream().map(Classroom::getId).toList();
+            log.info("[ClassroomService] School {} has {} classrooms", classroom.getSchool().getId(), classroomIds.size());
+        } else {
+            classroomIds = List.of(classroomId);
+            log.info("[ClassroomService] No school for classroomId={}, using single-classroom leaderboard", classroomId);
+        }
+
+        return classroomStudentRepository.getSchoolLeaderboard(classroomIds).stream()
+            .map(row -> new SchoolLeaderboardEntryDto(
+                row.getDisplayName(),
+                row.getClassroomId(),
+                row.getClassroomName(),
+                row.getCompletedTasks() == null ? 0 : row.getCompletedTasks().intValue(),
+                totalTasks
+            ))
+            .toList();
+    }
+
     public StudentInClassroomResponse updateMyDisplayName(Long studentId, Long classroomId, String displayName) {
         log.info("[ClassroomService] updateMyDisplayName studentId={} classroomId={}", studentId, classroomId);
         ClassroomStudent cs = classroomStudentRepository
@@ -229,6 +267,24 @@ public class ClassroomService {
         }
         if (!classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(classroomId, teacherId)) {
             log.warn("Classroom access denied: classroomId={} teacherId={}", classroomId, teacherId);
+            throw new ResourceNotFoundException("Classroom not found");
+        }
+    }
+
+    private void verifySchoolLeaderboardAccess(Long userId, Long classroomId) {
+        boolean teacherOwnsClassroom =
+            classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(classroomId, userId);
+        if (teacherOwnsClassroom) {
+            return;
+        }
+
+        boolean approvedStudentInClassroom = classroomStudentRepository
+            .findByClassroom_IdAndStudent_UserId(classroomId, userId)
+            .map(classroomStudent -> classroomStudent.getStatus() == ClassroomStudentStatus.APPROVED)
+            .orElse(false);
+
+        if (!approvedStudentInClassroom) {
+            log.warn("[ClassroomService] School leaderboard access denied: classroomId={} userId={}", classroomId, userId);
             throw new ResourceNotFoundException("Classroom not found");
         }
     }
