@@ -2,6 +2,8 @@
   <section class="fake-news-task">
     <p class="fake-news-task__guidance">{{ task.guidanceText }}</p>
 
+    <p class="fake-news-task__instruction">🔍 Klikk på den artikkelen du tror er <strong>falsk</strong></p>
+
     <div class="fake-news-task__articles">
       <article
         v-for="(article, index) in articles"
@@ -120,6 +122,13 @@ function pickCard(index) {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+}
+
+.fake-news-task__instruction {
+  margin: 0;
+  font-weight: 700;
+  font-size: var(--text-base);
+  color: var(--color-wood);
 }
 
 .fake-news-task__guidance {
