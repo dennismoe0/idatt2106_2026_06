@@ -98,6 +98,24 @@
                 @next="goNext"
               />
 
+              <PasswordTask
+                v-else-if="currentTask.taskType === 'PASSWORD'"
+                :task="currentTask"
+                :result="result"
+                :is-last-task="currentTaskIndex === tasks.length - 1"
+                @submitted="handleSubmit"
+                @next="goNext"
+              />
+
+              <SocialMediaTask
+                v-else-if="currentTask.taskType === 'SOCIAL_MEDIA'"
+                :task="currentTask"
+                :result="result"
+                :is-last-task="currentTaskIndex === tasks.length - 1"
+                @submitted="handleSubmit"
+                @next="goNext"
+              />
+
               <MarketplaceTask
                 v-else-if="currentTask.taskType === 'MARKETPLACE'"
                 :task="currentTask"
@@ -148,6 +166,8 @@ import DetectiveBar from '@/components/common/DetectiveBar.vue'
 import TutorialScreen from '@/components/student/TutorialScreen.vue'
 import FakeNewsTask from '@/components/student/FakeNewsTask.vue'
 import AIPhotoTask from '@/components/student/AIPhotoTask.vue'
+import PasswordTask from '@/components/student/PasswordTask.vue'
+import SocialMediaTask from '@/components/student/SocialMediaTask.vue'
 import MarketplaceTask from '@/components/student/MarketplaceTask.vue'
 import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
 import FinalBossTask from '@/components/student/FinalBossTask.vue'
@@ -216,6 +236,14 @@ const TUTORIAL_TEXTS = {
   AI_PHOTO: {
     title: 'Ekte, KI-generert eller manipulert?',
     instructions: 'Du vil se bilder. For hvert bilde — velg om det er ekte, KI-generert eller manipulert. Se etter rare fingre, glatte bakgrunner og uskarp tekst som avslører KI.'
+  },
+  PASSWORD: {
+    title: 'Bygg et sterkt passord',
+    instructions: 'Du vil velge det tryggeste passordet, eller sette sammen ditt eget. Et sterkt passord er langt, bruker store og små bokstaver, tall og spesialtegn — og inneholder ikke personlig informasjon.'
+  },
+  SOCIAL_MEDIA: {
+    title: 'Tenk før du deler',
+    instructions: 'Du vil se innlegg fra sosiale medier. Tenk på kilden, språket og hasteoppfordringer. Sjekk alltid fakta før du deler videre.'
   }
 }
 
@@ -371,6 +399,48 @@ function buildMockTasks() {
       },
       mockCorrectAnswer: { image_0: 'AI_GENERATED', image_1: 'REAL' },
       mockExplanation: 'Bilde A er KI-generert — legg merke til de unaturlige fingrene og den glatte bakgrunnen.'
+    },
+    {
+      id: 4001,
+      stopId: 4,
+      taskType: 'PASSWORD',
+      guidanceText: 'Finn ut hvilket passord som er best.',
+      contentJson: {
+        type: 'CHOICE',
+        question: 'Hvilket passord er tryggest?',
+        options: [
+          { id: 'a', value: 'Ola123' },
+          { id: 'b', value: 'Emma2014' },
+          { id: 'c', value: 'Katt' },
+          { id: 'd', value: 'F!sk3Taco#92' }
+        ],
+        explanation: 'F!sk3Taco#92 er sterkest fordi det er langt og blander store og små bokstaver, tall og spesialtegn.'
+      },
+      mockCorrectAnswer: { selected: 'd' },
+      mockExplanation: 'F!sk3Taco#92 er sterkest fordi det er langt og blander store og små bokstaver, tall og spesialtegn.'
+    },
+    {
+      id: 6001,
+      stopId: 6,
+      taskType: 'SOCIAL_MEDIA',
+      guidanceText: 'Velg riktig handling når du ser mistenkelige innlegg.',
+      contentJson: {
+        type: 'CHOOSE_ACTION',
+        post: {
+          username: 'TrondheimNytt', handle: '@trondheim_nytt', avatar: '📰',
+          content: 'DELE DETTE NÅ!!! Ordførerens pengeskandal er MYE VERRE enn noen tror 😱😱😱',
+          likes: 2847, comments: 431, timestamp: '3 timer siden', verified: false
+        },
+        question: 'Hva bør du gjøre med dette innlegget?',
+        options: [
+          { id: 'SHARE', text: 'Del det videre med en gang' },
+          { id: 'WAIT', text: 'Vent og se om det dukker opp andre steder' },
+          { id: 'CHECK_SOURCES', text: 'Sjekk kilden og faktasjekk før du gjør noe' },
+          { id: 'ASK_ADULT', text: 'Spør en voksen' }
+        ]
+      },
+      mockCorrectAnswer: { action: 'CHECK_SOURCES' },
+      mockExplanation: 'Kapslås og rop om hastedeling er vanlige tegn på manipulerende innhold. Sjekk alltid kilden!'
     },
     {
       id: 5001,
