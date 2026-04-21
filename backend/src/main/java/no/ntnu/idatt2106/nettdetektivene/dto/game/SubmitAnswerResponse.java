@@ -11,5 +11,7 @@ public record SubmitAnswerResponse(
     int starsEarned,
     int xpEarned,
     List<String> correctClueIds,
-    Integer correctArticleIndex
+    Integer correctArticleIndex,
+    String clueText,
+    boolean showSuspectReveal
 ) {}
