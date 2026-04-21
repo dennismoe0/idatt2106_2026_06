@@ -33,6 +33,7 @@ import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,6 +64,9 @@ public class GameService {
     private final ObjectMapper objectMapper;
     private final NotebookService notebookService;
     private final StudentXpLogRepository studentXpLogRepository;
+
+    @Value("${app.bypass-stop-lock:false}")
+    private boolean bypassStopLock;
 
     @Transactional(readOnly = true)
     public List<StopResponse> getStops(Long studentId, Long classroomId) {
@@ -142,13 +146,19 @@ public class GameService {
                 isStopComplete(studentId, task.getStop().getId()),
                 null,
                 0,
-                0
+                0,
+                List.of(),
+                null
             );
         }
 
         if (!checkAnswer(task, req == null ? null : req.answer())) {
             log.info("[GameService] wrong answer studentId={} taskId={}", studentId, taskId);
-            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0);
+            List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? correctClueIdsFor(task) : List.of();
+            Integer correctArticleIndex = task.getTaskType() == TaskType.FAKE_NEWS
+                ? fakeNewsCorrectIndex(task) : null;
+            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, correctArticleIndex);
         }
 
         StudentProgress progress = existingProgress.orElseGet(StudentProgress::new);
@@ -190,7 +200,9 @@ public class GameService {
             ? checkAndAwardMedal(studentId, task.getStop().getId()).map(this::toMedalDto).orElse(null)
             : null;
 
-        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 1, xpEarned);
+        List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
+            ? correctClueIdsFor(task) : List.of();
+        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 1, xpEarned, correctClueIds, null);
     }
 
     @Transactional(readOnly = true)
@@ -252,6 +264,10 @@ public class GameService {
     }
 
     private boolean isStopUnlocked(Long studentId, Long classroomId, Stop stop) {
+        if (bypassStopLock) {
+            log.debug("[GameService] bypassStopLock active — stop {} unlocked unconditionally", stop.getId());
+            return true;
+        }
         if (stop.getOrderIndex() <= 1) {
             return true;
         }
@@ -320,11 +336,33 @@ public class GameService {
     }
 
     private boolean checkPhishingEmailAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
-        Object submittedAction = answer.get("action");
-        if (submittedAction == null || correctAnswer.path("action").isMissingNode()) {
-            return false;
+        return PhishingAnswerChecker.check(correctAnswer, answer);
+    }
+
+    private Integer fakeNewsCorrectIndex(Task task) {
+        try {
+            JsonNode correct = objectMapper.readTree(task.getCorrectAnswerJson());
+            Iterator<Map.Entry<String, JsonNode>> fields = correct.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> entry = fields.next();
+                if (!entry.getValue().asBoolean()) {
+                    return Integer.parseInt(entry.getKey().replace("article_", ""));
+                }
+            }
+        } catch (Exception e) {
+            log.warn("[GameService] Failed to parse correctAnswerJson for fake news index taskId={}", task.getId());
         }
-        return correctAnswer.path("action").asText().equalsIgnoreCase(String.valueOf(submittedAction));
+        return null;
+    }
+
+    private List<String> correctClueIdsFor(Task task) {
+        try {
+            JsonNode correct = objectMapper.readTree(task.getCorrectAnswerJson());
+            return PhishingAnswerChecker.requiredClueIds(correct);
+        } catch (Exception e) {
+            log.warn("[GameService] Failed to parse correctAnswerJson for clue IDs taskId={}", task.getId());
+            return List.of();
+        }
     }
 
     private Boolean asBoolean(Object value) {
@@ -447,6 +485,15 @@ public class GameService {
             if (type == TaskType.PHISHING_EMAIL && root.path("email").isObject()) {
                 ObjectNode email = (ObjectNode) root.path("email");
                 email.remove("correctAction");
+                if (email.path("clues").isArray()) {
+                    ArrayNode clues = (ArrayNode) email.path("clues");
+                    clues.forEach(clue -> {
+                        if (clue.isObject()) {
+                            ((ObjectNode) clue).remove("isClue");
+                            ((ObjectNode) clue).remove("explanation");
+                        }
+                    });
+                }
             }
 
             return root;

@@ -22,6 +22,59 @@ body {
 
 h1, h2, h3, h4 { line-height: 1.25; }
 
+/* ── Cork board background ───────────────────────────────── */
+.cork-board-bg {
+  min-height: 100vh;
+  background:
+    repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(0,0,0,0.025) 21px),
+    repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(0,0,0,0.025) 21px),
+    radial-gradient(ellipse at 15% 20%, var(--color-cork-light) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 75%, var(--color-cork-dark) 0%, transparent 60%),
+    var(--color-cork);
+  box-shadow:
+    inset 8px 0 12px rgba(0,0,0,0.2),
+    inset -8px 0 12px rgba(0,0,0,0.2),
+    inset 0 6px 10px rgba(0,0,0,0.3);
+}
+
+/* ── Pinned note card ────────────────────────────────────── */
+.pinned-note {
+  background: var(--color-note-bg);
+  border: 1.5px solid var(--color-note-border);
+  border-radius: 6px;
+  padding: var(--space-4);
+  box-shadow: 2px 3px 10px rgba(0,0,0,0.3);
+  position: relative;
+}
+.pinned-note::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  background: var(--color-red-pin);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+/* ── Task card feedback animations ──────────────────────── */
+@keyframes card-shake {
+  0%, 100% { transform: translateX(0) rotate(var(--card-rotate, 0deg)); }
+  20%       { transform: translateX(-8px) rotate(calc(var(--card-rotate, 0deg) - 0.5deg)); }
+  40%       { transform: translateX(8px)  rotate(calc(var(--card-rotate, 0deg) + 0.5deg)); }
+  60%       { transform: translateX(-5px) rotate(var(--card-rotate, 0deg)); }
+  80%       { transform: translateX(5px)  rotate(var(--card-rotate, 0deg)); }
+}
+@keyframes card-bounce {
+  0%, 100% { transform: translateY(0) rotate(var(--card-rotate, 0deg)); }
+  30%       { transform: translateY(-10px) rotate(var(--card-rotate, 0deg)); }
+  60%       { transform: translateY(-4px)  rotate(var(--card-rotate, 0deg)); }
+}
+.card-shake  { animation: card-shake  0.4s ease-out; }
+.card-bounce { animation: card-bounce 0.5s ease-out; }
+
 /* Screen reader only utility */
 .sr-only {
   position: absolute;

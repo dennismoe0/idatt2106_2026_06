@@ -1,6 +1,5 @@
 <template>
-  <div class="profile-view">
-    <StudentHeader title="Min profil" :show-back="true" :back-to="{ name: 'Home' }" />
+  <CorkBoardPage page-title="Min profil" :back-to="{ name: 'Home' }">
 
     <div class="profile-view__body">
 
@@ -85,7 +84,7 @@
       </section>
 
     </div>
-  </div>
+  </CorkBoardPage>
 </template>
 
 <script setup>
@@ -94,7 +93,7 @@ import { useAvatarStore } from '@/stores/avatar'
 import { useGameStore } from '@/stores/game'
 import { useClassroomStore } from '@/stores/classroom'
 import { useAuthStore } from '@/stores/auth'
-import StudentHeader from '@/components/common/StudentHeader.vue'
+import CorkBoardPage from '@/components/common/CorkBoardPage.vue'
 import neutralAvatar from '@/assets/avatar/presets/adventurer-neutral.svg'
 import lightAvatar from '@/assets/avatar/presets/adventurer-light.svg'
 import warmAvatar from '@/assets/avatar/presets/adventurer-warm.svg'
@@ -171,7 +170,6 @@ onMounted(async () => {
 <style scoped>
 .profile-view {
   min-height: 100vh;
-  background: var(--color-bg);
 }
 
 .profile-view__body {
