@@ -9,14 +9,14 @@ describe('FakeWebshop', () => {
         siteName: 'super-deals-norge.xyz',
         headline: 'Eksklusive sko til halv pris',
         productName: 'Street Runner X',
-        price: '79',
+        price: '79 kr',
       }
     })
 
     expect(wrapper.text()).toContain('super-deals-norge.xyz')
     expect(wrapper.text()).toContain('Eksklusive sko til halv pris')
     expect(wrapper.text()).toContain('Street Runner X')
-    expect(wrapper.text()).toContain('KR 79,-')
+    expect(wrapper.text()).toContain('79 kr')
   })
 
   it('shows original price and badges only when provided', () => {

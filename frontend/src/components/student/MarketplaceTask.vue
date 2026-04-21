@@ -141,7 +141,7 @@ const selected = ref(null)
 
 const contentJson = computed(() => props.task?.contentJson ?? {})
 const taskSubtype = computed(() => normalizeSubtype(contentJson.value.type))
-const renderMode = computed(() => normalizeRenderMode(contentJson.value.renderMode))
+const renderMode = computed(() => normalizeRenderMode(contentJson.value))
 const questionText = computed(() => contentJson.value.question ?? 'Hva er det tryggeste valget?')
 const siteLabel = computed(() =>
   contentJson.value.siteName ??
@@ -213,8 +213,21 @@ function normalizeSubtype(type) {
   return upper === 'RANK' ? 'RANK' : 'IDENTIFY'
 }
 
-function normalizeRenderMode(renderMode) {
-  return String(renderMode ?? 'image').toLowerCase() === 'html' ? 'html' : 'image'
+function normalizeRenderMode(content) {
+  const explicitMode = String(content?.renderMode ?? '').toLowerCase()
+
+  if (explicitMode === 'html') {
+    return 'html'
+  }
+
+  if (explicitMode === 'image') {
+    return 'image'
+  }
+
+  const hasMockup = content?.mockup && typeof content.mockup === 'object'
+  const hasImage = typeof content?.imageUrl === 'string' && content.imageUrl.trim().length > 0
+
+  return hasMockup && !hasImage ? 'html' : 'image'
 }
 
 function normalizeOptions(options) {

@@ -15,7 +15,7 @@
         <h3 class="fake-shop__product-name">{{ productName }}</h3>
 
         <div class="fake-shop__price-row">
-          <p class="fake-shop__price">KR {{ price }},-</p>
+          <p class="fake-shop__price">{{ price }}</p>
           <p v-if="originalPrice" class="fake-shop__old-price">{{ originalPrice }}</p>
         </div>
 
@@ -51,7 +51,7 @@ defineProps({
     default: 'Sjekk nøye før du handler på nettsteder du ikke kjenner.',
   },
   productName: { type: String, default: 'Populært produkt' },
-  price: { type: String, default: '99' },
+  price: { type: String, default: '99 kr' },
   originalPrice: { type: String, default: '' },
   badges: { type: Array, default: () => [] },
   paymentText: { type: String, default: 'Betaling: Western Union / Gavekort' },

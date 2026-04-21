@@ -24,15 +24,6 @@ const IDENTIFY_TASK = {
   }
 }
 
-const IDENTIFY_HTML_TASK = {
-  ...IDENTIFY_TASK,
-  id: 7,
-  contentJson: {
-    ...IDENTIFY_TASK.contentJson,
-    renderMode: 'html',
-  }
-}
-
 const RANK_TASK = {
   id: 6,
   taskType: 'MARKETPLACE',
@@ -97,12 +88,45 @@ describe('MarketplaceTask', () => {
     expect(wrapper.find('.submit-btn').attributes('disabled')).toBeDefined()
   })
 
-  it('defaults identify preview to image mode unless renderMode is html', () => {
-    const imageWrapper = mount(MarketplaceTask, { props: { task: IDENTIFY_TASK } })
-    const htmlWrapper = mount(MarketplaceTask, { props: { task: IDENTIFY_HTML_TASK } })
+  it('renders the webshop mockup when mockup data exists without explicit renderMode', () => {
+    const wrapper = mount(MarketplaceTask, { props: { task: IDENTIFY_TASK } })
 
-    expect(imageWrapper.findComponent(FakeWebshop).exists()).toBe(false)
-    expect(htmlWrapper.findComponent(FakeWebshop).exists()).toBe(true)
+    expect(wrapper.findComponent(FakeWebshop).exists()).toBe(true)
+    expect(wrapper.text()).toContain('Eksklusive sneakers til 79 kr')
+  })
+
+  it('respects explicit renderMode html', () => {
+    const wrapper = mount(MarketplaceTask, {
+      props: {
+        task: {
+          ...IDENTIFY_TASK,
+          id: 8,
+          contentJson: {
+            ...IDENTIFY_TASK.contentJson,
+            renderMode: 'html',
+          }
+        }
+      }
+    })
+
+    expect(wrapper.findComponent(FakeWebshop).exists()).toBe(true)
+  })
+
+  it('stays in image mode when an explicit image renderMode is provided', () => {
+    const wrapper = mount(MarketplaceTask, {
+      props: {
+        task: {
+          ...IDENTIFY_TASK,
+          id: 7,
+          contentJson: {
+            ...IDENTIFY_TASK.contentJson,
+            renderMode: 'image',
+          }
+        }
+      }
+    })
+
+    expect(wrapper.findComponent(FakeWebshop).exists()).toBe(false)
   })
 
   it('warns when subtype is unknown and falls back to identify', () => {

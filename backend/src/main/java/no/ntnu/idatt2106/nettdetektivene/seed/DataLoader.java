@@ -291,55 +291,96 @@ public class DataLoader implements ApplicationRunner {
                 }
                 """,
                 "{\"minStrength\": \"STRONG\"}"),
-            marketplaceTask(marketStop, 1, "Nettbutikk-vurdering", "Hva er det mest mistenkelige med denne nettsiden?",
+            marketplaceTask(marketStop, 1, "Sneaker-blitz.shop", "Finn det tydeligste faresignalet i nettbutikken.",
                 """
                 {
                   "type": "IDENTIFY",
-                  "imageUrl": "",
-                  "siteName": "super-deals-norge.xyz",
-                  "question": "Hva er mest mistenkelig med denne nettsiden?",
+                  "siteName": "sneaker-blitz.shop",
+                  "question": "Hva er det tydeligste faresignalet her?",
                   "options": [
-                    { "id": "a", "text": "Prisen er for lav til å være sann - 90% rabatt" },
-                    { "id": "b", "text": "Siden mangler kontaktinformasjon og adresse" },
-                    { "id": "c", "text": "URL-en er ikke et kjent norsk nettsted (.xyz er uvanlig)" },
-                    { "id": "d", "text": "Alt av dette er mistenkelig" }
+                    { "id": "cheap", "text": "Prisen er altfor lav sammenlignet med vanlige butikker" },
+                    { "id": "colors", "text": "Butikken bruker sterke farger og store overskrifter" },
+                    { "id": "shipping", "text": "Nettsiden lover rask levering" }
                   ],
-                  "explanation": "Alle tre tegnene er varselsignaler: ekstremt lav pris, manglende kontaktinfo og ukjent domene."
+                  "mockup": {
+                    "eyebrow": "Kun i dag",
+                    "headline": "Eksklusive sneakers til 79 kr",
+                    "tagline": "90 % rabatt og bare noen få minutter igjen.",
+                    "productName": "Street Runner X",
+                    "price": "79 kr",
+                    "originalPrice": "1 499 kr",
+                    "ctaText": "Kjøp nå",
+                    "badges": ["90 % rabatt", "Begrenset antall"],
+                    "notice": "Betal raskt for å sikre varen din."
+                  },
+                  "explanation": "Ekstreme rabatter og kunstig hastverk er vanlige faresignaler i nettsvindel."
                 }
                 """,
-                "{\"selected\": \"d\"}"),
-            marketplaceTask(marketStop, 2, "Betalingsvarsel", "Velg hva du bør gjøre.",
+                "{\"selected\": \"cheap\"}",
+                "Se etter priser, betaling og hastverk før du handler."),
+            marketplaceTask(marketStop, 2, "tech-deals-market.net", "Velg det mest mistenkelige tegnet før du betaler.",
                 """
                 {
                   "type": "IDENTIFY",
-                  "imageUrl": "",
-                  "siteName": "billig-elektronikk.cc",
-                  "question": "Nettsiden ber deg betale med gavekort. Hva bør du gjøre?",
+                  "siteName": "tech-deals-market.net",
+                  "question": "Hva bør gjøre deg mest skeptisk?",
                   "options": [
-                    { "id": "a", "text": "Kjøp med gavekort - det er raskest" },
-                    { "id": "b", "text": "Undersøk siden nærmere på internett før du gjør noe" },
-                    { "id": "c", "text": "Ikke kjøp - betaling med gavekort er et klassisk svindeltriks" },
-                    { "id": "d", "text": "Send dem en e-post for å dobbeltsjekke" }
+                    { "id": "giftcard", "text": "Butikken vil bare ha betaling med gavekort eller krypto" },
+                    { "id": "sale", "text": "Det står at det er sommersalg" },
+                    { "id": "rating", "text": "Produktet har mange stjerner" }
                   ],
-                  "explanation": "Betaling med gavekort er nesten alltid svindel - pengene er vanskelige å spore og sjelden mulige å få tilbake."
+                  "mockup": {
+                    "eyebrow": "Ekspresssalg",
+                    "headline": "Spillkonsoll til halv pris",
+                    "tagline": "Kun alternative betalingsmåter godtas.",
+                    "productName": "PlayBox Ultra",
+                    "price": "2 199 kr",
+                    "originalPrice": "4 399 kr",
+                    "ctaText": "Betal nå",
+                    "badges": ["Kun gavekort", "Ingen refusjon"],
+                    "notice": "Kortbetaling er midlertidig utilgjengelig."
+                  },
+                  "explanation": "Betaling med gavekort eller krypto er vanskelig å spore og brukes ofte i svindel."
                 }
                 """,
-                "{\"selected\": \"c\"}"),
-            marketplaceTask(marketStop, 3, "Finn svindelsiden", "Hvilken av de fire sidene er mest sannsynlig svindel?",
+                "{\"selected\": \"giftcard\"}",
+                "Velg det mest mistenkelige tegnet før du betaler."),
+            marketplaceTask(marketStop, 3, "Hvilken butikk virker falsk?", "Sammenlign fire butikker og velg den mest mistenkelige.",
                 """
                 {
                   "type": "RANK",
-                  "question": "Hvilken av disse nettstedene er mest sannsynlig svindel?",
+                  "question": "Hvilken nettbutikk virker mest sannsynlig å være svindel?",
                   "sites": [
-                    { "id": "a", "name": "komplett.no", "imageUrl": "" },
-                    { "id": "b", "name": "netthandel-billig.cc", "imageUrl": "" },
-                    { "id": "c", "name": "elkjop.no", "imageUrl": "" },
-                    { "id": "d", "name": "finn.no", "imageUrl": "" }
+                    {
+                      "id": "site-a",
+                      "name": "friluftshuset.no",
+                      "badge": "Kort og Klarna",
+                      "description": "Tydelig returinfo og organisasjonsnummer."
+                    },
+                    {
+                      "id": "site-b",
+                      "name": "merkevarer-outlet-fast.com",
+                      "badge": "Kun forskuddsbetaling",
+                      "description": "Ekstreme rabatter, mangler kontaktinfo og presser deg til å betale raskt."
+                    },
+                    {
+                      "id": "site-c",
+                      "name": "spillsonen.no",
+                      "badge": "Kundeservice",
+                      "description": "Viser åpningstider, adresse og vanlige betalingsvalg."
+                    },
+                    {
+                      "id": "site-d",
+                      "name": "bokbyen.no",
+                      "badge": "Trygg betaling",
+                      "description": "Har anmeldelser, leveringsvilkår og kjent domene."
+                    }
                   ],
-                  "explanation": "netthandel-billig.cc bruker et uvanlig toppdomene (.cc), er ikke et kjent norsk nettsted og har ingen kjent historikk."
+                  "explanation": "Nettbutikken med ekstreme rabatter, dårlig kontaktinfo og forskuddsbetaling er den mest mistenkelige."
                 }
                 """,
-                "{\"selected\": \"b\"}"),
+                "{\"selected\": \"site-b\"}",
+                "Velg nettstedet du ville styrt unna."),
             socialMediaTask(socialStop, 1, "Melding om premie", "Velg det tryggeste svaret.",
                 """
                 {
@@ -544,11 +585,19 @@ public class DataLoader implements ApplicationRunner {
         return task;
     }
 
-    private Task marketplaceTask(Stop stop, int orderIndex, String title, String description, String contentJson, String correctAnswerJson) {
+    private Task marketplaceTask(
+        Stop stop,
+        int orderIndex,
+        String title,
+        String description,
+        String contentJson,
+        String correctAnswerJson,
+        String guidanceText
+    ) {
         Task task = baseTask(stop, orderIndex, title, description, TaskType.MARKETPLACE);
         task.setContentJson(contentJson);
         task.setCorrectAnswerJson(correctAnswerJson);
-        task.setGuidanceText("Sjekk URL, priser, kontaktinfo og betalingsvalg nøye.");
+        task.setGuidanceText(guidanceText);
         return task;
     }
 
