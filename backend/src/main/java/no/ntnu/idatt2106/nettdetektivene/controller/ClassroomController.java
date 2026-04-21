@@ -113,9 +113,12 @@ public class ClassroomController {
 
     @GetMapping("/{id}/school-leaderboard")
     @PreAuthorize("isAuthenticated()")
-    public List<SchoolLeaderboardEntryDto> getSchoolLeaderboard(@PathVariable Long id) {
+    public List<SchoolLeaderboardEntryDto> getSchoolLeaderboard(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
         log.info("[ClassroomController] GET /api/classrooms/{}/school-leaderboard", id);
-        return classroomService.getSchoolLeaderboard(id);
+        return classroomService.getSchoolLeaderboard(currentUserId(userDetails), id);
     }
 
     @PutMapping("/{id}/my-displayname")
