@@ -6,8 +6,9 @@
     <!-- arms -->
     <rect x="22" y="90" width="16" height="44" rx="8" :fill="skinColor" />
     <rect x="82" y="90" width="16" height="44" rx="8" :fill="skinColor" />
+
   </svg>
 </template>
 <script setup>
-defineProps({ skinColor: { type: String, default: '#D08B5B' }, gender: { type: String, default: 'neutral', validator: v => ['male', 'female', 'neutral'].includes(v) } })
+defineProps({ skinColor: { type: String, default: '#D08B5B' }, gender: { type: String, default: 'neutral' } })
 </script>
