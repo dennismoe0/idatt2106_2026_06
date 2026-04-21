@@ -386,6 +386,28 @@ class GameServiceTest {
     }
 
     @Test
+    void submitAnswer_socialMedia_acceptsLegacyActionPayloadForSelectedAnswer() {
+        Stop stop = stop(6L, 1, "Den sosiale møteplassen");
+        Task task = socialMediaActionTask(25L, stop);
+        when(taskRepository.findById(25L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
+        when(taskRepository.countByStop_Id(6L)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 6L)).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            25L,
+            new SubmitAnswerRequest(Map.of("action", "report"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
+    @Test
     void submitAnswer_passwordChoice_checksSelectedOption() {
         Stop stop = stop(4L, 1, "Passordbanken");
         Task task = passwordChoiceTask(22L, stop);

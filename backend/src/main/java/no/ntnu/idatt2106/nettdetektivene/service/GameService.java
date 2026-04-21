@@ -354,19 +354,47 @@ public class GameService {
 
         try {
             JsonNode correctAnswer = objectMapper.readTree(task.getCorrectAnswerJson());
+            Map<String, Object> normalizedAnswer = normalizeAnswerForChecker(task.getTaskType(), correctAnswer, answer);
             if (task.getTaskType() == TaskType.FINAL_BOSS) {
-                return checkFinalBossAnswer(correctAnswer, answer);
+                return checkFinalBossAnswer(correctAnswer, normalizedAnswer);
             }
             TaskAnswerChecker checker = answerCheckers.get(task.getTaskType());
             if (checker == null) {
                 log.warn("[GameService] no answer checker registered for taskType={}", task.getTaskType());
                 return false;
             }
-            return checker.isCorrect(task, correctAnswer, answer);
+            return checker.isCorrect(task, correctAnswer, normalizedAnswer);
         } catch (JsonProcessingException exception) {
             log.error("[GameService] failed to parse correct answer JSON taskId={}", task.getId(), exception);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Task answer data is invalid");
         }
+    }
+
+    private Map<String, Object> normalizeAnswerForChecker(
+        TaskType taskType,
+        JsonNode correctAnswer,
+        Map<String, Object> answer
+    ) {
+        if (taskType != TaskType.SOCIAL_MEDIA) {
+            return answer;
+        }
+
+        Object selected = answer.get("selected");
+        Object action = answer.get("action");
+
+        if (!correctAnswer.path("selected").isMissingNode() && selected == null && action != null) {
+            Map<String, Object> normalized = new java.util.HashMap<>(answer);
+            normalized.put("selected", action);
+            return normalized;
+        }
+
+        if (!correctAnswer.path("action").isMissingNode() && action == null && selected != null) {
+            Map<String, Object> normalized = new java.util.HashMap<>(answer);
+            normalized.put("action", selected);
+            return normalized;
+        }
+
+        return answer;
     }
 
     private boolean checkFakeNewsAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
@@ -592,6 +620,10 @@ public class GameService {
                         }
                     });
                 }
+            }
+
+            if (type == TaskType.SOCIAL_MEDIA) {
+                root.remove("type");
             }
 
             return root;

@@ -48,9 +48,12 @@
         role="status"
         aria-live="polite"
       >
-        <p class="inline-result__label">{{ result.correct ? 'Riktig!' : 'Ikke helt riktig' }}</p>
+        <p class="inline-result__label">
+          <span v-if="result.correct">✅ Riktig!</span>
+          <span v-else>❌ Ikke helt riktig</span>
+        </p>
         <p class="inline-result__explanation">{{ result.explanation }}</p>
-        <p v-if="result.stopCompleted" class="inline-result__stop">Du fullførte Den sosiale møteplassen!</p>
+        <p v-if="result.stopCompleted" class="inline-result__stop">🎉 Du fullførte Den sosiale møteplassen!</p>
         <div class="inline-result__actions">
           <button class="next-btn" @click="$emit('next')">
             {{ isLastTask ? 'Videre til sammendrag' : 'Neste oppgave' }}
@@ -83,7 +86,9 @@ watch(() => props.task?.id, () => {
 
 function submit() {
   if (!selected.value) return
-  emit('submitted', { selected: selected.value })
+  const answer = { selected: selected.value }
+  if (import.meta.env.DEV) console.log('[SocialMediaTask] Submitting:', answer)
+  emit('submitted', answer)
 }
 </script>
 
