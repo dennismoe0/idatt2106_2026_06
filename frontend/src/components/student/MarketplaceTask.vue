@@ -18,44 +18,21 @@
             class="site-preview__img"
           />
 
-          <div v-else-if="renderMode === 'html'" class="site-preview__mockup">
-            <div class="site-preview__mockup-hero">
-              <p class="site-preview__eyebrow">{{ mockupContent.eyebrow }}</p>
-              <h3 class="site-preview__headline">{{ mockupContent.headline }}</h3>
-              <p class="site-preview__tagline">{{ mockupContent.tagline }}</p>
-            </div>
-
-            <div class="site-preview__product-card">
-              <div class="site-preview__thumb" aria-hidden="true">🛒</div>
-
-              <div class="site-preview__product-copy">
-                <p class="site-preview__product-name">{{ mockupContent.productName }}</p>
-
-                <div class="site-preview__price-row">
-                  <span class="site-preview__price">{{ mockupContent.price }}</span>
-                  <span v-if="mockupContent.originalPrice" class="site-preview__old-price">
-                    {{ mockupContent.originalPrice }}
-                  </span>
-                </div>
-
-                <div v-if="mockupContent.badges.length" class="site-preview__badges">
-                  <span
-                    v-for="badge in mockupContent.badges"
-                    :key="badge"
-                    class="site-preview__badge"
-                  >
-                    {{ badge }}
-                  </span>
-                </div>
-
-                <button type="button" class="site-preview__cta" disabled>
-                  {{ mockupContent.ctaText }}
-                </button>
-              </div>
-            </div>
-
-            <p class="site-preview__notice">{{ mockupContent.notice }}</p>
-          </div>
+          <FakeWebshop
+            v-else-if="renderMode === 'html'"
+            :site-name="siteLabel"
+            :eyebrow="mockupContent.eyebrow"
+            :headline="mockupContent.headline"
+            :tagline="mockupContent.tagline"
+            :product-name="mockupContent.productName"
+            :price="mockupContent.price"
+            :original-price="mockupContent.originalPrice"
+            :badges="mockupContent.badges"
+            :payment-text="mockupContent.paymentText"
+            :contact-text="mockupContent.contactText"
+            :notice="mockupContent.notice"
+            :cta-text="mockupContent.ctaText"
+          />
 
           <div v-else class="site-preview__placeholder">
             <span aria-hidden="true">🛍️</span>
@@ -150,6 +127,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
+import FakeWebshop from '@/components/student/FakeWebshop.vue'
 
 const props = defineProps({
   task: { type: Object, required: true },
@@ -191,6 +169,14 @@ const mockupContent = computed(() => {
     productName: mockup.productName ?? contentJson.value.productName ?? 'Populært produkt',
     price: mockup.price ?? contentJson.value.price ?? '99 kr',
     originalPrice: mockup.originalPrice ?? contentJson.value.originalPrice ?? '',
+    paymentText:
+      mockup.paymentText ??
+      contentJson.value.paymentText ??
+      'Betaling: Western Union / Gavekort',
+    contactText:
+      mockup.contactText ??
+      contentJson.value.contactText ??
+      'Kontakt: ingen info tilgjengelig',
     ctaText: mockup.ctaText ?? 'Kjøp nå',
     badges,
     notice:
@@ -324,114 +310,6 @@ function hasDisplayValue(value) {
   width: 100%;
   max-height: 280px;
   object-fit: cover;
-}
-
-.site-preview__mockup {
-  display: grid;
-  gap: var(--space-4);
-  padding: var(--space-4);
-}
-
-.site-preview__mockup-hero {
-  display: grid;
-  gap: var(--space-2);
-}
-
-.site-preview__eyebrow {
-  margin: 0;
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-danger);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.site-preview__headline {
-  margin: 0;
-  font-size: clamp(1.25rem, 3vw, 1.9rem);
-  line-height: 1.1;
-}
-
-.site-preview__tagline,
-.site-preview__notice {
-  margin: 0;
-  color: var(--color-text-muted);
-}
-
-.site-preview__product-card {
-  display: grid;
-  grid-template-columns: minmax(88px, 120px) 1fr;
-  gap: var(--space-4);
-  padding: var(--space-3);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background: rgba(255, 255, 255, 0.6);
-}
-
-.site-preview__thumb {
-  display: grid;
-  place-items: center;
-  min-height: 104px;
-  border-radius: var(--radius-md);
-  background:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.75), transparent 65%),
-    linear-gradient(135deg, var(--color-primary-light), var(--color-bg));
-  font-size: 2.6rem;
-}
-
-.site-preview__product-copy {
-  display: grid;
-  gap: var(--space-2);
-  align-content: start;
-}
-
-.site-preview__product-name {
-  margin: 0;
-  font-weight: var(--font-semibold);
-}
-
-.site-preview__price-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-2);
-}
-
-.site-preview__price {
-  font-size: var(--text-xl);
-  font-weight: var(--font-bold);
-  color: var(--color-danger);
-}
-
-.site-preview__old-price {
-  color: var(--color-text-muted);
-  text-decoration: line-through;
-}
-
-.site-preview__badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.site-preview__badge {
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-full);
-  background: var(--color-warning-light);
-  color: var(--color-text);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-}
-
-.site-preview__cta {
-  justify-self: start;
-  border: none;
-  border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-4);
-  background: var(--color-danger);
-  color: var(--color-text-on-dark);
-  font-weight: var(--font-semibold);
-  cursor: not-allowed;
 }
 
 .site-preview__placeholder {
@@ -650,13 +528,4 @@ function hasDisplayValue(value) {
   opacity: 0;
 }
 
-@media (max-width: 680px) {
-  .site-preview__product-card {
-    grid-template-columns: 1fr;
-  }
-
-  .site-preview__thumb {
-    min-height: 88px;
-  }
-}
 </style>

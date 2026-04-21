@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import FakeWebshop from '@/components/student/FakeWebshop.vue'
 import MarketplaceTask from '@/components/student/MarketplaceTask.vue'
 
 const IDENTIFY_TASK = {
@@ -100,8 +101,8 @@ describe('MarketplaceTask', () => {
     const imageWrapper = mount(MarketplaceTask, { props: { task: IDENTIFY_TASK } })
     const htmlWrapper = mount(MarketplaceTask, { props: { task: IDENTIFY_HTML_TASK } })
 
-    expect(imageWrapper.find('.site-preview__mockup').exists()).toBe(false)
-    expect(htmlWrapper.find('.site-preview__mockup').exists()).toBe(true)
+    expect(imageWrapper.findComponent(FakeWebshop).exists()).toBe(false)
+    expect(htmlWrapper.findComponent(FakeWebshop).exists()).toBe(true)
   })
 
   it('warns when subtype is unknown and falls back to identify', () => {
