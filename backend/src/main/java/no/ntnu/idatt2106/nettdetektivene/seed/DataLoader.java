@@ -197,7 +197,7 @@ public class DataLoader implements ApplicationRunner {
                         {
                           "id": "image_0",
                           "src": "",
-                          "alt": "En person sitter pÃ¥ en benk i en park. Fingrene ser litt rare ut.",
+                          "alt": "En person sitter på en benk i en park. Fingrene ser litt rare ut.",
                           "label": "Bilde A"
                         },
                         {
@@ -225,7 +225,7 @@ public class DataLoader implements ApplicationRunner {
                         {
                           "id": "image_0",
                           "src": "",
-                          "alt": "En person pÃ¥ et torg. Bakgrunnen gjentar seg tydelig.",
+                          "alt": "En person på et torg. Bakgrunnen gjentar seg tydelig.",
                           "label": "Bilde A"
                         },
                         {
@@ -265,7 +265,7 @@ public class DataLoader implements ApplicationRunner {
                         {
                           "id": "image_1",
                           "src": "",
-                          "alt": "Bilde der teksten pÃ¥ skiltene i bakgrunnen er uskarp og uleselig.",
+                          "alt": "Bilde der teksten på skiltene i bakgrunnen er uskarp og uleselig.",
                           "label": "Bilde B"
                         },
                         {
@@ -275,7 +275,7 @@ public class DataLoader implements ApplicationRunner {
                           "label": "Bilde C"
                         }
                       ],
-                      "question": "Hvilket bilde kan vi stole pÃ¥ som ekte bevis?"
+                      "question": "Hvilket bilde kan vi stole på som ekte bevis?"
                     }
                     """,
                 """
@@ -297,7 +297,7 @@ public class DataLoader implements ApplicationRunner {
                         { "id": "c", "value": "Katt" },
                         { "id": "d", "value": "F!sk3Taco#92" }
                       ],
-                      "explanation": "F!sk3Taco#92 er sterkest fordi det er langt og blander store og smÃ¥ bokstaver, tall og spesialtegn. Navn og Ã¥rstall er svake."
+                      "explanation": "F!sk3Taco#92 er sterkest fordi det er langt og blander store og små bokstaver, tall og spesialtegn. Navn og årstall er svake."
                     }
                     """,
                 """
@@ -307,12 +307,12 @@ public class DataLoader implements ApplicationRunner {
             passwordTask(
                 passwordStop,
                 2,
-                "GjÃ¸r passordet bedre",
+                "Gjør passordet bedre",
                 "Velg det passordet som er best forbedret.",
                 """
                     {
                       "type": "CHOICE",
-                      "question": "Noen har prÃ¸vd Ã¥ gjÃ¸re passordet 'Sander2015' sterkere. Hvilken versjon er best?",
+                      "question": "Noen har prøvd å gjøre passordet 'Sander2015' sterkere. Hvilken versjon er best?",
                       "options": [
                         { "id": "a", "value": "sander2015" },
                         { "id": "b", "value": "Sander2015!" },
@@ -330,16 +330,16 @@ public class DataLoader implements ApplicationRunner {
                 passwordStop,
                 3,
                 "Bygg et sterkt passord",
-                "Bruk brikkene til Ã¥ lage et passord som er sterkt nok.",
+                "Bruk brikkene til å lage et passord som er sterkt nok.",
                 """
                     {
                       "type": "BUILDER",
-                      "question": "Bygg et passord som er sterkt nok til Ã¥ lÃ¥se opp bankboksen",
-                      "words": ["Tiger", "MÃ¥ne", "Pizza", "Hund", "Sol", "IsbjÃ¸rn", "Fjord"],
+                      "question": "Bygg et passord som er sterkt nok til å låse opp bankboksen",
+                      "words": ["Tiger", "Måne", "Pizza", "Hund", "Sol", "Isbjørn", "Fjord"],
                       "symbols": ["!", "#", "@", "?", "&", "*"],
                       "numbers": ["7", "42", "99", "3", "2026"],
                       "minStrength": "STRONG",
-                      "explanation": "Et sterkt passord er langt, bruker store og smÃ¥ bokstaver, tall og spesialtegn, og inneholder ikke personlig informasjon."
+                      "explanation": "Et sterkt passord er langt, bruker store og små bokstaver, tall og spesialtegn, og inneholder ikke personlig informasjon."
                     }
                     """,
                 """
@@ -427,21 +427,21 @@ public class DataLoader implements ApplicationRunner {
                       "post": {
                         "username": "TrondheimNytt",
                         "handle": "@trondheim_nytt",
-                        "avatar": "ðŸ“°",
-                        "content": "DELE DETTE NÃ…!!! OrdfÃ¸rerens pengeskandal er MYE VERRE enn noen tror ðŸ˜±ðŸ˜±ðŸ˜± Anonym kilde avslÃ¸rer det ingen tÃ¸r si hÃ¸yt!!!",
+                        "avatar": "📰",
+                        "content": "DELE DETTE NÅ!!! Ordførerens pengeskandal er MYE VERRE enn noen tror 😱😱😱 Anonym kilde avslører det ingen tør si høyt!!!",
                         "likes": 2847,
                         "comments": 431,
                         "timestamp": "3 timer siden",
                         "verified": false
                       },
-                      "question": "Hva bÃ¸r du gjÃ¸re med dette innlegget?",
+                      "question": "Hva bør du gjøre med dette innlegget?",
                       "options": [
                         { "id": "SHARE", "text": "Del det videre med en gang" },
                         { "id": "WAIT", "text": "Vent og se om det dukker opp andre steder" },
-                        { "id": "CHECK_SOURCES", "text": "Sjekk kilden og faktasjekk fÃ¸r du gjÃ¸r noe" },
-                        { "id": "ASK_ADULT", "text": "SpÃ¸r en voksen" }
+                        { "id": "CHECK_SOURCES", "text": "Sjekk kilden og faktasjekk før du gjør noe" },
+                        { "id": "ASK_ADULT", "text": "Spør en voksen" }
                       ],
-                      "explanation": "KapslÃ¥s, utropstegn, anonym kilde og oppfordring til hastedeling er alle tegn pÃ¥ manipulerende innhold."
+                      "explanation": "Kapslås, utropstegn, anonym kilde og oppfordring til hastedeling er alle tegn på manipulerende innhold."
                     }
                     """,
                 """
@@ -451,29 +451,29 @@ public class DataLoader implements ApplicationRunner {
             socialMediaTask(
                 socialStop,
                 2,
-                "FÃ¸lelser pÃ¥ sosiale medier",
-                "Identifiser hvilke fÃ¸lelser innlegget prÃ¸ver Ã¥ skape.",
+                "Følelser på sosiale medier",
+                "Identifiser hvilke følelser innlegget prøver å skape.",
                 """
                     {
                       "type": "CHOOSE_ACTION",
                       "post": {
                         "username": "Bekymret Borger",
                         "handle": "@bekymret_borger_99",
-                        "avatar": "ðŸ˜¤",
-                        "content": "Politiet gjÃ¸r INGENTING. Byen vÃ¥r er UTRYGG. Del dette til ALLE du kjenner sÃ¥ vi kan stoppe dette galskapet en gang for alle!!!",
+                        "avatar": "😤",
+                        "content": "Politiet gjør INGENTING. Byen vår er UTRYGG. Del dette til ALLE du kjenner så vi kan stoppe dette galskapet en gang for alle!!!",
                         "likes": 9432,
                         "comments": 2109,
                         "timestamp": "1 time siden",
                         "verified": false
                       },
-                      "question": "Hva bÃ¸r du gjÃ¸re?",
+                      "question": "Hva bør du gjøre?",
                       "options": [
-                        { "id": "SHARE", "text": "Del med en gang â€” dette er viktig!" },
-                        { "id": "CHECK_SOURCES", "text": "Sjekk om det er sant fÃ¸r du deler" },
+                        { "id": "SHARE", "text": "Del med en gang - dette er viktig!" },
+                        { "id": "CHECK_SOURCES", "text": "Sjekk om det er sant før du deler" },
                         { "id": "IGNORE", "text": "Ignorer innlegget" },
-                        { "id": "ASK_ADULT", "text": "SpÃ¸r en voksen om rÃ¥d" }
+                        { "id": "ASK_ADULT", "text": "Spør en voksen om råd" }
                       ],
-                      "explanation": "Innlegget bruker sinne, kapslÃ¥s og gruppepress for Ã¥ fÃ¥ deg til Ã¥ dele raskt uten Ã¥ tenke."
+                      "explanation": "Innlegget bruker sinne, kapslås og gruppepress for å få deg til å dele raskt uten å tenke."
                     }
                     """,
                 """
@@ -492,10 +492,10 @@ public class DataLoader implements ApplicationRunner {
                       "posts": [
                         {
                           "id": "post_0",
-                          "username": "OrdfÃ¸rerens kontor",
+                          "username": "Ordførerens kontor",
                           "handle": "@ordforer_trondheim",
-                          "avatar": "ðŸ›ï¸",
-                          "content": "Kommunen jobber aktivt med saken. Vi informerer fortlÃ¸pende pÃ¥ kommunens offisielle nettside.",
+                          "avatar": "🏛️",
+                          "content": "Kommunen jobber aktivt med saken. Vi informerer fortløpende på kommunens offisielle nettside.",
                           "likes": 312,
                           "comments": 44,
                           "timestamp": "1 time siden",
@@ -505,8 +505,8 @@ public class DataLoader implements ApplicationRunner {
                           "id": "post_1",
                           "username": "SannhetsJegeren99",
                           "handle": "@sannhet99",
-                          "avatar": "ðŸ‘ï¸",
-                          "content": "JEG VET HVEM TYVEN ER!! Myndighetene prÃ¸ver Ã¥ dekke over sannheten!! Del dette til ALLE du kjenner FÃ˜R de sletter det ðŸ”¥ðŸ”¥ðŸ”¥",
+                          "avatar": "👁️",
+                          "content": "JEG VET HVEM TYVEN ER!! Myndighetene prøver å dekke over sannheten!! Del dette til ALLE du kjenner FØR de sletter det 🔥🔥🔥",
                           "likes": 18432,
                           "comments": 2341,
                           "timestamp": "45 min siden",
@@ -516,15 +516,15 @@ public class DataLoader implements ApplicationRunner {
                           "id": "post_2",
                           "username": "Lokal Reporter",
                           "handle": "@lokal_reporter",
-                          "avatar": "ðŸ“",
-                          "content": "Politiet bekrefter at etterforskningen pÃ¥gÃ¥r. Ingen mistenkte er offentlig navngitt ennÃ¥.",
+                          "avatar": "📝",
+                          "content": "Politiet bekrefter at etterforskningen pågår. Ingen mistenkte er offentlig navngitt ennå.",
                           "likes": 891,
                           "comments": 123,
                           "timestamp": "2 timer siden",
                           "verified": false
                         }
                       ],
-                      "explanation": "Innlegg 2 (SannhetsJegeren99) bruker kapslÃ¥s, udokumenterte pÃ¥stander, konspirasjonssprÃ¥k og oppfordrer til hastedeling â€” klassiske tegn pÃ¥ manipulerende innhold."
+                      "explanation": "Innlegg 2 (SannhetsJegeren99) bruker kapslås, udokumenterte påstander, konspirasjonsspråk og oppfordrer til hastedeling - klassiske tegn på manipulerende innhold."
                     }
                     """,
                 """
@@ -609,7 +609,7 @@ public class DataLoader implements ApplicationRunner {
         Task task = baseTask(stop, orderIndex, title, description, TaskType.AI_PHOTO);
         task.setContentJson(contentJson);
         task.setCorrectAnswerJson(correctAnswerJson);
-        task.setGuidanceText("Se nÃ¸ye pÃ¥ detaljene i hvert bilde: hender, bakgrunn, lys og skygger.");
+        task.setGuidanceText("Se nøye på detaljene i hvert bilde: hender, bakgrunn, lys og skygger.");
         return task;
     }
 
@@ -639,7 +639,7 @@ public class DataLoader implements ApplicationRunner {
         Task task = baseTask(stop, orderIndex, title, description, TaskType.SOCIAL_MEDIA);
         task.setContentJson(contentJson);
         task.setCorrectAnswerJson(correctAnswerJson);
-        task.setGuidanceText("Les innlegget nÃ¸ye. Tenk over hvilke fÃ¸lelser det prÃ¸ver Ã¥ skape.");
+        task.setGuidanceText("Les innlegget nøye. Tenk over hvilke følelser det prøver å skape.");
         return task;
     }
 
@@ -654,7 +654,7 @@ public class DataLoader implements ApplicationRunner {
         Task task = baseTask(stop, orderIndex, title, description, TaskType.PASSWORD);
         task.setContentJson(contentJson);
         task.setCorrectAnswerJson(correctAnswerJson);
-        task.setGuidanceText("Tenk pÃ¥ lengde, variasjon og om passordet inneholder personlig informasjon.");
+        task.setGuidanceText("Tenk på lengde, variasjon og om passordet inneholder personlig informasjon.");
         return task;
     }
 
