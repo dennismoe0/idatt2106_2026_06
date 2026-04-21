@@ -423,24 +423,70 @@ function buildMockTasks() {
       id: 6001,
       stopId: 6,
       taskType: 'SOCIAL_MEDIA',
-      guidanceText: 'Velg riktig handling når du ser mistenkelige innlegg.',
+      guidanceText: 'Les innlegget nøye og velg den tryggeste handlingen.',
       contentJson: {
-        type: 'CHOOSE_ACTION',
         post: {
-          username: 'TrondheimNytt', handle: '@trondheim_nytt', avatar: '📰',
-          content: 'DELE DETTE NÅ!!! Ordførerens pengeskandal er MYE VERRE enn noen tror 😱😱😱',
-          likes: 2847, comments: 431, timestamp: '3 timer siden', verified: false
+          platform: 'Fjesbok',
+          username: 'BesteFriend99',
+          avatar: '👤',
+          content: 'Hei! Jeg vant en premie og trenger telefonnummeret ditt for å sende den.'
         },
-        question: 'Hva bør du gjøre med dette innlegget?',
+        question: 'Hva gjør du?',
         options: [
-          { id: 'SHARE', text: 'Del det videre med en gang' },
-          { id: 'WAIT', text: 'Vent og se om det dukker opp andre steder' },
-          { id: 'CHECK_SOURCES', text: 'Sjekk kilden og faktasjekk før du gjør noe' },
-          { id: 'ASK_ADULT', text: 'Spør en voksen' }
+          { id: 'reply', text: 'Svar med telefonnummeret mitt' },
+          { id: 'ignore', text: 'Ignorer meldingen' },
+          { id: 'report', text: 'Rapporter og blokker kontoen' },
+          { id: 'ask', text: 'Spør hvem det er' }
         ]
       },
-      mockCorrectAnswer: { action: 'CHECK_SOURCES' },
-      mockExplanation: 'Kapslås og rop om hastedeling er vanlige tegn på manipulerende innhold. Sjekk alltid kilden!'
+      mockCorrectAnswer: { selected: 'report' },
+      mockExplanation: 'Fremmede som ber om personinfo er et varseltegn. Rapporter og blokker.'
+    },
+    {
+      id: 6002,
+      stopId: 6,
+      taskType: 'SOCIAL_MEDIA',
+      guidanceText: 'Les innlegget nøye og velg den tryggeste handlingen.',
+      contentJson: {
+        post: {
+          platform: 'Fjesbok',
+          username: 'Nyhetshjelperen',
+          avatar: '📢',
+          content: 'Alle må dele dette nå! Skolen stenger i morgen for alltid. Ingen andre tør å si sannheten.'
+        },
+        question: 'Hva gjør du?',
+        options: [
+          { id: 'share', text: 'Del innlegget videre med en gang' },
+          { id: 'ignore', text: 'Ignorer innlegget' },
+          { id: 'report', text: 'Rapporter innlegget som falskt eller skadelig' },
+          { id: 'ask', text: 'Sjekk om informasjonen stemmer før du gjør noe' }
+        ]
+      },
+      mockCorrectAnswer: { selected: 'ask' },
+      mockExplanation: 'Ikke del virale påstander før du har sjekket om de stemmer.'
+    },
+    {
+      id: 6003,
+      stopId: 6,
+      taskType: 'SOCIAL_MEDIA',
+      guidanceText: 'Les innlegget nøye og velg den tryggeste handlingen.',
+      contentJson: {
+        post: {
+          platform: 'Fjesbok',
+          username: 'Venn123',
+          avatar: '🧑',
+          content: 'Kan du sende meg passordet ditt? Jeg skal bare hjelpe deg å logge inn raskt.'
+        },
+        question: 'Hva gjør du?',
+        options: [
+          { id: 'reply', text: 'Sender passordet mitt i chatten' },
+          { id: 'ignore', text: 'Lar være å svare' },
+          { id: 'report', text: 'Rapporterer meldingen med en gang' },
+          { id: 'ask', text: 'Sier nei og forklarer at passord aldri skal deles' }
+        ]
+      },
+      mockCorrectAnswer: { selected: 'ask' },
+      mockExplanation: 'Selv venner skal ikke ha passordet ditt. Den tryggeste handlingen er å si nei og aldri dele det.'
     },
     {
       id: 5001,
