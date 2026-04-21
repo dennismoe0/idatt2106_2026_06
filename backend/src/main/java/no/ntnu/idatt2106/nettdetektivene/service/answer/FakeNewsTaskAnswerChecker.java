@@ -1,6 +1,7 @@
 package no.ntnu.idatt2106.nettdetektivene.service.answer;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import no.ntnu.idatt2106.nettdetektivene.entity.Task;
 import no.ntnu.idatt2106.nettdetektivene.entity.TaskType;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ public class FakeNewsTaskAnswerChecker implements TaskAnswerChecker {
     }
 
     @Override
-    public boolean isCorrect(JsonNode correctAnswer, Map<String, Object> answer) {
+    public boolean isCorrect(Task task, JsonNode correctAnswer, Map<String, Object> answer) {
         Iterator<Map.Entry<String, JsonNode>> fields = correctAnswer.fields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
