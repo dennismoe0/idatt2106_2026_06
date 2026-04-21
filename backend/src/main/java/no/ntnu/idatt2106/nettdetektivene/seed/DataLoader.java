@@ -69,6 +69,7 @@ public class DataLoader implements ApplicationRunner {
 
         Stop newsStop = stops.get(0);
         Stop mailStop = stops.get(1);
+        Stop passwordStop = stops.get(3);
         Stop marketStop = stops.get(4);
 
         taskRepository.saveAll(List.of(
@@ -182,6 +183,70 @@ public class DataLoader implements ApplicationRunner {
                 "Logg inn med skolebrukeren din på lenken under for å beholde tilgang til Teams og e-post.",
                 List.of("fromEmail", "loginRequest", "link"),
                 "E-posten ber om innlogging via et ukjent domene. IT-meldinger bør sjekkes mot skolens offisielle kanaler."
+            ),
+            passwordTask(
+                passwordStop,
+                1,
+                "Velg det tryggeste passordet",
+                "Finn ut hvilket passord som er best.",
+                """
+                    {
+                      "type": "CHOICE",
+                      "question": "Hvilket passord er tryggest?",
+                      "options": [
+                        { "id": "a", "value": "Ola123" },
+                        { "id": "b", "value": "Emma2014" },
+                        { "id": "c", "value": "Katt" },
+                        { "id": "d", "value": "F!sk3Taco#92" }
+                      ],
+                      "explanation": "F!sk3Taco#92 er sterkest fordi det er langt og blander store og smÃ¥ bokstaver, tall og spesialtegn. Navn og Ã¥rstall er svake."
+                    }
+                    """,
+                """
+                    { "selected": "d" }
+                    """
+            ),
+            passwordTask(
+                passwordStop,
+                2,
+                "GjÃ¸r passordet bedre",
+                "Velg det passordet som er best forbedret.",
+                """
+                    {
+                      "type": "CHOICE",
+                      "question": "Noen har prÃ¸vd Ã¥ gjÃ¸re passordet 'Sander2015' sterkere. Hvilken versjon er best?",
+                      "options": [
+                        { "id": "a", "value": "sander2015" },
+                        { "id": "b", "value": "Sander2015!" },
+                        { "id": "c", "value": "S@nder_2O15#" },
+                        { "id": "d", "value": "SolKatt!Fjord#22" }
+                      ],
+                      "explanation": "SolKatt!Fjord#22 er sterkest fordi det ikke inneholder personlig informasjon, er langt og blander tegn godt."
+                    }
+                    """,
+                """
+                    { "selected": "d" }
+                    """
+            ),
+            passwordTask(
+                passwordStop,
+                3,
+                "Bygg et sterkt passord",
+                "Bruk brikkene til Ã¥ lage et passord som er sterkt nok.",
+                """
+                    {
+                      "type": "BUILDER",
+                      "question": "Bygg et passord som er sterkt nok til Ã¥ lÃ¥se opp bankboksen",
+                      "words": ["Tiger", "MÃ¥ne", "Pizza", "Hund", "Sol", "IsbjÃ¸rn", "Fjord"],
+                      "symbols": ["!", "#", "@", "?", "&", "*"],
+                      "numbers": ["7", "42", "99", "3", "2026"],
+                      "minStrength": "STRONG",
+                      "explanation": "Et sterkt passord er langt, bruker store og smÃ¥ bokstaver, tall og spesialtegn, og inneholder ikke personlig informasjon."
+                    }
+                    """,
+                """
+                    { "minStrength": "STRONG" }
+                    """
             ),
             marketplaceTask(
                 marketStop,
@@ -332,6 +397,21 @@ public class DataLoader implements ApplicationRunner {
         task.setContentJson(contentJson);
         task.setCorrectAnswerJson(correctAnswerJson);
         task.setGuidanceText("Sjekk URL, priser, kontaktinfo og betalingsvalg nøye.");
+        return task;
+    }
+
+    private Task passwordTask(
+        Stop stop,
+        int orderIndex,
+        String title,
+        String description,
+        String contentJson,
+        String correctAnswerJson
+    ) {
+        Task task = baseTask(stop, orderIndex, title, description, TaskType.PASSWORD);
+        task.setContentJson(contentJson);
+        task.setCorrectAnswerJson(correctAnswerJson);
+        task.setGuidanceText("Tenk pÃ¥ lengde, variasjon og om passordet inneholder personlig informasjon.");
         return task;
     }
 
