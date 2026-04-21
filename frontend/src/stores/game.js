@@ -9,6 +9,7 @@ export const useGameStore = defineStore('game', () => {
   const progress = ref(null)
   const medals = ref([])
   const leaderboard = ref([])
+  const schoolLeaderboard = ref([])
   const level = ref(0)
   const xp = ref(0)
   const starBalance = ref(0)
@@ -118,6 +119,19 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  async function fetchSchoolLeaderboard(classroomId) {
+    console.log('[game] Fetching school leaderboard for classroomId:', classroomId)
+    try {
+      const { data } = await gameService.getSchoolLeaderboard(classroomId)
+      schoolLeaderboard.value = data
+      console.log('[game] School leaderboard fetched:', data.length, 'entries')
+      return data
+    } catch (err) {
+      console.error('[game] Failed to fetch school leaderboard:', err)
+      throw err
+    }
+  }
+
   async function fetchProfile() {
     if (profileLoaded.value) return
     console.log('[game] Fetching player profile')
@@ -163,10 +177,10 @@ export const useGameStore = defineStore('game', () => {
   }
 
   return {
-    stops, tasks, currentTask, progress, medals, leaderboard,
+    stops, tasks, currentTask, progress, medals, leaderboard, schoolLeaderboard,
     level, xp, starBalance, displayStarBalance,
     fetchStops, fetchTasks, fetchTask, submitAnswer, fetchProgress,
-    fetchMedals, fetchAllMedals, fetchLeaderboard,
+    fetchMedals, fetchAllMedals, fetchLeaderboard, fetchSchoolLeaderboard,
     fetchProfile, claimWeeklyXp,
     prepareStarAnimation, incrementDisplayStar
   }

@@ -89,6 +89,15 @@
                 @back-to-map="goToMap"
               />
 
+              <AIPhotoTask
+                v-else-if="currentTask.taskType === 'AI_PHOTO'"
+                :task="currentTask"
+                :result="result"
+                :is-last-task="currentTaskIndex === tasks.length - 1"
+                @submitted="handleSubmit"
+                @next="goNext"
+              />
+
               <MarketplaceTask
                 v-else-if="currentTask.taskType === 'MARKETPLACE'"
                 :task="currentTask"
@@ -138,6 +147,7 @@ import { useAvatarStore } from '@/stores/avatar'
 import DetectiveBar from '@/components/common/DetectiveBar.vue'
 import TutorialScreen from '@/components/student/TutorialScreen.vue'
 import FakeNewsTask from '@/components/student/FakeNewsTask.vue'
+import AIPhotoTask from '@/components/student/AIPhotoTask.vue'
 import MarketplaceTask from '@/components/student/MarketplaceTask.vue'
 import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
 import FinalBossTask from '@/components/student/FinalBossTask.vue'
@@ -202,6 +212,10 @@ const TUTORIAL_TEXTS = {
   PHISHING_EMAIL: {
     title: 'Spot mistenkelige deler',
     instructions: 'Du vil lese en e-post. Klikk på delene du synes er mistenkelige — for eksempel avsenderen, lenker eller hastefraser. Klikk "Send svar" når du er ferdig.'
+  },
+  AI_PHOTO: {
+    title: 'Ekte, KI-generert eller manipulert?',
+    instructions: 'Du vil se bilder. For hvert bilde — velg om det er ekte, KI-generert eller manipulert. Se etter rare fingre, glatte bakgrunner og uskarp tekst som avslører KI.'
   }
 }
 
@@ -343,6 +357,20 @@ function buildMockTasks() {
       },
       mockCorrectAnswer: { action: 'REPORT' },
       mockExplanation: 'Avsenderdomenet er ikke dnb.no, derfor bør e-posten rapporteres.'
+    },
+    {
+      id: 3001,
+      stopId: 3,
+      taskType: 'AI_PHOTO',
+      guidanceText: 'Sorter hvert bilde: er det ekte, KI-generert eller manipulert?',
+      contentJson: {
+        images: [
+          { id: 'image_0', src: '', alt: 'En person på en benk — fingrene ser litt rare ut', label: 'Bilde A' },
+          { id: 'image_1', src: '', alt: 'Utsikt over en by tatt fra et vindu — normalt mobilbilde', label: 'Bilde B' }
+        ]
+      },
+      mockCorrectAnswer: { image_0: 'AI_GENERATED', image_1: 'REAL' },
+      mockExplanation: 'Bilde A er KI-generert — legg merke til de unaturlige fingrene og den glatte bakgrunnen.'
     },
     {
       id: 5001,
