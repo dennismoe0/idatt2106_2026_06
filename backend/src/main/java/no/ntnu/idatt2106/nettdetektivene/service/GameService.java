@@ -142,13 +142,16 @@ public class GameService {
                 isStopComplete(studentId, task.getStop().getId()),
                 null,
                 0,
-                0
+                0,
+                List.of()
             );
         }
 
         if (!checkAnswer(task, req == null ? null : req.answer())) {
             log.info("[GameService] wrong answer studentId={} taskId={}", studentId, taskId);
-            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0);
+            List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? correctClueIdsFor(task) : List.of();
+            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds);
         }
 
         StudentProgress progress = existingProgress.orElseGet(StudentProgress::new);
@@ -190,7 +193,9 @@ public class GameService {
             ? checkAndAwardMedal(studentId, task.getStop().getId()).map(this::toMedalDto).orElse(null)
             : null;
 
-        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 1, xpEarned);
+        List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
+            ? correctClueIdsFor(task) : List.of();
+        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 1, xpEarned, correctClueIds);
     }
 
     @Transactional(readOnly = true)
@@ -320,11 +325,17 @@ public class GameService {
     }
 
     private boolean checkPhishingEmailAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
-        Object submittedAction = answer.get("action");
-        if (submittedAction == null || correctAnswer.path("action").isMissingNode()) {
-            return false;
+        return PhishingAnswerChecker.check(correctAnswer, answer);
+    }
+
+    private List<String> correctClueIdsFor(Task task) {
+        try {
+            JsonNode correct = objectMapper.readTree(task.getCorrectAnswerJson());
+            return PhishingAnswerChecker.requiredClueIds(correct);
+        } catch (Exception e) {
+            log.warn("[GameService] Failed to parse correctAnswerJson for clue IDs taskId={}", task.getId());
+            return List.of();
         }
-        return correctAnswer.path("action").asText().equalsIgnoreCase(String.valueOf(submittedAction));
     }
 
     private Boolean asBoolean(Object value) {
@@ -447,6 +458,15 @@ public class GameService {
             if (type == TaskType.PHISHING_EMAIL && root.path("email").isObject()) {
                 ObjectNode email = (ObjectNode) root.path("email");
                 email.remove("correctAction");
+                if (email.path("clues").isArray()) {
+                    ArrayNode clues = (ArrayNode) email.path("clues");
+                    clues.forEach(clue -> {
+                        if (clue.isObject()) {
+                            ((ObjectNode) clue).remove("isClue");
+                            ((ObjectNode) clue).remove("explanation");
+                        }
+                    });
+                }
             }
 
             return root;
