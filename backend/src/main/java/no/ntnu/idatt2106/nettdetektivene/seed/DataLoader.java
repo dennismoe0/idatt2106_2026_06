@@ -164,7 +164,6 @@ public class DataLoader implements ApplicationRunner {
                 mailStop,
                 1,
                 "Bankvarsel",
-                "Klikk på alle mistenkelige deler av e-posten.",
                 "DNB Kundeservice",
                 "support@dnb-kundeservice.com",
                 "Viktig: Bekreft kontoen din",
@@ -181,7 +180,6 @@ public class DataLoader implements ApplicationRunner {
                 mailStop,
                 2,
                 "Pakkemelding",
-                "Klikk på alle mistenkelige deler av e-posten.",
                 "Posten Norge",
                 "pakke@posten-levering.net",
                 "Pakken din mangler porto",
@@ -198,7 +196,6 @@ public class DataLoader implements ApplicationRunner {
                 mailStop,
                 3,
                 "Skolekonto",
-                "Klikk på alle mistenkelige deler av e-posten.",
                 "IT-avdelingen",
                 "it-hjelp@skole-login.com",
                 "Passordet ditt utløper i dag",
@@ -445,7 +442,6 @@ public class DataLoader implements ApplicationRunner {
         Stop stop,
         int orderIndex,
         String title,
-        String description,
         String fromName,
         String fromEmail,
         String subject,
@@ -453,7 +449,8 @@ public class DataLoader implements ApplicationRunner {
         List<Clue> clues,
         String explanation
     ) {
-        Task task = baseTask(stop, orderIndex, title, description, TaskType.PHISHING_EMAIL);
+        Task task = baseTask(stop, orderIndex, title,
+            "Klikk på alle mistenkelige deler av e-posten.", TaskType.PHISHING_EMAIL);
         task.setContentJson(phishingContentJson(fromName, fromEmail, subject, body, clues, explanation));
         List<String> requiredClueIds = clues.stream()
             .filter(Clue::isClue)
