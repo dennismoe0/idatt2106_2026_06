@@ -69,8 +69,10 @@ public class DataLoader implements ApplicationRunner {
 
         Stop newsStop = stops.get(0);
         Stop mailStop = stops.get(1);
+        Stop photoStop = stops.get(2);
         Stop passwordStop = stops.get(3);
         Stop marketStop = stops.get(4);
+        Stop socialStop = stops.get(5);
 
         taskRepository.saveAll(List.of(
             fakeNewsTask(
@@ -183,6 +185,102 @@ public class DataLoader implements ApplicationRunner {
                 "Logg inn med skolebrukeren din på lenken under for å beholde tilgang til Teams og e-post.",
                 List.of("fromEmail", "loginRequest", "link"),
                 "E-posten ber om innlogging via et ukjent domene. IT-meldinger bør sjekkes mot skolens offisielle kanaler."
+            ),
+            aiPhotoTask(
+                photoStop,
+                1,
+                "Parkbilder",
+                "Er bildet ekte, KI-generert eller manipulert?",
+                """
+                    {
+                      "images": [
+                        {
+                          "id": "image_0",
+                          "src": "",
+                          "alt": "En person sitter pÃ¥ en benk i en park. Fingrene ser litt rare ut.",
+                          "label": "Bilde A"
+                        },
+                        {
+                          "id": "image_1",
+                          "src": "",
+                          "alt": "Utsikt over en by tatt fra et vindu. Normalt mobilbilde.",
+                          "label": "Bilde B"
+                        }
+                      ],
+                      "question": "Sorter hvert bilde: er det ekte, KI-generert eller manipulert?"
+                    }
+                    """,
+                """
+                    { "image_0": "AI_GENERATED", "image_1": "REAL" }
+                    """
+            ),
+            aiPhotoTask(
+                photoStop,
+                2,
+                "Bytorget",
+                "Finn hvilket bilde som er ekte og kan brukes som bevis.",
+                """
+                    {
+                      "images": [
+                        {
+                          "id": "image_0",
+                          "src": "",
+                          "alt": "En person pÃ¥ et torg. Bakgrunnen gjentar seg tydelig.",
+                          "label": "Bilde A"
+                        },
+                        {
+                          "id": "image_1",
+                          "src": "",
+                          "alt": "Et mobilbilde av samme torg. Normalt lys og naturlig bakgrunn.",
+                          "label": "Bilde B"
+                        },
+                        {
+                          "id": "image_2",
+                          "src": "",
+                          "alt": "Et bilde der ansiktet er urealistisk glatt og jevnt.",
+                          "label": "Bilde C"
+                        }
+                      ],
+                      "question": "Sorter hvert bilde: ekte, KI-generert eller manipulert?"
+                    }
+                    """,
+                """
+                    { "image_0": "AI_GENERATED", "image_1": "REAL", "image_2": "MANIPULATED" }
+                    """
+            ),
+            aiPhotoTask(
+                photoStop,
+                3,
+                "Bevisbildet",
+                "Kun ett bilde kan brukes som ekte bevis. Finn det.",
+                """
+                    {
+                      "images": [
+                        {
+                          "id": "image_0",
+                          "src": "",
+                          "alt": "Bilde med uvanlige skygger som ikke stemmer med lyskilden.",
+                          "label": "Bilde A"
+                        },
+                        {
+                          "id": "image_1",
+                          "src": "",
+                          "alt": "Bilde der teksten pÃ¥ skiltene i bakgrunnen er uskarp og uleselig.",
+                          "label": "Bilde B"
+                        },
+                        {
+                          "id": "image_2",
+                          "src": "",
+                          "alt": "Et klart mobilbilde. Alle detaljer ser naturlige ut.",
+                          "label": "Bilde C"
+                        }
+                      ],
+                      "question": "Hvilket bilde kan vi stole pÃ¥ som ekte bevis?"
+                    }
+                    """,
+                """
+                    { "image_0": "MANIPULATED", "image_1": "AI_GENERATED", "image_2": "REAL" }
+                    """
             ),
             passwordTask(
                 passwordStop,
@@ -317,6 +415,121 @@ public class DataLoader implements ApplicationRunner {
                 """
                     { "selected": "b" }
                     """
+            ),
+            socialMediaTask(
+                socialStop,
+                1,
+                "Del eller vent?",
+                "Velg riktig handling.",
+                """
+                    {
+                      "type": "CHOOSE_ACTION",
+                      "post": {
+                        "username": "TrondheimNytt",
+                        "handle": "@trondheim_nytt",
+                        "avatar": "ðŸ“°",
+                        "content": "DELE DETTE NÃ…!!! OrdfÃ¸rerens pengeskandal er MYE VERRE enn noen tror ðŸ˜±ðŸ˜±ðŸ˜± Anonym kilde avslÃ¸rer det ingen tÃ¸r si hÃ¸yt!!!",
+                        "likes": 2847,
+                        "comments": 431,
+                        "timestamp": "3 timer siden",
+                        "verified": false
+                      },
+                      "question": "Hva bÃ¸r du gjÃ¸re med dette innlegget?",
+                      "options": [
+                        { "id": "SHARE", "text": "Del det videre med en gang" },
+                        { "id": "WAIT", "text": "Vent og se om det dukker opp andre steder" },
+                        { "id": "CHECK_SOURCES", "text": "Sjekk kilden og faktasjekk fÃ¸r du gjÃ¸r noe" },
+                        { "id": "ASK_ADULT", "text": "SpÃ¸r en voksen" }
+                      ],
+                      "explanation": "KapslÃ¥s, utropstegn, anonym kilde og oppfordring til hastedeling er alle tegn pÃ¥ manipulerende innhold."
+                    }
+                    """,
+                """
+                    { "action": "CHECK_SOURCES" }
+                    """
+            ),
+            socialMediaTask(
+                socialStop,
+                2,
+                "FÃ¸lelser pÃ¥ sosiale medier",
+                "Identifiser hvilke fÃ¸lelser innlegget prÃ¸ver Ã¥ skape.",
+                """
+                    {
+                      "type": "CHOOSE_ACTION",
+                      "post": {
+                        "username": "Bekymret Borger",
+                        "handle": "@bekymret_borger_99",
+                        "avatar": "ðŸ˜¤",
+                        "content": "Politiet gjÃ¸r INGENTING. Byen vÃ¥r er UTRYGG. Del dette til ALLE du kjenner sÃ¥ vi kan stoppe dette galskapet en gang for alle!!!",
+                        "likes": 9432,
+                        "comments": 2109,
+                        "timestamp": "1 time siden",
+                        "verified": false
+                      },
+                      "question": "Hva bÃ¸r du gjÃ¸re?",
+                      "options": [
+                        { "id": "SHARE", "text": "Del med en gang â€” dette er viktig!" },
+                        { "id": "CHECK_SOURCES", "text": "Sjekk om det er sant fÃ¸r du deler" },
+                        { "id": "IGNORE", "text": "Ignorer innlegget" },
+                        { "id": "ASK_ADULT", "text": "SpÃ¸r en voksen om rÃ¥d" }
+                      ],
+                      "explanation": "Innlegget bruker sinne, kapslÃ¥s og gruppepress for Ã¥ fÃ¥ deg til Ã¥ dele raskt uten Ã¥ tenke."
+                    }
+                    """,
+                """
+                    { "action": "CHECK_SOURCES" }
+                    """
+            ),
+            socialMediaTask(
+                socialStop,
+                3,
+                "Finn det mest illegitime innlegget",
+                "Velg innlegget med minst troverdighet.",
+                """
+                    {
+                      "type": "IDENTIFY_WORST",
+                      "question": "Hvilket innlegg er mest illegitimt?",
+                      "posts": [
+                        {
+                          "id": "post_0",
+                          "username": "OrdfÃ¸rerens kontor",
+                          "handle": "@ordforer_trondheim",
+                          "avatar": "ðŸ›ï¸",
+                          "content": "Kommunen jobber aktivt med saken. Vi informerer fortlÃ¸pende pÃ¥ kommunens offisielle nettside.",
+                          "likes": 312,
+                          "comments": 44,
+                          "timestamp": "1 time siden",
+                          "verified": true
+                        },
+                        {
+                          "id": "post_1",
+                          "username": "SannhetsJegeren99",
+                          "handle": "@sannhet99",
+                          "avatar": "ðŸ‘ï¸",
+                          "content": "JEG VET HVEM TYVEN ER!! Myndighetene prÃ¸ver Ã¥ dekke over sannheten!! Del dette til ALLE du kjenner FÃ˜R de sletter det ðŸ”¥ðŸ”¥ðŸ”¥",
+                          "likes": 18432,
+                          "comments": 2341,
+                          "timestamp": "45 min siden",
+                          "verified": false
+                        },
+                        {
+                          "id": "post_2",
+                          "username": "Lokal Reporter",
+                          "handle": "@lokal_reporter",
+                          "avatar": "ðŸ“",
+                          "content": "Politiet bekrefter at etterforskningen pÃ¥gÃ¥r. Ingen mistenkte er offentlig navngitt ennÃ¥.",
+                          "likes": 891,
+                          "comments": 123,
+                          "timestamp": "2 timer siden",
+                          "verified": false
+                        }
+                      ],
+                      "explanation": "Innlegg 2 (SannhetsJegeren99) bruker kapslÃ¥s, udokumenterte pÃ¥stander, konspirasjonssprÃ¥k og oppfordrer til hastedeling â€” klassiske tegn pÃ¥ manipulerende innhold."
+                    }
+                    """,
+                """
+                    { "selected": "post_1" }
+                    """
             )
         ));
 
@@ -385,6 +598,21 @@ public class DataLoader implements ApplicationRunner {
         return task;
     }
 
+    private Task aiPhotoTask(
+        Stop stop,
+        int orderIndex,
+        String title,
+        String description,
+        String contentJson,
+        String correctAnswerJson
+    ) {
+        Task task = baseTask(stop, orderIndex, title, description, TaskType.AI_PHOTO);
+        task.setContentJson(contentJson);
+        task.setCorrectAnswerJson(correctAnswerJson);
+        task.setGuidanceText("Se nÃ¸ye pÃ¥ detaljene i hvert bilde: hender, bakgrunn, lys og skygger.");
+        return task;
+    }
+
     private Task marketplaceTask(
         Stop stop,
         int orderIndex,
@@ -397,6 +625,21 @@ public class DataLoader implements ApplicationRunner {
         task.setContentJson(contentJson);
         task.setCorrectAnswerJson(correctAnswerJson);
         task.setGuidanceText("Sjekk URL, priser, kontaktinfo og betalingsvalg nøye.");
+        return task;
+    }
+
+    private Task socialMediaTask(
+        Stop stop,
+        int orderIndex,
+        String title,
+        String description,
+        String contentJson,
+        String correctAnswerJson
+    ) {
+        Task task = baseTask(stop, orderIndex, title, description, TaskType.SOCIAL_MEDIA);
+        task.setContentJson(contentJson);
+        task.setCorrectAnswerJson(correctAnswerJson);
+        task.setGuidanceText("Les innlegget nÃ¸ye. Tenk over hvilke fÃ¸lelser det prÃ¸ver Ã¥ skape.");
         return task;
     }
 
