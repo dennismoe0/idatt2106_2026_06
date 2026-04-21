@@ -1,5 +1,5 @@
 <template>
-  <svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg"
+  <svg v-if="accessory !== 'none'" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg"
        style="position:absolute;inset:0;width:100%;height:100%">
     <!-- badge on chest -->
     <template v-if="accessory === 'badge'">
@@ -24,7 +24,6 @@
       <rect x="34" y="26" width="52" height="10" rx="3" fill="#1f2937" />
       <rect x="42" y="10" width="36" height="18" rx="4" fill="#1f2937" />
     </template>
-    <!-- none: render nothing -->
   </svg>
 </template>
 <script setup>

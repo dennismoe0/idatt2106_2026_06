@@ -36,7 +36,7 @@
       <rect x="30" y="92" width="60" height="64" rx="6" :fill="outfitColor" />
       <rect x="18" y="92" width="18" height="50" rx="8" :fill="outfitColor" />
       <rect x="84" y="92" width="18" height="50" rx="8" :fill="outfitColor" />
-      <path d="M 40 92 Q 60 102 80 92" :stroke="darken(outfitColor)" stroke-width="2" fill="none"/>
+      <path d="M 40 92 Q 60 102 80 92" :stroke="darken(outfitColor)" stroke-width="2" fill="none" />
     </template>
   </svg>
 </template>
@@ -44,10 +44,14 @@
 defineProps({ outfit: { type: String, default: 'detective-coat' }, outfitColor: { type: String, default: '#2563eb' } })
 
 function darken(hex) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    console.warn('[AvatarOutfit] darken() received non-hex color:', hex)
+    return hex
+  }
   const n = parseInt(hex.slice(1), 16)
   const r = Math.max(0, (n >> 16) - 40)
   const g = Math.max(0, ((n >> 8) & 0xff) - 40)
   const b = Math.max(0, (n & 0xff) - 40)
-  return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')
+  return '#' + [r, g, b].map(c => c.toString(16).padStart(2, '0')).join('')
 }
 </script>
