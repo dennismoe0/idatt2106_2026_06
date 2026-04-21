@@ -9,7 +9,7 @@
     </div>
 
     <div class="fake-shop__product">
-      <div class="fake-shop__img-placeholder" aria-hidden="true">🛍️</div>
+      <div class="fake-shop__img-placeholder" aria-hidden="true">🛒</div>
 
       <div class="fake-shop__details">
         <h3 class="fake-shop__product-name">{{ productName }}</h3>

@@ -20,7 +20,6 @@
 
           <FakeWebshop
             v-else-if="renderMode === 'html'"
-            class="site-preview__mockup"
             :site-name="siteLabel"
             :eyebrow="mockupContent.eyebrow"
             :headline="mockupContent.headline"
