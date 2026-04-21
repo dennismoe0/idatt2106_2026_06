@@ -56,7 +56,7 @@ public class DataLoader implements ApplicationRunner {
             stop("Markedsplassen",
                  "Vurder annonser, betalinger og trygg handel på nett.",
                  "MARKETPLACE", 5, false,
-                 "Svindel på nett bruker priser som er for gode til å være sanne, krever betaling på forhånd og har vage eller kopierte produktbeskrivelser. Sjekk alltid selgerprofilen og les tilbakemeldinger fra andre kjøpere. Betal aldri med gavekort eller kryptovaluta — det er nesten umulig å spore."),
+                 "Svindel på nett bruker priser som er for gode til å være sanne, krever betaling på forhånd og har vage eller kopierte produktbeskrivelser. Sjekk alltid selgerprofilen og les tilbakemeldinger fra andre kjøpere. Betal aldri med gavekort eller kryptovaluta - det er nesten umulig å spore."),
             stop("Den sosiale møteplassen",
                  "Ta gode valg i meldinger, kommentarer og deling.",
                  "SOCIAL_MEDIA", 6, false,
@@ -69,6 +69,7 @@ public class DataLoader implements ApplicationRunner {
 
         Stop newsStop = stops.get(0);
         Stop mailStop = stops.get(1);
+        Stop marketStop = stops.get(4);
 
         taskRepository.saveAll(List.of(
             fakeNewsTask(
@@ -181,6 +182,76 @@ public class DataLoader implements ApplicationRunner {
                 "Logg inn med skolebrukeren din på lenken under for å beholde tilgang til Teams og e-post.",
                 List.of("fromEmail", "loginRequest", "link"),
                 "E-posten ber om innlogging via et ukjent domene. IT-meldinger bør sjekkes mot skolens offisielle kanaler."
+            ),
+            marketplaceTask(
+                marketStop,
+                1,
+                "Nettbutikk-vurdering",
+                "Hva er det mest mistenkelige med denne nettsiden?",
+                """
+                    {
+                      "type": "IDENTIFY",
+                      "imageUrl": "",
+                      "siteName": "super-deals-norge.xyz",
+                      "question": "Hva er mest mistenkelig med denne nettsiden?",
+                      "options": [
+                        { "id": "a", "text": "Prisen er for lav til å være sann - 90% rabatt" },
+                        { "id": "b", "text": "Siden mangler kontaktinformasjon og adresse" },
+                        { "id": "c", "text": "URL-en er ikke et kjent norsk nettsted (.xyz er uvanlig)" },
+                        { "id": "d", "text": "Alt av dette er mistenkelig" }
+                      ],
+                      "explanation": "Alle tre tegnene er varselsignaler: ekstremt lav pris, manglende kontaktinfo og ukjent domene."
+                    }
+                    """,
+                """
+                    { "selected": "d" }
+                    """
+            ),
+            marketplaceTask(
+                marketStop,
+                2,
+                "Betalingsvarsel",
+                "Velg hva du bør gjøre.",
+                """
+                    {
+                      "type": "IDENTIFY",
+                      "imageUrl": "",
+                      "siteName": "billig-elektronikk.cc",
+                      "question": "Nettsiden ber deg betale med gavekort. Hva bør du gjøre?",
+                      "options": [
+                        { "id": "a", "text": "Kjøp med gavekort - det er raskest" },
+                        { "id": "b", "text": "Undersøk siden nærmere på internett før du gjør noe" },
+                        { "id": "c", "text": "Ikke kjøp - betaling med gavekort er et klassisk svindeltriks" },
+                        { "id": "d", "text": "Send dem en e-post for å dobbeltsjekke" }
+                      ],
+                      "explanation": "Betaling med gavekort er nesten alltid svindel - pengene er vanskelige å spore og sjelden mulige å få tilbake."
+                    }
+                    """,
+                """
+                    { "selected": "c" }
+                    """
+            ),
+            marketplaceTask(
+                marketStop,
+                3,
+                "Finn svindelsiden",
+                "Hvilken av de fire sidene er mest sannsynlig svindel?",
+                """
+                    {
+                      "type": "RANK",
+                      "question": "Hvilken av disse nettstedene er mest sannsynlig svindel?",
+                      "sites": [
+                        { "id": "a", "name": "komplett.no", "imageUrl": "" },
+                        { "id": "b", "name": "netthandel-billig.cc", "imageUrl": "" },
+                        { "id": "c", "name": "elkjop.no", "imageUrl": "" },
+                        { "id": "d", "name": "finn.no", "imageUrl": "" }
+                      ],
+                      "explanation": "netthandel-billig.cc bruker et uvanlig toppdomene (.cc), er ikke et kjent norsk nettsted og har ingen kjent historikk."
+                    }
+                    """,
+                """
+                    { "selected": "b" }
+                    """
             )
         ));
 
@@ -246,6 +317,21 @@ public class DataLoader implements ApplicationRunner {
             }
             """);
         task.setGuidanceText("Se nøye på avsender, lenker, hastverk og hva e-posten ber deg gjøre.");
+        return task;
+    }
+
+    private Task marketplaceTask(
+        Stop stop,
+        int orderIndex,
+        String title,
+        String description,
+        String contentJson,
+        String correctAnswerJson
+    ) {
+        Task task = baseTask(stop, orderIndex, title, description, TaskType.MARKETPLACE);
+        task.setContentJson(contentJson);
+        task.setCorrectAnswerJson(correctAnswerJson);
+        task.setGuidanceText("Sjekk URL, priser, kontaktinfo og betalingsvalg nøye.");
         return task;
     }
 
