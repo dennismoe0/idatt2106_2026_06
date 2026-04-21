@@ -114,7 +114,7 @@ function reveal() {
   line-height: 1.3;
 }
 .lineup__sub {
-  color: rgba(254,243,199,0.65);
+  color: color-mix(in srgb, var(--color-medal-gold-bg) 65%, transparent);
   margin: 0 0 var(--space-6);
 }
 .lineup__grid {

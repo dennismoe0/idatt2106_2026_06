@@ -437,7 +437,7 @@ public class DataLoader implements ApplicationRunner {
                   "challenge_1": { "image_0": "AI_GENERATED" },
                   "challenge_2": { "action": "REPORT" },
                   "challenge_3": { "selected": "b" },
-                  "challenge_4": { "action": "CHECK_SOURCES" },
+                  "challenge_4": { "selected": "CHECK_SOURCES" },
                   "challenge_5": { "selected": "c" }
                 }
                 """)));

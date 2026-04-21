@@ -67,7 +67,7 @@ defineEmits(['close'])
   position: absolute;
   top: -14px;
   width: 60px; height: 28px;
-  background: rgba(251,191,36,0.65);
+  background: color-mix(in srgb, var(--color-gold) 65%, transparent);
   border-radius: 3px;
 }
 .clue-modal__tape--left  { left: 20%; transform: rotate(-3deg); }
