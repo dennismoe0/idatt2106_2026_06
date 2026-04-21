@@ -30,7 +30,7 @@ defineEmits(['accept'])
 .mystery-screen {
   position: fixed;
   inset: 0;
-  background: radial-gradient(ellipse at 40% 40%, #1a1209 0%, #0d0b07 100%);
+  background: radial-gradient(ellipse at 40% 40%, var(--color-mystery-dark) 0%, var(--color-mystery-darkest) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -40,12 +40,12 @@ defineEmits(['accept'])
 
 .mystery-card {
   position: relative;
-  background: #f5efdf;
+  background: var(--color-mystery-parchment);
   border-radius: 2px;
   padding: var(--space-8) var(--space-8) var(--space-6);
   width: min(100%, 480px);
   box-shadow:
-    0 0 0 1px #c8b89a,
+    0 0 0 1px var(--color-mystery-border),
     0 4px 8px rgba(0,0,0,0.4),
     0 16px 48px rgba(0,0,0,0.6);
   transform: rotate(-0.5deg);
@@ -60,23 +60,23 @@ defineEmits(['accept'])
   top: -14px;
   left: 50%;
   transform: translateX(-50%) rotate(-1deg);
-  background: rgba(255,220,50,0.85);
-  color: #333;
+  background: var(--color-mystery-tape);
+  color: var(--color-ink-body);
   font-family: ui-monospace, monospace;
   font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.15em;
   padding: 4px 20px;
-  border-top: 1px solid rgba(200,160,0,0.5);
-  border-bottom: 1px solid rgba(200,160,0,0.5);
+  border-top: 1px solid var(--color-mystery-tape-border);
+  border-bottom: 1px solid var(--color-mystery-tape-border);
   white-space: nowrap;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
 .mystery-card__badge {
   display: inline-block;
-  background: #1a1209;
-  color: #f5c842;
+  background: var(--color-mystery-dark);
+  color: var(--color-mystery-gold);
   font-family: ui-monospace, monospace;
   font-size: var(--text-xs);
   font-weight: 700;
@@ -90,7 +90,7 @@ defineEmits(['accept'])
   margin: 0;
   font-size: var(--text-2xl);
   font-weight: 700;
-  color: #1a1209;
+  color: var(--color-mystery-dark);
   line-height: 1.2;
 }
 
@@ -98,7 +98,7 @@ defineEmits(['accept'])
   height: 2px;
   background: repeating-linear-gradient(
     90deg,
-    #1a1209 0px, #1a1209 8px,
+    var(--color-mystery-dark) 0px, var(--color-mystery-dark) 8px,
     transparent 8px, transparent 14px
   );
   opacity: 0.25;
@@ -107,14 +107,14 @@ defineEmits(['accept'])
 .mystery-card__scenario {
   margin: 0;
   font-size: var(--text-base);
-  color: #2c1f0e;
+  color: var(--color-mystery-text);
   line-height: 1.75;
 }
 
 .mystery-card__accept {
   align-self: flex-end;
-  background: #1a1209;
-  color: #f5c842;
+  background: var(--color-mystery-dark);
+  color: var(--color-mystery-gold);
   border: none;
   border-radius: 2px;
   padding: var(--space-3) var(--space-6);
@@ -126,6 +126,6 @@ defineEmits(['accept'])
   transition: background var(--transition-fast), transform var(--transition-fast);
   margin-top: var(--space-2);
 }
-.mystery-card__accept:hover  { background: #3d2b0a; }
+.mystery-card__accept:hover  { background: var(--color-mystery-hover); }
 .mystery-card__accept:active { transform: scale(0.97); }
 </style>

@@ -82,6 +82,15 @@
   --color-clue-missed-bg:    #FEF9C3;
   --color-clue-missed-border: #CA8A04;
 
+  /* Mystery screen */
+  --color-mystery-dark:      #1a1209;
+  --color-mystery-darkest:   #0d0b07;
+  --color-mystery-parchment: #f5efdf;
+  --color-mystery-gold:      #f5c842;
+  --color-mystery-hover:     #3d2b0a;
+  --color-mystery-border:    #c8b89a;
+  --color-mystery-text:      #2c1f0e;
+
   /* Leaderboard medal tiers */
   --color-medal-gold-border:   #f59e0b;
   --color-medal-gold-bg:       #fffbeb;
@@ -139,4 +148,6 @@
   --space-12:        3rem;
   --transition-fast:   150ms ease;
   --transition-normal: 250ms ease;
+  --color-mystery-tape:        rgba(255, 220, 50, 0.85);
+  --color-mystery-tape-border: rgba(200, 160, 0, 0.5);
 }

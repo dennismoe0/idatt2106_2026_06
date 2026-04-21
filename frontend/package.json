@@ -19,8 +19,6 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
-    "@dicebear/adventurer": "^9.4.2",
-    "@dicebear/core": "^9.4.2",
     "@tailwindcss/vite": "^4.2.2",
     "axios": "^1.15.0",
     "canvas-confetti": "^1.9.4",
