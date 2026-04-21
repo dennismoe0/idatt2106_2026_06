@@ -21,7 +21,6 @@ hs_err_pid*
 application-local.properties
 application-local.yml
 application-dev.properties
-application-dev.yml
 *.env
 
 # ─── Node / Vue / Frontend ────────────────────────────────────────────────────
