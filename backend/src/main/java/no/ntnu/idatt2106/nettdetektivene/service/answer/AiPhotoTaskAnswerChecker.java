@@ -7,8 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class AiPhotoTaskAnswerChecker implements TaskAnswerChecker {
@@ -22,6 +24,31 @@ public class AiPhotoTaskAnswerChecker implements TaskAnswerChecker {
 
     @Override
     public boolean isCorrect(Task task, JsonNode correctAnswer, Map<String, Object> answer) {
+        if (!correctAnswer.path("foundArtifactIds").isMissingNode()) {
+            return checkFindArtifacts(correctAnswer, answer);
+        }
+        return checkClassify(correctAnswer, answer);
+    }
+
+    private boolean checkFindArtifacts(JsonNode correctAnswer, Map<String, Object> answer) {
+        Set<String> required = new HashSet<>();
+        correctAnswer.path("foundArtifactIds").forEach(n -> required.add(n.asText()));
+
+        Object submitted = answer.get("foundArtifactIds");
+        Set<String> found = new HashSet<>();
+        if (submitted instanceof Iterable<?> iterable) {
+            for (Object item : iterable) {
+                found.add(String.valueOf(item));
+            }
+        }
+
+        boolean result = found.containsAll(required);
+        log.info("[AiPhotoTaskAnswerChecker] FIND_ARTIFACTS — required: {} found: {} pass: {}",
+            required, found, result);
+        return result;
+    }
+
+    private boolean checkClassify(JsonNode correctAnswer, Map<String, Object> answer) {
         Iterator<Map.Entry<String, JsonNode>> fields = correctAnswer.fields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();

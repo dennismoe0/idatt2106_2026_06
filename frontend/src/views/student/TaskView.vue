@@ -2,8 +2,17 @@
   <div class="task-view">
     <DetectiveBar :back-to="{ name: preferredMap }" :page-title="stopName" />
 
+    <!-- Mystery scenario screen -->
+    <StopMysteryScreen
+      v-if="showMystery && mysteryScenario"
+      :badge="mysteryScenario.badge"
+      :title="mysteryScenario.title"
+      :scenario="mysteryScenario.scenario"
+      @accept="acceptMystery"
+    />
+
     <!-- Tutorial screen gate -->
-    <div v-if="showTutorial" class="task-view__tutorial-wrap cork-board-bg">
+    <div v-else-if="showTutorial" class="task-view__tutorial-wrap cork-board-bg">
       <TutorialScreen
         :title="tutorialTitle"
         :instructions="tutorialInstructions"
@@ -69,8 +78,17 @@
 
             <!-- Task component -->
             <div class="task-view__content">
+              <LearningTask
+                v-if="currentTask.taskType === 'LEARN'"
+                :task="currentTask"
+                :result="result"
+                :is-last-task="currentTaskIndex === tasks.length - 1"
+                @submitted="handleSubmit"
+                @next="goNext"
+              />
+
               <FakeNewsTask
-                v-if="currentTask.taskType === 'FAKE_NEWS'"
+                v-else-if="currentTask.taskType === 'FAKE_NEWS'"
                 :task="currentTask"
                 :result="result"
                 :is-last-task="currentTaskIndex === tasks.length - 1"
@@ -164,6 +182,8 @@ import { useClassroomStore } from '@/stores/classroom'
 import { useAvatarStore } from '@/stores/avatar'
 import DetectiveBar from '@/components/common/DetectiveBar.vue'
 import TutorialScreen from '@/components/student/TutorialScreen.vue'
+import LearningTask from '@/components/student/LearningTask.vue'
+import StopMysteryScreen from '@/components/student/StopMysteryScreen.vue'
 import FakeNewsTask from '@/components/student/FakeNewsTask.vue'
 import AIPhotoTask from '@/components/student/AIPhotoTask.vue'
 import PasswordTask from '@/components/student/PasswordTask.vue'
@@ -202,6 +222,7 @@ const showClueModal    = ref(false)
 const showSuspectLineup = ref(false)
 const showSummary      = ref(false)
 const showTutorial     = ref(false)
+const showMystery      = ref(false)
 let confettiTimer = null
 let medalTimer    = null
 
@@ -225,6 +246,10 @@ const avatarImage = computed(() => {
 })
 
 const TUTORIAL_TEXTS = {
+  LEARN: {
+    title: 'Lær før du løser',
+    instructions: 'Les gjennom kortene og svar riktig på alle spørsmålene for å gå videre til oppgavene.'
+  },
   FAKE_NEWS: {
     title: 'Finn den falske nyheten',
     instructions: 'Du vil se to nyhetsartikler. Én av dem er falsk. Les overskrift, kilde og brødtekst nøye — klikk på den du tror er falsk!'
@@ -241,11 +266,27 @@ const TUTORIAL_TEXTS = {
     title: 'Bygg et sterkt passord',
     instructions: 'Du vil velge det tryggeste passordet, eller sette sammen ditt eget. Et sterkt passord er langt, bruker store og små bokstaver, tall og spesialtegn — og inneholder ikke personlig informasjon.'
   },
+  MARKETPLACE: {
+    title: 'Avdekk svindel på nett',
+    instructions: 'Du vil se falske nettbutikker. Klikk på de delene som virker mistenkelige — domene, pris, betalingsvalg, kontaktinfo. Noen sider er helt trygge!'
+  },
   SOCIAL_MEDIA: {
     title: 'Tenk før du deler',
     instructions: 'Du vil se innlegg fra sosiale medier. Tenk på kilden, språket og hasteoppfordringer. Sjekk alltid fakta før du deler videre.'
   }
 }
+
+const MYSTERY_SCENARIOS = {
+  1: { badge: '📰 OPPDRAG 1', title: 'Et spor i nyhetsstrømmen', scenario: 'Noen sprer falske nyheter om byen din. Innbyggerne er forvirret og redde. Detektiv-laget trenger din hjelp til å skille fakta fra løgner — er du klar?' },
+  2: { badge: '📧 OPPDRAG 2', title: 'Ukjent avsender', scenario: 'En innbygger klikket på en lenke i en mistenkelig e-post — nå er kontoen hennes hacket. Vi trenger deg til å forstå hvordan svindelen fungerte.' },
+  3: { badge: '📷 OPPDRAG 3', title: 'Bildet lyver', scenario: 'Et bilde fra hendelsesstedet har dukket opp på nett. Men er det ekte bevis — eller er det manipulert? Lær å avsløre KI-genererte og manipulerte bilder.' },
+  4: { badge: '🔐 OPPDRAG 4', title: 'Passordlekkasje', scenario: 'En konto ble hacket. Passordet var for svakt. Nå trenger vi en ekspert til å lære hva som gjør et passord trygt nok til å stå imot et angrep.' },
+  5: { badge: '🛒 OPPDRAG 5', title: 'Svindel på nett', scenario: 'En elev mistet pengene sine i en falsk nettbutikk. Svindlerne er flinke til å late som. Det er din jobb å avsløre dem.' },
+  6: { badge: '📱 OPPDRAG 6', title: 'Falsk venn', scenario: 'En ukjent person kontakter elever på sosiale medier og later som de er en venn. Noen har allerede delt for mye. Lær å gjenkjenne manipulasjon.' },
+  7: { badge: '💻 OPPDRAG 7', title: 'Datasenteret er hacket', scenario: 'Alt du har lært settes på prøve. Tyven har aktivert en automatisk backup-plan. Stopp alle sikkerhetssystemene — det er nå eller aldri.' },
+}
+
+const mysteryScenario = computed(() => MYSTERY_SCENARIOS[stopId.value] ?? null)
 
 const tutorialTitle = computed(() =>
   TUTORIAL_TEXTS[currentTask.value?.taskType]?.title ?? 'Hva er oppgaven?'
@@ -288,8 +329,25 @@ async function loadTasks() {
     }
   } finally {
     loading.value = false
-    checkTutorial()
+    checkMystery()
   }
+}
+
+function checkMystery() {
+  if (!stopId.value || !tasks.value.length) return
+  if (mysteryScenario.value && !localStorage.getItem(`mystery_seen_stop_${stopId.value}`)) {
+    showMystery.value = true
+    console.log('[TaskView] Showing mystery screen for stop', stopId.value)
+    return
+  }
+  checkTutorial()
+}
+
+function acceptMystery() {
+  localStorage.setItem(`mystery_seen_stop_${stopId.value}`, '1')
+  showMystery.value = false
+  console.log('[TaskView] Mystery accepted for stop', stopId.value)
+  checkTutorial()
 }
 
 function checkTutorial() {
@@ -348,6 +406,41 @@ function buildMockResult(task, answer) {
 
 function buildMockTasks() {
   return [
+    {
+      id: 1000,
+      stopId: 1,
+      taskType: 'LEARN',
+      guidanceText: 'Les kortene og svar på spørsmålene for å gå videre.',
+      contentJson: {
+        slides: [
+          { id: 's1', icon: '📰', heading: 'Hva er falske nyheter?', body: 'Falske nyheter er artikler som ser ekte ut men inneholder løgner eller overdrivelser. De spres for å villede, skape frykt eller påvirke meninger.' },
+          { id: 's2', icon: '🔍', heading: 'Slik avslører du dem', body: 'Sjekk kilden: er domenet kjent? Sjekk datoen: er dette gammelt? Søk etter samme nyhet på andre seriøse nettsteder. Sterke følelsesmessige overskrifter er et varseltegn.' },
+          { id: 's3', icon: '🧠', heading: 'Tenk kritisk', body: 'Hvem tjener på at du tror på dette? Er bildet tatt ut av kontekst? Del aldri en nyhet du ikke har sjekket – du kan spre feilinformasjon videre.' }
+        ],
+        quiz: [
+          {
+            id: 'q1',
+            question: 'Hva er det første du bør sjekke når du ser en nyhet?',
+            options: ['Domenet og kilden', 'Fargen på overskriften', 'Antall likes og delinger'],
+            correct: 'Domenet og kilden'
+          },
+          {
+            id: 'q2',
+            question: 'Hva er et typisk kjennetegn på falske nyheter?',
+            options: ['Kjedelig overskrift', 'Sterk følelsesmessig overskrift som skaper frykt', 'Artikkelen har ingen bilder'],
+            correct: 'Sterk følelsesmessig overskrift som skaper frykt'
+          },
+          {
+            id: 'q3',
+            question: 'Hva bør du gjøre før du deler en nyhet?',
+            options: ['Dele den med en gang', 'Sjekke den på andre seriøse kilder', 'Se på hvem som har likt den'],
+            correct: 'Sjekke den på andre seriøse kilder'
+          }
+        ]
+      },
+      mockCorrectAnswer: { quizPassed: true },
+      mockExplanation: 'Du har lært det grunnleggende om falske nyheter!'
+    },
     {
       id: 1001,
       stopId: 1,

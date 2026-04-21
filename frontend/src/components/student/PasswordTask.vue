@@ -30,6 +30,7 @@
           {{ builtPassword || '—' }}
         </span>
         <div
+          v-if="result"
           class="builder__strength"
           :class="`builder__strength--${strengthKey}`"
           aria-label="Passordstyrke"
