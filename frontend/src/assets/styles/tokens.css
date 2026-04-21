@@ -49,6 +49,15 @@
   --color-heading: #20304A;
   --color-map-bg: #1a1a2e;
 
+  /* Cork board theme */
+  --color-cork:      #A87230;
+  --color-cork-dark: #7A4E1A;
+  --color-cork-light: #C49240;
+  --color-wood:      #3B1F08;
+  --color-wood-mid:  #5C3210;
+  --color-gold:      #EFB45C;
+  --color-red-pin:   #9B2226;
+
   /* Button semantic tokens */
   --color-btn-primary-bg:   #2B6CB0;
   --color-btn-primary-fg:   #FFFFFF;
@@ -94,6 +103,7 @@
   --space-4:         1rem;
   --space-6:         1.5rem;
   --space-8:         2rem;
+  --space-10:        2.5rem;
   --space-12:        3rem;
   --transition-fast:   150ms ease;
   --transition-normal: 250ms ease;
