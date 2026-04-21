@@ -128,12 +128,12 @@ class AvatarControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
-                      "eyeColor": "green",
-                      "skinColor": "medium",
-                      "hairColor": "black",
+                      "eyeColor": "#15803d",
+                      "skinColor": "#D08B5B",
+                      "hairColor": "#1a1a1a",
                       "hairStyle": "curly",
                       "outfit": "hoodie",
-                      "outfitColor": "red"
+                      "outfitColor": "#dc2626"
                     }
                     """))
             .andExpect(status().isBadRequest());

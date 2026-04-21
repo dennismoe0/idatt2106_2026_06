@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 public record UpdateAvatarRequest(
     @NotBlank String gender,
     @NotBlank String eyeColor,
-    String eyeStyle,
+    @NotBlank String eyeStyle,
     @NotBlank String skinColor,
     @NotBlank String hairColor,
     @NotBlank String hairStyle,
