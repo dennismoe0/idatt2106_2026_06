@@ -324,6 +324,72 @@ class GameServiceTest {
     }
 
     @Test
+    void submitAnswer_aiPhoto_checksAllImages() {
+        Stop stop = stop(3L, 1, "Fotografen");
+        Task task = aiPhotoTask(24L, stop);
+        when(taskRepository.findById(24L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 24L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
+        when(taskRepository.countByStop_Id(3L)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 3L)).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            24L,
+            new SubmitAnswerRequest(Map.of("image_0", "AI_GENERATED", "image_1", "REAL"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_socialMedia_chooseAction_checksAction() {
+        Stop stop = stop(6L, 1, "Den sosiale møteplassen");
+        Task task = socialMediaActionTask(25L, stop);
+        when(taskRepository.findById(25L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
+        when(taskRepository.countByStop_Id(6L)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 6L)).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            25L,
+            new SubmitAnswerRequest(Map.of("action", "CHECK_SOURCES"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_socialMedia_identifyWorst_checksSelectedPost() {
+        Stop stop = stop(6L, 1, "Den sosiale møteplassen");
+        Task task = socialMediaWorstTask(26L, stop);
+        when(taskRepository.findById(26L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 26L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
+        when(taskRepository.countByStop_Id(6L)).thenReturn(3L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 6L)).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            26L,
+            new SubmitAnswerRequest(Map.of("selected", "post_1"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
+    @Test
     void submitAnswer_passwordChoice_checksSelectedOption() {
         Stop stop = stop(4L, 1, "Passordbanken");
         Task task = passwordChoiceTask(22L, stop);
@@ -581,6 +647,62 @@ class GameServiceTest {
             """);
         task.setCorrectAnswerJson("""
             { "action": "REPORT" }
+            """);
+        return task;
+    }
+
+    private Task aiPhotoTask(Long id, Stop stop) {
+        Task task = task(id, stop, TaskType.AI_PHOTO);
+        task.setContentJson("""
+            {
+              "images": [
+                { "id": "image_0", "src": "", "alt": "Rare fingre", "label": "Bilde A" },
+                { "id": "image_1", "src": "", "alt": "Normalt mobilbilde", "label": "Bilde B" }
+              ],
+              "question": "Sorter hvert bilde",
+              "explanation": "Det første er KI-generert."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            { "image_0": "AI_GENERATED", "image_1": "REAL" }
+            """);
+        return task;
+    }
+
+    private Task socialMediaActionTask(Long id, Stop stop) {
+        Task task = task(id, stop, TaskType.SOCIAL_MEDIA);
+        task.setContentJson("""
+            {
+              "type": "CHOOSE_ACTION",
+              "question": "Hva bør du gjøre?",
+              "options": [
+                { "id": "SHARE", "text": "Del med en gang" },
+                { "id": "CHECK_SOURCES", "text": "Sjekk kilden først" }
+              ],
+              "explanation": "Sjekk kilden først."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            { "action": "CHECK_SOURCES" }
+            """);
+        return task;
+    }
+
+    private Task socialMediaWorstTask(Long id, Stop stop) {
+        Task task = task(id, stop, TaskType.SOCIAL_MEDIA);
+        task.setContentJson("""
+            {
+              "type": "IDENTIFY_WORST",
+              "question": "Hvilket innlegg er mest illegitimt?",
+              "posts": [
+                { "id": "post_0", "content": "Kommunen jobber med saken." },
+                { "id": "post_1", "content": "JEG VET HVEM TYVEN ER!!" }
+              ],
+              "explanation": "Post 1 er mest illegitimt."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            { "selected": "post_1" }
             """);
         return task;
     }
