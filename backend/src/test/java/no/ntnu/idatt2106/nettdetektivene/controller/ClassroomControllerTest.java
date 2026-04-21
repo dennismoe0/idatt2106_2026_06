@@ -239,6 +239,19 @@ class ClassroomControllerTest {
     }
 
     @Test
+    void getSchoolLeaderboard_nonMember_returns404() throws Exception {
+        User teacher = saveUser("teacher-sl-404@test.no", User.Role.TEACHER);
+        User outsider = saveUser("student-sl-404@test.no", User.Role.STUDENT);
+        Classroom classroom = saveClassroomForTeacher(teacher, "SchoolLBHidden");
+
+        String token = tokenFor(outsider);
+        mockMvc.perform(get("/api/classrooms/" + classroom.getId() + "/school-leaderboard")
+                .header("Authorization", "Bearer " + token))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.error").value("Classroom not found"));
+    }
+
+    @Test
     void deleteClassroom_returns404_forNonOwner() throws Exception {
         User owner = saveUser("owner-del@test.no", User.Role.TEACHER);
         User other = saveUser("other-del@test.no", User.Role.TEACHER);
