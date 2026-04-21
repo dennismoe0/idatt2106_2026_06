@@ -20,7 +20,7 @@ public class PhishingAnswerChecker {
         if (correctAnswer == null || answer == null) return false;
 
         // New format: clue ID list
-        if (correctAnswer.has("correctClueIds") && correctAnswer.path("clues").isArray()) {
+        if (correctAnswer.has("correctClueIds") && correctAnswer.path("correctClueIds").isArray()) {
             List<String> required = requiredClueIds(correctAnswer);
             if (required.isEmpty()) return false;
             Object raw = answer.get("flaggedClueIds");
