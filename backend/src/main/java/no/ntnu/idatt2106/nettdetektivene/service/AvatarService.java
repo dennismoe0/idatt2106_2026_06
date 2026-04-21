@@ -135,11 +135,11 @@ public class AvatarService {
         options.put("eyeStyle", List.of("round", "narrow", "wide"));
         options.put("skinColor", List.of("#FDDBB4","#EDB98A","#D08B5B","#AE5D29","#694D3D","#3B1F0E"));
         options.put("hairColor", List.of("#1a1a1a","#8B4513","#D2691E","#F4D150","#E8E1E1","#CC2200","#FF69B4","#9B59B6"));
-        options.put("hairStyle", List.of("short", "curly", "ponytail", "buzz"));
-        options.put("outfit", List.of("detective-coat", "hoodie", "uniform", "raincoat"));
+        options.put("hairStyle", List.of("short", "long", "curly", "ponytail", "buzz", "braids", "bun", "afro", "bald"));
+        options.put("outfit", List.of("detective-coat", "hoodie", "sweater", "uniform", "raincoat"));
         options.put("outfitColor", List.of("#2563eb","#dc2626","#16a34a","#d97706","#1f2937"));
         options.put("hatColor", List.of("none", "black", "brown", "red"));
-        options.put("accessory", List.of("none", "badge", "glasses", "magnifier"));
+        options.put("accessory", List.of("none", "badge", "glasses", "magnifier", "hat"));
         return Collections.unmodifiableMap(options);
     }
 

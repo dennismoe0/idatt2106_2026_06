@@ -47,6 +47,20 @@
       </div>
     </template>
 
+    <!-- DONE phase -->
+    <template v-else-if="phase === 'DONE'">
+      <div class="done-card pinned-note" style="--card-rotate: 0.3deg">
+        <span class="done-card__icon" aria-hidden="true">🎉</span>
+        <h3 class="done-card__heading">Quiz fullført!</h3>
+        <p class="done-card__body">Du svarte riktig på alle spørsmålene. Bra jobbet, detektiv!</p>
+      </div>
+      <div class="slide-nav__btns" style="justify-content: flex-end">
+        <button class="nav-btn nav-btn--start-quiz" @click="$emit('next')">
+          {{ isLastTask ? 'Se oppsummering →' : 'Neste oppgave →' }}
+        </button>
+      </div>
+    </template>
+
     <!-- QUIZ phase -->
     <template v-else>
       <div class="quiz-progress">
@@ -163,6 +177,7 @@ function advanceQuiz() {
   } else {
     console.log('[LearningTask] All quiz questions passed — submitting')
     emit('submitted', { quizPassed: true })
+    phase.value = 'DONE'
   }
 }
 </script>
@@ -367,6 +382,29 @@ function advanceQuiz() {
 }
 .question__feedback--correct { color: var(--color-success); }
 .question__feedback--wrong   { color: var(--color-danger); }
+
+/* ── Done card ── */
+.done-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+  transform: rotate(var(--card-rotate, 0deg));
+}
+.done-card__icon { font-size: 2.5rem; line-height: 1; }
+.done-card__heading {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-success);
+}
+.done-card__body {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-ink-body);
+  line-height: 1.65;
+}
 
 /* ── Transitions ── */
 .question-slide-enter-active { transition: opacity 0.25s ease, transform 0.25s ease; }

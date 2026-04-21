@@ -68,10 +68,10 @@
           <div class="task-view__layout">
             <!-- Expanded avatar (animates down from bar) -->
             <div class="task-view__avatar-wrap">
-              <img
-                :src="avatarImage"
+              <AvatarPreview
+                :selections="avatarStore.avatar ?? {}"
+                :size="100"
                 class="task-view__avatar"
-                alt=""
                 aria-hidden="true"
               />
             </div>
@@ -197,9 +197,7 @@ import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
 import MedalToast from '@/components/common/MedalToast.vue'
 import StopSummary from '@/components/student/StopSummary.vue'
 import { useSound } from '@/composables/useSound'
-import neutralAvatar from '@/assets/avatar/presets/adventurer-neutral.svg'
-import lightAvatar from '@/assets/avatar/presets/adventurer-light.svg'
-import warmAvatar from '@/assets/avatar/presets/adventurer-warm.svg'
+import AvatarPreview from '@/components/student/AvatarPreview.vue'
 
 const { playCorrect, playWrong, playFanfare } = useSound()
 
@@ -237,13 +235,6 @@ const classroomId = computed(() => {
 })
 const currentTask = computed(() => tasks.value[currentTaskIndex.value] ?? null)
 const stopName    = computed(() => tasks.value[0]?.stopName ?? 'Oppgaver')
-
-const avatarImage = computed(() => {
-  const skin = avatarStore.avatar?.skinColor
-  if (skin === 'light') return lightAvatar
-  if (skin === 'dark')  return warmAvatar
-  return neutralAvatar
-})
 
 const TUTORIAL_TEXTS = {
   LEARN: {

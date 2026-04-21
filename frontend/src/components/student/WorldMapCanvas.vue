@@ -102,12 +102,9 @@
     />
 
     <!-- Layer 4: Avatar -->
-    <img
-      :src="avatarSrc"
-      class="world-canvas__avatar"
-      :style="avatarStyle"
-      alt="Din avatar"
-    />
+    <div class="world-canvas__avatar" :style="avatarStyle">
+      <AvatarPreview :selections="avatarStore.avatar ?? {}" :size="80" />
+    </div>
 
   </div>
 </template>
@@ -116,9 +113,7 @@
 import { computed } from 'vue'
 import { useAvatarStore } from '@/stores/avatar'
 import WorldMapNode from '@/components/student/WorldMapNode.vue'
-import neutralAvatar from '@/assets/avatar/presets/adventurer-neutral.svg'
-import lightAvatar   from '@/assets/avatar/presets/adventurer-light.svg'
-import warmAvatar    from '@/assets/avatar/presets/adventurer-warm.svg'
+import AvatarPreview from '@/components/student/AvatarPreview.vue'
 
 const props = defineProps({
   stops:            { type: Array,  required: true },
@@ -159,13 +154,6 @@ const FULL_PATH =
 // ---- Avatar ----
 const avatarStore = useAvatarStore()
 
-const avatarSrc = computed(() => {
-  const skin = avatarStore.avatar?.skinColor ?? 'medium'
-  if (skin === 'light') return lightAvatar
-  if (skin === 'dark')  return warmAvatar
-  return neutralAvatar
-})
-
 const avatarStyle = computed(() => {
   const pos = NODE_POSITIONS[props.currentNodeIndex] ?? NODE_POSITIONS[0]
   return {
@@ -194,9 +182,6 @@ const avatarStyle = computed(() => {
 
 .world-canvas__avatar {
   position: absolute;
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
   pointer-events: none;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
   z-index: 10;

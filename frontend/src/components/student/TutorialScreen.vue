@@ -4,10 +4,10 @@
       <h2 class="tutorial__title">{{ title }}</h2>
 
       <div class="tutorial__body">
-        <img
-          :src="avatarImage"
+        <AvatarPreview
+          :selections="avatarStore.avatar ?? {}"
+          :size="80"
           class="tutorial__avatar"
-          alt=""
           aria-hidden="true"
         />
         <p class="tutorial__text">{{ instructions }}</p>
@@ -23,11 +23,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { useAvatarStore } from '@/stores/avatar'
-import neutralAvatar from '@/assets/avatar/presets/adventurer-neutral.svg'
-import lightAvatar from '@/assets/avatar/presets/adventurer-light.svg'
-import warmAvatar from '@/assets/avatar/presets/adventurer-warm.svg'
+import AvatarPreview from '@/components/student/AvatarPreview.vue'
 
 defineProps({
   title:        { type: String, required: true },
@@ -37,13 +34,6 @@ defineProps({
 defineEmits(['start'])
 
 const avatarStore = useAvatarStore()
-
-const avatarImage = computed(() => {
-  const skin = avatarStore.avatar?.skinColor
-  if (skin === 'light') return lightAvatar
-  if (skin === 'dark')  return warmAvatar
-  return neutralAvatar
-})
 </script>
 
 <style scoped>
