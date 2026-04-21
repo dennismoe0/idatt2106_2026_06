@@ -1,11 +1,6 @@
 <template>
-  <main class="leaderboard-view">
-    <header class="leaderboard-view__header">
-      <RouterLink :to="{ name: 'Home' }" class="leaderboard-view__back" aria-label="Tilbake til hjem">
-        ← Tilbake
-      </RouterLink>
-      <h1 class="leaderboard-view__title">Ledertavle</h1>
-    </header>
+  <CorkBoardPage page-title="Ledertavle" :back-to="{ name: 'Home' }">
+    <div class="leaderboard-view">
 
     <div v-if="loading" class="leaderboard-view__state" aria-live="polite">
       <span class="leaderboard-view__spinner" aria-hidden="true" />
@@ -81,12 +76,13 @@
         </section>
       </template>
     </template>
-  </main>
+    </div>
+  </CorkBoardPage>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
+import CorkBoardPage from '@/components/common/CorkBoardPage.vue'
 import { useGameStore } from '@/stores/game'
 import { useClassroomStore } from '@/stores/classroom'
 
@@ -155,35 +151,17 @@ onMounted(load)
 
 <style scoped>
 .leaderboard-view {
-  min-height: 100vh;
-  padding: var(--space-6);
-  background: var(--color-bg);
-}
-
-.leaderboard-view__header { margin-bottom: var(--space-8); }
-
-.leaderboard-view__back {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  color: var(--color-primary);
-  text-decoration: none;
-  margin-bottom: var(--space-4);
-}
-.leaderboard-view__back:hover { text-decoration: underline; }
-
-.leaderboard-view__title {
-  margin: 0;
-  font-size: var(--text-3xl);
-  color: var(--color-heading);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 640px;
 }
 
 .leaderboard-view__school-title {
   font-size: var(--text-xl);
   font-weight: var(--font-bold);
-  color: var(--color-heading);
-  margin: var(--space-8) 0 var(--space-4);
+  color: var(--color-cork-dark);
+  margin: var(--space-2) 0 0;
 }
 
 .leaderboard-view__state {
@@ -207,15 +185,16 @@ onMounted(load)
 
 /* ── Sections ── */
 .leaderboard-section {
-  margin-bottom: var(--space-6);
-  max-width: 600px;
+  background: #FEFCF0;
+  border: 1.5px solid #D4A96A;
+  border-radius: 6px;
+  padding: var(--space-4);
+  box-shadow: 2px 3px 10px rgba(0,0,0,0.25);
+  position: relative;
 }
 .leaderboard-section--own {
-  background: var(--color-surface);
-  border-radius: var(--radius-xl);
-  padding: var(--space-5);
-  box-shadow: var(--shadow-md);
-  border: 2px solid var(--color-primary);
+  border-color: var(--color-cork-dark);
+  border-width: 2px;
 }
 
 .leaderboard-section__title {
