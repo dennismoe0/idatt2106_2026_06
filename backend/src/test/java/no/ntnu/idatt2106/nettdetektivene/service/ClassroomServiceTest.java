@@ -149,15 +149,18 @@ class ClassroomServiceTest {
     }
 
     @Test
-    void getSchoolLeaderboard_returnsAllStudentsAcrossSchoolClassrooms() {
+    void getSchoolLeaderboard_returnsAllStudentsAcrossSchoolClassrooms_forApprovedMember() {
         School school = school(5L);
 
         Classroom c10 = classroom(10L, "Klasse A");
         c10.setSchool(school);
         Classroom c20 = classroom(20L, "Klasse B");
         c20.setSchool(school);
+        ClassroomStudent membership = classroomStudent(c10, user(2L, User.Role.STUDENT), ClassroomStudentStatus.APPROVED);
 
         when(classroomRepository.findById(10L)).thenReturn(Optional.of(c10));
+        when(classroomStudentRepository.findByClassroom_IdAndStudent_UserId(10L, 2L))
+            .thenReturn(Optional.of(membership));
         when(classroomRepository.findBySchool_Id(5L)).thenReturn(List.of(c10, c20));
         when(taskRepository.count()).thenReturn(7L);
 
@@ -166,7 +169,7 @@ class ClassroomServiceTest {
         when(classroomStudentRepository.getSchoolLeaderboard(List.of(10L, 20L)))
             .thenReturn(List.of(row1, row2));
 
-        List<SchoolLeaderboardEntryDto> result = classroomService.getSchoolLeaderboard(10L);
+        List<SchoolLeaderboardEntryDto> result = classroomService.getSchoolLeaderboard(2L, 10L);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).displayName()).isEqualTo("Alice");
@@ -175,20 +178,34 @@ class ClassroomServiceTest {
     }
 
     @Test
-    void getSchoolLeaderboard_fallsBackToSingleClassroom_whenNoSchool() {
+    void getSchoolLeaderboard_fallsBackToSingleClassroom_whenTeacherOwnsClassroom() {
         Classroom c10 = classroom(10L, "Klasse A");
         c10.setSchool(null);
         when(classroomRepository.findById(10L)).thenReturn(Optional.of(c10));
+        when(classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(10L, 1L)).thenReturn(true);
         when(taskRepository.count()).thenReturn(7L);
 
         SchoolLeaderboardRow row = mockSchoolRow("Alice", 10L, "Klasse A", 5L);
         when(classroomStudentRepository.getSchoolLeaderboard(List.of(10L)))
             .thenReturn(List.of(row));
 
-        List<SchoolLeaderboardEntryDto> result = classroomService.getSchoolLeaderboard(10L);
+        List<SchoolLeaderboardEntryDto> result = classroomService.getSchoolLeaderboard(1L, 10L);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).displayName()).isEqualTo("Alice");
+    }
+
+    @Test
+    void getSchoolLeaderboard_throwsIfUserIsNotTeacherOrApprovedMember() {
+        Classroom c10 = classroom(10L, "Klasse A");
+        when(classroomRepository.findById(10L)).thenReturn(Optional.of(c10));
+        when(classroomTeacherRepository.existsByClassroom_IdAndTeacher_UserId(10L, 99L)).thenReturn(false);
+        when(classroomStudentRepository.findByClassroom_IdAndStudent_UserId(10L, 99L))
+            .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> classroomService.getSchoolLeaderboard(99L, 10L))
+            .isInstanceOf(ResourceNotFoundException.class)
+            .hasMessage("Classroom not found");
     }
 
     @Test
