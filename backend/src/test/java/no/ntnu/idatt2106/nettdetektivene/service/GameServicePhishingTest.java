@@ -24,7 +24,7 @@ class GameServicePhishingTest {
     @Test
     void check_returnsTrue_whenAllRequiredCluesFlagged() {
         JsonNode correct = json("""
-            { "clues": ["sender", "link1"] }
+            { "correctClueIds": ["sender", "link1"] }
             """);
         Map<String, Object> answer = Map.of("flaggedClueIds", List.of("sender", "link1", "urgency"));
         assertThat(PhishingAnswerChecker.check(correct, answer)).isTrue();
@@ -33,7 +33,7 @@ class GameServicePhishingTest {
     @Test
     void check_returnsFalse_whenRequiredCluesMissing() {
         JsonNode correct = json("""
-            { "clues": ["sender", "link1", "urgency"] }
+            { "correctClueIds": ["sender", "link1", "urgency"] }
             """);
         Map<String, Object> answer = Map.of("flaggedClueIds", List.of("sender"));
         assertThat(PhishingAnswerChecker.check(correct, answer)).isFalse();
@@ -51,7 +51,7 @@ class GameServicePhishingTest {
     @Test
     void requiredClueIds_returnsListFromCluesArray() {
         JsonNode correct = json("""
-            { "clues": ["sender", "urgency"] }
+            { "correctClueIds": ["sender", "urgency"] }
             """);
         assertThat(PhishingAnswerChecker.requiredClueIds(correct))
             .containsExactlyInAnyOrder("sender", "urgency");
