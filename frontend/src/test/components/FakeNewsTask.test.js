@@ -59,4 +59,37 @@ describe('FakeNewsTask', () => {
     expect(cards[0].attributes('aria-label')).toContain('Ekte overskrift')
     expect(cards[1].attributes('aria-label')).toContain('Falsk overskrift')
   })
+
+  it('does not emit when result is already set', async () => {
+    const wrapper = mount(FakeNewsTask, {
+      props: {
+        task: TASK,
+        result: { correct: true, explanation: 'Bra!' }
+      }
+    })
+
+    await wrapper.find('.article-card').trigger('click')
+
+    expect(wrapper.emitted('submitted')).toBeFalsy()
+  })
+
+  it('marks chosen card as selected before result', async () => {
+    const wrapper = mount(FakeNewsTask, { props: { task: TASK } })
+    const cards = wrapper.findAll('.article-card')
+
+    await cards[1].trigger('click')
+
+    expect(cards[1].classes()).toContain('article-card--chosen')
+  })
+
+  it('shows next button after result', () => {
+    const wrapper = mount(FakeNewsTask, {
+      props: {
+        task: TASK,
+        result: { correct: false, explanation: 'Prøv igjen.' }
+      }
+    })
+
+    expect(wrapper.find('.next-btn').exists()).toBe(true)
+  })
 })
