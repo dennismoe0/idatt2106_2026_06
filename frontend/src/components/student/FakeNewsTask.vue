@@ -1,65 +1,46 @@
 <template>
-  <section class="task-card">
-    <h2>Falske nyheter</h2>
-    <p class="guidance">{{ task.guidanceText }}</p>
+  <section class="fake-news-task">
+    <p class="fake-news-task__guidance">{{ task.guidanceText }}</p>
 
-    <div class="articles">
+    <div class="fake-news-task__articles">
       <article
         v-for="(article, index) in articles"
         :key="index"
-        class="article-card"
-        :class="{
-          'article-card--answered': result,
-          'article-card--correct':  result?.correct,
-          'article-card--wrong':    result && !result.correct
-        }"
+        class="pinned-note article-card"
+        :class="articleClass(index)"
+        :style="`--card-rotate: ${cardRotation(index)}deg`"
+        role="button"
+        tabindex="0"
+        :aria-label="`Velg denne artikkelen som falsk: ${article.headline}`"
+        :aria-pressed="chosenIndex === index"
+        :aria-disabled="!!result"
+        @click="pickCard(index)"
+        @keydown.enter.space.prevent="pickCard(index)"
       >
-        <h3>{{ article.headline }}</h3>
-        <p class="source">{{ article.source }}</p>
-        <p>{{ article.body }}</p>
-
-        <div class="actions">
-          <button
-            :class="{ selected: answers[`article_${index}`] === true }"
-            :disabled="!!result"
-            :aria-label="`Marker artikkel ${index + 1} som ekte`"
-            @click="setAnswer(index, true)"
-          >Ekte</button>
-          <button
-            :class="{ selected: answers[`article_${index}`] === false }"
-            :disabled="!!result"
-            :aria-label="`Marker artikkel ${index + 1} som falsk`"
-            @click="setAnswer(index, false)"
-          >Falsk</button>
-        </div>
+        <h3 class="article-card__headline">{{ article.headline }}</h3>
+        <p class="article-card__source">{{ article.source }}</p>
+        <p class="article-card__body">{{ article.body }}</p>
       </article>
     </div>
 
-    <button v-if="!result" class="submit-btn" :disabled="!isReady" @click="submit">
-      Send svar
-    </button>
-
-    <!-- Inline result — slides in below the articles -->
+    <!-- Feedback note -->
     <Transition name="result-slide">
       <div
         v-if="result"
-        class="inline-result"
-        :class="result.correct ? 'inline-result--correct' : 'inline-result--wrong'"
+        class="pinned-note fake-news-task__result"
+        :class="result.correct ? 'fake-news-task__result--correct' : 'fake-news-task__result--wrong'"
         role="status"
         aria-live="polite"
+        style="--card-rotate: 0.3deg"
       >
-        <p class="inline-result__label">
+        <p class="fake-news-task__result-label">
           {{ result.correct ? '✅ Riktig!' : '❌ Ikke helt riktig' }}
         </p>
-        <p class="inline-result__explanation">{{ result.explanation }}</p>
-        <p v-if="result.stopCompleted" class="inline-result__stop">
-          🎉 Du fullførte stoppet!
-        </p>
-        <div class="inline-result__actions">
-          <button class="next-btn" @click="$emit('next')">
-            {{ isLastTask ? 'Videre til sammendrag →' : 'Neste oppgave →' }}
-          </button>
-        </div>
+        <p class="fake-news-task__explanation">{{ result.explanation }}</p>
+        <p v-if="result.stopCompleted" class="fake-news-task__stop-msg">🎉 Du fullførte stoppet!</p>
+        <button class="next-btn" @click="$emit('next')">
+          {{ isLastTask ? 'Videre til sammendrag →' : 'Neste oppgave →' }}
+        </button>
       </div>
     </Transition>
   </section>
@@ -76,144 +57,188 @@ const props = defineProps({
 
 const emit = defineEmits(['submitted', 'next', 'backToMap'])
 
-const answers = ref({})
+const chosenIndex    = ref(null)
+const shakingIndex   = ref(null)
+const bouncingIndex  = ref(null)
+const revealCorrect  = ref(null)
+
 const articles = computed(() => props.task?.contentJson?.articles ?? [])
 
-watch(() => props.task?.id, () => { answers.value = {} }, { immediate: true })
+watch(() => props.task?.id, () => {
+  chosenIndex.value   = null
+  shakingIndex.value  = null
+  bouncingIndex.value = null
+  revealCorrect.value = null
+}, { immediate: true })
 
-const isReady = computed(() =>
-  articles.value.length > 0 &&
-  articles.value.every((_, i) => answers.value[`article_${i}`] !== undefined)
-)
+watch(() => props.result, (r) => {
+  if (!r) return
+  if (r.correct) {
+    bouncingIndex.value = chosenIndex.value
+    setTimeout(() => { bouncingIndex.value = null }, 600)
+  } else {
+    shakingIndex.value = chosenIndex.value
+    setTimeout(() => { shakingIndex.value = null; revealCorrect.value = getCorrectIndex(r) }, 400)
+  }
+})
 
-function setAnswer(index, value) {
-  answers.value[`article_${index}`] = value
+function getCorrectIndex(r) {
+  if (!r?.correctAnswer) return null
+  const entries = Object.entries(r.correctAnswer ?? {})
+  const correct = entries.find(([, v]) => v === false)
+  if (!correct) return null
+  return parseInt(correct[0].replace('article_', ''), 10)
 }
 
-function submit() {
-  if (!isReady.value) return
-  console.log('[FakeNewsTask] Submitting answers:', answers.value)
-  emit('submitted', { ...answers.value })
+function articleClass(index) {
+  if (props.result) {
+    const isChosen  = index === chosenIndex.value
+    const isCorrect = index === revealCorrect.value || (props.result.correct && index === chosenIndex.value)
+    if (isChosen && props.result.correct)   return ['article-card--correct', bouncingIndex.value === index ? 'card-bounce' : '']
+    if (isChosen && !props.result.correct)  return ['article-card--wrong',   shakingIndex.value  === index ? 'card-shake'  : '']
+    if (!props.result.correct && isCorrect) return ['article-card--correct']
+    return ['article-card--muted']
+  }
+  if (index === chosenIndex.value) return ['article-card--chosen']
+  return []
+}
+
+function cardRotation(index) {
+  return index % 2 === 0 ? -0.5 : 0.4
+}
+
+function pickCard(index) {
+  if (props.result) return
+  chosenIndex.value = index
+  const answer = {}
+  articles.value.forEach((_, i) => {
+    answer[`article_${i}`] = i !== index
+  })
+  console.log('[FakeNewsTask] Card picked index:', index, 'answer:', answer)
+  emit('submitted', answer)
 }
 </script>
 
 <style scoped>
-.task-card {
-  display: grid;
+.fake-news-task {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
 }
 
-.guidance {
+.fake-news-task__guidance {
   margin: 0;
-  color: var(--color-text-muted);
+  color: var(--color-cork-dark);
+  font-weight: 600;
 }
 
-.articles {
+.fake-news-task__articles {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-5);
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .article-card {
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  background: var(--color-surface);
-  transition: border-color var(--transition-fast), background var(--transition-fast);
+  transform: rotate(var(--card-rotate, 0deg));
+  cursor: pointer;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  user-select: none;
+}
+.article-card:hover:not([aria-disabled="true"]) {
+  transform: rotate(0deg) scale(1.02) translateY(-3px);
+  box-shadow: 4px 6px 16px rgba(0,0,0,0.35);
+}
+.article-card:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+.article-card--chosen {
+  border-color: var(--color-wood);
+  background: #FFF8EC;
 }
 .article-card--correct {
   border-color: var(--color-success);
-  background: var(--color-success-light);
+  background: #F0FFF4;
 }
 .article-card--wrong {
   border-color: var(--color-danger);
-  background: var(--color-danger-light);
+  background: #FFF5F5;
+}
+.article-card--muted {
+  opacity: 0.55;
+  filter: grayscale(30%);
 }
 
-.article-card h3 { margin-top: 0; }
-
-.source {
-  color: var(--color-text-muted);
+.article-card__headline {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-wood);
+  line-height: 1.3;
+}
+.article-card__source {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xs);
+  color: #777;
+  font-style: italic;
+}
+.article-card__body {
+  margin: 0;
   font-size: var(--text-sm);
-}
-
-.actions {
-  display: flex;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
-}
-
-button {
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  padding: var(--space-1) var(--space-3);
-  cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
-}
-button:disabled { opacity: 0.5; cursor: not-allowed; }
-button.selected {
-  border-color: var(--color-primary);
-  background: var(--color-primary-light);
-  color: var(--color-primary-dark);
-}
-
-.submit-btn { justify-self: start; }
-.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-/* Inline result */
-.inline-result {
-  border-radius: var(--radius-lg);
-  padding: var(--space-4) var(--space-6);
-  display: grid;
-  gap: var(--space-2);
-}
-.inline-result--correct {
-  background: var(--color-success-light);
-  border: 2px solid var(--color-success);
-}
-.inline-result--wrong {
-  background: var(--color-danger-light);
-  border: 2px solid var(--color-danger);
-}
-
-.inline-result__label {
-  margin: 0;
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
-}
-.inline-result--correct .inline-result__label { color: var(--color-success); }
-.inline-result--wrong   .inline-result__label { color: var(--color-danger); }
-
-.inline-result__explanation {
-  margin: 0;
-  color: var(--color-text);
+  color: #555;
   line-height: 1.5;
 }
 
-.inline-result__stop {
+/* Result note */
+.fake-news-task__result {
+  transform: rotate(var(--card-rotate, 0deg));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.fake-news-task__result--correct { border-color: var(--color-success); }
+.fake-news-task__result--wrong   { border-color: var(--color-danger); }
+
+.fake-news-task__result-label {
   margin: 0;
-  font-weight: var(--font-semibold);
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+.fake-news-task__result--correct .fake-news-task__result-label { color: var(--color-success); }
+.fake-news-task__result--wrong   .fake-news-task__result-label { color: var(--color-danger); }
+
+.fake-news-task__explanation {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: #3B1F08;
+  line-height: 1.5;
+}
+
+.fake-news-task__stop-msg {
+  margin: 0;
+  font-weight: 600;
   color: var(--color-success);
 }
 
-.inline-result__actions { padding-top: var(--space-2); }
-
 .next-btn {
-  background: var(--color-primary);
-  color: var(--color-text-on-dark);
+  align-self: flex-start;
+  background: var(--color-wood);
+  color: var(--color-gold);
   border: none;
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-6);
-  font-weight: var(--font-semibold);
+  font-weight: 700;
   font-size: var(--text-base);
   cursor: pointer;
+  min-height: 44px;
   transition: background var(--transition-fast), transform var(--transition-fast);
 }
-.next-btn:hover  { background: var(--color-btn-primary-hover); }
+.next-btn:hover  { background: var(--color-wood-mid); }
 .next-btn:active { transform: scale(0.98); }
+.next-btn:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 2px; }
 
-/* Slide-in transition */
+/* Slide-in */
 .result-slide-enter-active { transition: transform 0.3s ease, opacity 0.3s ease; }
 .result-slide-leave-active { transition: transform 0.2s ease, opacity 0.2s ease; }
 .result-slide-enter-from   { transform: translateY(-12px); opacity: 0; }
