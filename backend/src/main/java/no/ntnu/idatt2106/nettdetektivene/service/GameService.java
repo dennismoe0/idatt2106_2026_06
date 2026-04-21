@@ -32,6 +32,8 @@ import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.FakeNewsTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.MarketplaceTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.PasswordStrengthEvaluator;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.PasswordTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.PhishingEmailTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.TaskAnswerChecker;
 import org.slf4j.Logger;
@@ -121,7 +123,8 @@ public class GameService {
             List.of(
                 new FakeNewsTaskAnswerChecker(),
                 new PhishingEmailTaskAnswerChecker(),
-                new MarketplaceTaskAnswerChecker()
+                new MarketplaceTaskAnswerChecker(),
+                new PasswordTaskAnswerChecker(objectMapper, new PasswordStrengthEvaluator())
             )
         );
     }
@@ -361,7 +364,7 @@ public class GameService {
                 log.warn("[GameService] no answer checker registered for taskType={}", task.getTaskType());
                 return false;
             }
-            return answerChecker.isCorrect(correctAnswer, answer);
+            return answerChecker.isCorrect(task, correctAnswer, answer);
         } catch (JsonProcessingException exception) {
             log.error("[GameService] failed to parse correct answer JSON taskId={}", task.getId(), exception);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Task answer data is invalid");
