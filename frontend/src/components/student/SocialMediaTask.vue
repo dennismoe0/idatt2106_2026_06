@@ -1,6 +1,6 @@
 <template>
   <section class="task-card">
-    <h2 v-if="task.stopName">{{ task.stopName }}</h2>
+    <h2>{{ task.stopName ?? 'Den sosiale møteplassen' }}</h2>
     <p class="guidance">{{ task.guidanceText }}</p>
 
     <template v-if="isIdentifyWorstTask">
@@ -149,6 +149,44 @@ const props = defineProps({
 
 const emit = defineEmits(['submitted', 'next'])
 
+const PLATFORM_THEMES = {
+  instagram: {
+    accent: '#E1306C',
+    accentSoft: 'color-mix(in srgb, #E1306C 16%, white)',
+    stripe: 'linear-gradient(90deg, #F58529 0%, #DD2A7B 45%, #8134AF 72%, #515BD4 100%)',
+  },
+  tiktok: {
+    accent: '#111111',
+    accentSoft: 'color-mix(in srgb, #25F4EE 22%, white)',
+    stripe: 'linear-gradient(90deg, #25F4EE 0%, #111111 48%, #FE2C55 100%)',
+  },
+  facebook: {
+    accent: '#1877F2',
+    accentSoft: 'color-mix(in srgb, #1877F2 18%, white)',
+    stripe: 'linear-gradient(90deg, #1877F2 0%, #4F8DF8 100%)',
+  },
+  x: {
+    accent: '#111111',
+    accentSoft: 'color-mix(in srgb, #111111 10%, white)',
+    stripe: 'linear-gradient(90deg, #444444 0%, #111111 100%)',
+  },
+  linkedin: {
+    accent: '#0A66C2',
+    accentSoft: 'color-mix(in srgb, #0A66C2 18%, white)',
+    stripe: 'linear-gradient(90deg, #0A66C2 0%, #378FE9 100%)',
+  },
+  youtube: {
+    accent: '#FF0033',
+    accentSoft: 'color-mix(in srgb, #FF0033 16%, white)',
+    stripe: 'linear-gradient(90deg, #FF0033 0%, #FF5A5F 100%)',
+  },
+  snap: {
+    accent: '#D5AA00',
+    accentSoft: 'color-mix(in srgb, #FFD400 22%, white)',
+    stripe: 'linear-gradient(90deg, #FFD400 0%, #FFEE88 100%)',
+  },
+}
+
 const selected = ref(null)
 const rankings = ref({})
 const content = computed(() => props.task?.contentJson ?? {})
@@ -173,61 +211,13 @@ const isRankingComplete = computed(() => {
 
 function getPlatformTheme(platform) {
   const label = String(platform ?? 'Sosialt medium').toLowerCase()
-  if (label.includes('instagram')) {
-    return {
-      accent: '#E1306C',
-      accentSoft: 'color-mix(in srgb, #E1306C 16%, white)',
-      stripe: 'linear-gradient(90deg, #F58529 0%, #DD2A7B 45%, #8134AF 72%, #515BD4 100%)',
-    }
-  }
-
-  if (label.includes('tiktok')) {
-    return {
-      accent: '#111111',
-      accentSoft: 'color-mix(in srgb, #25F4EE 22%, white)',
-      stripe: 'linear-gradient(90deg, #25F4EE 0%, #111111 48%, #FE2C55 100%)',
-    }
-  }
-
-  if (label.includes('facebook')) {
-    return {
-      accent: '#1877F2',
-      accentSoft: 'color-mix(in srgb, #1877F2 18%, white)',
-      stripe: 'linear-gradient(90deg, #1877F2 0%, #4F8DF8 100%)',
-    }
-  }
-
-  if (label === 'x' || label.includes('twitter')) {
-    return {
-      accent: '#111111',
-      accentSoft: 'color-mix(in srgb, #111111 10%, white)',
-      stripe: 'linear-gradient(90deg, #444444 0%, #111111 100%)',
-    }
-  }
-
-  if (label.includes('linkedin')) {
-    return {
-      accent: '#0A66C2',
-      accentSoft: 'color-mix(in srgb, #0A66C2 18%, white)',
-      stripe: 'linear-gradient(90deg, #0A66C2 0%, #378FE9 100%)',
-    }
-  }
-
-  if (label.includes('youtube')) {
-    return {
-      accent: '#FF0033',
-      accentSoft: 'color-mix(in srgb, #FF0033 16%, white)',
-      stripe: 'linear-gradient(90deg, #FF0033 0%, #FF5A5F 100%)',
-    }
-  }
-
-  if (label.includes('snap')) {
-    return {
-      accent: '#D5AA00',
-      accentSoft: 'color-mix(in srgb, #FFD400 22%, white)',
-      stripe: 'linear-gradient(90deg, #FFD400 0%, #FFEE88 100%)',
-    }
-  }
+  if (label.includes('instagram')) return PLATFORM_THEMES.instagram
+  if (label.includes('tiktok')) return PLATFORM_THEMES.tiktok
+  if (label.includes('facebook')) return PLATFORM_THEMES.facebook
+  if (label === 'x' || label.includes('twitter')) return PLATFORM_THEMES.x
+  if (label.includes('linkedin')) return PLATFORM_THEMES.linkedin
+  if (label.includes('youtube')) return PLATFORM_THEMES.youtube
+  if (label.includes('snap')) return PLATFORM_THEMES.snap
 
   return {
     accent: 'var(--color-primary)',
@@ -253,12 +243,12 @@ watch(() => props.task?.id, () => {
 }, { immediate: true })
 
 function formatMetric(value) {
-  if (value === undefined || value === null || value === '') return ''
+  if (value == null || value === '') return ''
   return typeof value === 'number' ? value.toLocaleString('nb-NO') : String(value)
 }
 
 function hasPostMeta(postItem) {
-  return postItem?.timestamp || postItem?.likes === 0 || !!postItem?.likes
+  return !!postItem?.timestamp || postItem?.likes != null
 }
 
 function assignRank(postId, rawValue) {
@@ -284,6 +274,7 @@ function assignRank(postId, rawValue) {
 function submit() {
   if (isIdentifyWorstTask.value) {
     if (!isRankingComplete.value || !rankedWorstPostId.value) return
+    // Backend only validates which post was ranked worst (rank 1); the full order is UI-only for now.
     const answer = { selected: rankedWorstPostId.value }
     if (import.meta.env.DEV) console.log('[SocialMediaTask] Submitting:', answer)
     emit('submitted', answer)
