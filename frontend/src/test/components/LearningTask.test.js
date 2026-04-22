@@ -7,8 +7,20 @@ const TASK = {
   guidanceText: 'Les kortene og svar riktig.',
   contentJson: {
     slides: [
-      { icon: '📰', heading: 'Overskrift 1', body: 'Brødtekst 1' },
-      { icon: '🔍', heading: 'Overskrift 2', body: 'Brødtekst 2' },
+      {
+        icon: '📰',
+        heading: 'Overskrift 1',
+        body: 'Brødtekst 1',
+        examples: ['Eksempel 1A', 'Eksempel 1B'],
+        checks: ['Husk 1A'],
+      },
+      {
+        icon: '🔍',
+        heading: 'Overskrift 2',
+        body: 'Brødtekst 2',
+        examples: ['Eksempel 2A'],
+        checks: ['Husk 2A'],
+      },
     ],
     quiz: [
       { id: 'q1', question: 'Første spørsmål?', options: ['Riktig', 'Feil'], correct: 'Riktig' },
@@ -21,34 +33,25 @@ describe('LearningTask', () => {
   beforeEach(() => { vi.useFakeTimers() })
   afterEach(() => { vi.useRealTimers() })
 
-  it('starts in SLIDES phase and shows first slide', () => {
+  it('starts in LEARN phase and shows all learning sections on one page', () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
     expect(wrapper.text()).toContain('Overskrift 1')
-    expect(wrapper.text()).toContain('Brødtekst 1')
-    expect(wrapper.find('.nav-btn--start-quiz').exists()).toBe(false)
-  })
-
-  it('shows "Neste" button on first slide, not "Forrige"', () => {
-    const wrapper = mount(LearningTask, { props: { task: TASK } })
-    expect(wrapper.find('.nav-btn--next').exists()).toBe(true)
-    expect(wrapper.find('.nav-btn--back').exists()).toBe(false)
-  })
-
-  it('advances to next slide on Neste click', async () => {
-    const wrapper = mount(LearningTask, { props: { task: TASK } })
-    await wrapper.find('.nav-btn--next').trigger('click')
     expect(wrapper.text()).toContain('Overskrift 2')
+    expect(wrapper.text()).toContain('Brødtekst 1')
+    expect(wrapper.text()).toContain('Eksempel 1A')
+    expect(wrapper.text()).toContain('Husk 2A')
+    expect(wrapper.find('.nav-btn--start-quiz').exists()).toBe(true)
   })
 
-  it('shows "Start quiz" button on last slide', async () => {
+  it('shows one start quiz button and no slide navigation buttons', () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
-    await wrapper.find('.nav-btn--next').trigger('click')
     expect(wrapper.find('.nav-btn--start-quiz').exists()).toBe(true)
+    expect(wrapper.find('.nav-btn--next').exists()).toBe(false)
+    expect(wrapper.find('.nav-btn--back').exists()).toBe(false)
   })
 
   it('transitions to QUIZ phase on Start quiz click', async () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
-    await wrapper.find('.nav-btn--next').trigger('click')
     await wrapper.find('.nav-btn--start-quiz').trigger('click')
     expect(wrapper.text()).toContain('Første spørsmål?')
     expect(wrapper.findAll('.option-btn')).toHaveLength(2)
@@ -56,7 +59,6 @@ describe('LearningTask', () => {
 
   it('marks correct answer and advances after 900ms', async () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
-    await wrapper.find('.nav-btn--next').trigger('click')
     await wrapper.find('.nav-btn--start-quiz').trigger('click')
 
     const options = wrapper.findAll('.option-btn')
@@ -73,7 +75,6 @@ describe('LearningTask', () => {
 
   it('marks wrong answer and resets after 1200ms', async () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
-    await wrapper.find('.nav-btn--next').trigger('click')
     await wrapper.find('.nav-btn--start-quiz').trigger('click')
 
     const options = wrapper.findAll('.option-btn')
@@ -91,7 +92,6 @@ describe('LearningTask', () => {
 
   it('emits submitted with quizPassed true after all correct answers', async () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
-    await wrapper.find('.nav-btn--next').trigger('click')
     await wrapper.find('.nav-btn--start-quiz').trigger('click')
 
     // Answer q1 correctly
@@ -109,12 +109,13 @@ describe('LearningTask', () => {
     expect(wrapper.emitted('submitted')[0][0]).toEqual({ quizPassed: true })
   })
 
-  it('resets to slide 1 when task id changes', async () => {
+  it('resets to LEARN view when task id changes', async () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
-    await wrapper.find('.nav-btn--next').trigger('click')
-    expect(wrapper.text()).toContain('Overskrift 2')
+    await wrapper.find('.nav-btn--start-quiz').trigger('click')
+    expect(wrapper.text()).toContain('Første spørsmål?')
 
     await wrapper.setProps({ task: { ...TASK, id: 99 } })
     expect(wrapper.text()).toContain('Overskrift 1')
+    expect(wrapper.text()).toContain('Overskrift 2')
   })
 })
