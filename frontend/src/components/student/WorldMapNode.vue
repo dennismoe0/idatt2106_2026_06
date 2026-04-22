@@ -14,9 +14,9 @@
     <div class="world-node__disk" aria-hidden="true">
       <svg
         class="world-node__svg"
-        viewBox="0 0 64 64"
-        width="56"
-        height="56"
+        viewBox="0 0 72 72"
+        width="96"
+        height="96"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
@@ -27,9 +27,9 @@
           </radialGradient>
         </defs>
         <circle
-          cx="32"
-          cy="32"
-          r="28"
+          cx="36"
+          cy="36"
+          r="34"
           :fill="`url(#${gradId})`"
           stroke="#ffffff"
           stroke-width="3"
@@ -37,7 +37,7 @@
         <g
           class="world-node__icon"
           :data-icon="iconName"
-          transform="translate(17 17) scale(1.25)"
+          transform="translate(12 12) scale(2)"
           fill="none"
           stroke="#ffffff"
           stroke-width="2"
@@ -222,8 +222,8 @@ function handleClick() {
 
 .world-node__disk {
   position: relative;
-  width: 56px;
-  height: 56px;
+  width: 96px;
+  height: 96px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -295,9 +295,9 @@ function handleClick() {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 72px;
-  height: 72px;
-  margin-top: -8px;
+  width: 128px;
+  height: 128px;
+  margin-top: -16px;
   border-radius: 50%;
   transform: translate(-50%, -50%);
   background: radial-gradient(circle, var(--color-map-halo) 0%, var(--color-map-halo-fade) 70%);
