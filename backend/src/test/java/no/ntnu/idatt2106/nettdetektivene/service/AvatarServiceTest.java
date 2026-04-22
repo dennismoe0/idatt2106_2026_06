@@ -2,8 +2,14 @@ package no.ntnu.idatt2106.nettdetektivene.service;
 
 import no.ntnu.idatt2106.nettdetektivene.dto.avatar.UpdateAvatarRequest;
 import no.ntnu.idatt2106.nettdetektivene.entity.Avatar;
+import no.ntnu.idatt2106.nettdetektivene.entity.Stop;
+import no.ntnu.idatt2106.nettdetektivene.entity.UnlockedAvatarOption;
 import no.ntnu.idatt2106.nettdetektivene.entity.User;
 import no.ntnu.idatt2106.nettdetektivene.repository.AvatarRepository;
+import no.ntnu.idatt2106.nettdetektivene.repository.AvatarShopItemRepository;
+import no.ntnu.idatt2106.nettdetektivene.repository.StudentMedalRepository;
+import no.ntnu.idatt2106.nettdetektivene.repository.StopRepository;
+import no.ntnu.idatt2106.nettdetektivene.repository.UnlockedAvatarOptionRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +23,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +38,10 @@ class AvatarServiceTest {
 
     @Mock AvatarRepository avatarRepository;
     @Mock UserRepository userRepository;
+    @Mock UnlockedAvatarOptionRepository unlockedAvatarOptionRepository;
+    @Mock AvatarShopItemRepository avatarShopItemRepository;
+    @Mock StudentMedalRepository studentMedalRepository;
+    @Mock StopRepository stopRepository;
     @InjectMocks AvatarService avatarService;
 
     @AfterEach
@@ -85,11 +97,11 @@ class AvatarServiceTest {
             "hoodie",
             "#2563eb",
             "none",
-            "badge"
+            "none"
         ));
 
         assertThat(response.gender()).isEqualTo("female");
-        assertThat(response.accessory()).isEqualTo("badge");
+        assertThat(response.accessory()).isEqualTo("none");
         verify(avatarRepository).save(any(Avatar.class));
     }
 
@@ -118,7 +130,7 @@ class AvatarServiceTest {
             "hoodie",
             "#2563eb",
             "none",
-            "badge"
+            "none"
         )))
             .isInstanceOf(ResponseStatusException.class)
             .satisfies(exception -> assertThat(((ResponseStatusException) exception).getStatusCode())
@@ -141,5 +153,80 @@ class AvatarServiceTest {
         assertThat(options.get("outfitColor")).containsExactly("#2563eb","#dc2626","#16a34a","#d97706","#1f2937");
         assertThat(options.get("eyeStyle")).containsExactly("round", "narrow", "wide");
         assertThat(options.get("gender")).containsExactly("neutral", "female", "male");
+    }
+
+    @Test
+    void getMyOptions_noUnlocks_defaultsAvailableAllMedalLocked() {
+        SecurityContextHolder.getContext().setAuthentication(
+            new UsernamePasswordAuthenticationToken("7", null,
+                AuthorityUtils.createAuthorityList("ROLE_STUDENT"))
+        );
+
+        when(unlockedAvatarOptionRepository.findByStudentId(7L)).thenReturn(List.of());
+        when(studentMedalRepository.countByStudent_Id(7L)).thenReturn(0L);
+        when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(buildStops());
+
+        var response = avatarService.getMyOptions();
+
+        assertThat(response.available().get("accessory")).containsExactly("none");
+        assertThat(response.medalLocked()).hasSize(7);
+        assertThat(response.colorPickerUnlocked()).isFalse();
+        assertThat(response.available().get("hairStyle"))
+            .containsExactlyInAnyOrder("short","long","curly","ponytail","buzz","braids","bun","afro","bald");
+    }
+
+    @Test
+    void getMyOptions_withMedalUnlock_itemMovesFromLockedToAvailable() {
+        SecurityContextHolder.getContext().setAuthentication(
+            new UsernamePasswordAuthenticationToken("7", null,
+                AuthorityUtils.createAuthorityList("ROLE_STUDENT"))
+        );
+
+        UnlockedAvatarOption unlock = new UnlockedAvatarOption();
+        unlock.setStudentId(7L);
+        unlock.setOptionType("accessory");
+        unlock.setOptionValue("glasses");
+        unlock.setSource(UnlockedAvatarOption.Source.MEDAL);
+
+        when(unlockedAvatarOptionRepository.findByStudentId(7L)).thenReturn(List.of(unlock));
+        when(studentMedalRepository.countByStudent_Id(7L)).thenReturn(1L);
+        when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(buildStops());
+
+        var response = avatarService.getMyOptions();
+
+        assertThat(response.available().get("accessory")).contains("none", "glasses");
+        assertThat(response.medalLocked()).hasSize(6);
+        assertThat(response.colorPickerUnlocked()).isFalse();
+    }
+
+    @Test
+    void getMyOptions_allMedals_colorPickerUnlocked() {
+        SecurityContextHolder.getContext().setAuthentication(
+            new UsernamePasswordAuthenticationToken("7", null,
+                AuthorityUtils.createAuthorityList("ROLE_STUDENT"))
+        );
+
+        when(unlockedAvatarOptionRepository.findByStudentId(7L)).thenReturn(List.of());
+        when(studentMedalRepository.countByStudent_Id(7L)).thenReturn(7L);
+        when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(buildStops());
+
+        var response = avatarService.getMyOptions();
+
+        assertThat(response.colorPickerUnlocked()).isTrue();
+    }
+
+    // Helper method
+    private List<Stop> buildStops() {
+        var stops = new ArrayList<Stop>();
+        String[] names = {"Nyhetskvartalet","Postkontoret","Fotografen","Passordbanken",
+                          "Markedsplassen","Den sosiale møteplassen","Datasenteret"};
+        for (int i = 1; i <= 7; i++) {
+            Stop s = new Stop();
+            s.setId((long) i);
+            s.setOrderIndex(i);
+            s.setName(names[i - 1]);
+            stops.add(s);
+        }
+        return stops;
     }
 }
