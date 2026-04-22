@@ -208,6 +208,7 @@ public class ClassroomService {
 
         return classroomStudentRepository.getSchoolLeaderboard(classroomIds).stream()
             .map(row -> new SchoolLeaderboardEntryDto(
+                row.getStudentId(),
                 row.getDisplayName(),
                 row.getClassroomId(),
                 row.getClassroomName(),
@@ -292,16 +293,7 @@ public class ClassroomService {
     }
 
     private AvatarResponse toAvatarResponse(SchoolLeaderboardRow row) {
-        if (row.getAvatarGender() == null
-            && row.getAvatarEyeColor() == null
-            && row.getAvatarEyeStyle() == null
-            && row.getAvatarSkinColor() == null
-            && row.getAvatarHairColor() == null
-            && row.getAvatarHairStyle() == null
-            && row.getAvatarOutfit() == null
-            && row.getAvatarOutfitColor() == null
-            && row.getAvatarHatColor() == null
-            && row.getAvatarAccessory() == null) {
+        if (row.getAvatarGender() == null) {
             return null;
         }
 

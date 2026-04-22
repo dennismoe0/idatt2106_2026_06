@@ -172,6 +172,7 @@ class ClassroomServiceTest {
         List<SchoolLeaderboardEntryDto> result = classroomService.getSchoolLeaderboard(2L, 10L);
 
         assertThat(result).hasSize(2);
+        assertThat(result.get(0).studentId()).isEqualTo(10L);
         assertThat(result.get(0).displayName()).isEqualTo("Alice");
         assertThat(result.get(0).classroomName()).isEqualTo("Klasse A");
         assertThat(result.get(0).avatar()).isNotNull();
@@ -386,6 +387,7 @@ class ClassroomServiceTest {
 
     private SchoolLeaderboardRow mockSchoolRow(String name, Long classroomId, String classroomName, Long completed) {
         return new SchoolLeaderboardRow() {
+            public Long getStudentId() { return classroomId; }
             public String getDisplayName()   { return name; }
             public Long getClassroomId()     { return classroomId; }
             public String getClassroomName() { return classroomName; }

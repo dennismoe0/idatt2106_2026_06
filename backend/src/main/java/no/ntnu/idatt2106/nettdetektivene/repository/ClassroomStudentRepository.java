@@ -51,7 +51,8 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
     List<LeaderboardRow> getLeaderboard(@Param("classroomId") Long classroomId);
 
     @Query(value = """
-        SELECT cs.display_name       AS displayName,
+        SELECT cs.student_id         AS studentId,
+               cs.display_name       AS displayName,
                c.id                  AS classroomId,
                c.name                AS classroomName,
                COUNT(sp.id)          AS completedTasks,

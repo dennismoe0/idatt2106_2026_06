@@ -1,6 +1,7 @@
 package no.ntnu.idatt2106.nettdetektivene.repository;
 
 public interface SchoolLeaderboardRow {
+    Long getStudentId();
     String getDisplayName();
     Long getClassroomId();
     String getClassroomName();

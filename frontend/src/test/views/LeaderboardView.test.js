@@ -27,6 +27,10 @@ const mockAvatarStore = vi.hoisted(() => ({
   },
 }))
 
+const mockAuthStore = vi.hoisted(() => ({
+  userId: 2002,
+}))
+
 vi.mock('@/stores/game', () => ({
   useGameStore: () => mockGameStore,
 }))
@@ -37,6 +41,10 @@ vi.mock('@/stores/classroom', () => ({
 
 vi.mock('@/stores/avatar', () => ({
   useAvatarStore: () => mockAvatarStore,
+}))
+
+vi.mock('@/stores/auth', () => ({
+  useAuthStore: () => mockAuthStore,
 }))
 
 vi.mock('@/components/common/CorkBoardPage.vue', () => ({
@@ -56,9 +64,11 @@ describe('LeaderboardView', () => {
   beforeEach(() => {
     mockClassroomStore.currentClassroomId = 101
     mockClassroomStore.displayName = 'Ole Pettersen'
+    mockAuthStore.userId = 2002
     mockGameStore.fetchSchoolLeaderboard.mockClear()
     mockGameStore.schoolLeaderboard = [
       {
+        studentId: 2001,
         classroomId: 101,
         classroomName: '3A',
         displayName: 'Ada Lovelace',
@@ -78,6 +88,7 @@ describe('LeaderboardView', () => {
         },
       },
       {
+        studentId: 2002,
         classroomId: 101,
         classroomName: '3A',
         displayName: 'Ole Pettersen',
@@ -86,6 +97,7 @@ describe('LeaderboardView', () => {
         avatar: null,
       },
       {
+        studentId: 3001,
         classroomId: 202,
         classroomName: '3B',
         displayName: 'Kari Nordmann',
@@ -127,5 +139,41 @@ describe('LeaderboardView', () => {
 
     expect(ownRow?.classes()).toContain('leaderboard-table__row--me')
     expect(ownRow?.text()).toContain('Deg')
+  })
+
+  it('does not highlight another student with the same display name', async () => {
+    mockGameStore.schoolLeaderboard = [
+      {
+        studentId: 9999,
+        classroomId: 101,
+        classroomName: '3A',
+        displayName: 'Ole Pettersen',
+        completedTasks: 10,
+        totalTasks: 12,
+        avatar: null,
+      },
+      {
+        studentId: 2002,
+        classroomId: 101,
+        classroomName: '3A',
+        displayName: 'Ole Pettersen',
+        completedTasks: 8,
+        totalTasks: 12,
+        avatar: null,
+      },
+    ]
+
+    const wrapper = mount(LeaderboardView)
+    await flushPromises()
+
+    const rows = wrapper.findAll('tbody tr').filter((row) => row.text().includes('Ole Pettersen'))
+    const highlightedRows = rows.filter((row) =>
+      row.classes().includes('leaderboard-table__row--me'),
+    )
+    const meBadges = wrapper.findAll('.leaderboard-student__badge')
+
+    expect(rows).toHaveLength(2)
+    expect(highlightedRows).toHaveLength(1)
+    expect(meBadges).toHaveLength(1)
   })
 })

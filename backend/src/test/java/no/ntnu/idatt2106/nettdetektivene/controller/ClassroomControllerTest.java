@@ -233,6 +233,7 @@ class ClassroomControllerTest {
         mockMvc.perform(get("/api/classrooms/" + classroom.getId() + "/school-leaderboard")
                 .header("Authorization", "Bearer " + token))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].studentId").value(student.getId()))
             .andExpect(jsonPath("$[0].displayName").value("Elev Hansen"))
             .andExpect(jsonPath("$[0].classroomName").value("SchoolLB"))
             .andExpect(jsonPath("$[0].classroomId").value(classroom.getId()));
