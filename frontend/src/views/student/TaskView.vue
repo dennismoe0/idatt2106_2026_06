@@ -8,6 +8,8 @@
       :badge="mysteryScenario.badge"
       :title="mysteryScenario.title"
       :scenario="mysteryScenario.scenario"
+      :image-src="mysteryScenario.imageSrc"
+      :image-alt="mysteryScenario.imageAlt"
       @accept="acceptMystery"
     />
 
@@ -198,6 +200,7 @@ import MedalToast from '@/components/common/MedalToast.vue'
 import StopSummary from '@/components/student/StopSummary.vue'
 import { useSound } from '@/composables/useSound'
 import AvatarPreview from '@/components/student/AvatarPreview.vue'
+import newsQuarterStart from '@/assets/news-quarter-start.png'
 
 const { playCorrect, playWrong, playFanfare } = useSound()
 
@@ -271,6 +274,8 @@ const MYSTERY_SCENARIOS = {
   1: {
     badge: '📰 OPPDRAG 1',
     title: 'Et spor i nyhetsstrømmen',
+    imageSrc: newsQuarterStart,
+    imageAlt: 'Nyhetskvartalet med dyredetektiver, skjermer og aviser om de forsvunne idrettsparkpengene',
     scenario: `Noen prøver å spre kaos etter at penger som skulle gå til den nye idrettsparken plutselig forsvant fra ordførerens prosjektkonto. Nå dukker det opp dramatiske artikler som peker i alle retninger, og folk i byen begynner å skylde på feil personer.
 
 Hvis vi skal finne ut hva som faktisk skjedde med ordføreren og pengene, må vi først lære å skille ekte nyheter fra falske. Klarer du å stoppe løgnene før de blir til "sannheten" alle tror på?`
