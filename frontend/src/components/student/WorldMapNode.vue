@@ -13,18 +13,18 @@
     <span v-if="showPulse" class="world-node__halo" aria-hidden="true"></span>
     <span class="world-node__disk" aria-hidden="true">
       <span class="world-node__icon">{{ themeIcon }}</span>
+      <span
+        v-if="stop.completed"
+        class="world-node__badge world-node__badge--done"
+        aria-hidden="true"
+      >✓</span>
+      <span
+        v-if="stop.locked"
+        class="world-node__badge world-node__badge--lock"
+        aria-hidden="true"
+      >🔒</span>
     </span>
     <span class="world-node__label">{{ stop.name }}</span>
-    <span
-      v-if="stop.completed"
-      class="world-node__badge world-node__badge--done"
-      aria-hidden="true"
-    >✓</span>
-    <span
-      v-if="stop.locked"
-      class="world-node__badge world-node__badge--lock"
-      aria-hidden="true"
-    >🔒</span>
   </button>
 </template>
 
@@ -157,16 +157,15 @@ function handleClick() {
   line-height: 1;
   border: 2px solid #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
-  top: -4px;
+  top: -2px;
+  right: -2px;
   pointer-events: none;
 }
 .world-node__badge--done {
-  right: -6px;
   background: #2E7D32;
   color: #fff;
 }
 .world-node__badge--lock {
-  right: -6px;
   background: #4A4A4A;
   color: #FFD54F;
   font-size: 11px;
