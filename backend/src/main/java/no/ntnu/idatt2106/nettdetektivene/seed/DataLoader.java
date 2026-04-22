@@ -90,9 +90,9 @@ public class DataLoader implements ApplicationRunner {
         tasks.addAll(List.of(
             learnTask(newsStop, 1, "Lær om falske nyheter", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
-                    new Slide("📰", "Hva er falske nyheter?", "Falske nyheter er artikler som ser ekte ut men inneholder usannheter, overdrivelser eller rene løgner. De lages for å spre frykt, påvirke meninger eller få klikk."),
-                    new Slide("🔍", "Slik kjenner du dem igjen", "Se etter anonyme kilder ('en kilde sier...'), skremmende overskrifter med store bokstaver, domener du ikke kjenner igjen, og nyheter som ikke finnes på andre seriøse nettsteder."),
-                    new Slide("🧠", "Sjekk alltid kilden", "Søk opp nyheten på kjente medier som NRK, VG eller Dagbladet. En ekte nyhet kan bekreftes av flere uavhengige kilder."),
+                    new Slide("📰", "Hva er falske nyheter?", "Falske nyheter prøver å se ut som vanlige artikler, men bruker overdrivelser, rykter eller direkte løgner for å få deg til å reagere raskt. De spiller ofte på følelser som frykt, sinne eller sjokk i stedet for å vise tydelige fakta."),
+                    new Slide("🔍", "Hva bør du sjekke først?", "Begynn med domenet og kilden. NRK.no, VG.no og trondheim.kommune.no er eksempler på troverdige avsendere, mens navn som supernytt24.xyz eller deldettenaa.blog bør få deg til å stoppe opp og sjekke ekstra nøye."),
+                    new Slide("🧠", "Slik avslører du en svak sak", "Se etter anonyme kilder, sensasjonelle overskrifter og påstander som virker umulige, som at alle skoler i Norge stenger samme dag uten at noen offisielle kanaler sier noe. Hvis saken er ekte, skal du som regel kunne finne samme informasjon hos flere seriøse medier eller hos den som faktisk er ansvarlig."),
                     new Quiz("q1", "Hva er det første du bør se etter i en nyhetsartikkel?", new String[]{"Domenet og kilden", "Fargen på overskriften", "Antall delinger"}, "Domenet og kilden"),
                     new Quiz("q2", "Hva er et varseltegn i en overskrift?", new String[]{"Rolig og saklig språk", "Store bokstaver og skremmende ordvalg", "Kort og presis tekst"}, "Store bokstaver og skremmende ordvalg"),
                     new Quiz("q3", "Hva bør du gjøre om du er usikker på en nyhet?", new String[]{"Dele den for å advare andre", "Ignorere den alltid", "Sjekke den på andre seriøse nettsteder"}, "Sjekke den på andre seriøse nettsteder")
@@ -100,9 +100,9 @@ public class DataLoader implements ApplicationRunner {
             ),
             learnTask(mailStop, 1, "Lær om phishing", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
-                    new Slide("📧", "Hva er phishing?", "Phishing er e-poster som later som de er fra banker, offentlige kontorer eller kjente selskaper for å lure deg til å gi fra deg passord, personnummer eller penger."),
-                    new Slide("🎣", "Slik ser phishing ut", "Se etter: feil domene i avsenderadressen, hasteoppfordringer ('kontoen din stenges om 2 timer'), lenker der URL-en ikke stemmer, og forespørsel om personlig informasjon."),
-                    new Slide("🛡️", "Slik beskytter du deg", "Klikk aldri på lenker i mistenkelige e-poster. Gå direkte til nettbanken din selv. En ekte bank vil aldri be deg bekrefte passord via e-post."),
+                    new Slide("📧", "Hva er phishing?", "Phishing er meldinger som later som de kommer fra en bank, skole eller kjent tjeneste for å lure deg til å gi fra deg passord, BankID eller betalingsinformasjon. De ser ofte ganske ekte ut ved første blikk, nettopp fordi de er laget for å stresse deg."),
+                    new Slide("🎣", "Hva avslører en phishing-mail?", "Sjekk avsenderen nøye: dnb.no kan være ekte, men dnb-kundeservice.com er ikke det samme. Se også etter lenker som peker til rare domener, og formuleringer som 'bekreft innen 30 minutter' eller 'kontoen din sperres i dag'."),
+                    new Slide("🛡️", "Hva bør du gjøre i praksis?", "Ikke klikk i selve e-posten hvis du blir usikker. Åpne heller nettleseren selv og gå direkte til riktig nettside, for eksempel dnb.no eller skolens innloggingsportal, og sjekk der om det faktisk finnes et varsel på kontoen din."),
                     new Quiz("q1", "Hva er phishing?", new String[]{"Å prøve mange passord automatisk", "E-poster som later som å komme fra pålitelige kilder for å stjele informasjon", "Spam-reklame"}, "E-poster som later som å komme fra pålitelige kilder for å stjele informasjon"),
                     new Quiz("q2", "Hva er et varseltegn i en e-post?", new String[]{"Avsenderen er på norsk", "Hasteord og lenker til ukjente sider", "E-posten har et bilde"}, "Hasteord og lenker til ukjente sider"),
                     new Quiz("q3", "Hva bør du gjøre med en mistenkelig e-post?", new String[]{"Svare og spørre om det er ekte", "Slette den og gå direkte til nettstedet selv", "Videresende til venner"}, "Slette den og gå direkte til nettstedet selv")
@@ -110,9 +110,9 @@ public class DataLoader implements ApplicationRunner {
             ),
             learnTask(photoStop, 1, "Lær om KI-bilder", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
-                    new Slide("🤖", "KI-genererte bilder", "Kunstig intelligens kan lage realistiske bilder av folk og steder som ikke finnes. Disse brukes til falske bevis, falske nyheter og manipulasjon."),
-                    new Slide("🔎", "Slik avslører du KI-bilder", "Se etter: merkelige fingre, urealistisk glatt hud, bakgrunner som gjentar seg, uskarp eller meningsløs tekst, og usannsynlig perfekte detaljer."),
-                    new Slide("🖼️", "KI-generert vs. manipulert", "Et manipulert bilde er et ekte bilde som er endret. Et KI-generert bilde er laget helt fra bunnen av AI. Begge kan brukes til å lure deg."),
+                    new Slide("🤖", "Hva er et KI-bilde?", "Et KI-generert bilde kan se ekte ut, men personen, stedet eller situasjonen har aldri eksistert. Slike bilder kan brukes som falske bevis i nyheter, poster og meldinger."),
+                    new Slide("🔎", "Hva skal du se etter?", "Se ekstra nøye på hender, tenner, tekst, smykker, bakgrunn og skygger. KI lager ofte små feil, som seks fingre, bokstaver som ikke blir ord, eller mønstre som gjentar seg unaturlig flere steder i bildet."),
+                    new Slide("🖼️", "KI-generert eller manipulert?", "Et manipulert bilde starter ofte som et ekte bilde som noen har redigert etterpå, for eksempel ved å endre et ansikt eller fjerne noe fra bakgrunnen. Et KI-bilde er som regel laget fra bunnen av, og da ser du ofte mange små feil i hele bildet, ikke bare ett sted."),
                     new Quiz("q1", "Hva er vanlige feil i KI-genererte bilder?", new String[]{"For mange farger", "Merkelige hender og urealistisk glatt hud", "For lav bildekvalitet"}, "Merkelige hender og urealistisk glatt hud"),
                     new Quiz("q2", "Hva skiller et KI-generert bilde fra et manipulert bilde?", new String[]{"KI-bilder er alltid svart-hvitt", "KI-bilder er laget av AI, manipulerte er ekte bilder som er endret", "Manipulerte bilder har alltid bedre kvalitet"}, "KI-bilder er laget av AI, manipulerte er ekte bilder som er endret"),
                     new Quiz("q3", "Hva bør du gjøre om du er usikker på et bilde?", new String[]{"Dele det for å få andres mening", "Bruke omvendt bildesøk for å sjekke opprinnelsen", "Ignorere det"}, "Bruke omvendt bildesøk for å sjekke opprinnelsen")
@@ -120,9 +120,9 @@ public class DataLoader implements ApplicationRunner {
             ),
             learnTask(pwdStop, 1, "Lær om passord", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
-                    new Slide("🔐", "Hva gjør et passord sterkt?", "Et sterkt passord er langt (minst 12 tegn), bruker store og små bokstaver, tall og spesialtegn, og inneholder ikke navn, fødselsdato eller andre personlige opplysninger."),
-                    new Slide("⚠️", "Vanlige feil", "De svakeste passordene: eget navn, fødselsdato, 'passord', '123456', kjæledyrets navn. Hackere bruker programmer som prøver millioner av kombinasjoner per sekund."),
-                    new Slide("💡", "Passordfrase-trikset", "En rekke tilfeldige ord er lettere å huske og vanskeligere å knekke: 'Hest-Sol-Fjord-42!' er mye sterkere enn 'P@ss1'. Bruk aldri samme passord på flere nettsteder."),
+                    new Slide("🔐", "Hva gjør et passord sterkt?", "Et sterkt passord er langt og vanskelig å gjette. Det bør ikke inneholde navnet ditt, fødselsåret ditt eller noe en venn enkelt kunne ha tenkt seg fram til."),
+                    new Slide("⚠️", "Hva er typiske dårlige passord?", "Eksempler som Ola2012, passord123 eller Liverpool10 er svake fordi de er enkle å gjette eller finnes i vanlige passordlister. Hackere bruker automatiske verktøy som prøver slike kombinasjoner først."),
+                    new Slide("💡", "Et bedre alternativ", "En passordfrase som Fjord!TacoMaane42 er mye tryggere enn korte passord som P@ss1. Det viktigste er at du lager noe langt, unikt og forskjellig fra konto til konto."),
                     new Quiz("q1", "Hva gjør et passord sterkest?", new String[]{"Det er enkelt å huske", "Det er langt og bruker ulike tegn uten personlig info", "Det inneholder navn og fødselsdato"}, "Det er langt og bruker ulike tegn uten personlig info"),
                     new Quiz("q2", "Hvilket av disse er et svakt passord?", new String[]{"Sol!Fjord#42Hest", "Ola2010", "hX9!wP$3mQ"}, "Ola2010"),
                     new Quiz("q3", "Hva er en passordfrase?", new String[]{"Et langt ord", "En rekke tilfeldige ord som danner et langt passord", "Passordet til telefonen"}, "En rekke tilfeldige ord som danner et langt passord")
@@ -130,9 +130,9 @@ public class DataLoader implements ApplicationRunner {
             ),
             learnTask(marketStop, 1, "Lær om nettsvindel", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
-                    new Slide("🛒", "Nettsalg-svindel", "Svindlere lager falske nettbutikker for å ta pengene dine. Produktet kommer aldri, og noen ganger stjeler de betalingsinformasjonen din."),
-                    new Slide("🚩", "Varseltegn i nettbutikker", "Se etter: urealistisk lave priser, ukjente domener (.xyz, .cc), betaling med gavekort eller Western Union, og manglende kontaktinformasjon."),
-                    new Slide("✅", "Trygg netthandel", "Handle kun på kjente nettsteder. Sjekk at adressen starter med 'https'. Betal med kort — da har du bedre sjanse til å få pengene tilbake."),
+                    new Slide("🛒", "Hvordan ser nettsvindel ut?", "Svindelbutikker prøver å se ekte ut, men lokker ofte med varer som er altfor billige til å være sanne. Målet er enten å ta pengene dine eller få tak i kortinformasjonen din."),
+                    new Slide("🚩", "Røde flagg du bør merke deg", "Vær skeptisk hvis domenet er ukjent, for eksempel super-sneakers.cc eller tilbud-kiosk.xyz, hvis kontaktinformasjon mangler, eller hvis butikken vil ha betaling med gavekort, krypto eller bankoverføring rett til en privatperson."),
+                    new Slide("✅", "Hvordan handler du tryggere?", "Sjekk om butikken har ekte kontaktinfo, vanlige betalingsløsninger og anmeldelser som faktisk virker troverdige. Kortbetaling er tryggere enn gavekort fordi du har større sjanse til å få pengene tilbake hvis noe er galt."),
                     new Quiz("q1", "Hva er et varseltegn på en useriøs nettbutikk?", new String[]{"De har mange produkter", "De krever betaling med gavekort", "De tilbyr gratis frakt"}, "De krever betaling med gavekort"),
                     new Quiz("q2", "Hva gjør betaling med gavekort risikabelt?", new String[]{"Det er saktere", "Pengene er nesten umulige å spore og få tilbake", "Du får ikke kvittering"}, "Pengene er nesten umulige å spore og få tilbake"),
                     new Quiz("q3", "Hva bør du gjøre om en nettbutikk virker mistenkelig?", new String[]{"Kjøp og håp det ordner seg", "Be venner handle der først", "Søk opp butikken og les anmeldelser"}, "Søk opp butikken og les anmeldelser")
@@ -140,9 +140,9 @@ public class DataLoader implements ApplicationRunner {
             ),
             learnTask(socialStop, 1, "Lær om sosiale medier", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
-                    new Slide("📱", "Sosiale medier og manipulasjon", "Sosiale medier kan brukes til å spre feilinformasjon og påvirke hva du tenker. Innhold som vekker sterke følelser spres mye raskere enn faktabasert innhold."),
-                    new Slide("🎭", "Falske kontoer", "Fremmede som raskt vil bli nære venner, noen som ber om personlig informasjon, eller 'kjente' som oppfører seg rart — kan alle være falske kontoer."),
-                    new Slide("🤔", "Tenk før du deler", "Innlegg med mange utropstegn, kapslås og 'del NÅ!' forsøker å hindre deg i å tenke. Stopp, pust, sjekk kilden — del aldri noe du ikke har bekreftet."),
+                    new Slide("📱", "Hvorfor lures vi lettere i feeden?", "På sosiale medier går alt fort, og innlegg som gjør deg sint, redd eller veldig nysgjerrig blir ofte delt mest. Derfor må du være ekstra rolig akkurat når noe føles mest dramatisk."),
+                    new Slide("🎭", "Hvordan ser en falsk konto ut?", "Det kan være en konto med veldig få ekte bilder, merkelig brukernavn eller noen som tar kontakt og blir veldig personlig veldig fort. Hvis en konto spør om telefonnummer, bilder eller innlogging, bør du stoppe med en gang."),
+                    new Slide("🤔", "Hva bør du gjøre før du deler?", "Spør deg selv: Hvem har lagt ut dette, og hvordan vet de det? Hvis innlegget roper 'DEL NÅ', navngir folk uten bevis eller bare bygger på rykter fra skolen, er det et tegn på at du bør sjekke før du gjør noe."),
                     new Quiz("q1", "Hva slags innhold spres raskest på sosiale medier?", new String[]{"Rolig faktabasert nyheter", "Innhold som vekker sterke følelser som sinne eller frykt", "Vitenskapelige artikler"}, "Innhold som vekker sterke følelser som sinne eller frykt"),
                     new Quiz("q2", "Hva bør du gjøre om en fremmed ber om personlig informasjon?", new String[]{"Svare høflig og gi informasjonen", "Avvise og rapportere kontoen", "Be dem spørre igjen"}, "Avvise og rapportere kontoen"),
                     new Quiz("q3", "Hva betyr det om et innlegg bruker kapslås og ber om hastedeling?", new String[]{"Innholdet er viktig og sant", "Avsenderen prøver å hindre deg i å tenke kritisk", "Det er bare en stil"}, "Avsenderen prøver å hindre deg i å tenke kritisk")
