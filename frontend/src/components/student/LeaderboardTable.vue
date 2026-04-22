@@ -230,7 +230,7 @@ function entryKey(entry, index, classroomId = entry.classroomId) {
 }
 
 .leaderboard-table__row--me td {
-  background: #fff7df;
+  background: var(--color-leaderboard-me-bg);
 }
 
 .leaderboard-table__row--me td:first-child {
