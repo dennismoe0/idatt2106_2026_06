@@ -1,6 +1,7 @@
 package no.ntnu.idatt2106.nettdetektivene.service;
 
 import lombok.RequiredArgsConstructor;
+import no.ntnu.idatt2106.nettdetektivene.dto.avatar.AvatarResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.ClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.CreateClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
@@ -207,11 +208,13 @@ public class ClassroomService {
 
         return classroomStudentRepository.getSchoolLeaderboard(classroomIds).stream()
             .map(row -> new SchoolLeaderboardEntryDto(
+                row.getStudentId(),
                 row.getDisplayName(),
                 row.getClassroomId(),
                 row.getClassroomName(),
                 row.getCompletedTasks() == null ? 0 : row.getCompletedTasks().intValue(),
-                totalTasks
+                totalTasks,
+                toAvatarResponse(row)
             ))
             .toList();
     }
@@ -287,6 +290,25 @@ public class ClassroomService {
             log.warn("[ClassroomService] School leaderboard access denied: classroomId={} userId={}", classroomId, userId);
             throw new ResourceNotFoundException("Classroom not found");
         }
+    }
+
+    private AvatarResponse toAvatarResponse(SchoolLeaderboardRow row) {
+        if (row.getAvatarGender() == null) {
+            return null;
+        }
+
+        return new AvatarResponse(
+            row.getAvatarGender(),
+            row.getAvatarEyeColor(),
+            row.getAvatarEyeStyle(),
+            row.getAvatarSkinColor(),
+            row.getAvatarHairColor(),
+            row.getAvatarHairStyle(),
+            row.getAvatarOutfit(),
+            row.getAvatarOutfitColor(),
+            row.getAvatarHatColor(),
+            row.getAvatarAccessory()
+        );
     }
 
     private ClassroomResponse toClassroomResponse(Classroom classroom) {
