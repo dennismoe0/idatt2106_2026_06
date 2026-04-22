@@ -348,7 +348,11 @@ public class GameService {
         studentMedal.setMedal(medal.get());
         studentMedalRepository.save(studentMedal);
         log.info("[GameService] awarded medal studentId={} stopId={} medalId={}", studentId, stopId, medal.get().getId());
-        avatarService.handleMedalUnlock(studentId, stopId);
+        try {
+            avatarService.handleMedalUnlock(studentId, stopId);
+        } catch (Exception e) {
+            log.error("[GameService] handleMedalUnlock failed for studentId={} stopId={}, avatar reward skipped", studentId, stopId, e);
+        }
         return medal;
     }
 
