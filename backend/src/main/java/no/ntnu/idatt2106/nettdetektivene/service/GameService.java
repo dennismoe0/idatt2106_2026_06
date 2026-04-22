@@ -538,9 +538,14 @@ public class GameService {
             .map(StudentProgress::isCompleted)
             .orElse(false);
 
+        Stop stop = task.getStop();
         return new TaskResponse(
             task.getId(),
-            task.getStop().getId(),
+            stop.getId(),
+            stop.getName(),
+            stop.getDescription(),
+            stop.getOrderIndex(),
+            stop.getTheme(),
             task.getTaskType().name(),
             sanitizeContentForClient(task.getTaskType(), task.getContentJson()),
             task.getGuidanceText(),

@@ -200,7 +200,6 @@ import MedalToast from '@/components/common/MedalToast.vue'
 import StopSummary from '@/components/student/StopSummary.vue'
 import { useSound } from '@/composables/useSound'
 import AvatarPreview from '@/components/student/AvatarPreview.vue'
-import newsQuarterStart from '@/assets/news-quarter-start.png'
 
 const { playCorrect, playWrong, playFanfare } = useSound()
 
@@ -270,61 +269,43 @@ const TUTORIAL_TEXTS = {
   }
 }
 
-const MYSTERY_SCENARIOS = {
-  1: {
-    badge: '📰 OPPDRAG 1',
-    title: 'Et spor i nyhetsstrømmen',
-    imageSrc: newsQuarterStart,
-    imageAlt: 'Nyhetskvartalet med dyredetektiver, skjermer og aviser om de forsvunne idrettsparkpengene',
-    scenario: `Noen prøver å spre kaos etter at penger som skulle gå til den nye idrettsparken plutselig forsvant fra ordførerens prosjektkonto. Nå dukker det opp dramatiske artikler som peker i alle retninger, og folk i byen begynner å skylde på feil personer.
-
-Hvis vi skal finne ut hva som faktisk skjedde med ordføreren og pengene, må vi først lære å skille ekte nyheter fra falske. Klarer du å stoppe løgnene før de blir til "sannheten" alle tror på?`
-  },
-  2: {
-    badge: '📧 OPPDRAG 2',
-    title: 'Ukjent avsender',
-    scenario: `Et nytt spor har dukket opp: noen i kommunen fikk en e-post som så helt ekte ut, klikket på lenken og mistet kontroll over kontoen sin. Det kan være akkurat slik tyven kom seg inn i systemene rundt ordførerens prosjekt.
-
-For å komme videre i saken må vi forstå hvordan phishing faktisk fungerer. Hvis du lærer å avsløre falske e-poster, kan du finne ut hvordan tyven åpnet døren innenfra.`
-  },
-  3: {
-    badge: '📷 OPPDRAG 3',
-    title: 'Bildet lyver',
-    scenario: `Nå hevder flere at de har funnet "bevisbildet" som viser hvem som sto ved rådhuset den kvelden pengene forsvant. Problemet er at bildet som deles kan være manipulert, eller til og med laget av KI.
-
-Hvis vi skal komme nærmere tyven, må vi vite om bildet er ekte eller bare et nytt forsøk på å villede etterforskningen. Dette oppdraget handler om å lære å se forskjell på ekte spor og falske bevis.`
-  },
-  4: {
-    badge: '🔐 OPPDRAG 4',
-    title: 'Passordlekkasje',
-    scenario: `Etterforskerne tror nå at tyven ikke bare lurte folk, men også brukte stjålne innlogginger for å bevege seg videre i systemene. Noen brukte svake passord, og det ga tyven en enklere vei mot ordførerens prosjektkonto.
-
-Skal vi forstå hvordan innbruddet skjedde, må vi lære hva som gjør et passord lett å knekke og hva som faktisk beskytter en konto. Jo bedre du blir her, jo nærmere kommer vi hvordan tyven jobbet.`
-  },
-  5: {
-    badge: '🛒 OPPDRAG 5',
-    title: 'Svindel på nett',
-    scenario: `Et nytt spor peker mot en falsk nettbutikk og et domene registrert nær Bytorget. Det ser ut som tyven brukte svindelsider for å samle inn penger og informasjon, kanskje som en del av planen rundt pengene som forsvant.
-
-For å koble svindelen til hovedsaken må du lære hvordan falske nettbutikker avsløres. Hvis du finner hva som er galt med sidene, kan vi koble sporene nærmere personen bak hele planen.`
-  },
-  6: {
-    badge: '📱 OPPDRAG 6',
-    title: 'Falsk venn',
-    scenario: `Nå vet vi at noen også har brukt falske kontoer for å kontakte elever og spre rykter om saken. Målet virker å være å få folk til å dele feil informasjon, peke mot feil mistenkte og holde den ekte tyven skjult litt lenger.
-
-Derfor må du lære hvordan manipulasjon i sosiale medier ser ut. Hvis du avslører de falske kontoene og ryktene, får vi det siste sporet vi trenger før konfrontasjonen med tyven.`
-  },
-  7: {
-    badge: '💻 OPPDRAG 7',
-    title: 'Datasenteret er hacket',
-    scenario: `Nå har vi nesten hele bildet: pengene for idrettsparken ble stjålet, byen ble forvirret med falske nyheter, kontoer ble kompromittert med phishing og svake passord, og falske spor ble spredd med bilder, nettbutikker og sosiale medier.
-
-Tyven har aktivert en reserveplan fra datasenteret for å slette sporene sine en gang for alle. Nå må du bruke alt du har lært for å stanse systemene før sannheten forsvinner.`
-  },
+const THEME_EMOJI = {
+  FAKE_NEWS:     '📰',
+  PHISHING_EMAIL:'📧',
+  AI_PHOTO:      '📷',
+  PASSWORD:      '🔐',
+  MARKETPLACE:   '🛒',
+  SOCIAL_MEDIA:  '📱',
+  FINAL_BOSS:    '💻',
 }
 
-const mysteryScenario = computed(() => MYSTERY_SCENARIOS[stopId.value] ?? null)
+const STOP_MYSTERY_TITLES = {
+  1: 'Et spor i nyhetsstrømmen',
+  2: 'Ukjent avsender',
+  3: 'Bildet lyver',
+  4: 'Passordlekkasje',
+  5: 'Svindel på nett',
+  6: 'Falsk venn',
+  7: 'Datasenteret er hacket',
+}
+
+const STOP_IMAGES = {
+  1: { src: '/story_pictures/news-quarter-start.png', alt: 'Nyhetskvartalet med dyredetektiver, skjermer og aviser om de forsvunne idrettsparkpengene' },
+}
+
+const mysteryScenario = computed(() => {
+  const t = tasks.value[0]
+  if (!t?.stopDescription) return null
+  const emoji = THEME_EMOJI[t.stopTheme] ?? '🔍'
+  const img   = STOP_IMAGES[t.stopOrderIndex]
+  return {
+    badge:    `${emoji} OPPDRAG ${t.stopOrderIndex}`,
+    title:    STOP_MYSTERY_TITLES[t.stopOrderIndex] ?? t.stopName,
+    scenario: t.stopDescription,
+    imageSrc: img?.src ?? '',
+    imageAlt: img?.alt ?? '',
+  }
+})
 
 const tutorialTitle = computed(() =>
   TUTORIAL_TEXTS[currentTask.value?.taskType]?.title ?? 'Hva er oppgaven?'
