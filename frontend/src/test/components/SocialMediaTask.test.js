@@ -23,6 +23,48 @@ const TASK = {
   }
 }
 
+const IDENTIFY_WORST_TASK = {
+  id: 7,
+  taskType: 'SOCIAL_MEDIA',
+  guidanceText: 'Finn innlegget med minst troverdighet.',
+  contentJson: {
+    type: 'IDENTIFY_WORST',
+    question: 'Hvilket innlegg er mest illegitimt?',
+    posts: [
+      {
+        id: 'post_0',
+        platform: 'Fjesbok',
+        username: 'Ordførerens kontor',
+        avatar: '🏛️',
+        content: 'Kommunen jobber aktivt med saken.',
+        likes: 312,
+        timestamp: '1 time siden',
+        verified: true,
+      },
+      {
+        id: 'post_1',
+        platform: 'Fjesbok',
+        username: 'SannhetsJegeren99',
+        avatar: '👁️',
+        content: 'DEL DETTE FØR DE SLETTER DET!',
+        likes: 18432,
+        timestamp: '45 min siden',
+        verified: false,
+      },
+      {
+        id: 'post_2',
+        platform: 'Fjesbok',
+        username: 'Lokal Reporter',
+        avatar: '📝',
+        content: 'Politiet bekrefter at etterforskningen pågår.',
+        likes: 891,
+        timestamp: '2 timer siden',
+        verified: false,
+      }
+    ]
+  }
+}
+
 describe('SocialMediaTask', () => {
   it('renders platform label, post, and options', () => {
     const wrapper = mount(SocialMediaTask, { props: { task: TASK } })
@@ -52,5 +94,24 @@ describe('SocialMediaTask', () => {
 
     expect(wrapper.emitted('submitted')).toHaveLength(1)
     expect(wrapper.emitted('submitted')[0][0]).toEqual({ selected: 'report' })
+  })
+
+  it('renders all identify-worst posts and submits the post ranked as least trustworthy', async () => {
+    const wrapper = mount(SocialMediaTask, { props: { task: IDENTIFY_WORST_TASK } })
+
+    expect(wrapper.findAll('.post-card')).toHaveLength(3)
+    expect(wrapper.find('.submit-btn').attributes('disabled')).toBeDefined()
+
+    const rankInputs = wrapper.findAll('.rank-picker__select')
+    await rankInputs[0].setValue('2')
+    await rankInputs[1].setValue('1')
+    await rankInputs[2].setValue('3')
+
+    expect(wrapper.find('.submit-btn').attributes('disabled')).toBeUndefined()
+
+    await wrapper.find('.submit-btn').trigger('click')
+
+    expect(wrapper.emitted('submitted')).toHaveLength(1)
+    expect(wrapper.emitted('submitted')[0][0]).toEqual({ selected: 'post_1' })
   })
 })
