@@ -19,8 +19,21 @@
         @click="pickCard(index)"
         @keydown.enter.space.prevent="pickCard(index)"
       >
+        <div v-if="shouldShowWarningChip(index)" class="article-card__warning-chip">
+          Redaksjonell advarsel
+        </div>
+
+        <header class="article-card__header">
+          <p class="article-card__source">{{ formatSourceName(article.source) }}</p>
+          <div class="article-card__source-rule" aria-hidden="true"></div>
+          <p class="article-card__meta">
+            <span>{{ getPublishedLabel(article, index) }}</span>
+            <span aria-hidden="true">•</span>
+            <span>{{ getAuthorLabel(article, index) }}</span>
+          </p>
+        </header>
+
         <h3 class="article-card__headline">{{ article.headline }}</h3>
-        <p class="article-card__source">{{ article.source }}</p>
         <p class="article-card__body">{{ article.body }}</p>
       </article>
     </div>
@@ -59,44 +72,62 @@ const props = defineProps({
 
 const emit = defineEmits(['submitted', 'next', 'backToMap'])
 
-const chosenIndex    = ref(null)
-const shakingIndex   = ref(null)
-const bouncingIndex  = ref(null)
-const revealCorrect  = ref(null)
+const chosenIndex = ref(null)
+const shakingIndex = ref(null)
+const highlightedCorrectIndex = ref(null)
+const revealCorrect = ref(null)
 
 const articles = computed(() => props.task?.contentJson?.articles ?? [])
 
 watch(() => props.task?.id, () => {
-  chosenIndex.value   = null
-  shakingIndex.value  = null
-  bouncingIndex.value = null
+  chosenIndex.value = null
+  shakingIndex.value = null
+  highlightedCorrectIndex.value = null
   revealCorrect.value = null
 }, { immediate: true })
 
 watch(() => props.result, (r) => {
   if (!r) return
+
+  const correctIndex = getCorrectIndex(r)
+  revealCorrect.value = correctIndex
+
   if (r.correct) {
-    bouncingIndex.value = chosenIndex.value
-    setTimeout(() => { bouncingIndex.value = null }, 600)
+    highlightedCorrectIndex.value = chosenIndex.value
   } else {
     shakingIndex.value = chosenIndex.value
-    setTimeout(() => { shakingIndex.value = null; revealCorrect.value = getCorrectIndex(r) }, 400)
+    setTimeout(() => {
+      shakingIndex.value = null
+      highlightedCorrectIndex.value = correctIndex
+    }, 550)
   }
 })
 
 function getCorrectIndex(r) {
-  return r?.correctArticleIndex ?? null
+  if (typeof r?.correctArticleIndex === 'number') {
+    return r.correctArticleIndex
+  }
+
+  return articles.value.findIndex((_, index) => r?.[`article_${index}`] === false)
 }
 
 function articleClass(index) {
   if (props.result) {
-    const isChosen  = index === chosenIndex.value
+    const isChosen = index === chosenIndex.value
     const isCorrect = index === revealCorrect.value || (props.result.correct && index === chosenIndex.value)
-    if (isChosen && props.result.correct)   return ['article-card--correct', bouncingIndex.value === index ? 'card-bounce' : '']
-    if (isChosen && !props.result.correct)  return ['article-card--wrong',   shakingIndex.value  === index ? 'card-shake'  : '']
+
+    if (isChosen && props.result.correct) {
+      return ['article-card--correct', highlightedCorrectIndex.value === index ? 'card-glow' : '']
+    }
+
+    if (isChosen && !props.result.correct) {
+      return ['article-card--wrong', shakingIndex.value === index ? 'card-shake' : '']
+    }
+
     if (!props.result.correct && isCorrect) return ['article-card--correct']
     return ['article-card--muted']
   }
+
   if (index === chosenIndex.value) return ['article-card--chosen']
   return []
 }
@@ -114,6 +145,75 @@ function pickCard(index) {
   })
   console.log('[FakeNewsTask] Card picked index:', index, 'answer:', answer)
   emit('submitted', answer)
+}
+
+function shouldShowWarningChip(index) {
+  return props.result && index === revealCorrect.value
+}
+
+function formatSourceName(source) {
+  return String(source ?? 'Dagsposten').toUpperCase()
+}
+
+function getPublishedLabel(article, index) {
+  const publishedDate = getArticleField(article, index, [
+    'publishedAt',
+    'published_at',
+    'publishDate',
+    'publish_date',
+    'date',
+    'published',
+    'publicationDate'
+  ])
+
+  return publishedDate ? `Publisert ${publishedDate}` : `Publisert ${getFallbackPublishedDate(index)}`
+}
+
+function getAuthorLabel(article, index) {
+  const authorName = getArticleField(article, index, [
+    'author',
+    'authorName',
+    'author_name',
+    'byline',
+    'writer',
+    'journalist'
+  ])
+
+  return authorName ? `Av ${authorName}` : `Av ${getFallbackAuthor(index)}`
+}
+
+function getArticleField(article, index, fieldNames) {
+  const content = props.task?.contentJson ?? {}
+  const articleMeta = Array.isArray(content.articleMeta) ? content.articleMeta[index] : null
+
+  const candidateObjects = [
+    article,
+    article?.contentJson,
+    article?.content_json,
+    articleMeta,
+    content
+  ].filter(Boolean)
+
+  for (const candidate of candidateObjects) {
+    for (const fieldName of fieldNames) {
+      const value = candidate[fieldName]
+      if (typeof value === 'string' && value.trim()) {
+        return value.trim()
+      }
+    }
+  }
+
+  return ''
+}
+
+function getFallbackPublishedDate(index) {
+  const fallbackDates = ['i dag kl. 08:15', 'i går kl. 19:42', 'mandag kl. 07:30']
+  return fallbackDates[index % fallbackDates.length]
+}
+
+function getFallbackAuthor(index) {
+  const fallbackAuthors = ['Redaksjonen', 'Nora Nyheim', 'Emil Berg']
+  return fallbackAuthors[index % fallbackAuthors.length]
 }
 </script>
 
@@ -144,9 +244,15 @@ function pickCard(index) {
 }
 
 .article-card {
+  position: relative;
+  overflow: hidden;
   transform: rotate(var(--card-rotate, 0deg));
   cursor: pointer;
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  transition:
+    transform var(--transition-normal),
+    box-shadow var(--transition-normal),
+    border-color var(--transition-normal),
+    background var(--transition-normal);
   user-select: none;
 }
 .article-card:hover:not([aria-disabled="true"]) {
@@ -161,38 +267,113 @@ function pickCard(index) {
 .article-card--chosen {
   border-color: var(--color-wood);
   background: var(--color-note-chosen-bg);
+  box-shadow: 0 12px 28px rgba(69, 52, 38, 0.18);
 }
 .article-card--correct {
   border-color: var(--color-success);
   background: var(--color-note-correct-bg);
+  box-shadow:
+    0 0 0 2px rgba(46, 160, 67, 0.18),
+    0 14px 28px rgba(46, 160, 67, 0.2);
 }
 .article-card--wrong {
   border-color: var(--color-danger);
   background: var(--color-note-wrong-bg);
+  box-shadow:
+    0 0 0 2px rgba(193, 55, 74, 0.14),
+    0 14px 28px rgba(193, 55, 74, 0.16);
 }
 .article-card--muted {
   opacity: 0.55;
   filter: grayscale(30%);
 }
 
+.article-card__warning-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(193, 55, 74, 0.12);
+  color: var(--color-danger);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.article-card__header {
+  margin-bottom: var(--space-3);
+}
+
+.article-card__source {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: var(--color-wood);
+}
+
+.article-card__source-rule {
+  width: 100%;
+  height: 2px;
+  margin: var(--space-2) 0;
+  background: linear-gradient(90deg, rgba(87, 63, 39, 0.95), rgba(87, 63, 39, 0.18));
+}
+
+.article-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-ink-faint);
+}
+
 .article-card__headline {
-  margin: 0 0 var(--space-1);
+  margin: 0 0 var(--space-2);
   font-size: var(--text-base);
   font-weight: 700;
   color: var(--color-wood);
   line-height: 1.3;
-}
-.article-card__source {
-  margin: 0 0 var(--space-2);
-  font-size: var(--text-xs);
-  color: var(--color-ink-faint);
-  font-style: italic;
 }
 .article-card__body {
   margin: 0;
   font-size: var(--text-sm);
   color: var(--color-ink-subtle);
   line-height: 1.5;
+}
+
+.card-shake {
+  animation: article-card-shake 0.55s ease-in-out;
+}
+
+.card-glow {
+  animation: article-card-glow 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes article-card-shake {
+  0%, 100% { transform: rotate(var(--card-rotate, 0deg)) translateX(0); }
+  18% { transform: rotate(calc(var(--card-rotate, 0deg) - 1deg)) translateX(-7px); }
+  36% { transform: rotate(calc(var(--card-rotate, 0deg) + 1deg)) translateX(8px); }
+  54% { transform: rotate(calc(var(--card-rotate, 0deg) - 0.7deg)) translateX(-6px); }
+  72% { transform: rotate(calc(var(--card-rotate, 0deg) + 0.6deg)) translateX(5px); }
+}
+
+@keyframes article-card-glow {
+  from {
+    box-shadow:
+      0 0 0 2px rgba(46, 160, 67, 0.14),
+      0 0 0 0 rgba(46, 160, 67, 0.1),
+      0 14px 28px rgba(46, 160, 67, 0.16);
+  }
+  to {
+    box-shadow:
+      0 0 0 2px rgba(46, 160, 67, 0.26),
+      0 0 24px 8px rgba(46, 160, 67, 0.22),
+      0 18px 34px rgba(46, 160, 67, 0.28);
+  }
 }
 
 /* Result note */
