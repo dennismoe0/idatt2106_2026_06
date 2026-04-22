@@ -38,6 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import no.ntnu.idatt2106.nettdetektivene.service.AvatarService;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.TaskAnswerChecker;
 
 import java.time.LocalDateTime;
@@ -67,6 +68,7 @@ public class GameService {
     private final NotebookService notebookService;
     private final StudentXpLogRepository studentXpLogRepository;
     private final Map<TaskType, TaskAnswerChecker> answerCheckers;
+    private final AvatarService avatarService;
 
     @Value("${app.bypass-stop-lock:false}")
     private boolean bypassStopLock;
@@ -82,6 +84,7 @@ public class GameService {
         ObjectMapper objectMapper,
         NotebookService notebookService,
         StudentXpLogRepository studentXpLogRepository,
+        AvatarService avatarService,
         List<TaskAnswerChecker> answerCheckers
     ) {
         this.stopRepository = stopRepository;
@@ -94,6 +97,7 @@ public class GameService {
         this.objectMapper = objectMapper;
         this.notebookService = notebookService;
         this.studentXpLogRepository = studentXpLogRepository;
+        this.avatarService = avatarService;
         this.answerCheckers = answerCheckers.stream()
             .collect(Collectors.toUnmodifiableMap(TaskAnswerChecker::supportedTaskType, Function.identity()));
     }
@@ -344,6 +348,7 @@ public class GameService {
         studentMedal.setMedal(medal.get());
         studentMedalRepository.save(studentMedal);
         log.info("[GameService] awarded medal studentId={} stopId={} medalId={}", studentId, stopId, medal.get().getId());
+        avatarService.handleMedalUnlock(studentId, stopId);
         return medal;
     }
 
