@@ -12,6 +12,9 @@
 
 <!-- Content: centered when no image, lower-third when image present -->
     <div class="mystery-content">
+      <button class="mystery-content__back" @click="$emit('back')">
+        ← Tilbake til kartet
+      </button>
       <span class="mystery-content__badge">{{ badge }}</span>
       <h2 class="mystery-content__title">{{ title }}</h2>
       <div class="mystery-content__divider" aria-hidden="true" />
@@ -31,7 +34,7 @@ defineProps({
   imageSrc: { type: String, default: '' },
   imageAlt: { type: String, default: '' },
 })
-defineEmits(['accept'])
+defineEmits(['accept', 'back'])
 </script>
 
 <style scoped>
@@ -139,6 +142,38 @@ defineEmits(['accept'])
   padding: 4px 12px;
   border-radius: 2px;
   align-self: flex-start;
+}
+
+.mystery-content__back {
+  align-self: flex-start;
+  background: var(--color-mystery-gold);
+  color: var(--color-mystery-dark);
+  border: 2px solid rgba(0, 0, 0, 0.22);
+  border-radius: 999px;
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.mystery-content__back:hover {
+  background: #f5e08a;
+  border-color: rgba(0, 0, 0, 0.32);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.36);
+  transform: translateY(-1px);
+}
+
+.mystery-content__back:active {
+  transform: scale(0.97);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.mystery-screen:not(.mystery-screen--img) .mystery-content__back {
+  color: var(--color-mystery-dark);
+  border-color: rgba(0, 0, 0, 0.22);
 }
 
 /* ── Title ── */
