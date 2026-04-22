@@ -109,6 +109,7 @@ defineEmits(['accept'])
   font-size: var(--text-base);
   color: var(--color-mystery-text);
   line-height: 1.75;
+  white-space: pre-line;
 }
 
 .mystery-card__accept {
