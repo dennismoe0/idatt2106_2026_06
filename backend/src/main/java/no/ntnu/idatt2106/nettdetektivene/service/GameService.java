@@ -122,7 +122,7 @@ public class GameService {
             });
         requireUnlocked(studentId, classroomId, stop);
 
-        return taskRepository.findByStop_IdOrderByIdAsc(stopId).stream()
+        return taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(stopId).stream()
             .map(task -> toTaskResponse(studentId, classroomId, task))
             .toList();
     }
