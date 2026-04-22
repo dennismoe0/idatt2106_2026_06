@@ -2,7 +2,6 @@ package no.ntnu.idatt2106.nettdetektivene.controller;
 
 import no.ntnu.idatt2106.nettdetektivene.dto.avatar.AvatarOptionsResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.avatar.AvatarResponse;
-import no.ntnu.idatt2106.nettdetektivene.dto.avatar.MedalLockedItem;
 import no.ntnu.idatt2106.nettdetektivene.security.JwtAuthFilter;
 import no.ntnu.idatt2106.nettdetektivene.security.JwtTokenProvider;
 import no.ntnu.idatt2106.nettdetektivene.security.UserDetailsServiceImpl;
