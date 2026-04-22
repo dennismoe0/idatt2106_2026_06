@@ -91,13 +91,19 @@ describe('WorldMapNode', () => {
     const wrapper = mount(WorldMapNode, {
       props: { stop: makeStop({ theme: 'PASSWORD', name: 'Passordbanken' }) },
     })
-    expect(wrapper.find('.world-node__icon').text()).toBe('🔑')
+    expect(wrapper.find('.world-node__icon').attributes('data-icon')).toBe('key')
   })
 
-  it('falls back to pin emoji for unknown theme', () => {
+  it('falls back to map-pin icon for unknown theme', () => {
     const wrapper = mount(WorldMapNode, {
       props: { stop: makeStop({ theme: 'UNKNOWN_THEME' }) },
     })
-    expect(wrapper.find('.world-node__icon').text()).toBe('📍')
+    expect(wrapper.find('.world-node__icon').attributes('data-icon')).toBe('map-pin')
+  })
+
+  it('renders an svg disk with a circle', () => {
+    const wrapper = mount(WorldMapNode, { props: { stop: makeStop() } })
+    expect(wrapper.find('svg.world-node__svg').exists()).toBe(true)
+    expect(wrapper.find('svg.world-node__svg circle').exists()).toBe(true)
   })
 })
