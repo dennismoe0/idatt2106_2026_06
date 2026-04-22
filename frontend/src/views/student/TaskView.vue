@@ -10,6 +10,7 @@
       :scenario="mysteryScenario.scenario"
       :image-src="mysteryScenario.imageSrc"
       :image-alt="mysteryScenario.imageAlt"
+      @back="goToMap"
       @accept="acceptMystery"
     />
 
