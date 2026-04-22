@@ -174,6 +174,8 @@ class ClassroomServiceTest {
         assertThat(result).hasSize(2);
         assertThat(result.get(0).displayName()).isEqualTo("Alice");
         assertThat(result.get(0).classroomName()).isEqualTo("Klasse A");
+        assertThat(result.get(0).avatar()).isNotNull();
+        assertThat(result.get(0).avatar().hairStyle()).isEqualTo("short");
         assertThat(result.get(1).classroomName()).isEqualTo("Klasse B");
     }
 
@@ -388,6 +390,16 @@ class ClassroomServiceTest {
             public Long getClassroomId()     { return classroomId; }
             public String getClassroomName() { return classroomName; }
             public Long getCompletedTasks()  { return completed; }
+            public String getAvatarGender() { return "neutral"; }
+            public String getAvatarEyeColor() { return "#4a3000"; }
+            public String getAvatarEyeStyle() { return "round"; }
+            public String getAvatarSkinColor() { return "#D08B5B"; }
+            public String getAvatarHairColor() { return "#8B4513"; }
+            public String getAvatarHairStyle() { return "short"; }
+            public String getAvatarOutfit() { return "detective-coat"; }
+            public String getAvatarOutfitColor() { return "#2563eb"; }
+            public String getAvatarHatColor() { return "none"; }
+            public String getAvatarAccessory() { return "badge"; }
         };
     }
 }
