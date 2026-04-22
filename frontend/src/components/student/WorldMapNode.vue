@@ -69,7 +69,7 @@
         aria-hidden="true"
       >✓</span>
       <span
-        v-if="stop.locked"
+        v-else-if="stop.locked"
         class="world-node__badge world-node__badge--lock"
         aria-hidden="true"
       >🔒</span>
@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, getCurrentInstance } from 'vue'
 
 const props = defineProps({
   stop:      { type: Object,  required: true },
@@ -89,8 +89,7 @@ const props = defineProps({
 
 const emit = defineEmits(['node-click'])
 
-let gradCounter = 0
-const gradId = `world-node-grad-${++gradCounter}-${Math.random().toString(36).slice(2, 8)}`
+const gradId = `wn-grad-${getCurrentInstance().uid}`
 
 const I_NEWSPAPER = [
   { type: 'path', d: 'M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2' },
@@ -216,7 +215,7 @@ function handleClick() {
   outline: none;
 }
 .world-node:focus-visible .world-node__svg {
-  outline: 3px solid #fff;
+  outline: 3px solid var(--color-map-node-stroke);
   outline-offset: 4px;
   border-radius: 50%;
 }
@@ -237,11 +236,11 @@ function handleClick() {
 }
 
 .world-node__label {
-  background: #FFF5D6;
-  color: #3B1F08;
+  background: var(--color-map-plaque-bg);
+  color: var(--color-map-plaque-ink);
   padding: 3px 10px;
   border-radius: 10px;
-  border: 2px solid #8C5A20;
+  border: 2px solid var(--color-map-plaque-border);
   font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
@@ -261,7 +260,7 @@ function handleClick() {
   font-size: 13px;
   font-weight: 900;
   line-height: 1;
-  border: 2px solid #fff;
+  border: 2px solid var(--color-map-node-stroke);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
   top: -2px;
   right: -2px;
@@ -269,12 +268,12 @@ function handleClick() {
   z-index: 2;
 }
 .world-node__badge--done {
-  background: #2E7D32;
-  color: #fff;
+  background: var(--color-map-badge-done-bg);
+  color: var(--color-map-node-stroke);
 }
 .world-node__badge--lock {
-  background: #4A4A4A;
-  color: #FFD54F;
+  background: var(--color-map-badge-lock-bg);
+  color: var(--color-map-badge-lock-fg);
   font-size: 11px;
 }
 
@@ -286,9 +285,9 @@ function handleClick() {
   filter: grayscale(50%) drop-shadow(0 4px 4px rgba(0, 0, 0, 0.5));
 }
 .world-node--locked .world-node__label {
-  background: #D7CBB6;
-  color: #5A4A36;
-  border-color: #7A6B52;
+  background: var(--color-map-plaque-locked-bg);
+  color: var(--color-map-plaque-locked-ink);
+  border-color: var(--color-map-plaque-locked-border);
   opacity: 0.9;
 }
 
@@ -301,7 +300,7 @@ function handleClick() {
   margin-top: -8px;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(245, 197, 24, 0.55) 0%, rgba(245, 197, 24, 0) 70%);
+  background: radial-gradient(circle, var(--color-map-halo) 0%, var(--color-map-halo-fade) 70%);
   pointer-events: none;
   animation: world-node-pulse 1.6s ease-out infinite;
   z-index: -1;

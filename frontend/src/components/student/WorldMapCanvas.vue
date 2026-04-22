@@ -113,11 +113,9 @@
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <!-- Drop shadow per segment -->
+      <!-- Single continuous drop shadow (avoids opacity stacking at segment joints) -->
       <path
-        v-for="(seg, i) in PATH_SEGMENTS"
-        :key="`sh-${i}`"
-        :d="seg"
+        :d="FULL_PATH"
         fill="none"
         stroke="#1a1a1a"
         stroke-width="30"
@@ -203,6 +201,14 @@ const PATH_SEGMENTS = [
   'M 1090,280 C 1130,240 1270,480 1310,520',
   'M 1310,520 C 1360,560 1450,300 1480,260',
 ]
+
+const FULL_PATH =
+  'M 140,750 C 200,700 320,560 380,520 ' +
+  'C 440,480 570,320 630,280 ' +
+  'C 690,240 830,480 870,520 ' +
+  'C 910,560 1050,320 1090,280 ' +
+  'C 1130,240 1270,480 1310,520 ' +
+  'C 1360,560 1450,300 1480,260'
 
 const segmentStates = computed(() =>
   PATH_SEGMENTS.map((_, i) => {
