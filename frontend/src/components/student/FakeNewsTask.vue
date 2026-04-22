@@ -90,14 +90,15 @@ watch(() => props.result, (r) => {
   if (!r) return
 
   const correctIndex = getCorrectIndex(r)
-  revealCorrect.value = correctIndex
 
   if (r.correct) {
+    revealCorrect.value = correctIndex
     highlightedCorrectIndex.value = chosenIndex.value
   } else {
     shakingIndex.value = chosenIndex.value
     setTimeout(() => {
       shakingIndex.value = null
+      revealCorrect.value = correctIndex
       highlightedCorrectIndex.value = correctIndex
     }, 550)
   }
@@ -152,7 +153,7 @@ function shouldShowWarningChip(index) {
 }
 
 function formatSourceName(source) {
-  return String(source ?? 'Dagsposten').toUpperCase()
+  return String(source ?? 'Ukjent kilde').toUpperCase()
 }
 
 function getPublishedLabel(article, index) {
@@ -183,15 +184,13 @@ function getAuthorLabel(article, index) {
 }
 
 function getArticleField(article, index, fieldNames) {
-  const content = props.task?.contentJson ?? {}
-  const articleMeta = Array.isArray(content.articleMeta) ? content.articleMeta[index] : null
+  const articleMeta = Array.isArray(props.task?.contentJson?.articleMeta)
+    ? props.task.contentJson.articleMeta[index]
+    : null
 
   const candidateObjects = [
     article,
-    article?.contentJson,
-    article?.content_json,
-    articleMeta,
-    content
+    articleMeta
   ].filter(Boolean)
 
   for (const candidate of candidateObjects) {
@@ -207,13 +206,11 @@ function getArticleField(article, index, fieldNames) {
 }
 
 function getFallbackPublishedDate(index) {
-  const fallbackDates = ['i dag kl. 08:15', 'i går kl. 19:42', 'mandag kl. 07:30']
-  return fallbackDates[index % fallbackDates.length]
+  return 'Ukjent dato'
 }
 
 function getFallbackAuthor(index) {
-  const fallbackAuthors = ['Redaksjonen', 'Nora Nyheim', 'Emil Berg']
-  return fallbackAuthors[index % fallbackAuthors.length]
+  return 'Ukjent forfatter'
 }
 </script>
 
@@ -267,21 +264,21 @@ function getFallbackAuthor(index) {
 .article-card--chosen {
   border-color: var(--color-wood);
   background: var(--color-note-chosen-bg);
-  box-shadow: 0 12px 28px rgba(69, 52, 38, 0.18);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--color-wood) 18%, transparent);
 }
 .article-card--correct {
   border-color: var(--color-success);
   background: var(--color-note-correct-bg);
   box-shadow:
-    0 0 0 2px rgba(46, 160, 67, 0.18),
-    0 14px 28px rgba(46, 160, 67, 0.2);
+    0 0 0 2px color-mix(in srgb, var(--color-success) 18%, transparent),
+    0 14px 28px color-mix(in srgb, var(--color-success) 20%, transparent);
 }
 .article-card--wrong {
   border-color: var(--color-danger);
   background: var(--color-note-wrong-bg);
   box-shadow:
-    0 0 0 2px rgba(193, 55, 74, 0.14),
-    0 14px 28px rgba(193, 55, 74, 0.16);
+    0 0 0 2px color-mix(in srgb, var(--color-danger) 14%, transparent),
+    0 14px 28px color-mix(in srgb, var(--color-danger) 16%, transparent);
 }
 .article-card--muted {
   opacity: 0.55;
@@ -295,7 +292,7 @@ function getFallbackAuthor(index) {
   margin-bottom: var(--space-3);
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
-  background: rgba(193, 55, 74, 0.12);
+  background: color-mix(in srgb, var(--color-danger) 12%, transparent);
   color: var(--color-danger);
   font-size: var(--text-xs);
   font-weight: 800;
@@ -319,7 +316,11 @@ function getFallbackAuthor(index) {
   width: 100%;
   height: 2px;
   margin: var(--space-2) 0;
-  background: linear-gradient(90deg, rgba(87, 63, 39, 0.95), rgba(87, 63, 39, 0.18));
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-wood) 95%, transparent),
+    color-mix(in srgb, var(--color-wood) 18%, transparent)
+  );
 }
 
 .article-card__meta {
@@ -350,7 +351,7 @@ function getFallbackAuthor(index) {
 }
 
 .card-glow {
-  animation: article-card-glow 1.6s ease-in-out infinite alternate;
+  animation: article-card-glow 1.2s ease-in-out 3 alternate;
 }
 
 @keyframes article-card-shake {
@@ -364,15 +365,15 @@ function getFallbackAuthor(index) {
 @keyframes article-card-glow {
   from {
     box-shadow:
-      0 0 0 2px rgba(46, 160, 67, 0.14),
-      0 0 0 0 rgba(46, 160, 67, 0.1),
-      0 14px 28px rgba(46, 160, 67, 0.16);
+      0 0 0 2px color-mix(in srgb, var(--color-success) 14%, transparent),
+      0 0 0 0 color-mix(in srgb, var(--color-success) 10%, transparent),
+      0 14px 28px color-mix(in srgb, var(--color-success) 16%, transparent);
   }
   to {
     box-shadow:
-      0 0 0 2px rgba(46, 160, 67, 0.26),
-      0 0 24px 8px rgba(46, 160, 67, 0.22),
-      0 18px 34px rgba(46, 160, 67, 0.28);
+      0 0 0 2px color-mix(in srgb, var(--color-success) 26%, transparent),
+      0 0 24px 8px color-mix(in srgb, var(--color-success) 22%, transparent),
+      0 18px 34px color-mix(in srgb, var(--color-success) 28%, transparent);
   }
 }
 
