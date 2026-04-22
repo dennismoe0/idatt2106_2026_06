@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 
 const props = defineProps({
   modelValue: { type: String, required: true },
@@ -80,6 +80,8 @@ function handleClick(hex) {
   }
   emit('update:modelValue', hex)
 }
+
+onUnmounted(() => clearTimeout(dismissTimer))
 </script>
 
 <style scoped>
