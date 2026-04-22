@@ -291,6 +291,11 @@ const STOP_MYSTERY_TITLES = {
 
 const STOP_IMAGES = {
   1: { src: '/story_pictures/news-quarter-start.png', alt: 'Nyhetskvartalet med dyredetektiver, skjermer og aviser om de forsvunne idrettsparkpengene' },
+  2: { src: '/story_pictures/post-office-start.png', alt: 'Postkontoret med mistenkelige meldinger, brev og digitale spor' },
+  3: { src: '/story_pictures/photographer-start.png', alt: 'Fotografen med bevisbilder, kameraer og mistenkelige detaljer i et foto' },
+  4: { src: '/story_pictures/password-bank-start.png', alt: 'Passordbanken med hvelv, digitale låser og spor etter svake passord' },
+  5: { src: '/story_pictures/marketplace-start.png', alt: 'Markedsplassen med mistenkelige butikker, falske tilbud og svindelspor' },
+  6: { src: '/story_pictures/social-media-start.png', alt: 'Den sosiale møteplassen med meldinger, rykter og falske kontoer' },
 }
 
 const mysteryScenario = computed(() => {
