@@ -20,7 +20,6 @@ import no.ntnu.idatt2106.nettdetektivene.repository.StudentProgressRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentXpLogRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
-import no.ntnu.idatt2106.nettdetektivene.service.AvatarService;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.AiPhotoTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.FakeNewsTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.MarketplaceTaskAnswerChecker;
