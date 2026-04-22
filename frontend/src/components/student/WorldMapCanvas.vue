@@ -77,8 +77,8 @@
 
       <!-- Decorations: houses, bridge, trees (drawn here so nodes still sit above) -->
       <g class="world-canvas__decor">
-        <!-- Bridge crossing the river where path segment 0 passes through -->
-        <g transform="translate(250 615) rotate(-38)">
+        <!-- Bridge across the river (river at (430, 642) has tangent ~21 deg; bridge rotated perpendicular) -->
+        <g transform="translate(430 642) rotate(-68)">
           <rect x="-55" y="-2"  width="110" height="3"  fill="#5D3A1A"/>
           <rect x="-55" y="0"   width="110" height="18" fill="#8C5A20"/>
           <rect x="-55" y="15"  width="110" height="3"  fill="#5D3A1A"/>
