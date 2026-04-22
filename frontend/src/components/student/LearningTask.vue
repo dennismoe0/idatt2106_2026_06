@@ -2,48 +2,52 @@
   <section class="learn-task">
     <p class="learn-task__guidance">{{ task.guidanceText }}</p>
 
-    <!-- SLIDES phase -->
-    <template v-if="phase === 'SLIDES'">
-      <div class="slide pinned-note" :style="`--card-rotate: ${slideIndex % 2 === 0 ? -0.4 : 0.3}deg`">
-        <span class="slide__icon" aria-hidden="true">{{ currentSlide.icon ?? '📖' }}</span>
-        <h3 class="slide__heading">{{ currentSlide.heading }}</h3>
-        <p class="slide__body">{{ currentSlide.body }}</p>
+    <template v-if="phase === 'LEARN'">
+      <div class="learn-overview pinned-note" style="--card-rotate: 0.2deg">
+        <h3 class="learn-overview__title">Før du starter quizen</h3>
+        <p class="learn-overview__body">
+          Les gjennom tipsene under som én samlet mini-guide. Målet er at du skal vite nøyaktig hva du skal se etter når du møter slike situasjoner i spillet.
+        </p>
       </div>
 
-      <div class="slide-nav">
-        <div class="slide-dots" role="list" :aria-label="`Side ${slideIndex + 1} av ${slides.length}`">
-          <span
-            v-for="(_, i) in slides"
-            :key="i"
-            class="slide-dot"
-            :class="{ 'slide-dot--active': i === slideIndex }"
-            role="listitem"
-          />
-        </div>
+      <div class="learn-sections">
+        <article
+          v-for="(slide, index) in slides"
+          :key="`${task.id}-slide-${index}`"
+          class="slide pinned-note"
+          :style="`--card-rotate: ${index % 2 === 0 ? -0.35 : 0.25}deg`"
+        >
+          <span class="slide__icon" aria-hidden="true">{{ slide.icon ?? '📖' }}</span>
+          <h3 class="slide__heading">{{ slide.heading }}</h3>
+          <p class="slide__body">{{ slide.body }}</p>
 
-        <div class="slide-nav__btns">
-          <button
-            v-if="slideIndex > 0"
-            class="nav-btn nav-btn--back"
-            @click="slideIndex--"
-          >
-            ← Forrige
-          </button>
-          <button
-            v-if="slideIndex < slides.length - 1"
-            class="nav-btn nav-btn--next"
-            @click="slideIndex++"
-          >
-            Neste →
-          </button>
-          <button
-            v-else
-            class="nav-btn nav-btn--start-quiz"
-            @click="phase = 'QUIZ'"
-          >
-            Start quiz 🧠
-          </button>
-        </div>
+          <div v-if="slide.examples?.length" class="slide__panel">
+            <p class="slide__panel-title">Eksempler</p>
+            <ul class="slide__list">
+              <li v-for="example in slide.examples" :key="example" class="slide__list-item">
+                {{ example }}
+              </li>
+            </ul>
+          </div>
+
+          <div v-if="slide.checks?.length" class="slide__panel slide__panel--accent">
+            <p class="slide__panel-title">Husk dette</p>
+            <ul class="slide__list">
+              <li v-for="check in slide.checks" :key="check" class="slide__list-item">
+                {{ check }}
+              </li>
+            </ul>
+          </div>
+        </article>
+      </div>
+
+      <div class="learn-actions">
+        <button
+          class="nav-btn nav-btn--start-quiz"
+          @click="phase = 'QUIZ'"
+        >
+          Jeg har lest dette, start quiz 🧠
+        </button>
       </div>
     </template>
 
@@ -115,15 +119,13 @@ const content = computed(() => props.task?.contentJson ?? {})
 const slides  = computed(() => content.value.slides ?? [])
 const quiz    = computed(() => content.value.quiz   ?? [])
 
-const phase      = ref('SLIDES')
-const slideIndex = ref(0)
+const phase      = ref('LEARN')
 const quizIndex  = ref(0)
 
 // 'UNANSWERED' | 'CORRECT' | 'WRONG'
 const questionState   = ref('UNANSWERED')
 const selectedAnswer  = ref(null)
 
-const currentSlide    = computed(() => slides.value[slideIndex.value] ?? {})
 const currentQuestion = computed(() => quiz.value[quizIndex.value]    ?? {})
 
 const questionClass = computed(() => ({
@@ -132,8 +134,7 @@ const questionClass = computed(() => ({
 }))
 
 watch(() => props.task?.id, () => {
-  phase.value         = 'SLIDES'
-  slideIndex.value    = 0
+  phase.value         = 'LEARN'
   quizIndex.value     = 0
   questionState.value = 'UNANSWERED'
   selectedAnswer.value = null
@@ -195,6 +196,33 @@ function advanceQuiz() {
   font-weight: 600;
 }
 
+/* ── Learn overview ── */
+.learn-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.learn-overview__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-wood);
+}
+
+.learn-overview__body {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-ink-body);
+  line-height: 1.65;
+}
+
+.learn-sections {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
 /* ── Slide ── */
 .slide {
   display: flex;
@@ -223,33 +251,47 @@ function advanceQuiz() {
   line-height: 1.65;
 }
 
-/* ── Slide nav ── */
-.slide-nav {
+.slide__panel {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border);
 }
 
-.slide-dots {
+.slide__panel--accent {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary-soft-strong);
+}
+
+.slide__panel-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-wood);
+}
+
+.slide__list {
+  margin: 0;
+  padding-left: var(--space-4);
   display: flex;
+  flex-direction: column;
   gap: var(--space-2);
 }
 
-.slide-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-border);
-  transition: background var(--transition-fast), transform var(--transition-fast);
-}
-.slide-dot--active {
-  background: var(--color-wood);
-  transform: scale(1.25);
+.slide__list-item {
+  font-size: var(--text-sm);
+  color: var(--color-ink-body);
+  line-height: 1.55;
 }
 
+/* ── Learn actions ── */
+.learn-actions,
 .slide-nav__btns {
   display: flex;
+  justify-content: flex-end;
   gap: var(--space-2);
 }
 
