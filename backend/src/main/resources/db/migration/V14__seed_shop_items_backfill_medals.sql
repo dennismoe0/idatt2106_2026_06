@@ -12,7 +12,7 @@ INSERT INTO avatar_shop_items (option_type, option_value, star_price, display_or
 
 -- Backfill: students who earned medals before this feature shipped get their rewards now
 INSERT IGNORE INTO unlocked_avatar_options (student_id, option_type, option_value, source, stop_id, created_at)
-SELECT
+SELECT DISTINCT
     sm.student_id,
     CASE s.order_index
         WHEN 1 THEN 'accessory'
