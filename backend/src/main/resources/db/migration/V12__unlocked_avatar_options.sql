@@ -3,7 +3,7 @@ CREATE TABLE unlocked_avatar_options (
   student_id   BIGINT       NOT NULL,
   option_type  VARCHAR(50)  NOT NULL,
   option_value VARCHAR(100) NOT NULL,
-  source       ENUM('medal','purchase') NOT NULL,
+  source       ENUM('MEDAL','PURCHASE') NOT NULL,
   stop_id      BIGINT       NULL,
   created_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_uao_student FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,

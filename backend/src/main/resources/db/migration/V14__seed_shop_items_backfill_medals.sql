@@ -32,7 +32,7 @@ SELECT DISTINCT
         WHEN 6 THEN '#FF0099'
         WHEN 7 THEN 'cyber-suit'
     END,
-    'medal',
+    'MEDAL',
     s.id,
     NOW()
 FROM student_medals sm
