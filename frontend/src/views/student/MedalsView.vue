@@ -1,162 +1,704 @@
 <template>
   <CorkBoardPage page-title="Medaljer" :back-to="{ name: 'Home' }">
     <div class="medals">
-      <p class="medals__subtitle" v-if="!loading && !error">
-        {{ earnedCount }} av {{ allMedals.length }} opptjent
-      </p>
-
-      <div v-if="loading" class="medals__loading" aria-live="polite">
+      <div v-if="loading" class="medals__state" aria-live="polite">
         <span class="medals__spinner" aria-hidden="true" />
-        <p>Laster medaljer…</p>
+        <p>Laster troférommet...</p>
       </div>
 
-      <div v-else-if="error" class="medals__error" role="alert">
+      <div v-else-if="error" class="medals__state medals__state--error" role="alert">
         <p>{{ error }}</p>
         <button class="medals__retry" @click="load">Prøv igjen</button>
       </div>
 
-      <ul v-else class="medals__grid" aria-label="Medaljer">
-        <li
-          v-for="medal in allMedals"
-          :key="medal.id"
-          class="pinned-note medals__card"
-          :class="{ 'medals__card--locked': !medal.earnedAt }"
-          :style="`--card-rotate: ${cardRotation(medal.id)}deg`"
-          :aria-label="medal.earnedAt ? medal.name : medal.name + ' (ikke opptjent ennå)'"
-        >
-          <span class="medals__icon" aria-hidden="true">{{ medal.earnedAt ? '🏅' : '🔒' }}</span>
-          <h2 class="medals__name">{{ medal.name }}</h2>
-          <p class="medals__desc">{{ medal.description }}</p>
-          <time v-if="medal.earnedAt" class="medals__date" :datetime="medal.earnedAt">
-            Opptjent {{ formatDate(medal.earnedAt) }}
-          </time>
-          <span v-else class="medals__hint">Fullfør stoppen for å vinne!</span>
-        </li>
-      </ul>
+      <template v-else>
+        <section class="medals__hero">
+          <div class="medals__hero-copy">
+            <p class="medals__eyebrow">Nettdetektivene · Bragder</p>
+            <h2 class="medals__title">Velkommen til medaljeskapet ditt</h2>
+            <p class="medals__lead">
+              Hver medalje er et bevis på at du har løst et nytt mysterium som nettdetektiven. Fortsett jakten, fyll skapet og bli en ekte superdetektiv.
+            </p>
+          </div>
+
+          <div class="medals__hero-display" aria-hidden="true">
+            <div class="medals__spotlight" />
+            <div class="medals__podium">
+              <span class="medals__podium-ribbon medals__podium-ribbon--left">TOPP DETEKTIV</span>
+              <div class="medals__showcase-medal">🏅</div>
+              <span class="medals__podium-ribbon medals__podium-ribbon--right">HELTEMODUS</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="medals__dashboard" aria-label="Framgang">
+          <article class="medals__stat">
+            <span class="medals__stat-icon" aria-hidden="true">🏆</span>
+            <div>
+              <p class="medals__stat-label">Opptjent</p>
+              <strong class="medals__stat-value">{{ earnedCount }} / {{ allMedals.length }}</strong>
+            </div>
+          </article>
+
+          <article class="medals__stat">
+            <span class="medals__stat-icon" aria-hidden="true">✨</span>
+            <div>
+              <p class="medals__stat-label">Fullført</p>
+              <strong class="medals__stat-value">{{ completionPercent }}%</strong>
+            </div>
+          </article>
+
+          <article class="medals__stat medals__stat--wide">
+            <span class="medals__stat-icon" aria-hidden="true">📅</span>
+            <div>
+              <p class="medals__stat-label">Siste trofe</p>
+              <strong class="medals__stat-value">{{ latestEarnedLabel }}</strong>
+            </div>
+          </article>
+        </section>
+
+        <section class="medals__progress-card" aria-label="Fremdrift mot fullt skap">
+          <div class="medals__progress-copy">
+            <p class="medals__progress-title">Skapet fylles opp</p>
+            <p class="medals__progress-text">
+              {{ earnedCount === allMedals.length
+                ? 'Alle medaljene er på plass. Dette rommet er klart for mesterdetektiver.'
+                : `Du mangler ${remainingCount} medalje${remainingCount === 1 ? '' : 'r'} for å fylle hele skapet.` }}
+            </p>
+          </div>
+
+          <div class="medals__meter" aria-hidden="true">
+            <div class="medals__meter-fill" :style="{ width: `${completionPercent}%` }" />
+          </div>
+        </section>
+
+        <section class="medals__locker-room" aria-labelledby="achievement-lockers-title">
+          <div class="medals__section-head">
+            <div>
+              <p class="medals__section-kicker">Troférommet</p>
+              <h2 id="achievement-lockers-title" class="medals__section-title">Bragder</h2>
+            </div>
+            <p class="medals__section-note">Her finner du alle de glitrende medaljene dine.</p>
+          </div>
+
+          <ul class="medals__locker-grid" aria-label="Alle medaljer">
+            <li
+              v-for="medal in allMedals"
+              :key="medal.id"
+              class="medals__locker"
+              :class="{
+                'medals__locker--earned': medal.earnedAt,
+                'medals__locker--locked': !medal.earnedAt,
+              }"
+              :aria-label="medal.earnedAt ? `${medal.name}, opptjent ${formatDate(medal.earnedAt)}` : `${medal.name}, ikke opptjent ennå`"
+            >
+              <div class="medals__locker-frame">
+                <span class="medals__locker-number">#{{ medal.id }}</span>
+                <span class="medals__locker-shine" aria-hidden="true" />
+
+                <div class="medals__medal-plate" aria-hidden="true">
+                  <span class="medals__medal-icon">{{ medal.earnedAt ? medalIcon(medal.id) : '🔒' }}</span>
+                </div>
+
+                <div class="medals__locker-body">
+                  <h3 class="medals__locker-title">{{ medal.name }}</h3>
+                  <p class="medals__locker-desc">{{ medal.description }}</p>
+                  <time v-if="medal.earnedAt" class="medals__locker-date" :datetime="medal.earnedAt">
+                    Opptjent {{ formatDate(medal.earnedAt) }}
+                  </time>
+                  <span v-else class="medals__locker-hint">Løs et nytt stopp for å åpne denne plassen.</span>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </section>
+      </template>
     </div>
   </CorkBoardPage>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import CorkBoardPage from '@/components/common/CorkBoardPage.vue'
 import { useGameStore } from '@/stores/game'
 
 const gameStore = useGameStore()
 const allMedals = ref([])
-const loading   = ref(true)
-const error     = ref(null)
+const loading = ref(true)
+const error = ref(null)
 
-const earnedCount = computed(() => allMedals.value.filter(m => m.earnedAt).length)
+const earnedMedals = computed(() => allMedals.value.filter(medal => medal.earnedAt))
+const earnedCount = computed(() => earnedMedals.value.length)
+const remainingCount = computed(() => Math.max(allMedals.value.length - earnedCount.value, 0))
+const completionPercent = computed(() => {
+  if (!allMedals.value.length) return 0
+  return Math.round((earnedCount.value / allMedals.value.length) * 100)
+})
+
+const latestEarnedMedal = computed(() => {
+  return [...earnedMedals.value]
+    .sort((a, b) => new Date(b.earnedAt).getTime() - new Date(a.earnedAt).getTime())[0] ?? null
+})
+
+const latestEarnedLabel = computed(() => {
+  if (!latestEarnedMedal.value) return 'Ingen medaljer ennå'
+  return `${latestEarnedMedal.value.name} · ${formatDate(latestEarnedMedal.value.earnedAt)}`
+})
 
 async function load() {
   loading.value = true
   error.value = null
+
   try {
     allMedals.value = await gameStore.fetchAllMedals()
     console.log('[MedalsView] Loaded', allMedals.value.length, 'medals,', earnedCount.value, 'earned')
   } catch (err) {
     console.error('[MedalsView] Failed to load medals:', err)
-    error.value = 'Kunne ikke laste medaljer. Prøv igjen.'
+    error.value = 'Kunne ikke laste medaljene. Prøv igjen.'
   } finally {
     loading.value = false
   }
 }
 
-function cardRotation(id) {
-  return (((id * 7) % 7) - 3) / 2
+function medalIcon(id) {
+  const icons = ['🏅', '🥇', '⭐', '🕵️', '🛡️', '🔍', '💎', '🚀']
+  return icons[id % icons.length]
 }
 
 function formatDate(isoString) {
   if (!isoString) return ''
-  return new Intl.DateTimeFormat('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(isoString))
+
+  return new Intl.DateTimeFormat('nb-NO', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(isoString))
 }
 
 onMounted(load)
 </script>
 
 <style scoped>
-.medals__subtitle {
-  margin: 0 0 var(--space-6);
-  font-size: var(--text-base);
-  color: var(--color-cork-dark);
-  font-weight: 600;
+.medals {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(var(--space-4), 2vw, var(--space-8));
+  color: #fff7e6;
 }
 
-.medals__loading {
+.medals__state {
+  min-height: 18rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
-  min-height: 16rem;
   justify-content: center;
-  color: var(--color-cork-dark);
+  gap: var(--space-3);
+  text-align: center;
+  color: #fff3d0;
+}
+
+.medals__state--error {
+  color: #ffe0d1;
 }
 
 .medals__spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid rgba(0,0,0,0.1);
-  border-top-color: var(--color-cork-dark);
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255, 247, 230, 0.25);
+  border-top-color: #fff7e6;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: medals-spin 0.8s linear infinite;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 
-.medals__error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-  color: var(--color-danger);
+@keyframes medals-spin {
+  to { transform: rotate(360deg); }
 }
 
 .medals__retry {
-  padding: var(--space-2) var(--space-4);
-  background: var(--color-wood);
-  color: var(--color-gold);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 999px;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(180deg, #ffd76a 0%, #efb45c 100%);
+  color: #4d2d07;
+  font-weight: 800;
   cursor: pointer;
-  font-size: var(--text-sm);
-  font-weight: 700;
+  box-shadow: 0 8px 16px rgba(59, 31, 8, 0.25);
 }
-.medals__retry:hover { background: var(--color-wood-mid); }
 
-.medals__grid {
+.medals__hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+  gap: clamp(var(--space-4), 3vw, var(--space-10));
+  padding: clamp(1.4rem, 4vw, 2.25rem);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 228, 150, 0.35), transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(255, 244, 214, 0.22), transparent 28%),
+    linear-gradient(135deg, rgba(62, 35, 11, 0.95) 0%, rgba(106, 62, 17, 0.92) 55%, rgba(135, 88, 31, 0.92) 100%);
+  border: 3px solid rgba(255, 227, 155, 0.28);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 242, 211, 0.12),
+    0 18px 30px rgba(41, 20, 4, 0.22);
+}
+
+.medals__hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent 0, rgba(255, 255, 255, 0.05) 20%, transparent 36%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.03) 10px, transparent 10px, transparent 22px);
+  pointer-events: none;
+}
+
+.medals__hero-copy,
+.medals__hero-display {
+  position: relative;
+  z-index: 1;
+}
+
+.medals__eyebrow,
+.medals__section-kicker {
+  margin: 0 0 var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #ffd470;
+}
+
+.medals__title {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  line-height: 1.05;
+  color: #fff9ec;
+}
+
+.medals__lead {
+  margin: var(--space-4) 0 0;
+  max-width: 34rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(255, 246, 223, 0.88);
+}
+
+.medals__hero-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+}
+
+.medals__spotlight {
+  position: absolute;
+  inset: 4% 14% auto;
+  height: 82%;
+  background: radial-gradient(circle at 50% 10%, rgba(255, 245, 216, 0.88), rgba(255, 217, 102, 0.18) 50%, transparent 72%);
+  filter: blur(2px);
+}
+
+.medals__podium {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 300px);
+  min-height: 220px;
+  margin-top: 1rem;
+}
+
+.medals__showcase-medal {
+  position: relative;
+  z-index: 1;
+  width: 136px;
+  height: 136px;
+  display: grid;
+  place-items: center;
+  font-size: 4.25rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, #fff6bf 0%, #ffd76a 28%, #efb45c 62%, #c67b1c 100%);
+  box-shadow:
+    0 0 0 10px rgba(255, 239, 196, 0.12),
+    0 18px 28px rgba(37, 19, 6, 0.34);
+}
+
+.medals__showcase-medal::before,
+.medals__showcase-medal::after {
+  content: '';
+  position: absolute;
+  top: -38px;
+  width: 28px;
+  height: 86px;
+  border-radius: 999px;
+  z-index: -1;
+}
+
+.medals__showcase-medal::before {
+  left: 28px;
+  background: linear-gradient(180deg, #ef4444 0%, #9f1239 100%);
+  transform: rotate(10deg);
+}
+
+.medals__showcase-medal::after {
+  right: 28px;
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  transform: rotate(-10deg);
+}
+
+.medals__podium-ribbon {
+  position: absolute;
+  top: 1.5rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #422006;
+  background: #ffe18c;
+  box-shadow: 0 8px 16px rgba(31, 18, 7, 0.18);
+}
+
+.medals__podium-ribbon--left {
+  left: 0.2rem;
+  transform: rotate(-7deg);
+}
+
+.medals__podium-ribbon--right {
+  right: 0.2rem;
+  transform: rotate(7deg);
+}
+
+.medals__dashboard {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.medals__stat,
+.medals__progress-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 252, 243, 0.96) 0%, rgba(255, 243, 219, 0.94) 100%);
+  border: 2px solid rgba(122, 78, 26, 0.18);
+  box-shadow: 0 14px 24px rgba(59, 31, 8, 0.16);
+}
+
+.medals__stat {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 1.25rem;
+  color: #492708;
+}
+
+.medals__stat--wide {
+  grid-column: span 1;
+}
+
+.medals__stat::after,
+.medals__progress-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(130deg, rgba(255, 255, 255, 0.32), transparent 55%);
+  pointer-events: none;
+}
+
+.medals__stat-icon {
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  font-size: 1.5rem;
+  background: linear-gradient(180deg, #fff6d0 0%, #ffd776 100%);
+  box-shadow: inset 0 -3px 6px rgba(186, 124, 20, 0.18);
+}
+
+.medals__stat-label {
+  margin: 0 0 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8b5d24;
+}
+
+.medals__stat-value {
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  color: #3e2207;
+}
+
+.medals__progress-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 1.2rem 1.35rem;
+  color: #492708;
+}
+
+.medals__progress-title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.medals__progress-text {
+  margin: 0;
+  max-width: 38rem;
+  line-height: 1.5;
+}
+
+.medals__meter {
+  width: min(260px, 40%);
+  min-width: 160px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(92, 50, 16, 0.12);
+  box-shadow: inset 0 2px 4px rgba(59, 31, 8, 0.16);
+}
+
+.medals__meter-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #efb45c 0%, #ffd76a 52%, #fff0ab 100%);
+  box-shadow: 0 0 16px rgba(255, 206, 84, 0.45);
+  transition: width var(--transition-normal);
+}
+
+.medals__locker-room {
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border-radius: 30px;
+  background:
+    linear-gradient(180deg, rgba(68, 38, 12, 0.2) 0%, rgba(68, 38, 12, 0.08) 100%),
+    linear-gradient(135deg, rgba(255, 248, 229, 0.1), rgba(255, 232, 179, 0.02));
+  border: 2px solid rgba(255, 230, 168, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255, 248, 229, 0.06);
+}
+
+.medals__section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.medals__section-title {
+  margin: 0;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: #fff7e6;
+}
+
+.medals__section-note {
+  margin: 0;
+  max-width: 26rem;
+  text-align: right;
+  line-height: 1.5;
+  color: rgba(255, 244, 218, 0.82);
+}
+
+.medals__locker-grid {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: clamp(var(--space-4), 3vw, var(--space-8));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
 }
 
-.medals__card {
-  transform: rotate(var(--card-rotate, 0deg));
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
-  text-align: center;
+.medals__locker {
+  min-height: 300px;
+}
+
+.medals__locker-frame {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-}
-.medals__card:hover {
-  transform: rotate(0deg) scale(1.03) translateY(-4px);
-  box-shadow: 4px 6px 18px rgba(0,0,0,0.4);
-}
-.medals__card--locked {
-  opacity: 0.5;
-  filter: grayscale(60%);
+  height: 100%;
+  padding: 1rem;
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 250, 237, 0.98) 0%, rgba(247, 227, 192, 0.96) 100%);
+  border: 3px solid #8a5b25;
+  box-shadow:
+    inset 0 0 0 4px rgba(255, 244, 214, 0.85),
+    0 14px 24px rgba(35, 18, 3, 0.24);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal), filter var(--transition-normal);
 }
 
-.medals__icon { font-size: 2.25rem; line-height: 1; }
-.medals__name { margin: 0; font-size: var(--text-lg); font-weight: 700; color: var(--color-wood); }
-.medals__desc { margin: 0; font-size: var(--text-sm); color: #555; line-height: 1.4; }
-.medals__date, .medals__hint {
-  display: block;
-  font-size: var(--text-xs);
-  color: #777;
-  font-style: italic;
+.medals__locker-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(138, 91, 37, 0.22), transparent 16%, transparent 84%, rgba(138, 91, 37, 0.22)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.25), transparent 26%);
+  pointer-events: none;
+}
+
+.medals__locker:hover .medals__locker-frame {
+  transform: translateY(-6px) rotate(-0.5deg);
+  box-shadow:
+    inset 0 0 0 4px rgba(255, 244, 214, 0.85),
+    0 18px 30px rgba(35, 18, 3, 0.28);
+}
+
+.medals__locker--locked .medals__locker-frame {
+  filter: grayscale(0.3) saturate(0.7);
+  background:
+    linear-gradient(180deg, rgba(245, 240, 228, 0.94) 0%, rgba(214, 202, 181, 0.96) 100%);
+}
+
+.medals__locker-number {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(76, 45, 14, 0.12);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #6a4418;
+}
+
+.medals__locker-shine {
+  position: absolute;
+  top: -18%;
+  left: -28%;
+  width: 70%;
+  height: 180%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0));
+  transform: rotate(18deg);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.medals__medal-plate {
+  position: relative;
+  z-index: 1;
+  width: 112px;
+  height: 112px;
+  margin: 1rem auto 1.1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, #fff8cf 0%, #ffd76a 24%, #efb45c 60%, #b76a12 100%);
+  box-shadow:
+    inset 0 5px 8px rgba(255, 255, 255, 0.3),
+    0 10px 18px rgba(59, 31, 8, 0.24);
+}
+
+.medals__locker--locked .medals__medal-plate {
+  background:
+    radial-gradient(circle at 30% 30%, #f5f5f5 0%, #d1d5db 34%, #9ca3af 72%, #6b7280 100%);
+}
+
+.medals__medal-icon {
+  font-size: 3rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15));
+}
+
+.medals__locker-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  text-align: center;
+  color: #432308;
+}
+
+.medals__locker-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.medals__locker-desc {
+  margin: 0;
+  min-height: 3.6em;
+  line-height: 1.5;
+  color: #5d3810;
+}
+
+.medals__locker-date,
+.medals__locker-hint {
+  display: inline-flex;
+  justify-content: center;
+  margin-top: auto;
+  padding: 0.55rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+
+.medals__locker-date {
+  color: #205329;
+  background: rgba(56, 161, 105, 0.14);
+}
+
+.medals__locker-hint {
+  color: #6b7280;
+  background: rgba(107, 114, 128, 0.14);
+}
+
+@media (max-width: 900px) {
+  .medals__hero {
+    grid-template-columns: 1fr;
+  }
+
+  .medals__dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .medals__progress-card,
+  .medals__section-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .medals__meter {
+    width: 100%;
+  }
+
+  .medals__section-note {
+    text-align: left;
+  }
+}
+
+@media (max-width: 560px) {
+  .medals {
+    gap: var(--space-4);
+  }
+
+  .medals__hero,
+  .medals__locker-room {
+    border-radius: 22px;
+  }
+
+  .medals__podium-ribbon {
+    font-size: 0.64rem;
+  }
+
+  .medals__locker-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
