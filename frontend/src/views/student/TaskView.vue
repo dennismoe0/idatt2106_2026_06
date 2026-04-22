@@ -268,13 +268,55 @@ const TUTORIAL_TEXTS = {
 }
 
 const MYSTERY_SCENARIOS = {
-  1: { badge: '📰 OPPDRAG 1', title: 'Et spor i nyhetsstrømmen', scenario: 'Noen sprer falske nyheter om byen din. Innbyggerne er forvirret og redde. Detektiv-laget trenger din hjelp til å skille fakta fra løgner — er du klar?' },
-  2: { badge: '📧 OPPDRAG 2', title: 'Ukjent avsender', scenario: 'En innbygger klikket på en lenke i en mistenkelig e-post — nå er kontoen hennes hacket. Vi trenger deg til å forstå hvordan svindelen fungerte.' },
-  3: { badge: '📷 OPPDRAG 3', title: 'Bildet lyver', scenario: 'Et bilde fra hendelsesstedet har dukket opp på nett. Men er det ekte bevis — eller er det manipulert? Lær å avsløre KI-genererte og manipulerte bilder.' },
-  4: { badge: '🔐 OPPDRAG 4', title: 'Passordlekkasje', scenario: 'En konto ble hacket. Passordet var for svakt. Nå trenger vi en ekspert til å lære hva som gjør et passord trygt nok til å stå imot et angrep.' },
-  5: { badge: '🛒 OPPDRAG 5', title: 'Svindel på nett', scenario: 'En elev mistet pengene sine i en falsk nettbutikk. Svindlerne er flinke til å late som. Det er din jobb å avsløre dem.' },
-  6: { badge: '📱 OPPDRAG 6', title: 'Falsk venn', scenario: 'En ukjent person kontakter elever på sosiale medier og later som de er en venn. Noen har allerede delt for mye. Lær å gjenkjenne manipulasjon.' },
-  7: { badge: '💻 OPPDRAG 7', title: 'Datasenteret er hacket', scenario: 'Alt du har lært settes på prøve. Tyven har aktivert en automatisk backup-plan. Stopp alle sikkerhetssystemene — det er nå eller aldri.' },
+  1: {
+    badge: '📰 OPPDRAG 1',
+    title: 'Et spor i nyhetsstrømmen',
+    scenario: `Noen prøver å spre kaos etter at penger som skulle gå til den nye idrettsparken plutselig forsvant fra ordførerens prosjektkonto. Nå dukker det opp dramatiske artikler som peker i alle retninger, og folk i byen begynner å skylde på feil personer.
+
+Hvis vi skal finne ut hva som faktisk skjedde med ordføreren og pengene, må vi først lære å skille ekte nyheter fra falske. Klarer du å stoppe løgnene før de blir til "sannheten" alle tror på?`
+  },
+  2: {
+    badge: '📧 OPPDRAG 2',
+    title: 'Ukjent avsender',
+    scenario: `Et nytt spor har dukket opp: noen i kommunen fikk en e-post som så helt ekte ut, klikket på lenken og mistet kontroll over kontoen sin. Det kan være akkurat slik tyven kom seg inn i systemene rundt ordførerens prosjekt.
+
+For å komme videre i saken må vi forstå hvordan phishing faktisk fungerer. Hvis du lærer å avsløre falske e-poster, kan du finne ut hvordan tyven åpnet døren innenfra.`
+  },
+  3: {
+    badge: '📷 OPPDRAG 3',
+    title: 'Bildet lyver',
+    scenario: `Nå hevder flere at de har funnet "bevisbildet" som viser hvem som sto ved rådhuset den kvelden pengene forsvant. Problemet er at bildet som deles kan være manipulert, eller til og med laget av KI.
+
+Hvis vi skal komme nærmere tyven, må vi vite om bildet er ekte eller bare et nytt forsøk på å villede etterforskningen. Dette oppdraget handler om å lære å se forskjell på ekte spor og falske bevis.`
+  },
+  4: {
+    badge: '🔐 OPPDRAG 4',
+    title: 'Passordlekkasje',
+    scenario: `Etterforskerne tror nå at tyven ikke bare lurte folk, men også brukte stjålne innlogginger for å bevege seg videre i systemene. Noen brukte svake passord, og det ga tyven en enklere vei mot ordførerens prosjektkonto.
+
+Skal vi forstå hvordan innbruddet skjedde, må vi lære hva som gjør et passord lett å knekke og hva som faktisk beskytter en konto. Jo bedre du blir her, jo nærmere kommer vi hvordan tyven jobbet.`
+  },
+  5: {
+    badge: '🛒 OPPDRAG 5',
+    title: 'Svindel på nett',
+    scenario: `Et nytt spor peker mot en falsk nettbutikk og et domene registrert nær Bytorget. Det ser ut som tyven brukte svindelsider for å samle inn penger og informasjon, kanskje som en del av planen rundt pengene som forsvant.
+
+For å koble svindelen til hovedsaken må du lære hvordan falske nettbutikker avsløres. Hvis du finner hva som er galt med sidene, kan vi koble sporene nærmere personen bak hele planen.`
+  },
+  6: {
+    badge: '📱 OPPDRAG 6',
+    title: 'Falsk venn',
+    scenario: `Nå vet vi at noen også har brukt falske kontoer for å kontakte elever og spre rykter om saken. Målet virker å være å få folk til å dele feil informasjon, peke mot feil mistenkte og holde den ekte tyven skjult litt lenger.
+
+Derfor må du lære hvordan manipulasjon i sosiale medier ser ut. Hvis du avslører de falske kontoene og ryktene, får vi det siste sporet vi trenger før konfrontasjonen med tyven.`
+  },
+  7: {
+    badge: '💻 OPPDRAG 7',
+    title: 'Datasenteret er hacket',
+    scenario: `Nå har vi nesten hele bildet: pengene for idrettsparken ble stjålet, byen ble forvirret med falske nyheter, kontoer ble kompromittert med phishing og svake passord, og falske spor ble spredd med bilder, nettbutikker og sosiale medier.
+
+Tyven har aktivert en reserveplan fra datasenteret for å slette sporene sine en gang for alle. Nå må du bruke alt du har lært for å stanse systemene før sannheten forsvinner.`
+  },
 }
 
 const mysteryScenario = computed(() => MYSTERY_SCENARIOS[stopId.value] ?? null)
@@ -326,7 +368,7 @@ async function loadTasks() {
 
 function checkMystery() {
   if (!stopId.value || !tasks.value.length) return
-  if (mysteryScenario.value && !localStorage.getItem(`mystery_seen_stop_${stopId.value}`)) {
+  if (mysteryScenario.value) {
     showMystery.value = true
     console.log('[TaskView] Showing mystery screen for stop', stopId.value)
     return
@@ -335,7 +377,6 @@ function checkMystery() {
 }
 
 function acceptMystery() {
-  localStorage.setItem(`mystery_seen_stop_${stopId.value}`, '1')
   showMystery.value = false
   console.log('[TaskView] Mystery accepted for stop', stopId.value)
   checkTutorial()
