@@ -5,7 +5,7 @@
         <header class="learn-hero">
           <div class="learn-hero__intro">
             <p class="learn-hero__eyebrow">Briefing fra borgermesteren</p>
-            <h2 class="learn-hero__title">{{ task.title || 'Før du starter oppgaven' }}</h2>
+            <h2 class="learn-hero__title">Før du starter oppgaven</h2>
             <div class="learn-hero__briefing">
               <p class="learn-hero__briefing-label">Borgermesteren sier</p>
               <p class="learn-hero__lead">
@@ -143,19 +143,6 @@
             {{ nextButtonLabel }}
           </button>
         </div>
-      </div>
-    </template>
-
-    <!-- DONE phase -->
-    <template v-else-if="phase === 'DONE'">
-      <div class="done-card">
-        <h3 class="done-card__heading">Quiz fullført!</h3>
-        <p class="done-card__body">Du svarte riktig på alle spørsmålene. Bra jobbet, detektiv!</p>
-      </div>
-      <div class="slide-nav__btns" style="justify-content: flex-end">
-        <button class="nav-btn nav-btn--start-quiz" @click="$emit('next')">
-          {{ isLastTask ? 'Se oppsummering →' : 'Neste oppgave →' }}
-        </button>
       </div>
     </template>
 
@@ -867,33 +854,6 @@ function completeIfAllCorrect() {
 .question__feedback--correct { color: var(--color-success); }
 .question__feedback--wrong   { color: var(--color-danger); }
 
-/* ── Done card ── */
-.done-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-  text-align: center;
-  padding: var(--space-7);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  box-shadow: 0 18px 40px rgba(20, 30, 48, 0.08);
-}
-.done-card__icon { font-size: 2.5rem; line-height: 1; }
-.done-card__heading {
-  margin: 0;
-  font-size: var(--text-xl);
-  font-weight: 700;
-  color: var(--color-success);
-}
-.done-card__body {
-  margin: 0;
-  font-size: var(--text-base);
-  color: var(--color-text);
-  line-height: 1.65;
-}
-
 /* ── Transitions ── */
 .question-slide-enter-active { transition: opacity 0.25s ease, transform 0.25s ease; }
 .question-slide-leave-active { transition: opacity 0.15s ease, transform 0.15s ease; }
@@ -916,8 +876,7 @@ function completeIfAllCorrect() {
     display: none;
   }
 
-  .question__content,
-  .done-card {
+  .question__content {
     padding: var(--space-5);
   }
 
@@ -926,8 +885,7 @@ function completeIfAllCorrect() {
   }
 
   .slide__heading,
-  .question__text,
-  .done-card__heading {
+  .question__text {
     font-size: var(--text-lg);
   }
 
