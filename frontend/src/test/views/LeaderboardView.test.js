@@ -168,24 +168,44 @@ describe('LeaderboardView', () => {
         totalTasks: 12,
         avatar: null,
       },
+      {
+        studentId: 3001,
+        classroomId: 202,
+        classroomName: '3B',
+        displayName: 'Kari Nordmann',
+        completedTasks: 11,
+        totalTasks: 12,
+        avatar: {
+          gender: 'neutral',
+          eyeColor: '#3f2200',
+          eyeStyle: 'happy',
+          skinColor: '#C98A5B',
+          hairColor: '#4B2E14',
+          hairStyle: 'curly',
+          outfit: 'hoodie',
+          outfitColor: '#8A5A2F',
+          hatColor: 'none',
+          accessory: 'badge',
+        },
+      },
     ]
 
     const wrapper = mount(LeaderboardView)
     await flushPromises()
 
     expect(mockGameStore.fetchSchoolLeaderboard).toHaveBeenCalledWith(101)
-    expect(wrapper.findAll('table')).toHaveLength(1)
+    expect(wrapper.findAll('table')).toHaveLength(2)
     expect(wrapper.find('ol').exists()).toBe(false)
     expect(wrapper.text()).toContain('Sammenlign deg selv med klassen')
     expect(wrapper.text()).toContain('Kun topp fem elever')
     expect(wrapper.text()).toContain('#6')
     expect(wrapper.text()).toContain('Fremdrift')
-    expect(wrapper.text()).not.toContain('Andre klasser på skolen')
-    expect(wrapper.text()).not.toContain('Kari Nordmann')
+    expect(wrapper.text()).toContain('Andre klasser på skolen')
+    expect(wrapper.text()).toContain('Kari Nordmann')
 
     const avatarTexts = wrapper.findAll('.avatar-preview-stub').map((avatar) => avatar.text())
     expect(avatarTexts).toContain('bun')
-    expect(wrapper.findAll('.leaderboard-avatar-shell')).toHaveLength(5)
+    expect(wrapper.findAll('.leaderboard-avatar-shell')).toHaveLength(6)
 
     const ownRow = wrapper.findAll('tbody tr').find((row) => row.text().includes('Ole Pettersen'))
 

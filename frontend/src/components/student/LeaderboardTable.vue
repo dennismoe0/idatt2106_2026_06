@@ -219,7 +219,13 @@ function entryKey(entry, index, classroomId = entry.classroomId) {
 }
 
 .leaderboard-table__row--gold td {
-  background: var(--color-medal-gold-bg);
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-medal-gold-border) 28%, white) 0%,
+      var(--color-medal-gold-bg) 46%,
+      color-mix(in srgb, var(--color-medal-gold-bg) 70%, white) 100%
+    );
 }
 
 .leaderboard-table__row--gold td:first-child {
@@ -235,7 +241,13 @@ function entryKey(entry, index, classroomId = entry.classroomId) {
 }
 
 .leaderboard-table__row--bronze td {
-  background: var(--color-medal-bronze-bg);
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-medal-bronze-border) 34%, white) 0%,
+      color-mix(in srgb, var(--color-medal-bronze-bg) 82%, var(--color-medal-bronze-border)) 46%,
+      color-mix(in srgb, var(--color-medal-bronze-bg) 70%, white) 100%
+    );
 }
 
 .leaderboard-table__row--bronze td:first-child {

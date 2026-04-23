@@ -21,7 +21,7 @@
             <p class="leaderboard-hero__eyebrow">Nettdetektivene · Klassekamp</p>
             <h2 class="leaderboard-hero__title">Sammenlign deg selv med klassen</h2>
             <p class="leaderboard-hero__lead">
-              Vi viser fem detektiver om gangen, med din plass markert i tabellen dersom du er blant top 5 i klassen. 
+              Vi viser fem detektiver om gangen, med din plass markert i tabellen dersom du er blant top 5 i klassen.
             </p>
           </div>
         </section>
@@ -64,8 +64,46 @@
             :current-student-id="currentStudentId"
             empty-label="Ingen godkjente elever ennå."
             :entries="comparisonEntries"
-            :start-rank="comparisonStartRank"
           />
+        </section>
+
+        <section
+          v-if="otherClassrooms.length > 0"
+          class="leaderboard-school"
+          aria-labelledby="other-classrooms-title"
+        >
+          <div class="leaderboard-school__head">
+            <p class="leaderboard-room__kicker">Skolen</p>
+            <h2 id="other-classrooms-title" class="leaderboard-school__title">
+              Andre klasser på skolen
+            </h2>
+          </div>
+
+          <div class="leaderboard-school__grid">
+            <section
+              v-for="group in otherClassrooms"
+              :key="group.classroomId"
+              class="leaderboard-room leaderboard-room--compact"
+              :aria-label="group.classroomName"
+            >
+              <div class="leaderboard-room__head">
+                <div>
+                  <p class="leaderboard-room__kicker">Klasse</p>
+                  <h3 class="leaderboard-room__title">{{ group.classroomName }}</h3>
+                </div>
+                <p class="leaderboard-room__note">Topp fem elever vises her.</p>
+              </div>
+
+              <LeaderboardTable
+                :aria-label="`${group.classroomName} — ledertavle`"
+                :current-avatar="avatarStore.avatar"
+                :current-student-id="currentStudentId"
+                empty-label="Ingen elever å vise."
+                :entries="group.entries"
+                :start-rank="1"
+              />
+            </section>
+          </div>
         </section>
       </template>
     </div>
@@ -113,7 +151,28 @@ const comparisonEntries = computed(() => {
   return ownEntries.value.slice(0, 5)
 })
 
-const comparisonStartRank = computed(() => 1)
+const otherClassrooms = computed(() => {
+  const classrooms = new Map()
+
+  for (const entry of schoolLeaderboard.value) {
+    if (entry.classroomId === myClassroomId.value) continue
+
+    if (!classrooms.has(entry.classroomId)) {
+      classrooms.set(entry.classroomId, {
+        classroomId: entry.classroomId,
+        classroomName: entry.classroomName,
+        entries: [],
+      })
+    }
+
+    const group = classrooms.get(entry.classroomId)
+    if (group.entries.length < 5) {
+      group.entries.push(entry)
+    }
+  }
+
+  return [...classrooms.values()]
+})
 
 const classCompletedTasks = computed(() => {
   return ownEntries.value.reduce((total, entry) => total + (Number(entry.completedTasks) || 0), 0)
@@ -218,7 +277,7 @@ onMounted(load)
   max-width: 46rem;
   font-size: clamp(1.1rem, 1.6vw, 1.22rem);
   line-height: 1.65;
-  color: var(--color-medals-hero-body);
+  color: var(--color-medals-text-on-cork);
 }
 
 .leaderboard-view__state {
@@ -282,7 +341,7 @@ onMounted(load)
   align-items: center;
   padding: 1.25rem 1.35rem;
   border-radius: 24px;
-  color: var(--color-medals-card-text);
+  color: var(--color-ink);
 }
 
 .leaderboard-stat::after {
@@ -299,12 +358,12 @@ onMounted(load)
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-medals-card-label);
+  color: var(--color-wood);
 }
 
 .leaderboard-stat__value {
   font-size: clamp(1.05rem, 2vw, 1.35rem);
-  color: var(--color-medals-card-title);
+  color: var(--color-ink);
 }
 
 .leaderboard-room {
@@ -336,7 +395,37 @@ onMounted(load)
   text-align: right;
   font-size: clamp(1.05rem, 1.4vw, 1.15rem);
   line-height: 1.55;
-  color: var(--color-medals-room-note);
+  color: var(--color-medals-text-on-cork);
+}
+
+.leaderboard-school {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.leaderboard-school__head {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.leaderboard-school__title {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.5vw, 1.75rem);
+  color: var(--color-medals-text-on-cork);
+}
+
+.leaderboard-school__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: var(--space-4);
+}
+
+.leaderboard-room--compact {
+  border-radius: 24px;
+}
+
+.leaderboard-room--compact .leaderboard-room__title {
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
 }
 
 @media (max-width: 900px) {
