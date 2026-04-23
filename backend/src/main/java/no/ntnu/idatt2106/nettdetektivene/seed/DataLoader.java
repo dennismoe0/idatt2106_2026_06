@@ -91,12 +91,13 @@ public class DataLoader implements ApplicationRunner {
             learnTask(newsStop, 1, "Lær om falske nyheter", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
                     new Slide(
-                        "📰",
+                        "",
                         "Hva er falske nyheter?",
+                        "Nyhetsartikkel",
                         "Falske nyheter er laget for å få deg til å tro på noe som ikke stemmer. De kan se ut som vanlige nyheter, men prøver ofte å få deg til å bli redd, sint eller supernysgjerrig så du klikker og deler uten å tenke deg om.",
                         new String[]{
-                            "Nyhetslinje: \"SJOKK! ALLE SKOLER STENGES FØR KL. 12 - DEL NÅ!\" høres dramatisk ut, men betyr ikke at saken er ekte.",
-                            "Artikkeltekst: \"En hemmelig kilde i rådhuset sier at alle allerede vet sannheten.\" Dette er svakere enn når en skole, kommune eller avis sier hvem som faktisk står bak informasjonen."
+                            "SJOKK! ALLE SKOLER STENGES FØR KL. 12 - DEL NÅ! || Høres dramatisk ut, men betyr ikke at saken er ekte.",
+                            "\"En hemmelig kilde i rådhuset sier at alle allerede vet sannheten.\" || Dette er svakere enn når en skole, kommune eller avis sier hvem som faktisk står bak informasjonen."
                         },
                         new String[]{
                             "Ikke stol på en sak bare fordi overskriften ser viktig ut.",
@@ -104,8 +105,9 @@ public class DataLoader implements ApplicationRunner {
                         }
                     ),
                     new Slide(
-                        "🔍",
+                        "",
                         "Hva bør du sjekke først?",
+                        "Domenenavn",
                         "Se først på hvem som har publisert saken. Ekte nyheter kommer ofte fra kjente steder som NRK.no, VG.no eller kommunen sin egen nettside. Nakne rare domenenavn kan være et tegn på at noen prøver å se seriøse ut uten å være det.",
                         new String[]{
                             "Troverdig eksempel: nrk.no, vg.no, trondheim.kommune.no",
@@ -117,8 +119,9 @@ public class DataLoader implements ApplicationRunner {
                         }
                     ),
                     new Slide(
-                        "🧠",
+                        "",
                         "Hvordan kan du dobbeltsjekke?",
+                        "Kildesjekk",
                         "Hvis en sak er viktig og ekte, finnes den ofte flere steder. Søk opp samme påstand hos andre seriøse avsendere, eller gå til nettsiden til skolen, kommunen eller politiet hvis det er de saken handler om.",
                         new String[]{
                             "Hvis noen sier at alle skoler stenger i morgen, sjekk skolens meldingstjeneste eller kommunen sin nettside.",
@@ -137,7 +140,7 @@ public class DataLoader implements ApplicationRunner {
             learnTask(mailStop, 1, "Lær om phishing", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
                     new Slide(
-                        "📧",
+                        "",
                         "Hva er phishing?",
                         "Phishing er falske meldinger som prøver å lure deg til å gi fra deg passord, kortinformasjon eller annen privat info. De later ofte som de kommer fra banken din, Posten eller skolen fordi det gjør at du lettere får lyst til å stole på dem.",
                         new String[]{
@@ -150,7 +153,7 @@ public class DataLoader implements ApplicationRunner {
                         }
                     ),
                     new Slide(
-                        "🎣",
+                        "",
                         "Hva avslører en phishing-melding?",
                         "Se ekstra nøye på avsender og lenker. En ekte bank bruker sitt eget domene, mens en falsk melding kan bruke noe som ligner, men ikke er helt riktig.",
                         new String[]{
@@ -163,7 +166,7 @@ public class DataLoader implements ApplicationRunner {
                         }
                     ),
                     new Slide(
-                        "🛡️",
+                        "",
                         "Hva bør du gjøre i praksis?",
                         "Hvis du er usikker, ikke trykk i meldingen. Gå heller selv til riktig nettside eller spør en voksen, lærer eller foresatt om hjelp før du gjør noe.",
                         new String[]{
@@ -183,7 +186,7 @@ public class DataLoader implements ApplicationRunner {
             learnTask(photoStop, 1, "Lær om KI-bilder", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
                     new Slide(
-                        "🤖",
+                        "",
                         "Hva er et KI-bilde?",
                         "Et KI-bilde er laget av et dataprogram. Det kan se ekte ut ved første øyekast, men det viser ofte mennesker eller situasjoner som aldri har eksistert på ordentlig.",
                         new String[]{
@@ -196,7 +199,7 @@ public class DataLoader implements ApplicationRunner {
                         }
                     ),
                     new Slide(
-                        "🔎",
+                        "",
                         "Hva skal du se etter?",
                         "KI lager ofte små rare feil når den prøver å lage detaljer. Derfor er det lurt å se nøye på hender, ansikter, tekst på skilt, bakgrunnen og hvordan lys og skygger oppfører seg.",
                         new String[]{
@@ -210,7 +213,7 @@ public class DataLoader implements ApplicationRunner {
                         }
                     ),
                     new Slide(
-                        "🖼️",
+                        "",
                         "Hva er forskjellen på KI og manipulering?",
                         "Et manipulert bilde starter ofte som et ekte bilde som noen har endret etterpå. Et KI-bilde er vanligvis laget helt fra bunnen av, og da kan mange ting i hele bildet se litt rare ut samtidig.",
                         new String[]{
@@ -230,7 +233,7 @@ public class DataLoader implements ApplicationRunner {
             learnTask(pwdStop, 1, "Lær om passord", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
                     new Slide(
-                        "🔐",
+                        "",
                         "Hva gjør et passord sterkt?",
                         "Et sterkt passord er langt og vanskelig å gjette. Det skal helst være noe som ikke handler om deg, så andre ikke kan finne det ut bare ved å kjenne navnet ditt, laget du spiller på eller fødselsåret ditt.",
                         new String[]{
@@ -244,7 +247,7 @@ public class DataLoader implements ApplicationRunner {
                         }
                     ),
                     new Slide(
-                        "⚠️",
+                        "",
                         "Hvorfor er enkle passord farlige?",
                         "Hackere bruker programmer som prøver masse vanlige passord veldig fort. Hvis passordet ditt ligner på noe mange andre også bruker, kan det knekkes mye raskere enn du tror.",
                         new String[]{
@@ -257,7 +260,7 @@ public class DataLoader implements ApplicationRunner {
                         }
                     ),
                     new Slide(
-                        "💡",
+                        "",
                         "Hva er en passordfrase?",
                         "En passordfrase er flere ord satt sammen med tall eller tegn. Den kan være lettere å huske enn en rotete kode, men samtidig mye tryggere hvis du velger ord som ikke handler om deg.",
                         new String[]{
@@ -277,7 +280,7 @@ public class DataLoader implements ApplicationRunner {
             learnTask(marketStop, 1, "Lær om nettsvindel", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
                     new Slide(
-                        "🛒",
+                        "",
                         "Hvordan ser nettsvindel ut?",
                         "En falsk nettbutikk prøver å få deg til å kjøpe noe raskt før du rekker å tenke deg om. Derfor bruker den ofte kjempestore rabatter og ord som \"kun i dag\" eller \"bare 2 igjen\".",
                         new String[]{
@@ -290,7 +293,7 @@ public class DataLoader implements ApplicationRunner {
                         }
                     ),
                     new Slide(
-                        "🚩",
+                        "",
                         "Hvilke røde flagg bør du se etter?",
                         "Se på domenet, kontaktinformasjonen og betalingsmåten. Ekte butikker vil vanligvis vise hvem de er, hvordan du kan kontakte dem, og bruke normale betalingsløsninger.",
                         new String[]{
@@ -303,7 +306,7 @@ public class DataLoader implements ApplicationRunner {
                         }
                     ),
                     new Slide(
-                        "✅",
+                        "",
                         "Hvordan handler du tryggere?",
                         "Ta deg tid før du kjøper. Søk opp butikken, se om andre har erfaringer med den, og sjekk om kontaktinformasjonen faktisk ser ekte ut.",
                         new String[]{
@@ -323,7 +326,7 @@ public class DataLoader implements ApplicationRunner {
             learnTask(socialStop, 1, "Lær om sosiale medier", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
                     new Slide(
-                        "📱",
+                        "",
                         "Hvorfor lures vi lettere i feeden?",
                         "På sosiale medier går ting fort, og vi scroller ofte uten å stoppe opp. Innlegg som gjør oss sinte, redde eller veldig nysgjerrige får ofte mest oppmerksomhet, og derfor er det lett å dele noe før vi har tenkt oss om.",
                         new String[]{
@@ -336,7 +339,7 @@ public class DataLoader implements ApplicationRunner {
                         }
                     ),
                     new Slide(
-                        "🎭",
+                        "",
                         "Hvordan kan en falsk konto se ut?",
                         "En falsk konto kan late som den er en elev, en gamer eller en kjent person. Den har ofte lite ekte informasjon, rare brukernavn eller prøver å bli veldig personlig veldig fort.",
                         new String[]{
@@ -349,7 +352,7 @@ public class DataLoader implements ApplicationRunner {
                         }
                     ),
                     new Slide(
-                        "🤔",
+                        "",
                         "Hva bør du gjøre før du deler?",
                         "Før du deler, spør: Hvem la dette ut, og vet de faktisk at det stemmer? Hvis et innlegg navngir folk uten bevis eller prøver å få deg til å dele med en gang, bør du stoppe og sjekke først.",
                         new String[]{
@@ -859,9 +862,13 @@ public class DataLoader implements ApplicationRunner {
 
     record Clue(String id, String type, String label, boolean isClue, String explanation) {}
 
-    record Slide(String icon, String heading, String body, String[] examples, String[] checks) {
+    record Slide(String icon, String heading, String exampleType, String body, String[] examples, String[] checks) {
+        Slide(String icon, String heading, String body, String[] examples, String[] checks) {
+            this(icon, heading, "Eksempel", body, examples, checks);
+        }
+
         Slide(String icon, String heading, String body) {
-            this(icon, heading, body, new String[0], new String[0]);
+            this(icon, heading, "Eksempel", body, new String[0], new String[0]);
         }
     }
 
@@ -883,6 +890,7 @@ public class DataLoader implements ApplicationRunner {
             ObjectNode n = objectMapper.createObjectNode();
             n.put("icon", s.icon());
             n.put("heading", s.heading());
+            n.put("exampleType", s.exampleType());
             n.put("body", s.body());
             ArrayNode examples = objectMapper.createArrayNode();
             for (String example : s.examples()) examples.add(example);
