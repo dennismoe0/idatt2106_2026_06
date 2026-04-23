@@ -1,6 +1,12 @@
 /* Tailwind v4 — replaces @tailwind base/components/utilities */
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Special Elite';
+  src: url('/fonts/SpecialElite-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
 /* ── Design tokens ──────────────────────────────────────────────
    @theme values become BOTH CSS custom properties AND Tailwind
    utilities. Change ONE hex value → whole UI updates.
