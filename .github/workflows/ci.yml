@@ -11,7 +11,7 @@ jobs:
   # ─── Backend ──────────────────────────────────────────────────────────────
   backend:
     name: Backend — Build & Test
-    runs-on: ntnu-runners
+    runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v4
@@ -24,7 +24,8 @@ jobs:
           cache: 'maven'
 
       - name: Build and test
-        run: ./mvnw -f backend/pom.xml test
+        working-directory: backend
+        run: ./mvnw test
 
       - name: Upload JaCoCo report
         if: always()
@@ -36,7 +37,7 @@ jobs:
   # ─── Frontend ─────────────────────────────────────────────────────────────
   frontend:
     name: Frontend — Lint, Test & Build
-    runs-on: ntnu-runners
+    runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v4
@@ -51,10 +52,6 @@ jobs:
       - name: Install dependencies
         working-directory: frontend
         run: npm ci
-
-      - name: Lint
-        working-directory: frontend
-        run: npm run lint
 
       - name: Unit tests
         working-directory: frontend

@@ -64,44 +64,63 @@ const props = defineProps({
 
 const emit = defineEmits(['submitted', 'next', 'backToMap'])
 
-const chosenIndex    = ref(null)
-const shakingIndex   = ref(null)
-const bouncingIndex  = ref(null)
-const revealCorrect  = ref(null)
+const chosenIndex = ref(null)
+const shakingIndex = ref(null)
+const highlightedCorrectIndex = ref(null)
+const revealCorrect = ref(null)
 
 const articles = computed(() => props.task?.contentJson?.articles ?? [])
 
 watch(() => props.task?.id, () => {
-  chosenIndex.value   = null
-  shakingIndex.value  = null
-  bouncingIndex.value = null
+  chosenIndex.value = null
+  shakingIndex.value = null
+  highlightedCorrectIndex.value = null
   revealCorrect.value = null
 }, { immediate: true })
 
 watch(() => props.result, (r) => {
   if (!r) return
+
+  const correctIndex = getCorrectIndex(r)
+
   if (r.correct) {
-    bouncingIndex.value = chosenIndex.value
-    setTimeout(() => { bouncingIndex.value = null }, 600)
+    revealCorrect.value = correctIndex
+    highlightedCorrectIndex.value = chosenIndex.value
   } else {
     shakingIndex.value = chosenIndex.value
-    setTimeout(() => { shakingIndex.value = null; revealCorrect.value = getCorrectIndex(r) }, 400)
+    setTimeout(() => {
+      shakingIndex.value = null
+      revealCorrect.value = correctIndex
+      highlightedCorrectIndex.value = correctIndex
+    }, 550)
   }
 })
 
 function getCorrectIndex(r) {
-  return r?.correctArticleIndex ?? null
+  if (typeof r?.correctArticleIndex === 'number') {
+    return r.correctArticleIndex
+  }
+
+  return articles.value.findIndex((_, index) => r?.[`article_${index}`] === false)
 }
 
 function articleClass(index) {
   if (props.result) {
-    const isChosen  = index === chosenIndex.value
+    const isChosen = index === chosenIndex.value
     const isCorrect = index === revealCorrect.value || (props.result.correct && index === chosenIndex.value)
-    if (isChosen && props.result.correct)   return ['article-card--correct', bouncingIndex.value === index ? 'card-bounce' : '']
-    if (isChosen && !props.result.correct)  return ['article-card--wrong',   shakingIndex.value  === index ? 'card-shake'  : '']
+
+    if (isChosen && props.result.correct) {
+      return ['article-card--correct', highlightedCorrectIndex.value === index ? 'card-glow' : '']
+    }
+
+    if (isChosen && !props.result.correct) {
+      return ['article-card--wrong', shakingIndex.value === index ? 'card-shake' : '']
+    }
+
     if (!props.result.correct && isCorrect) return ['article-card--correct']
     return ['article-card--muted']
   }
+
   if (index === chosenIndex.value) return ['article-card--chosen']
   return []
 }
@@ -180,9 +199,15 @@ function extractDomainOrName(input) {
 }
 
 .article-card {
+  position: relative;
+  overflow: hidden;
   transform: rotate(var(--card-rotate, 0deg));
   cursor: pointer;
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  transition:
+    transform var(--transition-normal),
+    box-shadow var(--transition-normal),
+    border-color var(--transition-normal),
+    background var(--transition-normal);
   user-select: none;
 }
 .article-card:hover:not([aria-disabled="true"]) {

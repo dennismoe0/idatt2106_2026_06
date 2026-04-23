@@ -109,11 +109,136 @@
   --color-medal-silver-bg:     #f9fafb;
   --color-medal-bronze-border: #b45309;
   --color-medal-bronze-bg:     #fef3c7;
+  --color-leaderboard-me-bg:   #fff7df;
+
+  /* Medal room */
+  --color-medals-text-on-cork: #fff7e6;
+  --color-medals-hero-title: #fff9ec;
+  --color-medals-hero-body: color-mix(in srgb, var(--color-note-bg) 90%, transparent);
+  --color-medals-hero-kicker: #ffd470;
+  --color-medals-hero-panel: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-wood) 92%, black) 0%,
+    color-mix(in srgb, var(--color-cork-dark) 82%, var(--color-wood-mid)) 55%,
+    color-mix(in srgb, var(--color-cork) 78%, var(--color-wood-mid)) 100%
+  );
+  --color-medals-hero-glow: rgba(255, 228, 150, 0.35);
+  --color-medals-hero-glow-soft: rgba(255, 244, 214, 0.22);
+  --color-medals-hero-border: rgba(255, 227, 155, 0.28);
+  --color-medals-hero-overlay: rgba(255, 255, 255, 0.05);
+  --color-medals-hero-overlay-soft: rgba(255, 255, 255, 0.03);
+  --color-medals-hero-shadow-inner: rgba(255, 242, 211, 0.12);
+  --color-medals-hero-shadow: rgba(41, 20, 4, 0.22);
+  --color-medals-spotlight-core: rgba(255, 245, 216, 0.88);
+  --color-medals-spotlight-edge: rgba(255, 217, 102, 0.18);
+  --color-medals-state-spinner: rgba(255, 247, 230, 0.25);
+  --color-medals-button-bg: linear-gradient(180deg, #ffd76a 0%, #efb45c 100%);
+  --color-medals-button-text: #4d2d07;
+  --color-medals-button-shadow: rgba(59, 31, 8, 0.25);
+  --color-medals-showcase-medal: radial-gradient(
+    circle at 30% 30%,
+    #fff6bf 0%,
+    #ffd76a 28%,
+    #efb45c 62%,
+    #c67b1c 100%
+  );
+  --color-medals-showcase-ring: rgba(255, 239, 196, 0.12);
+  --color-medals-showcase-shadow: rgba(37, 19, 6, 0.34);
+  --color-medals-showcase-ribbon-left: linear-gradient(180deg, #ef4444 0%, #9f1239 100%);
+  --color-medals-showcase-ribbon-right: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  --color-medals-podium-ribbon-bg: #ffe18c;
+  --color-medals-podium-ribbon-text: #422006;
+  --color-medals-podium-ribbon-shadow: rgba(31, 18, 7, 0.18);
+  --color-medals-card-bg: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-note-bg) 96%, white) 0%,
+    color-mix(in srgb, var(--color-note-chosen-bg) 92%, var(--color-gold) 8%) 100%
+  );
+  --color-medals-card-border: rgba(122, 78, 26, 0.18);
+  --color-medals-card-shadow: rgba(59, 31, 8, 0.16);
+  --color-medals-card-gloss: rgba(255, 255, 255, 0.32);
+  --color-medals-card-text: #492708;
+  --color-medals-card-title: #3e2207;
+  --color-medals-card-label: #8b5d24;
+  --color-medals-stat-icon-bg: linear-gradient(180deg, #fff6d0 0%, #ffd776 100%);
+  --color-medals-stat-icon-shadow: rgba(186, 124, 20, 0.18);
+  --color-medals-meter-track: rgba(92, 50, 16, 0.12);
+  --color-medals-meter-shadow: rgba(59, 31, 8, 0.16);
+  --color-medals-meter-fill: linear-gradient(90deg, #efb45c 0%, #ffd76a 52%, #fff0ab 100%);
+  --color-medals-meter-glow: rgba(255, 206, 84, 0.45);
+  --color-medals-room-bg: linear-gradient(
+      180deg,
+      rgba(68, 38, 12, 0.2) 0%,
+      rgba(68, 38, 12, 0.08) 100%
+    ),
+    linear-gradient(135deg, rgba(255, 248, 229, 0.1), rgba(255, 232, 179, 0.02));
+  --color-medals-room-border: rgba(255, 230, 168, 0.16);
+  --color-medals-room-inner-border: rgba(255, 248, 229, 0.06);
+  --color-medals-room-note: rgba(255, 244, 218, 0.82);
+  --color-medals-locker-bg: linear-gradient(
+    180deg,
+    rgba(255, 250, 237, 0.98) 0%,
+    rgba(247, 227, 192, 0.96) 100%
+  );
+  --color-medals-locker-bg-locked: linear-gradient(
+    180deg,
+    rgba(245, 240, 228, 0.94) 0%,
+    rgba(214, 202, 181, 0.96) 100%
+  );
+  --color-medals-locker-border: #8a5b25;
+  --color-medals-locker-inner-border: rgba(255, 244, 214, 0.85);
+  --color-medals-locker-shadow: rgba(35, 18, 3, 0.24);
+  --color-medals-locker-shadow-hover: rgba(35, 18, 3, 0.28);
+  --color-medals-locker-panel: rgba(138, 91, 37, 0.22);
+  --color-medals-locker-highlight: rgba(255, 255, 255, 0.25);
+  --color-medals-locker-number-bg: rgba(76, 45, 14, 0.12);
+  --color-medals-locker-number-text: #6a4418;
+  --color-medals-locker-shine: rgba(255, 255, 255, 0.24);
+  --color-medals-locker-text: #432308;
+  --color-medals-locker-desc: #5d3810;
+  --color-medals-locker-medal: radial-gradient(
+    circle at 30% 30%,
+    #fff8cf 0%,
+    #ffd76a 24%,
+    #efb45c 60%,
+    #b76a12 100%
+  );
+  --color-medals-locker-medal-locked: radial-gradient(
+    circle at 30% 30%,
+    #f5f5f5 0%,
+    #d1d5db 34%,
+    #9ca3af 72%,
+    #6b7280 100%
+  );
+  --color-medals-locker-medal-shadow-inner: rgba(255, 255, 255, 0.3);
+  --color-medals-locker-medal-shadow: rgba(59, 31, 8, 0.24);
+  --color-medals-locker-icon-shadow: rgba(0, 0, 0, 0.15);
+  --color-medals-locker-date-bg: rgba(56, 161, 105, 0.14);
+  --color-medals-locker-hint-bg: rgba(107, 114, 128, 0.14);
+  --color-medals-locker-hint-text: #6b7280;
+  --color-medals-success-text: #205329;
 
   /* Button semantic tokens */
   --color-btn-primary-bg:   #2B6CB0;
   --color-btn-primary-fg:   #FFFFFF;
   --color-btn-primary-hover: color-mix(in srgb, #2B6CB0 80%, black);
+
+  /* World map node */
+  --color-map-plaque-bg:             var(--color-note-bg);
+  --color-map-plaque-ink:            var(--color-wood);
+  --color-map-plaque-border:         var(--color-wood-mid);
+  --color-map-plaque-locked-bg:      #D7CBB6;
+  --color-map-plaque-locked-ink:     #5A4A36;
+  --color-map-plaque-locked-border:  #7A6B52;
+  --color-map-badge-done-bg:         var(--color-success);
+  --color-map-badge-lock-bg:         #4A4A4A;
+  --color-map-badge-lock-fg:         #FFD54F;
+  --color-map-node-stroke:           var(--color-text-on-dark);
+
+  /* World map path segments */
+  --color-map-path-done:             #F5C518;
+  --color-map-path-upcoming:         #9E9E9E;
+  --color-map-path-locked:           #7A7A7A;
 
   /* Font */
   --font-sans: "Nunito", system-ui, -apple-system, sans-serif;
@@ -161,4 +286,6 @@
   --transition-normal: 250ms ease;
   --color-mystery-tape:        rgba(255, 220, 50, 0.85);
   --color-mystery-tape-border: rgba(200, 160, 0, 0.5);
+  --color-map-halo:            rgba(245, 197, 24, 0.55);
+  --color-map-halo-fade:       rgba(245, 197, 24, 0);
 }

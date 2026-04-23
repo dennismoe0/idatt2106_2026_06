@@ -521,7 +521,8 @@ public class GameService {
             completed,
             taskCount,
             correctCount,
-            xpClaimable
+            xpClaimable,
+            stop.getTheme()
         );
     }
 
