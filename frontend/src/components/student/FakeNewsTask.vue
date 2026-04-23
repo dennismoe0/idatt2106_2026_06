@@ -2,7 +2,7 @@
   <section class="fake-news-task">
     <p class="fake-news-task__guidance">{{ task.guidanceText }}</p>
 
-    <p class="fake-news-task__instruction">🔍 Klikk på den artikkelen du tror er <strong>falsk</strong></p>
+    <p class="fake-news-task__instruction">🔍 Klikk på artikkelene du tror er <strong>falske</strong>, og trykk «Send svar».</p>
 
     <div class="fake-news-task__articles">
       <article
@@ -12,12 +12,12 @@
         :class="articleClass(index)"
         :style="`--card-rotate: ${cardRotation(index)}deg`"
         role="button"
-        :aria-pressed="chosenIndex === index"
+        :aria-pressed="isChosen(index)"
         tabindex="0"
-        :aria-label="`Velg denne artikkelen som falsk: ${article.headline}`"
+        :aria-label="`Velg/opphev som falsk: ${article.headline}`"
         :aria-disabled="!!result"
-        @click="pickCard(index)"
-        @keydown.enter.space.prevent="pickCard(index)"
+        @click="togglePick(index)"
+        @keydown.enter.space.prevent="togglePick(index)"
       >
         <header class="newspaper__masthead" aria-hidden="true">
           <span class="newspaper__brand">{{ mastheadBrand(article) }}</span>
@@ -28,6 +28,13 @@
           <p class="newspaper__lede">{{ article.body }}</p>
         </div>
       </article>
+    </div>
+
+    <!-- Submit before feedback -->
+    <div v-if="!result" class="fake-news-task__actions">
+      <button class="next-btn" :disabled="chosenIndices.length === 0" @click="submitSelection">
+        Send svar
+      </button>
     </div>
 
     <!-- Feedback note -->
@@ -64,18 +71,18 @@ const props = defineProps({
 
 const emit = defineEmits(['submitted', 'next', 'backToMap'])
 
-const chosenIndex = ref(null)
+const chosenIndices = ref([])
+const lastPickedIndex = ref(null)
 const shakingIndex = ref(null)
-const highlightedCorrectIndex = ref(null)
-const revealCorrect = ref(null)
+const revealedCorrectIndex = ref(null)
 
 const articles = computed(() => props.task?.contentJson?.articles ?? [])
 
 watch(() => props.task?.id, () => {
-  chosenIndex.value = null
+  chosenIndices.value = []
+  lastPickedIndex.value = null
   shakingIndex.value = null
-  highlightedCorrectIndex.value = null
-  revealCorrect.value = null
+  revealedCorrectIndex.value = null
 }, { immediate: true })
 
 watch(() => props.result, (r) => {
@@ -84,14 +91,12 @@ watch(() => props.result, (r) => {
   const correctIndex = getCorrectIndex(r)
 
   if (r.correct) {
-    revealCorrect.value = correctIndex
-    highlightedCorrectIndex.value = chosenIndex.value
+    revealedCorrectIndex.value = null
   } else {
-    shakingIndex.value = chosenIndex.value
+    shakingIndex.value = lastPickedIndex.value
     setTimeout(() => {
       shakingIndex.value = null
-      revealCorrect.value = correctIndex
-      highlightedCorrectIndex.value = correctIndex
+      revealedCorrectIndex.value = correctIndex
     }, 550)
   }
 })
@@ -100,43 +105,52 @@ function getCorrectIndex(r) {
   if (typeof r?.correctArticleIndex === 'number') {
     return r.correctArticleIndex
   }
+  return chosenIndices.value[0] ?? 0
+}
 
-  return articles.value.findIndex((_, index) => r?.[`article_${index}`] === false)
+function isChosen(index) {
+  return chosenIndices.value.includes(index)
 }
 
 function articleClass(index) {
   if (props.result) {
-    const isChosen = index === chosenIndex.value
-    const isCorrect = index === revealCorrect.value || (props.result.correct && index === chosenIndex.value)
-
-    if (isChosen && props.result.correct) {
-      return ['article-card--correct', highlightedCorrectIndex.value === index ? 'card-glow' : '']
+    const chosen = isChosen(index)
+    if (props.result.correct) {
+      return chosen ? ['article-card--correct', (lastPickedIndex.value === index ? 'card-glow' : '')] : ['article-card--muted']
     }
-
-    if (isChosen && !props.result.correct) {
-      return ['article-card--wrong', shakingIndex.value === index ? 'card-shake' : '']
+    // Wrong
+    if (chosen) {
+      return ['article-card--wrong', (shakingIndex.value === index ? 'card-shake' : '')]
     }
-
-    if (!props.result.correct && isCorrect) return ['article-card--correct']
+    if (index === revealedCorrectIndex.value) return ['article-card--correct']
     return ['article-card--muted']
   }
 
-  if (index === chosenIndex.value) return ['article-card--chosen']
-  return []
+  return isChosen(index) ? ['article-card--chosen'] : []
 }
 
 function cardRotation(index) {
   return index % 2 === 0 ? -0.5 : 0.4
 }
 
-function pickCard(index) {
+function togglePick(index) {
   if (props.result) return
-  chosenIndex.value = index
+  lastPickedIndex.value = index
+  const i = chosenIndices.value.indexOf(index)
+  if (i >= 0) {
+    chosenIndices.value.splice(i, 1)
+  } else {
+    chosenIndices.value.push(index)
+  }
+}
+
+function submitSelection() {
+  if (props.result) return
   const answer = {}
   articles.value.forEach((_, i) => {
-    answer[`article_${i}`] = i !== index
+    answer[`article_${i}`] = !chosenIndices.value.includes(i)
   })
-  console.log('[FakeNewsTask] Card picked index:', index, 'answer:', answer)
+  console.log('[FakeNewsTask] Submit selection picks:', [...chosenIndices.value], 'answer:', answer)
   emit('submitted', answer)
 }
 
@@ -163,11 +177,9 @@ function extractDomainOrName(input) {
     // Not a URL, fall through
   }
 
-  // If the string contains a domain somewhere inside (e.g., in text), extract it
   const m = s.match(/[A-Za-z0-9.-]+\.[A-Za-z]{2,}/)
   if (m && m[0]) return m[0].replace(/^www\./i, '')
 
-  // Otherwise return the cleaned source name as-is (e.g., "Trondheim kommune", "ATB Pressemelding")
   return s
 }
 </script>
@@ -178,6 +190,8 @@ function extractDomainOrName(input) {
   flex-direction: column;
   gap: var(--space-4);
 }
+
+.fake-news-task__actions { display: flex; justify-content: flex-end; }
 
 .fake-news-task__instruction {
   margin: 0;
