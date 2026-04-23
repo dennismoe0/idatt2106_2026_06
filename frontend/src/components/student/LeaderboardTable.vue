@@ -233,7 +233,13 @@ function entryKey(entry, index, classroomId = entry.classroomId) {
 }
 
 .leaderboard-table__row--silver td {
-  background: var(--color-medal-silver-bg);
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-medal-silver-border) 28%, white) 0%,
+      var(--color-medal-silver-bg) 46%,
+      color-mix(in srgb, var(--color-medal-silver-bg) 70%, white) 100%
+    );
 }
 
 .leaderboard-table__row--silver td:first-child {

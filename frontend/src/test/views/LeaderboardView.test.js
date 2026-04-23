@@ -158,7 +158,6 @@ describe('LeaderboardView', () => {
         totalTasks: 12,
         avatar: null,
       },
-      mockGameStore.schoolLeaderboard[1],
       {
         studentId: 2006,
         classroomId: 101,
@@ -167,6 +166,10 @@ describe('LeaderboardView', () => {
         completedTasks: 4,
         totalTasks: 12,
         avatar: null,
+      },
+      {
+        ...mockGameStore.schoolLeaderboard[1],
+        completedTasks: 3,
       },
       {
         studentId: 3001,
@@ -198,7 +201,7 @@ describe('LeaderboardView', () => {
     expect(wrapper.find('ol').exists()).toBe(false)
     expect(wrapper.text()).toContain('Sammenlign deg selv med klassen')
     expect(wrapper.text()).toContain('Kun topp fem elever')
-    expect(wrapper.text()).toContain('#6')
+    expect(wrapper.text()).toContain('#7')
     expect(wrapper.text()).toContain('Fremdrift')
     expect(wrapper.text()).toContain('Andre klasser på skolen')
     expect(wrapper.text()).toContain('Kari Nordmann')

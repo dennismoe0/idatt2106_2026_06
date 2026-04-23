@@ -132,7 +132,9 @@ const currentStudentId = computed(() => authStore.userId)
 const myClassroomId = computed(() => classroomStore.currentClassroomId)
 
 const ownEntries = computed(() =>
-  schoolLeaderboard.value.filter((entry) => entry.classroomId === myClassroomId.value),
+  sortLeaderboardEntries(
+    schoolLeaderboard.value.filter((entry) => entry.classroomId === myClassroomId.value),
+  ),
 )
 
 const ownClassroomName = computed(() => ownEntries.value[0]?.classroomName ?? 'Din klasse')
@@ -165,13 +167,13 @@ const otherClassrooms = computed(() => {
       })
     }
 
-    const group = classrooms.get(entry.classroomId)
-    if (group.entries.length < 5) {
-      group.entries.push(entry)
-    }
+    classrooms.get(entry.classroomId).entries.push(entry)
   }
 
-  return [...classrooms.values()]
+  return [...classrooms.values()].map((group) => ({
+    ...group,
+    entries: sortLeaderboardEntries(group.entries).slice(0, 5),
+  }))
 })
 
 const classCompletedTasks = computed(() => {
@@ -182,6 +184,15 @@ const classCompletedTasksLabel = computed(() => {
   const count = classCompletedTasks.value
   return `${count} ${count === 1 ? 'oppgave' : 'oppgaver'}`
 })
+
+function sortLeaderboardEntries(entries) {
+  return [...entries].sort((a, b) => {
+    const completedDiff = (Number(b.completedTasks) || 0) - (Number(a.completedTasks) || 0)
+    if (completedDiff !== 0) return completedDiff
+
+    return String(a.displayName ?? '').localeCompare(String(b.displayName ?? ''), 'nb')
+  })
+}
 
 async function load() {
   loading.value = true
@@ -216,14 +227,14 @@ onMounted(load)
   gap: clamp(var(--space-4), 2vw, var(--space-8));
   width: min(100%, 1160px);
   margin: 0 auto;
-  color: var(--color-medals-text-on-cork);
 }
 
 .leaderboard-hero {
   position: relative;
   overflow: hidden;
   padding: clamp(1.4rem, 4vw, 2.25rem);
-  border-radius: 28px;
+  border-radius: var(--radius-2xl);
+  color: var(--color-medals-text-on-cork);
   background:
     radial-gradient(circle at top left, var(--color-medals-hero-glow), transparent 40%),
     radial-gradient(circle at 80% 20%, var(--color-medals-hero-glow-soft), transparent 28%),
@@ -340,7 +351,7 @@ onMounted(load)
   display: flex;
   align-items: center;
   padding: 1.25rem 1.35rem;
-  border-radius: 24px;
+  border-radius: var(--radius-2xl);
   color: var(--color-ink);
 }
 
@@ -370,7 +381,8 @@ onMounted(load)
   display: grid;
   gap: var(--space-4);
   padding: clamp(1rem, 2vw, 1.5rem);
-  border-radius: 30px;
+  border-radius: var(--radius-2xl);
+  color: var(--color-medals-text-on-cork);
   background: var(--color-medals-room-bg);
   border-color: var(--color-medals-room-border);
   box-shadow: inset 0 0 0 1px var(--color-medals-room-inner-border);
@@ -401,6 +413,7 @@ onMounted(load)
 .leaderboard-school {
   display: grid;
   gap: var(--space-4);
+  color: var(--color-medals-text-on-cork);
 }
 
 .leaderboard-school__head {
@@ -421,7 +434,7 @@ onMounted(load)
 }
 
 .leaderboard-room--compact {
-  border-radius: 24px;
+  border-radius: var(--radius-2xl);
 }
 
 .leaderboard-room--compact .leaderboard-room__title {
@@ -450,7 +463,7 @@ onMounted(load)
 
   .leaderboard-hero,
   .leaderboard-room {
-    border-radius: 22px;
+    border-radius: var(--radius-2xl);
   }
 
 }
