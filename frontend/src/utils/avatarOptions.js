@@ -5,18 +5,23 @@ export const OUTFIT_COLORS = ['#2563eb','#dc2626','#16a34a','#d97706','#1f2937']
 
 export const HAIR_STYLES   = ['short','long','curly','ponytail','buzz','braids','bun','afro','bald']
 export const EYE_STYLES    = ['round','narrow','wide']
-export const OUTFITS       = ['detective-coat','hoodie','sweater','uniform','raincoat']
-export const ACCESSORIES   = ['none','badge','glasses','magnifier','hat']
+export const OUTFITS       = ['detective-coat','hoodie','sweater','uniform','raincoat','bomber','trench-coat','cyber-suit','robe','cape']
+export const ACCESSORIES   = ['none','badge','glasses','magnifier','hat','deerstalker','fedora','lightsaber-blue','lightsaber-red','lightsaber-green']
 
 export const optionTranslations = {
   female: 'Jente', male: 'Gutt', neutral: 'Nøytral',
   short: 'Kort', long: 'Langt', curly: 'Krøllete', ponytail: 'Hestehale',
   buzz: 'Kort-klipp', braids: 'Fletter', bun: 'Knute', afro: 'Afro', bald: 'Skallet',
+  wavy: 'Bølgete', mohawk: 'Mohawk',
   round: 'Runde', narrow: 'Smale', wide: 'Store',
   'detective-coat': 'Detektivfrakk', hoodie: 'Hettegenser', sweater: 'Genser',
   uniform: 'Uniform', raincoat: 'Regnjakke',
+  bomber: 'Bomberjakke', 'trench-coat': 'Trenchcoat', 'cyber-suit': 'Cyber-drakt',
+  robe: 'Kåpe', cape: 'Kappe',
   none: 'Ingen', badge: 'Merke', glasses: 'Briller',
   magnifier: 'Forstørrelsesglass', hat: 'Hatt',
+  deerstalker: 'Detektivhatt', fedora: 'Fedora',
+  'lightsaber-blue': 'Blått lyssverd', 'lightsaber-red': 'Rødt lyssverd', 'lightsaber-green': 'Grønt lyssverd',
 }
 
 export function formatOption(value) {

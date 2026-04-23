@@ -93,6 +93,7 @@ const activeCards = [
   { title: 'Notatblokk', icon: '📝', route: { name: 'Notebook' },     color: '#0E7490' },
   { title: 'Profil',     icon: '🕵️', route: { name: 'Profile' },      color: '#6D28D9' },
   { title: 'Ledertavle', icon: '📊', route: { name: 'Leaderboard' },  color: '#1D4ED8' },
+  { title: 'Butikk',     icon: '🏪', route: { name: 'Shop' },         color: '#065F46' },
 ]
 
 const lockedCards = [
@@ -285,6 +286,7 @@ onMounted(() => {
 .home__note:nth-child(5) { transform: rotate(-1.5deg); }
 .home__note:nth-child(6) { transform: rotate(0.8deg);  }
 .home__note:nth-child(7) { transform: rotate(-1.2deg); }
+.home__note:nth-child(8) { transform: rotate(0.7deg);  }
 
 .home__note[href]:hover,
 .home__note[href]:focus-visible {

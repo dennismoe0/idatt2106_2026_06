@@ -28,6 +28,29 @@
       </button>
     </div>
 
+    <!-- Previewable (shop items not yet owned) tiles -->
+    <div
+      v-for="value in previewable"
+      :key="'shop-' + value"
+      class="shape-tile-wrap"
+    >
+      <button
+        class="shape-tile shape-tile--previewable"
+        :class="{ 'shape-tile--previewing': previewValue === value }"
+        @click="$emit('preview', value)"
+        :aria-label="value + ' (forhåndsvisning)'"
+      >
+        <div class="shape-tile__preview">
+          <component
+            :is="previewComponent"
+            v-bind="{ ...previewProps, [variantProp]: value }"
+            style="width:100%;height:100%"
+          />
+        </div>
+        <span class="shape-tile__shop-badge">✨</span>
+      </button>
+    </div>
+
     <!-- Medal-locked tiles (grayed, shake + tooltip on click) -->
     <div
       v-for="item in medalLocked"
@@ -76,8 +99,10 @@ defineProps({
   variantProp:      { type: String,  required: true },
   locked:           { type: Array,   default: () => [] },
   medalLocked:      { type: Array,   default: () => [] }, // Array<{ value: string, stopName: string }>
+  previewable:      { type: Array,   default: () => [] }, // string[] — shop items not yet owned
+  previewValue:     { type: String,  default: '' },
 })
-defineEmits(['update:modelValue'])
+defineEmits(['update:modelValue', 'preview'])
 
 const shakingValue = ref(null)
 const bubbleValue = ref(null)
@@ -119,6 +144,23 @@ onUnmounted(() => clearTimeout(dismissTimer))
   cursor: pointer;
 }
 .shape-tile__medal-badge { position: absolute; top: 3px; right: 3px; font-size: 11px; line-height: 1; }
+
+.shape-tile--previewable {
+  border-style: dashed;
+  border-color: rgba(200,160,64,.35);
+  cursor: pointer;
+}
+.shape-tile--previewable:hover { border-color: rgba(200,160,64,.65); }
+.shape-tile--previewing {
+  border-style: solid !important;
+  border-color: var(--color-primary, #c8a040) !important;
+  border-width: 3px !important;
+  box-shadow: 0 0 0 2px rgba(200,160,64,.2) !important;
+}
+.shape-tile__shop-badge {
+  position: absolute; top: 3px; right: 3px;
+  font-size: 10px; line-height: 1;
+}
 
 .shape-tile--shaking {
   animation: tile-shake 0.45s ease;
