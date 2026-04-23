@@ -116,6 +116,11 @@
   --color-map-badge-lock-fg:         #FFD54F;
   --color-map-node-stroke:           var(--color-text-on-dark);
 
+  /* World map path segments */
+  --color-map-path-done:             #F5C518;
+  --color-map-path-upcoming:         #9E9E9E;
+  --color-map-path-locked:           #7A7A7A;
+
   /* Font */
   --font-sans: "Nunito", system-ui, -apple-system, sans-serif;
 

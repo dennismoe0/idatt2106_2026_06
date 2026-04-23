@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import { computed, getCurrentInstance } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps({
   stop:      { type: Object,  required: true },
@@ -89,7 +89,7 @@ const props = defineProps({
 
 const emit = defineEmits(['node-click'])
 
-const gradId = `wn-grad-${getCurrentInstance().uid}`
+const gradId = computed(() => `wn-grad-${props.stop.id}`)
 
 const I_NEWSPAPER = [
   { type: 'path', d: 'M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2' },
