@@ -989,10 +989,14 @@ public class DataLoader implements ApplicationRunner {
         }
     }
 
-    private String fakeNewsCorrectAnswerJson(String contentJson) {
+    String fakeNewsCorrectAnswerJson(String contentJson) {
         try {
             JsonNode root = objectMapper.readTree(contentJson);
-            ArrayNode articles = (ArrayNode) root.path("articles");
+            JsonNode articlesNode = root.path("articles");
+            if (!articlesNode.isArray()) {
+                throw new IllegalStateException("Fake news seed content JSON is missing an 'articles' array");
+            }
+            ArrayNode articles = (ArrayNode) articlesNode;
             ObjectNode answer = objectMapper.createObjectNode();
             for (int i = 0; i < articles.size(); i++) {
                 answer.put("article_" + i, articles.path(i).path("isReal").asBoolean(false));
