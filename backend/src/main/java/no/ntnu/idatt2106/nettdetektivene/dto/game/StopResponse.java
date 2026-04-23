@@ -9,5 +9,6 @@ public record StopResponse(
     boolean completed,
     int taskCount,
     int correctCount,
-    boolean xpClaimable
+    boolean xpClaimable,
+    String theme
 ) {}

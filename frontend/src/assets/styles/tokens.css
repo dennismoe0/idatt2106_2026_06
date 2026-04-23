@@ -212,6 +212,23 @@
   --color-btn-primary-fg:   #FFFFFF;
   --color-btn-primary-hover: color-mix(in srgb, #2B6CB0 80%, black);
 
+  /* World map node */
+  --color-map-plaque-bg:             var(--color-note-bg);
+  --color-map-plaque-ink:            var(--color-wood);
+  --color-map-plaque-border:         var(--color-wood-mid);
+  --color-map-plaque-locked-bg:      #D7CBB6;
+  --color-map-plaque-locked-ink:     #5A4A36;
+  --color-map-plaque-locked-border:  #7A6B52;
+  --color-map-badge-done-bg:         var(--color-success);
+  --color-map-badge-lock-bg:         #4A4A4A;
+  --color-map-badge-lock-fg:         #FFD54F;
+  --color-map-node-stroke:           var(--color-text-on-dark);
+
+  /* World map path segments */
+  --color-map-path-done:             #F5C518;
+  --color-map-path-upcoming:         #9E9E9E;
+  --color-map-path-locked:           #7A7A7A;
+
   /* Font */
   --font-sans: "Nunito", system-ui, -apple-system, sans-serif;
 
@@ -258,4 +275,6 @@
   --transition-normal: 250ms ease;
   --color-mystery-tape:        rgba(255, 220, 50, 0.85);
   --color-mystery-tape-border: rgba(200, 160, 0, 0.5);
+  --color-map-halo:            rgba(245, 197, 24, 0.55);
+  --color-map-halo-fade:       rgba(245, 197, 24, 0);
 }
