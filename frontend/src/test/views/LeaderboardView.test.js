@@ -119,26 +119,78 @@ describe('LeaderboardView', () => {
     ]
   })
 
-  it('renders classroom tables with avatars and highlights the current student', async () => {
+  it('renders only the top five while showing the current student rank in the stat card', async () => {
+    mockGameStore.schoolLeaderboard = [
+      {
+        studentId: 1999,
+        classroomId: 101,
+        classroomName: '3A',
+        displayName: 'Grace Hopper',
+        completedTasks: 12,
+        totalTasks: 12,
+        avatar: null,
+      },
+      mockGameStore.schoolLeaderboard[0],
+      {
+        studentId: 2003,
+        classroomId: 101,
+        classroomName: '3A',
+        displayName: 'Linus Torvalds',
+        completedTasks: 7,
+        totalTasks: 12,
+        avatar: null,
+      },
+      {
+        studentId: 2004,
+        classroomId: 101,
+        classroomName: '3A',
+        displayName: 'Margaret Hamilton',
+        completedTasks: 6,
+        totalTasks: 12,
+        avatar: null,
+      },
+      {
+        studentId: 2005,
+        classroomId: 101,
+        classroomName: '3A',
+        displayName: 'Alan Turing',
+        completedTasks: 5,
+        totalTasks: 12,
+        avatar: null,
+      },
+      mockGameStore.schoolLeaderboard[1],
+      {
+        studentId: 2006,
+        classroomId: 101,
+        classroomName: '3A',
+        displayName: 'Katherine Johnson',
+        completedTasks: 4,
+        totalTasks: 12,
+        avatar: null,
+      },
+    ]
+
     const wrapper = mount(LeaderboardView)
     await flushPromises()
 
     expect(mockGameStore.fetchSchoolLeaderboard).toHaveBeenCalledWith(101)
-    expect(wrapper.findAll('table')).toHaveLength(2)
+    expect(wrapper.findAll('table')).toHaveLength(1)
     expect(wrapper.find('ol').exists()).toBe(false)
-    expect(wrapper.text()).toContain('Din klasse')
-    expect(wrapper.text()).toContain('Andre klasser på skolen')
+    expect(wrapper.text()).toContain('Sammenlign deg selv med klassen')
+    expect(wrapper.text()).toContain('Kun topp fem elever')
+    expect(wrapper.text()).toContain('#6')
     expect(wrapper.text()).toContain('Fremdrift')
+    expect(wrapper.text()).not.toContain('Andre klasser på skolen')
+    expect(wrapper.text()).not.toContain('Kari Nordmann')
 
     const avatarTexts = wrapper.findAll('.avatar-preview-stub').map((avatar) => avatar.text())
     expect(avatarTexts).toContain('bun')
-    expect(avatarTexts).toContain('short')
-    expect(wrapper.findAll('.leaderboard-avatar-shell')).toHaveLength(3)
+    expect(wrapper.findAll('.leaderboard-avatar-shell')).toHaveLength(5)
 
     const ownRow = wrapper.findAll('tbody tr').find((row) => row.text().includes('Ole Pettersen'))
 
-    expect(ownRow?.classes()).toContain('leaderboard-table__row--me')
-    expect(ownRow?.text()).toContain('Deg')
+    expect(ownRow).toBeUndefined()
+    expect(wrapper.findAll('.leaderboard-student__badge')).toHaveLength(0)
   })
 
   it('does not highlight another student with the same display name', async () => {

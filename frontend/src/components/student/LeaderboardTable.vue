@@ -16,10 +16,16 @@
         >
           <td class="leaderboard-table__rank-cell">
             <span class="leaderboard-rank">
-              <span v-if="medalIcon(index)" class="leaderboard-rank__medal" aria-hidden="true">
-                {{ medalIcon(index) }}
+              <span
+                v-if="medalIcon(entryRank(index))"
+                class="leaderboard-rank__medal"
+                aria-hidden="true"
+              >
+                {{ medalIcon(entryRank(index)) }}
               </span>
-              <span v-if="!medalIcon(index)" class="leaderboard-rank__number">{{ index + 1 }}</span>
+              <span v-if="!medalIcon(entryRank(index))" class="leaderboard-rank__number">
+                {{ entryRank(index) }}
+              </span>
             </span>
           </td>
           <td class="leaderboard-table__student-cell">
@@ -65,6 +71,7 @@ const props = defineProps({
   currentStudentId: { type: Number, default: null },
   emptyLabel: { type: String, default: 'Ingen elever å vise.' },
   entries: { type: Array, default: () => [] },
+  startRank: { type: Number, default: 1 },
 })
 
 const DEFAULT_LEADERBOARD_AVATAR = Object.freeze({
@@ -80,10 +87,14 @@ const DEFAULT_LEADERBOARD_AVATAR = Object.freeze({
   accessory: 'badge',
 })
 
-function medalIcon(index) {
-  if (index === 0) return '🥇'
-  if (index === 1) return '🥈'
-  if (index === 2) return '🥉'
+function entryRank(index) {
+  return props.startRank + index
+}
+
+function medalIcon(rank) {
+  if (rank === 1) return '🥇'
+  if (rank === 2) return '🥈'
+  if (rank === 3) return '🥉'
   return ''
 }
 
@@ -92,10 +103,12 @@ function isCurrentStudent(entry) {
 }
 
 function rowClasses(entry, index) {
+  const rank = entryRank(index)
+
   return {
-    'leaderboard-table__row--gold': index === 0,
-    'leaderboard-table__row--silver': index === 1,
-    'leaderboard-table__row--bronze': index === 2,
+    'leaderboard-table__row--gold': rank === 1,
+    'leaderboard-table__row--silver': rank === 2,
+    'leaderboard-table__row--bronze': rank === 3,
     'leaderboard-table__row--me': isCurrentStudent(entry),
   }
 }

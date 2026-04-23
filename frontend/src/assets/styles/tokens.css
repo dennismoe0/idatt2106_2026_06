@@ -93,17 +93,17 @@
 
   /* Leaderboard medal tiers */
   --color-medal-gold-border:   #f59e0b;
-  --color-medal-gold-bg:       #fffbeb;
+  --color-medal-gold-bg:       linear-gradient(90deg, #fff0b8 0%, #fff8db 46%, #fffdf2 100%);
   --color-medal-silver-border: #9ca3af;
   --color-medal-silver-bg:     #f9fafb;
-  --color-medal-bronze-border: #b45309;
-  --color-medal-bronze-bg:     #fef3c7;
+  --color-medal-bronze-border: #92400e;
+  --color-medal-bronze-bg:     linear-gradient(90deg, #e0a05f 0%, #f2c58f 46%, #fff1dc 100%);
   --color-leaderboard-me-bg:   #fff7df;
 
   /* Medal room */
   --color-medals-text-on-cork: #fff7e6;
   --color-medals-hero-title: #fff9ec;
-  --color-medals-hero-body: color-mix(in srgb, var(--color-note-bg) 90%, transparent);
+  --color-medals-hero-body: #fff3d6;
   --color-medals-hero-kicker: #ffd470;
   --color-medals-hero-panel: linear-gradient(
     135deg,
@@ -146,9 +146,9 @@
   --color-medals-card-border: rgba(122, 78, 26, 0.18);
   --color-medals-card-shadow: rgba(59, 31, 8, 0.16);
   --color-medals-card-gloss: rgba(255, 255, 255, 0.32);
-  --color-medals-card-text: #492708;
-  --color-medals-card-title: #3e2207;
-  --color-medals-card-label: #8b5d24;
+  --color-medals-card-text: #2f1a06;
+  --color-medals-card-title: #241100;
+  --color-medals-card-label: #5d3510;
   --color-medals-stat-icon-bg: linear-gradient(180deg, #fff6d0 0%, #ffd776 100%);
   --color-medals-stat-icon-shadow: rgba(186, 124, 20, 0.18);
   --color-medals-meter-track: rgba(92, 50, 16, 0.12);
@@ -163,7 +163,7 @@
     linear-gradient(135deg, rgba(255, 248, 229, 0.1), rgba(255, 232, 179, 0.02));
   --color-medals-room-border: rgba(255, 230, 168, 0.16);
   --color-medals-room-inner-border: rgba(255, 248, 229, 0.06);
-  --color-medals-room-note: rgba(255, 244, 218, 0.82);
+  --color-medals-room-note: #fff3d6;
   --color-medals-locker-bg: linear-gradient(
     180deg,
     rgba(255, 250, 237, 0.98) 0%,
