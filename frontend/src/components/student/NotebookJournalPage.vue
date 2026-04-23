@@ -161,7 +161,7 @@ function formatDate(isoString) {
   height: 100%;
   /* Increase bottom padding so composer/footer buttons don't overlap page number */
   padding: 1.35rem 1.2rem 3rem;
-  color: #3b2817;
+  color: var(--color-journal-ink);
   font-family: Georgia, 'Times New Roman', serif;
   overflow: hidden;
 }
@@ -172,7 +172,7 @@ function formatDate(isoString) {
   top: 1rem;
   bottom: 1rem;
   width: 1px;
-  background: linear-gradient(180deg, rgba(188, 101, 51, 0.18), rgba(188, 101, 51, 0.4), rgba(188, 101, 51, 0.18));
+  background: linear-gradient(180deg, var(--color-journal-rule-soft), var(--color-journal-rule-strong), var(--color-journal-rule-soft));
 }
 
 .journal-page-content--left::before {
@@ -190,7 +190,7 @@ function formatDate(isoString) {
   margin: 0;
   font-size: 0.62rem;
   letter-spacing: 0.08em;
-  color: rgba(94, 58, 22, 0.28);
+  color: color-mix(in srgb, var(--color-journal-ink) 28%, transparent);
   font-family: 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive;
   transform: rotate(-5deg);
 }
@@ -215,9 +215,9 @@ function formatDate(isoString) {
   width: 38px;
   height: 38px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 227, 170, 0.2);
-  background: linear-gradient(135deg, #7f4b21, #5b3117);
-  color: #ffefca;
+  border: 1px solid color-mix(in srgb, var(--color-journal-highlight) 22%, transparent);
+  background: linear-gradient(135deg, var(--color-journal-leather-top), var(--color-journal-leather-bottom));
+  color: var(--color-journal-parchment-light);
   font-size: 1.25rem;
   font-weight: 700;
   line-height: 1;
@@ -232,7 +232,7 @@ function formatDate(isoString) {
 }
 
 .journal-page-content__add:focus-visible {
-  outline: 3px solid #ffe1a6;
+  outline: 3px solid var(--color-journal-highlight);
   outline-offset: 2px;
 }
 
@@ -241,21 +241,21 @@ function formatDate(isoString) {
   font-size: 0.68rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(99, 61, 27, 0.78);
+  color: color-mix(in srgb, var(--color-journal-ink) 78%, transparent);
 }
 
 .journal-page-content__title {
   margin: 0;
   font-size: clamp(1rem, 1.9vw, 1.3rem);
   line-height: 1.14;
-  color: #2f1d10;
+  color: var(--color-journal-ink-strong);
   font-family: 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive;
 }
 
 .journal-page-content__subtitle {
   margin: 0.25rem 0 0;
   font-size: 0.88rem;
-  color: rgba(70, 46, 23, 0.8);
+  color: color-mix(in srgb, var(--color-journal-ink) 80%, transparent);
 }
 
 .journal-page-content__part {
@@ -263,7 +263,7 @@ function formatDate(isoString) {
   font-size: 0.74rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(91, 59, 28, 0.62);
+  color: color-mix(in srgb, var(--color-journal-ink) 62%, transparent);
 }
 
 .journal-page-content__body {
@@ -298,8 +298,8 @@ function formatDate(isoString) {
 .journal-stamp {
   align-self: flex-start;
   padding: 0.25rem 0.58rem;
-  border: 2px solid rgba(133, 36, 24, 0.42);
-  color: rgba(133, 36, 24, 0.78);
+  border: 2px solid var(--color-journal-stamp-border);
+  color: var(--color-journal-stamp);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.15em;
@@ -307,8 +307,8 @@ function formatDate(isoString) {
 }
 
 .journal-stamp--locked {
-  border-color: rgba(95, 79, 58, 0.32);
-  color: rgba(95, 79, 58, 0.66);
+  border-color: var(--color-journal-locked-border);
+  color: var(--color-journal-locked);
 }
 
 .journal-report-card,
@@ -360,7 +360,7 @@ function formatDate(isoString) {
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(98, 62, 31, 0.7);
+  color: color-mix(in srgb, var(--color-journal-ink) 70%, transparent);
 }
 
 .journal-report-card__text,
@@ -377,7 +377,7 @@ function formatDate(isoString) {
 .journal-entry-card__continuation {
   margin: 0.35rem 0 0;
   font-size: 0.72rem;
-  color: rgba(91, 59, 28, 0.62);
+  color: color-mix(in srgb, var(--color-journal-ink) 62%, transparent);
   font-style: italic;
 }
 
@@ -394,7 +394,7 @@ function formatDate(isoString) {
 
 .journal-entry-card__meta {
   font-size: 0.74rem;
-  color: rgba(95, 66, 34, 0.68);
+  color: color-mix(in srgb, var(--color-journal-ink) 68%, transparent);
   font-style: italic;
 }
 
@@ -426,7 +426,7 @@ function formatDate(isoString) {
 .journal-page-content__timestamp {
   margin: auto 0 0;
   font-size: 0.74rem;
-  color: rgba(89, 59, 28, 0.66);
+  color: color-mix(in srgb, var(--color-journal-ink) 66%, transparent);
   font-style: italic;
 }
 
@@ -440,9 +440,9 @@ function formatDate(isoString) {
   align-self: flex-start;
   padding: 0.62rem 0.92rem;
   border-radius: 999px;
-  border: 1px dashed rgba(124, 85, 33, 0.38);
-  background: rgba(255, 248, 231, 0.6);
-  color: #523115;
+  border: 1px dashed color-mix(in srgb, var(--color-journal-accent) 60%, transparent);
+  background: color-mix(in srgb, var(--color-journal-parchment-light) 60%, transparent);
+  color: var(--color-journal-ink-soft);
   font-size: 0.84rem;
   font-weight: 700;
 }
@@ -456,22 +456,22 @@ function formatDate(isoString) {
   padding: 0;
   border: none;
   background: transparent;
-  color: #734420;
+  color: var(--color-journal-accent);
   font-size: 0.8rem;
   font-weight: 700;
 }
 
 .journal-text-button--danger {
-  color: #99281f;
+  color: var(--color-journal-danger);
 }
 
 .journal-empty {
   margin: 0;
   padding: 0.8rem 0.95rem;
   border-radius: 14px;
-  border: 1px dashed rgba(133, 96, 44, 0.28);
-  background: rgba(255, 250, 239, 0.42);
-  color: rgba(75, 51, 26, 0.74);
+  border: 1px dashed color-mix(in srgb, var(--color-journal-ink) 28%, transparent);
+  background: color-mix(in srgb, var(--color-journal-paper-top) 42%, transparent);
+  color: color-mix(in srgb, var(--color-journal-ink) 74%, transparent);
   font-size: 0.84rem;
   line-height: 1.48;
 }
@@ -491,7 +491,7 @@ function formatDate(isoString) {
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.55;
-  color: rgba(70, 46, 23, 0.84);
+  color: color-mix(in srgb, var(--color-journal-ink) 84%, transparent);
   font-family: 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive;
 }
 

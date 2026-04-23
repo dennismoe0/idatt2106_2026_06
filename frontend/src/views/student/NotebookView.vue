@@ -20,10 +20,6 @@
     </div>
 
     <div class="journal-reader" :class="{ 'is-revealed': !showJournalOverlay }">
-      <div class="journal-reader__toolbar">
-        <!-- spread status removed per request -->
-      </div>
-
       <div v-if="loading" class="journal-state" aria-live="polite">
         <span class="journal-state__spinner" aria-hidden="true" />
         <p>Laster notatblokk...</p>
@@ -79,6 +75,32 @@
                 :remove-reflection="removeReflection"
               />
             </article>
+
+            <div v-if="turnLeaf" class="journal-leaf" :class="`journal-leaf--${turnLeaf.direction}`" aria-hidden="true">
+              <article class="journal-paper journal-paper--leaf-face journal-paper--leaf-front" :data-page="turnLeaf.front.number">
+                <NotebookJournalPage :page="turnLeaf.front" :side="turnLeaf.frontSide" />
+              </article>
+              <article class="journal-paper journal-paper--leaf-face journal-paper--leaf-back" :data-page="turnLeaf.back.number">
+                <NotebookJournalPage :page="turnLeaf.back" :side="turnLeaf.backSide" />
+              </article>
+            </div>
+          </div>
+
+          <button
+            class="journal-nav__arrow journal-nav__arrow--right"
+            type="button"
+            :disabled="!canGoNext"
+            @click="goNext"
+            aria-label="Neste side"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </template>
+    </div>
+
     <BaseModal
       :model-value="editingReflectionId !== null"
       title="Rediger observasjon"
@@ -110,37 +132,6 @@
         <p v-if="saveError" class="journal-modal__error" role="alert">{{ saveError }}</p>
       </div>
     </BaseModal>
-
-            <div v-if="turnLeaf" class="journal-leaf" :class="`journal-leaf--${turnLeaf.direction}`" aria-hidden="true">
-              <article class="journal-paper journal-paper--leaf-face journal-paper--leaf-front" :data-page="turnLeaf.front.number">
-                <NotebookJournalPage :page="turnLeaf.front" :side="turnLeaf.frontSide" />
-              </article>
-              <article class="journal-paper journal-paper--leaf-face journal-paper--leaf-back" :data-page="turnLeaf.back.number">
-                <NotebookJournalPage :page="turnLeaf.back" :side="turnLeaf.backSide" />
-              </article>
-            </div>
-          </div>
-
-          <button
-            class="journal-nav__arrow journal-nav__arrow--right"
-            type="button"
-            :disabled="!canGoNext"
-            @click="goNext"
-            aria-label="Neste side"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-
-        <div class="journal-nav">
-          <div class="journal-nav__meta">
-            <!-- Page label removed per design request -->
-          </div>
-        </div>
-      </template>
-    </div>
 
     <BaseModal :model-value="editingStop !== null" title="Ny observasjon" @update:modelValue="handleObservationModalToggle">
       <div class="journal-modal">
@@ -214,6 +205,13 @@ import CorkBoardPage from '@/components/common/CorkBoardPage.vue'
 import NotebookJournalPage from '@/components/student/NotebookJournalPage.vue'
 import { useSound } from '@/composables/useSound'
 import { useNotebookStore } from '@/stores/notebook'
+import {
+  RESERVED_REPORT_COUNT,
+  buildGeneralPages,
+  buildLevelPagesForGroup,
+  createBlankPage,
+  createBlankSeed,
+} from '@/utils/notebookPagination'
 
 const notebookStore = useNotebookStore()
 const { playPageTurn } = useSound()
@@ -243,253 +241,13 @@ const spreadIndex = ref(0)
 const turnState = ref(null)
 const viewport = ref({ width: 1280, height: 900 })
 
-const RESERVED_REPORT_COUNT = 7
 const BOOK_ASPECT_RATIO = 1.58
 const BOOK_WIDTH_SCALE = 1.25
-const RESERVED_REPORT_TITLES = {
-  1: 'Et spor i nyhetsstrømmen',
-  2: 'Ukjent avsender',
-  3: 'Bildet lyver',
-  4: 'Passordlekkasje',
-  5: 'Svindel på nett',
-  6: 'Falsk venn',
-  7: 'Datasenteret er hacket'
-}
 
 let openTimer = null
 let turnMidTimer = null
 let turnEndTimer = null
 
-function normalizeText(value) {
-  return String(value ?? '')
-    .replace(/\r\n?/g, '\n')
-    .trim()
-}
-
-function estimateTextUnits(text, charsPerUnit = 74) {
-  const normalized = normalizeText(text)
-  if (!normalized) return 1
-
-  const lineBreaks = (normalized.match(/\n/g) || []).length
-  return Math.max(1, Math.ceil(normalized.length / charsPerUnit) + lineBreaks)
-}
-
-function splitTextIntoChunks(text, maxChars) {
-  const normalized = normalizeText(text)
-  if (!normalized) return ['']
-
-  const tokens = normalized.split(/(\s+)/).filter(Boolean)
-  const chunks = []
-  let current = ''
-
-  for (const token of tokens) {
-    const isWhitespace = /^\s+$/.test(token)
-
-    if (!isWhitespace && token.length > maxChars) {
-      if (current.trim()) {
-        chunks.push(current.trim())
-        current = ''
-      }
-
-      for (let index = 0; index < token.length; index += maxChars) {
-        chunks.push(token.slice(index, index + maxChars))
-      }
-      continue
-    }
-
-    const candidate = `${current}${token}`
-    if (candidate.trim().length > maxChars && current.trim()) {
-      chunks.push(current.trim())
-      current = isWhitespace ? '' : token.trimStart()
-    } else {
-      current = candidate
-    }
-  }
-
-  if (current.trim()) {
-    chunks.push(current.trim())
-  }
-
-  return chunks
-}
-
-function packBlocks(blocks, capacity) {
-  if (!blocks.length) return [[]]
-
-  const pages = []
-  let currentPage = []
-  let usedUnits = 0
-
-  for (const block of blocks) {
-    const blockUnits = block.units ?? 1
-    if (currentPage.length && usedUnits + blockUnits > capacity) {
-      pages.push(currentPage)
-      currentPage = []
-      usedUnits = 0
-    }
-
-    currentPage.push(block)
-    usedUnits += blockUnits
-  }
-
-  if (currentPage.length) {
-    pages.push(currentPage)
-  }
-
-  return pages
-}
-
-function createBlankSeed(key = 'blank-tail') {
-  return {
-    key,
-    kind: 'blank',
-    eyebrow: 'Tom side',
-    title: 'Neste spor kommer snart',
-    subtitle: 'La noen linjer stå åpne til neste mysterium.',
-    partLabel: null,
-    doodle: '?? // blekk // røde tråder'
-  }
-}
-
-function createBlankPage(pageIndex) {
-  return {
-    ...createBlankSeed(`blank-${pageIndex}`),
-    number: pageIndex + 2
-  }
-}
-
-function buildTipBlocks(autoTip) {
-  return [
-    {
-      key: `tip-${autoTip.id}`,
-      type: 'tip',
-      label: 'Låst opp rapport',
-      content: autoTip.content,
-      createdAt: autoTip.createdAt,
-      units: Math.min(11, 3 + estimateTextUnits(autoTip.content, 76))
-    }
-  ]
-}
-
-function buildReflectionBlocks(reflection) {
-  return [
-    {
-      key: `reflection-${reflection.id}`,
-      id: reflection.id,
-      type: 'reflection',
-      label: 'Observasjon',
-      content: reflection.content,
-      createdAt: reflection.createdAt,
-      units: Math.min(11, 3 + estimateTextUnits(reflection.content, 72)),
-      showControls: true,
-      source: reflection
-    }
-  ]
-}
-function buildGeneralNoteBlocks(note) {
-  return [
-    {
-      key: `general-note-${note.id}`,
-      id: note.id,
-      type: 'note',
-      label: 'Notat',
-      content: note.content,
-      createdAt: note.createdAt,
-      units: Math.min(11, 3 + estimateTextUnits(note.content, 68)),
-      showControls: true,
-      source: note
-    }
-  ]
-}
-
-function buildLevelPagesForGroup(stopOrder, group) {
-  const title =
-    group?.stopName ||
-    RESERVED_REPORT_TITLES[stopOrder] ||
-    `Oppdrag ${stopOrder}`
-
-  const blocks = []
-
-  // 1. Level note (autoTip) first — shown at the top of each level section
-  if (group?.autoTip) {
-    blocks.push(...buildTipBlocks(group.autoTip))
-  }
-
-  // 2. User's own observations for this level
-  for (const reflection of group?.reflections ?? []) {
-    blocks.push(...buildReflectionBlocks(reflection))
-  }
-
-  // 3. Empty state
-  if (!blocks.length) {
-    blocks.push({
-      key: `level-empty-${stopOrder}`,
-      type: 'empty',
-      content: group
-        ? 'Ingen observasjoner ennå. Skriv ned rare detaljer før de forsvinner.'
-        : 'Fullfør dette nivået for å låse opp rapporten og legge til observasjoner.',
-      units: 5
-    })
-  }
-
-  const pages = packBlocks(blocks, 12)
-  const stopId = group?.stopId ?? null
-
-  return pages.map((pageBlocks, index) => ({
-    key: `level-${stopOrder}-${index}`,
-    kind: 'stop',
-    eyebrow: group?.autoTip
-      ? 'Fullført nivå'
-      : group
-        ? 'Feltnotater'
-        : 'Reservert rapportside',
-    title,
-    subtitle: `Nivå ${stopOrder}`,
-    partLabel: pages.length > 1 ? `Del ${index + 1} av ${pages.length}` : null,
-    blocks: pageBlocks,
-    showComposer: stopId !== null && index === pages.length - 1,
-    stopId,
-    doodle: group?.autoTip
-      ? `△ // spor // nivå ${stopOrder}`
-      : `låst // oppdrag ${stopOrder} // venter`
-  }))
-}
-
-function buildGeneralPages(notes) {
-  const blocks = []
-
-  const orderedNotes = [...notes].sort((a, b) => {
-    const aTime = a?.createdAt ? new Date(a.createdAt).getTime() : 0
-    const bTime = b?.createdAt ? new Date(b.createdAt).getTime() : 0
-    return aTime - bTime
-  })
-
-  for (const note of orderedNotes) {
-    blocks.push(...buildGeneralNoteBlocks(note))
-  }
-
-  if (!blocks.length) {
-    blocks.push({
-      key: 'general-empty',
-      type: 'empty',
-      content: 'Ingen frie notater ennå. Skriv den første teorien din her.',
-      units: 5
-    })
-  }
-
-  const pages = packBlocks(blocks, 11)
-
-  return pages.map((pageBlocks, index) => ({
-    key: `general-${index}`,
-    kind: 'general',
-    eyebrow: 'Frie notater',
-    title: 'Løse tråder og raske tanker',
-    subtitle: 'Her samler du alt som ikke passer andre steder.',
-    partLabel: pages.length > 1 ? `Del ${index + 1} av ${pages.length}` : null,
-    blocks: pageBlocks,
-    showComposer: index === pages.length - 1,
-  }))
-}
 
 // ADD this:
 const allLevelPages = computed(() => {
@@ -624,6 +382,7 @@ async function load() {
 
   try {
     await notebookStore.fetchEntries()
+    console.log('[NotebookView] Loaded', grouped.value.length, 'stop groups,', generalNotes.value.length, 'general notes')
   } catch (err) {
     console.error('[NotebookView] Failed to load:', err)
     error.value = 'Kunne ikke laste notatblokk. Prøv igjen.'
@@ -905,27 +664,6 @@ onBeforeUnmount(() => {
   transform: none;
 }
 
-.journal-reader__toolbar {
-  width: min(100%, 1320px);
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-4);
-  color: #f6ecd9;
-}
-
-.journal-reader__status {
-  margin: 0;
-  padding: 0.58rem 0.86rem;
-  border-radius: 999px;
-  font-size: 0.84rem;
-  color: #ffe9bc;
-  background: rgba(55, 29, 14, 0.65);
-  border: 1px solid rgba(255, 226, 170, 0.18);
-  white-space: nowrap;
-}
-
 .journal-reader__stage-shell {
   flex: 1;
   min-height: 0;
@@ -947,15 +685,15 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: var(--space-3);
   text-align: center;
-  color: #f9efd9;
+  color: var(--color-journal-parchment);
   background: linear-gradient(145deg, rgba(60, 33, 17, 0.85), rgba(31, 15, 8, 0.88));
-  border: 1px solid rgba(255, 227, 166, 0.14);
+  border: 1px solid color-mix(in srgb, var(--color-journal-highlight) 14%, transparent);
   border-radius: 28px;
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.26);
 }
 
 .journal-state--error {
-  color: #ffd4cc;
+  color: var(--color-journal-error-soft);
 }
 
 .journal-state__spinner {
@@ -963,7 +701,7 @@ onBeforeUnmount(() => {
   height: 34px;
   border-radius: 50%;
   border: 3px solid rgba(255, 255, 255, 0.16);
-  border-top-color: #ffe1a6;
+  border-top-color: var(--color-journal-highlight);
   animation: spin 0.8s linear infinite;
 }
 
@@ -971,8 +709,8 @@ onBeforeUnmount(() => {
   padding: 0.7rem 1.1rem;
   border: none;
   border-radius: 999px;
-  background: linear-gradient(135deg, #7c4a24, #5a2f17);
-  color: #ffefca;
+  background: linear-gradient(135deg, var(--color-journal-retry-top), var(--color-journal-retry-bottom));
+  color: var(--color-journal-parchment-light);
   font-weight: 700;
   cursor: pointer;
 }
@@ -1024,7 +762,7 @@ onBeforeUnmount(() => {
   border-radius: 999px;
   background:
     linear-gradient(180deg, rgba(253, 214, 152, 0.16), transparent 16%),
-    linear-gradient(180deg, #3f2110, #683918 28%, #2e170b 72%, #71411f);
+    linear-gradient(180deg, var(--color-journal-spine-top), var(--color-journal-spine-mid) 28%, var(--color-journal-spine-dark) 72%, var(--color-journal-spine-edge));
   box-shadow:
     inset 0 0 0 1px rgba(255, 233, 190, 0.08),
     0 10px 24px rgba(0, 0, 0, 0.22);
@@ -1038,10 +776,10 @@ onBeforeUnmount(() => {
   min-height: 100%;
   overflow: hidden;
   display: flex;
-  border: 1px solid rgba(124, 88, 38, 0.2);
+  border: 1px solid color-mix(in srgb, var(--color-journal-leather-light) 20%, transparent);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 8%),
-    linear-gradient(180deg, #f5ead2, #ecdcb9 46%, #e8d5af);
+    linear-gradient(180deg, var(--color-journal-paper-top), var(--color-journal-paper-mid) 46%, var(--color-journal-paper-bottom));
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.22),
     0 12px 24px rgba(84, 58, 26, 0.1);
@@ -1079,7 +817,7 @@ onBeforeUnmount(() => {
   bottom: 14px;
   font-size: 0.8rem;
   letter-spacing: 0.1em;
-  color: rgba(91, 63, 31, 0.72);
+  color: color-mix(in srgb, var(--color-journal-ink) 72%, transparent);
 }
 
 .journal-paper--left::after {
@@ -1181,15 +919,6 @@ onBeforeUnmount(() => {
   }
 }
 
-.journal-nav {
-  width: min(100%, 1320px);
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-
 /* Arrow controls placed to left/right of the book stage */
 .journal-nav__arrow {
   display: inline-flex;
@@ -1198,9 +927,9 @@ onBeforeUnmount(() => {
   width: 56px;
   height: 56px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 227, 170, 0.12);
+  border: 1px solid color-mix(in srgb, var(--color-journal-highlight) 12%, transparent);
   background: linear-gradient(135deg, rgba(112, 64, 30, 0.9), rgba(62, 32, 15, 0.96));
-  color: #fff1ce;
+  color: var(--color-journal-parchment-bright);
   cursor: pointer;
   font-weight: 700;
   transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
@@ -1216,12 +945,6 @@ onBeforeUnmount(() => {
     width: 44px;
     height: 44px;
   }
-}
-
-.journal-nav__meta {
-  min-width: 0;
-  text-align: center;
-  color: #f8ecd5;
 }
 
 .journal-overlay {
@@ -1266,7 +989,7 @@ onBeforeUnmount(() => {
 .journal-cover-stage__inside {
   left: 0;
   background:
-    linear-gradient(145deg, #8a552f, #653819 58%, #43200f),
+    linear-gradient(145deg, var(--color-journal-cover-inside-top), var(--color-journal-cover-inside-mid) 58%, var(--color-journal-cover-inside-bottom)),
     radial-gradient(circle at top left, rgba(255, 255, 255, 0.14), transparent 32%);
   box-shadow: inset -18px 0 26px rgba(30, 13, 6, 0.22);
   transform: rotateY(6deg) scaleX(0.96);
@@ -1277,7 +1000,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   background:
     linear-gradient(90deg, rgba(204, 182, 137, 0.44), rgba(255, 249, 235, 0.12) 8%, transparent 16%),
-    linear-gradient(180deg, #f7efdd, #ede0c2);
+    linear-gradient(180deg, var(--color-journal-pages-top), var(--color-journal-pages-bottom));
   box-shadow:
     inset 0 0 0 1px rgba(133, 95, 43, 0.12),
     inset -26px 0 36px rgba(167, 140, 90, 0.16);
@@ -1293,7 +1016,7 @@ onBeforeUnmount(() => {
   transform: translateX(-50%);
   border-radius: 999px;
   opacity: 0;
-  background: linear-gradient(180deg, #5d3518, #73421e 42%, #4a2712);
+  background: linear-gradient(180deg, var(--color-journal-spine-cover-top), var(--color-journal-spine-cover-mid) 42%, var(--color-journal-spine-cover-dark));
   transition: opacity calc(var(--anim-ms) * 0.26) ease;
 }
 
@@ -1311,14 +1034,14 @@ onBeforeUnmount(() => {
   border: none;
   border-radius: 18px;
   cursor: pointer;
-  color: #f9efd8;
+  color: var(--color-journal-parchment-warm);
   text-align: left;
   transform-origin: left center;
   transform-style: preserve-3d;
   backface-visibility: hidden;
   background:
     radial-gradient(circle at top left, rgba(255, 255, 255, 0.2), transparent 26%),
-    linear-gradient(145deg, #784623, #562d17 58%, #351a0e);
+    linear-gradient(145deg, var(--color-journal-leather-light), var(--color-journal-leather-mid) 58%, var(--color-journal-leather-dark));
   box-shadow:
     inset 0 0 0 1px rgba(255, 244, 221, 0.1),
     inset 12px 0 22px rgba(255, 209, 145, 0.06),
@@ -1387,7 +1110,7 @@ onBeforeUnmount(() => {
   font-size: 0.88rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(247, 233, 205, 0.74);
+  color: color-mix(in srgb, var(--color-journal-parchment-warm) 74%, transparent);
 }
 
 .journal-cover__title {
@@ -1401,7 +1124,7 @@ onBeforeUnmount(() => {
 
 .journal-cover__hint {
   font-size: 1rem;
-  color: rgba(255, 242, 214, 0.92);
+  color: color-mix(in srgb, var(--color-journal-parchment-warm) 92%, transparent);
 }
 
 .journal-cover-stage.is-opening .journal-cover-stage__spread {
@@ -1438,9 +1161,9 @@ onBeforeUnmount(() => {
   resize: none;
   padding: 0.9rem 1rem;
   border-radius: 12px;
-  border: 1px solid rgba(131, 92, 40, 0.28);
-  background: rgba(255, 253, 247, 0.96);
-  color: #382617;
+  border: 1px solid color-mix(in srgb, var(--color-journal-leather-light) 28%, transparent);
+  background: var(--color-journal-modal-surface);
+  color: var(--color-journal-modal-ink);
   font-family: inherit;
   font-size: 0.96rem;
   line-height: 1.5;
@@ -1448,15 +1171,15 @@ onBeforeUnmount(() => {
 
 .journal-modal__textarea:focus {
   outline: none;
-  border-color: rgba(121, 77, 26, 0.48);
-  box-shadow: 0 0 0 3px rgba(173, 127, 71, 0.12);
+  border-color: color-mix(in srgb, var(--color-journal-accent) 70%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-journal-accent) 18%, transparent);
 }
 
 .journal-modal__count {
   margin: 0;
   text-align: right;
   font-size: 0.78rem;
-  color: rgba(87, 59, 29, 0.65);
+  color: color-mix(in srgb, var(--color-journal-ink) 65%, transparent);
 }
 
 .journal-modal__actions {
@@ -1468,17 +1191,17 @@ onBeforeUnmount(() => {
 .journal-modal__button {
   padding: 0.72rem 1rem;
   border-radius: 999px;
-  border: 1px solid rgba(120, 70, 29, 0.24);
-  background: rgba(255, 248, 231, 0.75);
-  color: #523115;
+  border: 1px solid color-mix(in srgb, var(--color-journal-leather-top) 24%, transparent);
+  background: color-mix(in srgb, var(--color-journal-parchment-light) 75%, transparent);
+  color: var(--color-journal-ink-soft);
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
 }
 
 .journal-modal__button--primary {
-  background: linear-gradient(135deg, #7f4b21, #5b3117);
-  color: #ffefca;
+  background: linear-gradient(135deg, var(--color-journal-leather-top), var(--color-journal-leather-bottom));
+  color: var(--color-journal-parchment-light);
   border-color: transparent;
 }
 
@@ -1490,22 +1213,8 @@ onBeforeUnmount(() => {
 .journal-modal__error {
   margin: 0;
   font-size: 0.86rem;
-  color: #9e2a21;
+  color: var(--color-journal-error);
 }
-
-@media (max-width: 900px) {
-  .journal-reader__toolbar,
-  .journal-nav {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .journal-reader__status,
-  .journal-nav__meta {
-    text-align: left;
-  }
-}
-
 @media (max-width: 640px) {
   .journal-reader {
     gap: var(--space-3);

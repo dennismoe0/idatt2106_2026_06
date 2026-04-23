@@ -113,7 +113,6 @@ export function useSound() {
   /**
    * Soft page-turn / paper-rustle style cue for notebook navigation.
    */
-// Add this helper after `tone`
 function noiseBurst(ctx, startTime, duration, volume = 0.2, bandFreq = 1200, Q = 0.8) {
   const sampleRate = ctx.sampleRate
   const frameCount = Math.max(1, Math.floor(sampleRate * duration))
@@ -144,7 +143,6 @@ function noiseBurst(ctx, startTime, duration, volume = 0.2, bandFreq = 1200, Q =
   src.stop(startTime + duration + 0.02)
 }
 
-// Replace playPageTurn with this implementation
 function playPageTurn() {
   const vol = audioStore.effectiveVolume
   if (vol === 0) return
