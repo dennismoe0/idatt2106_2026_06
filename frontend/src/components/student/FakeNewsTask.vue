@@ -2,7 +2,7 @@
   <section class="fake-news-task">
     <p class="fake-news-task__guidance">{{ task.guidanceText }}</p>
 
-    <p class="fake-news-task__instruction">🔍 Klikk på den artikkelen du tror er falsk</p>
+    <p class="fake-news-task__instruction">🔍 Klikk på den artikkelen du tror er <strong>falsk</strong></p>
 
     <div class="fake-news-task__articles">
       <article
@@ -11,10 +11,10 @@
         class="newspaper pinned-note article-card"
         :class="articleClass(index)"
         :style="`--card-rotate: ${cardRotation(index)}deg`"
-        role="region"
+        role="button"
+        :aria-pressed="chosenIndex === index"
         tabindex="0"
         :aria-label="`Velg denne artikkelen som falsk: ${article.headline}`"
-        :aria-pressed="chosenIndex === index"
         :aria-disabled="!!result"
         @click="pickCard(index)"
         @keydown.enter.space.prevent="pickCard(index)"
@@ -243,15 +243,10 @@ function extractDomainOrName(input) {
 .next-btn:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 2px; }
 
 .newspaper {
-  --paper-bg: #f4efe2;
-  --ink: #111;
-  --masthead-ink: #0d0d0d;
-  --rule: rgba(0,0,0,0.15);
-
-  background: var(--paper-bg);
-  border: 1.5px solid var(--rule);
+  background: var(--color-newspaper-bg);
+  border: 1.5px solid var(--color-newspaper-rule);
   padding: clamp(12px, 1.5vw, 18px);
-  color: var(--ink);
+  color: var(--color-newspaper-ink);
   box-shadow: 2px 3px 10px rgba(0,0,0,0.25);
   transform: rotate(var(--card-rotate, 0deg));
   max-width: 36ch;
@@ -263,7 +258,7 @@ function extractDomainOrName(input) {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  border-bottom: 2px solid var(--rule);
+  border-bottom: 2px solid var(--color-newspaper-rule);
   margin-bottom: 8px;
   letter-spacing: 0.5px;
 }
@@ -272,7 +267,7 @@ function extractDomainOrName(input) {
   font-weight: 800;
   font-size: clamp(18px, 2.6vw, 22px);
   text-transform: uppercase;
-  color: var(--masthead-ink);
+  color: var(--color-newspaper-ink);
 }
 
 .newspaper__headline {
@@ -292,12 +287,11 @@ function extractDomainOrName(input) {
   margin: 0 0 8px 0;
   font-size: 12px;
   opacity: 0.9;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid var(--color-newspaper-rule);
   padding-bottom: 6px;
 }
 
 .newspaper__body {
-  column-count: 1;
   column-gap: 18px;
 }
 .newspaper__lede {
@@ -307,10 +301,26 @@ function extractDomainOrName(input) {
   font-size: 14px;
 }
 
-/* Preserve interaction visuals */
 .newspaper.article-card:hover:not([aria-disabled="true"]) {
   transform: rotate(0deg) scale(1.02) translateY(-3px);
   box-shadow: 4px 6px 16px rgba(0,0,0,0.35);
+}
+
+.newspaper.article-card--chosen {
+  border-color: var(--color-wood);
+  box-shadow: 0 0 0 3px var(--color-wood);
+}
+.newspaper.article-card--correct {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px var(--color-success);
+}
+.newspaper.article-card--wrong {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px var(--color-danger);
+}
+.newspaper.article-card--muted {
+  opacity: 0.55;
+  filter: grayscale(30%);
 }
 
 </style>

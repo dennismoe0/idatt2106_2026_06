@@ -49,6 +49,11 @@
   --color-heading: #20304A;
   --color-map-bg: #1a1a2e;
 
+  /* Newspaper (FakeNewsTask) */
+  --color-newspaper-bg:   #f4efe2;
+  --color-newspaper-ink:  #111111;
+  --color-newspaper-rule: rgba(0, 0, 0, 0.15);
+
   /* Cork board theme */
   --color-cork:      #A87230;
   --color-cork-dark: #7A4E1A;
