@@ -24,7 +24,11 @@
     </div>
 
     <!-- Task area -->
-    <div v-else class="task-view__main cork-board-bg">
+    <div
+      v-else
+      class="task-view__main"
+      :class="currentTask?.taskType === 'LEARN' ? 'task-view__main--clean' : 'cork-board-bg'"
+    >
 
       <StopSummary
         v-if="showSummary"
@@ -782,24 +786,35 @@ function goToMap() {
   padding: var(--space-6) clamp(var(--space-4), 5vw, var(--space-10));
 }
 
+.task-view__main--clean {
+  background:
+    radial-gradient(circle at top right, rgba(244, 201, 76, 0.18), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
 .task-view__replay-btn {
   display: block;
   margin: 0 auto var(--space-3);
-  background: transparent;
-  color: var(--color-wood);
-  border: 1px dashed var(--color-cork);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--color-heading);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
   min-height: 44px;
-  transition: background var(--transition-fast);
+  transition: background var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  box-shadow: 0 10px 20px rgba(20, 30, 48, 0.06);
 }
-.task-view__replay-btn:hover { background: rgba(168, 114, 48, 0.12); border-style: solid; }
+.task-view__replay-btn:hover {
+  background: #ffffff;
+  border-color: var(--color-primary-soft-strong);
+  box-shadow: 0 14px 26px rgba(20, 30, 48, 0.1);
+}
 .task-view__replay-btn:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 2px; }
 
-.task-view__state { text-align: center; padding: var(--space-8); color: var(--color-cork-dark); }
+.task-view__state { text-align: center; padding: var(--space-8); color: var(--color-text); }
 .task-view__state--error { color: var(--color-danger); }
 
 .task-view__mock-badge {
@@ -823,11 +838,11 @@ function goToMap() {
   width: 12px;
   height: 12px;
   border-radius: var(--radius-full);
-  background: rgba(0,0,0,0.15);
+  background: rgba(30, 41, 59, 0.16);
   border: 2px solid transparent;
   transition: background var(--transition-fast), transform var(--transition-fast);
 }
-.dot--current { border-color: var(--color-wood); background: var(--color-cork-light); transform: scale(1.2); }
+.dot--current { border-color: var(--color-primary); background: var(--color-primary-soft); transform: scale(1.2); }
 .dot--correct { background: var(--color-success); }
 .dot--wrong   { background: var(--color-danger); }
 
