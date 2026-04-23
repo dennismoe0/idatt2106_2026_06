@@ -95,8 +95,8 @@ public class DataLoader implements ApplicationRunner {
                         "Hva er falske nyheter?",
                         "Falske nyheter er laget for å få deg til å tro på noe som ikke stemmer. De kan se ut som vanlige nyheter, men prøver ofte å få deg til å bli redd, sint eller supernysgjerrig så du klikker og deler uten å tenke deg om.",
                         new String[]{
-                            "Eksempel: \"SJOKK! Alle skoler stenger i dag!\" høres dramatisk ut, men betyr ikke at saken er ekte.",
-                            "Eksempel: \"En hemmelig kilde sier ...\" er svakere enn når en skole, kommune eller avis sier hvem som står bak informasjonen."
+                            "Nyhetslinje: \"SJOKK! ALLE SKOLER STENGES FØR KL. 12 - DEL NÅ!\" høres dramatisk ut, men betyr ikke at saken er ekte.",
+                            "Artikkeltekst: \"En hemmelig kilde i rådhuset sier at alle allerede vet sannheten.\" Dette er svakere enn når en skole, kommune eller avis sier hvem som faktisk står bak informasjonen."
                         },
                         new String[]{
                             "Ikke stol på en sak bare fordi overskriften ser viktig ut.",
@@ -154,10 +154,8 @@ public class DataLoader implements ApplicationRunner {
                         "Hva avslører en phishing-melding?",
                         "Se ekstra nøye på avsender og lenker. En ekte bank bruker sitt eget domene, mens en falsk melding kan bruke noe som ligner, men ikke er helt riktig.",
                         new String[]{
-                            "Mer troverdig: kunde@dnb.no",
-                            "Mistenkelig: kunde@dnb-kundeservice.com",
-                            "Mer troverdig: posten.no",
-                            "Mistenkelig: posten-oppdatering.net"
+                            "Fra-linje: kunde@dnb.no er mer troverdig enn kunde@dnb-kundeservice.com.",
+                            "Lenketekst: \"Spor pakken her\" kan se trygg ut, men hvis den peker til posten-oppdatering.net er det mistenkelig."
                         },
                         new String[]{
                             "Små forskjeller i domenet er viktige.",
@@ -189,8 +187,8 @@ public class DataLoader implements ApplicationRunner {
                         "Hva er et KI-bilde?",
                         "Et KI-bilde er laget av et dataprogram. Det kan se ekte ut ved første øyekast, men det viser ofte mennesker eller situasjoner som aldri har eksistert på ordentlig.",
                         new String[]{
-                            "Eksempel: Et bilde av en person som aldri har vært på stedet der bildet sier at hen var.",
-                            "Eksempel: Et bilde som brukes som bevis, selv om det egentlig er funnet på av KI."
+                            "Bildebeskrivelse: \"Vaktkamera viser tyven utenfor rådhuset kl. 22.14\" kan være falskt hvis personen eller stedet aldri har eksistert slik på bildet.",
+                            "Bevislinje: \"Dette bildet beviser hvem som tok pengene\" er ikke nok i seg selv hvis bildet egentlig er laget av KI."
                         },
                         new String[]{
                             "Et bilde kan se ekte ut uten å være ekte.",
@@ -236,9 +234,9 @@ public class DataLoader implements ApplicationRunner {
                         "Hva gjør et passord sterkt?",
                         "Et sterkt passord er langt og vanskelig å gjette. Det skal helst være noe som ikke handler om deg, så andre ikke kan finne det ut bare ved å kjenne navnet ditt, laget du spiller på eller fødselsåret ditt.",
                         new String[]{
-                            "Svakt eksempel: Oliver2014",
-                            "Svakt eksempel: Fotball123",
-                            "Sterkere eksempel: Fjord!TacoMaane42"
+                            "Innlogging: Oliver2014 er svakt fordi det ligner på navn + årstall.",
+                            "Innlogging: Fotball123 er svakt fordi mange kunne ha gjettet det.",
+                            "Innlogging: Fjord!TacoMaane42 er mye sterkere fordi det er langt og ikke handler om deg."
                         },
                         new String[]{
                             "Langt er bedre enn kort.",
@@ -283,8 +281,8 @@ public class DataLoader implements ApplicationRunner {
                         "Hvordan ser nettsvindel ut?",
                         "En falsk nettbutikk prøver å få deg til å kjøpe noe raskt før du rekker å tenke deg om. Derfor bruker den ofte kjempestore rabatter og ord som \"kun i dag\" eller \"bare 2 igjen\".",
                         new String[]{
-                            "Eksempel: En jakke som vanligvis koster 2 500 kr selges for 199 kr.",
-                            "Eksempel: Butikken sier at salget slutter om 10 minutter hver gang du åpner siden."
+                            "Produktside: \"Vinterjakke før 2 499 kr - nå 199 kr - bare 2 igjen!\" er et klassisk lokketilbud.",
+                            "Banner: \"SALGET SLUTTER OM 10 MINUTTER\" som kommer tilbake hver gang du åpner siden, er et dårlig tegn."
                         },
                         new String[]{
                             "Hvis tilbudet virker altfor godt, er det ofte fordi noe er galt.",
@@ -296,9 +294,8 @@ public class DataLoader implements ApplicationRunner {
                         "Hvilke røde flagg bør du se etter?",
                         "Se på domenet, kontaktinformasjonen og betalingsmåten. Ekte butikker vil vanligvis vise hvem de er, hvordan du kan kontakte dem, og bruke normale betalingsløsninger.",
                         new String[]{
-                            "Mer trygt: komplett.no, elkjop.no",
-                            "Mer mistenkelig: billig-ps5.cc, supertilbud-now.xyz",
-                            "Mistenkelig betaling: gavekort, krypto eller bankoverføring til privatperson"
+                            "Butikknavn: komplett.no og elkjop.no virker mer troverdige enn billig-ps5.cc eller supertilbud-now.xyz.",
+                            "Betaling: \"Send beløpet med gavekortkode\" eller \"betal til privat konto\" er mistenkelig."
                         },
                         new String[]{
                             "Ukjent domene er et tegn du bør merke deg.",
@@ -330,8 +327,8 @@ public class DataLoader implements ApplicationRunner {
                         "Hvorfor lures vi lettere i feeden?",
                         "På sosiale medier går ting fort, og vi scroller ofte uten å stoppe opp. Innlegg som gjør oss sinte, redde eller veldig nysgjerrige får ofte mest oppmerksomhet, og derfor er det lett å dele noe før vi har tenkt oss om.",
                         new String[]{
-                            "Eksempel: \"DEL NÅ før dette blir slettet!\" prøver å få deg til å reagere fort.",
-                            "Eksempel: Rykter om skolen eller medelever spres ofte raskt fordi folk blir nysgjerrige."
+                            "Innlegg: \"DEL NÅ før dette blir slettet!!!\" prøver å få deg til å reagere fort i stedet for å sjekke først.",
+                            "Skolerykte: \"Jeg har hørt at prøven er lekket til 7B\" kan spre seg raskt selv om ingen har vist bevis."
                         },
                         new String[]{
                             "Sterke følelser er ikke det samme som sterke bevis.",
@@ -343,8 +340,8 @@ public class DataLoader implements ApplicationRunner {
                         "Hvordan kan en falsk konto se ut?",
                         "En falsk konto kan late som den er en elev, en gamer eller en kjent person. Den har ofte lite ekte informasjon, rare brukernavn eller prøver å bli veldig personlig veldig fort.",
                         new String[]{
-                            "Eksempel: En konto uten ordentlige bilder som spør om Snapchat, telefonnummer eller bilder med en gang.",
-                            "Eksempel: En konto som utgir seg for å være en elev på skolen, men ikke kjenner enkle ting om klassen eller lærerne."
+                            "DM: \"Hei! Jeg går også på skolen din. Hva heter læreren din igjen? Send Snapen din\" kan være en falsk konto som tester deg.",
+                            "Profil: Et rart brukernavn, få bilder og nesten ingen ekte venner kan være tegn på at kontoen later som."
                         },
                         new String[]{
                             "Du må ikke svare bare for å være høflig.",
@@ -356,8 +353,8 @@ public class DataLoader implements ApplicationRunner {
                         "Hva bør du gjøre før du deler?",
                         "Før du deler, spør: Hvem la dette ut, og vet de faktisk at det stemmer? Hvis et innlegg navngir folk uten bevis eller prøver å få deg til å dele med en gang, bør du stoppe og sjekke først.",
                         new String[]{
-                            "Hvis noen skriver om skolen, kan du sjekke skolens melding eller spørre en lærer.",
-                            "Hvis noen anklager en medelev, skal du ikke dele videre bare fordi mange andre gjør det."
+                            "Innlegg om skolen kan sjekkes i skolens meldinger eller ved å spørre en lærer.",
+                            "Hvis noen skriver \"Det var sikkert Emil som gjorde det\", skal du ikke dele videre bare fordi andre allerede har gjort det."
                         },
                         new String[]{
                             "Ikke hjelp et rykte med å bli større.",
