@@ -122,7 +122,7 @@ public class GameService {
             });
         requireUnlocked(studentId, classroomId, stop);
 
-        return taskRepository.findByStop_IdOrderByIdAsc(stopId).stream()
+        return taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(stopId).stream()
             .map(task -> toTaskResponse(studentId, classroomId, task))
             .toList();
     }
@@ -539,9 +539,14 @@ public class GameService {
             .map(StudentProgress::isCompleted)
             .orElse(false);
 
+        Stop stop = task.getStop();
         return new TaskResponse(
             task.getId(),
-            task.getStop().getId(),
+            stop.getId(),
+            stop.getName(),
+            stop.getDescription(),
+            stop.getOrderIndex(),
+            stop.getTheme(),
             task.getTaskType().name(),
             sanitizeContentForClient(task.getTaskType(), task.getContentJson()),
             task.getGuidanceText(),

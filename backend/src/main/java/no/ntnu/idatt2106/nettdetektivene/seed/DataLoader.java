@@ -1,6 +1,7 @@
 package no.ntnu.idatt2106.nettdetektivene.seed;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -40,37 +41,37 @@ public class DataLoader implements ApplicationRunner {
 
         List<Stop> stops = stopRepository.saveAll(List.of(
             stop("Nyhetskvartalet",
-                 "Avslør hvilke nyheter som er ekte og hvilke som prøver å lure deg.",
+                 "Noen prøver å spre kaos etter at penger som skulle gå til den nye idrettsparken plutselig forsvant fra ordførerens prosjektkonto. Nå dukker det opp dramatiske artikler som peker i alle retninger, og folk i byen begynner å skylde på feil personer.\n\nHvis vi skal finne ut hva som faktisk skjedde med ordføreren og pengene, må vi først lære å skille ekte nyheter fra falske. Klarer du å stoppe løgnene før de blir til \"sannheten\" alle tror på?",
                  "FAKE_NEWS", 1, false,
                  "Falske nyheter bruker gjerne skremmende overskrifter og anonyme kilder. Sjekk alltid hvem som har skrevet saken: er nettadressen til et kjent mediehus? Søk opp saken på andre seriøse nettsteder for å se om historien stemmer. Overdrevne påstander uten dokumentasjon er et varseltegn.",
                  "Tyven hadde på seg en mørk jakke, rød hette og lyse sko."),
             stop("Postkontoret",
-                 "Undersøk e-poster og lær hvordan svindelforsøk kan se ut.",
+                 "Et nytt spor har dukket opp: noen i kommunen fikk en e-post som så helt ekte ut, klikket på lenken og mistet kontroll over kontoen sin. Det kan være akkurat slik tyven kom seg inn i systemene rundt ordførerens prosjekt.\n\nFor å komme videre i saken må vi forstå hvordan phishing faktisk fungerer. Hvis du lærer å avsløre falske e-poster, kan du finne ut hvordan tyven åpnet døren innenfra.",
                  "PHISHING_EMAIL", 2, false,
                  "Phishing-e-poster later som de er fra banker, skoler eller kjente selskaper for å lure deg til å gi fra deg passord eller penger. Se etter skrivefeil, ukjente avsenderadresser og lenker der nettadressen ikke stemmer med avsenderen. En ekte avsender ber aldri om passord eller betalingsinformasjon via e-post.",
                  "Ordføreren mottok en farlig e-post fra adressen hjelp@by-service.net."),
             stop("Fotografen",
-                 "Se etter spor i bilder og lær å kjenne igjen manipulasjon.",
+                 "Nå hevder flere at de har funnet \"bevisbildet\" som viser hvem som sto ved rådhuset den kvelden pengene forsvant. Problemet er at bildet som deles kan være manipulert, eller til og med laget av KI.\n\nHvis vi skal komme nærmere tyven, må vi vite om bildet er ekte eller bare et nytt forsøk på å villede etterforskningen. Dette oppdraget handler om å lære å se forskjell på ekte spor og falske bevis.",
                  "AI_PHOTO", 3, false,
                  "Bilder kan manipuleres og AI kan lage realistiske falske bilder. Se etter unaturlige detaljer: rare fingre, jevne bakgrunner og uskarp tekst er vanlige feil. Du kan bruke omvendt bildesøk til å sjekke om et bilde er tatt ut av en helt annen sammenheng enn det påstår.",
                  "Et ekte bilde viser tyven med en konvolutt utenfor en nettkafé i Bytorget."),
             stop("Passordbanken",
-                 "Bygg sterke passord og beskytt kontoene dine.",
+                 "Etterforskerne tror nå at tyven ikke bare lurte folk, men også brukte stjålne innlogginger for å bevege seg videre i systemene. Noen brukte svake passord, og det ga tyven en enklere vei mot ordførerens prosjektkonto.\n\nSkal vi forstå hvordan innbruddet skjedde, må vi lære hva som gjør et passord lett å knekke og hva som faktisk beskytter en konto. Jo bedre du blir her, jo nærmere kommer vi hvordan tyven jobbet.",
                  "PASSWORD", 4, false,
                  "Et sterkt passord er langt, tilfeldig og unikt for hver konto du bruker. En rekke tilfeldige ord er lettere å huske og vanskeligere å knekke enn korte passord med spesialtegn. Del aldri passordet ditt med andre, og bruk aldri samme passord på flere nettsteder.",
                  null),
             stop("Markedsplassen",
-                 "Vurder annonser, betalinger og trygg handel på nett.",
+                 "Et nytt spor peker mot en falsk nettbutikk og et domene registrert nær Bytorget. Det ser ut som tyven brukte svindelsider for å samle inn penger og informasjon, kanskje som en del av planen rundt pengene som forsvant.\n\nFor å koble svindelen til hovedsaken må du lære hvordan falske nettbutikker avsløres. Hvis du finner hva som er galt med sidene, kan vi koble sporene nærmere personen bak hele planen.",
                  "MARKETPLACE", 5, false,
                  "Svindel på nett bruker priser som er for gode til å være sanne, krever betaling på forhånd og har vage eller kopierte produktbeskrivelser. Sjekk alltid selgerprofilen og les tilbakemeldinger fra andre kjøpere. Betal aldri med gavekort eller kryptovaluta — det er nesten umulig å spore.",
                  "Svindelbutikken «best-deals-city.xyz» var registrert på en adresse ved Bytorget."),
             stop("Den sosiale møteplassen",
-                 "Ta gode valg i meldinger, kommentarer og deling.",
+                 "Nå vet vi at noen også har brukt falske kontoer for å kontakte elever og spre rykter om saken. Målet virker å være å få folk til å dele feil informasjon, peke mot feil mistenkte og holde den ekte tyven skjult litt lenger.\n\nDerfor må du lære hvordan manipulasjon i sosiale medier ser ut. Hvis du avslører de falske kontoene og ryktene, får vi det siste sporet vi trenger før konfrontasjonen med tyven.",
                  "SOCIAL_MEDIA", 6, false,
                  "Sosiale medier viser deg mest det du allerede er enig i, noe som kan gjøre det vanskelig å se helhetsbildet. Fremmede som tar kontakt og raskt ber om personlig informasjon kan ha skjulte hensikter. Del aldri telefonnummer, adresse, passord eller bilder du ikke vil at alle skal se.",
                  "En falsk konto på Fjesbok.no ble opprettet fra nettkafeen på Bytorget."),
             stop("Datasenteret",
-                 "Bruk alt du har lært i den siste digitale saken.",
+                 "Nå har vi nesten hele bildet: pengene for idrettsparken ble stjålet, byen ble forvirret med falske nyheter, kontoer ble kompromittert med phishing og svake passord, og falske spor ble spredd med bilder, nettbutikker og sosiale medier.\n\nTyven har aktivert en reserveplan fra datasenteret for å slette sporene sine en gang for alle. Nå må du bruke alt du har lært for å stanse systemene før sannheten forsvinner.",
                  "FINAL_BOSS", 7, true,
                  "Du har nå lært de viktigste detektivferdighetene: gjenkjenne falske nyheter, phishing-e-poster, manipulerte bilder, svake passord, nettsvindel og sosiale medier-feller. Den viktigste regelen er å stoppe og tenke én ekstra gang før du klikker, deler eller svarer på noe du er usikker på.",
                  null)
@@ -89,9 +90,48 @@ public class DataLoader implements ApplicationRunner {
         tasks.addAll(List.of(
             learnTask(newsStop, 1, "Lær om falske nyheter", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
-                    new Slide("📰", "Hva er falske nyheter?", "Falske nyheter er artikler som ser ekte ut men inneholder usannheter, overdrivelser eller rene løgner. De lages for å spre frykt, påvirke meninger eller få klikk."),
-                    new Slide("🔍", "Slik kjenner du dem igjen", "Se etter anonyme kilder ('en kilde sier...'), skremmende overskrifter med store bokstaver, domener du ikke kjenner igjen, og nyheter som ikke finnes på andre seriøse nettsteder."),
-                    new Slide("🧠", "Sjekk alltid kilden", "Søk opp nyheten på kjente medier som NRK, VG eller Dagbladet. En ekte nyhet kan bekreftes av flere uavhengige kilder."),
+                    new Slide(
+                        "",
+                        "Hva er falske nyheter?",
+                        "Nyhetsartikkel",
+                        "Falske nyheter er laget for å få deg til å tro på noe som ikke stemmer. De kan se ut som vanlige nyheter, men prøver ofte å få deg til å bli redd, sint eller supernysgjerrig så du klikker og deler uten å tenke deg om.",
+                        new String[]{
+                            "SJOKK! ALLE SKOLER STENGES FØR KL. 12 - DEL NÅ! || Høres dramatisk ut, men betyr ikke at saken er ekte.",
+                            "\"En hemmelig kilde i rådhuset sier at alle allerede vet sannheten.\" || Dette er svakere enn når en skole, kommune eller avis sier hvem som faktisk står bak informasjonen."
+                        },
+                        new String[]{
+                            "Ikke stol på en sak bare fordi overskriften ser viktig ut.",
+                            "Spør: Hvem sier dette, og hvordan vet de det?"
+                        }
+                    ),
+                    new Slide(
+                        "",
+                        "Hva bør du sjekke først?",
+                        "Domenenavn",
+                        "Se først på hvem som har publisert saken. Ekte nyheter kommer ofte fra kjente steder som NRK.no, VG.no eller kommunen sin egen nettside. Nakne rare domenenavn kan være et tegn på at noen prøver å se seriøse ut uten å være det.",
+                        new String[]{
+                            "Troverdig eksempel: nrk.no, vg.no, trondheim.kommune.no",
+                            "Mistenkelig eksempel: supernytt24.xyz, deldettenaa.blog, sannhet-nyheter-online.net"
+                        },
+                        new String[]{
+                            "Sjekk alltid nettadressen, ikke bare logoen.",
+                            "Hvis domenet ser rart ut, bør du bli ekstra skeptisk."
+                        }
+                    ),
+                    new Slide(
+                        "",
+                        "Hvordan kan du dobbeltsjekke?",
+                        "Kildesjekk",
+                        "Hvis en sak er viktig og ekte, finnes den ofte flere steder. Søk opp samme påstand hos andre seriøse avsendere, eller gå til nettsiden til skolen, kommunen eller politiet hvis det er de saken handler om.",
+                        new String[]{
+                            "Hvis noen sier at alle skoler stenger i morgen, sjekk skolens meldingstjeneste eller kommunen sin nettside.",
+                            "Hvis bare én ukjent side skriver om noe kjempestort, er det et tegn på at noe ikke stemmer."
+                        },
+                        new String[]{
+                            "Store påstander trenger sterke bevis.",
+                            "Del først når du har sjekket at det stemmer."
+                        }
+                    ),
                     new Quiz("q1", "Hva er det første du bør se etter i en nyhetsartikkel?", new String[]{"Domenet og kilden", "Fargen på overskriften", "Antall delinger"}, "Domenet og kilden"),
                     new Quiz("q2", "Hva er et varseltegn i en overskrift?", new String[]{"Rolig og saklig språk", "Store bokstaver og skremmende ordvalg", "Kort og presis tekst"}, "Store bokstaver og skremmende ordvalg"),
                     new Quiz("q3", "Hva bør du gjøre om du er usikker på en nyhet?", new String[]{"Dele den for å advare andre", "Ignorere den alltid", "Sjekke den på andre seriøse nettsteder"}, "Sjekke den på andre seriøse nettsteder")
@@ -99,9 +139,45 @@ public class DataLoader implements ApplicationRunner {
             ),
             learnTask(mailStop, 1, "Lær om phishing", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
-                    new Slide("📧", "Hva er phishing?", "Phishing er e-poster som later som de er fra banker, offentlige kontorer eller kjente selskaper for å lure deg til å gi fra deg passord, personnummer eller penger."),
-                    new Slide("🎣", "Slik ser phishing ut", "Se etter: feil domene i avsenderadressen, hasteoppfordringer ('kontoen din stenges om 2 timer'), lenker der URL-en ikke stemmer, og forespørsel om personlig informasjon."),
-                    new Slide("🛡️", "Slik beskytter du deg", "Klikk aldri på lenker i mistenkelige e-poster. Gå direkte til nettbanken din selv. En ekte bank vil aldri be deg bekrefte passord via e-post."),
+                    new Slide(
+                        "",
+                        "Hva er phishing?",
+                        "Phishing er falske meldinger som prøver å lure deg til å gi fra deg passord, kortinformasjon eller annen privat info. De later ofte som de kommer fra banken din, Posten eller skolen fordi det gjør at du lettere får lyst til å stole på dem.",
+                        new String[]{
+                            "Eksempel: \"Kontoen din blir sperret i dag\" er laget for å gjøre deg stresset.",
+                            "Eksempel: \"Betal 19 kr for å få pakken din\" høres lite ut, men kan være en svindelfelle."
+                        },
+                        new String[]{
+                            "Phishing handler om å lure deg, ikke om å hjelpe deg.",
+                            "Jo mer stress meldingen lager, jo mer forsiktig bør du være."
+                        }
+                    ),
+                    new Slide(
+                        "",
+                        "Hva avslører en phishing-melding?",
+                        "Se ekstra nøye på avsender og lenker. En ekte bank bruker sitt eget domene, mens en falsk melding kan bruke noe som ligner, men ikke er helt riktig.",
+                        new String[]{
+                            "Fra-linje: kunde@dnb.no er mer troverdig enn kunde@dnb-kundeservice.com.",
+                            "Lenketekst: \"Spor pakken her\" kan se trygg ut, men hvis den peker til posten-oppdatering.net er det mistenkelig."
+                        },
+                        new String[]{
+                            "Små forskjeller i domenet er viktige.",
+                            "Ikke stol på en lenke bare fordi teksten ser pen ut."
+                        }
+                    ),
+                    new Slide(
+                        "",
+                        "Hva bør du gjøre i praksis?",
+                        "Hvis du er usikker, ikke trykk i meldingen. Gå heller selv til riktig nettside eller spør en voksen, lærer eller foresatt om hjelp før du gjør noe.",
+                        new String[]{
+                            "Hvis du får en rar bankmail, åpne nettleseren og skriv dnb.no selv.",
+                            "Hvis du får en rar skolemail, sjekk skolens vanlige innlogging eller spør læreren din."
+                        },
+                        new String[]{
+                            "Stopp før du klikker.",
+                            "Sjekk i en kanal du vet er ekte."
+                        }
+                    ),
                     new Quiz("q1", "Hva er phishing?", new String[]{"Å prøve mange passord automatisk", "E-poster som later som å komme fra pålitelige kilder for å stjele informasjon", "Spam-reklame"}, "E-poster som later som å komme fra pålitelige kilder for å stjele informasjon"),
                     new Quiz("q2", "Hva er et varseltegn i en e-post?", new String[]{"Avsenderen er på norsk", "Hasteord og lenker til ukjente sider", "E-posten har et bilde"}, "Hasteord og lenker til ukjente sider"),
                     new Quiz("q3", "Hva bør du gjøre med en mistenkelig e-post?", new String[]{"Svare og spørre om det er ekte", "Slette den og gå direkte til nettstedet selv", "Videresende til venner"}, "Slette den og gå direkte til nettstedet selv")
@@ -109,9 +185,46 @@ public class DataLoader implements ApplicationRunner {
             ),
             learnTask(photoStop, 1, "Lær om KI-bilder", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
-                    new Slide("🤖", "KI-genererte bilder", "Kunstig intelligens kan lage realistiske bilder av folk og steder som ikke finnes. Disse brukes til falske bevis, falske nyheter og manipulasjon."),
-                    new Slide("🔎", "Slik avslører du KI-bilder", "Se etter: merkelige fingre, urealistisk glatt hud, bakgrunner som gjentar seg, uskarp eller meningsløs tekst, og usannsynlig perfekte detaljer."),
-                    new Slide("🖼️", "KI-generert vs. manipulert", "Et manipulert bilde er et ekte bilde som er endret. Et KI-generert bilde er laget helt fra bunnen av AI. Begge kan brukes til å lure deg."),
+                    new Slide(
+                        "",
+                        "Hva er et KI-bilde?",
+                        "Et KI-bilde er laget av et dataprogram. Det kan se ekte ut ved første øyekast, men det viser ofte mennesker eller situasjoner som aldri har eksistert på ordentlig.",
+                        new String[]{
+                            "Bildebeskrivelse: \"Vaktkamera viser tyven utenfor rådhuset kl. 22.14\" kan være falskt hvis personen eller stedet aldri har eksistert slik på bildet.",
+                            "Bevislinje: \"Dette bildet beviser hvem som tok pengene\" er ikke nok i seg selv hvis bildet egentlig er laget av KI."
+                        },
+                        new String[]{
+                            "Et bilde kan se ekte ut uten å være ekte.",
+                            "Du må se nøye, ikke bare raskt."
+                        }
+                    ),
+                    new Slide(
+                        "",
+                        "Hva skal du se etter?",
+                        "KI lager ofte små rare feil når den prøver å lage detaljer. Derfor er det lurt å se nøye på hender, ansikter, tekst på skilt, bakgrunnen og hvordan lys og skygger oppfører seg.",
+                        new String[]{
+                            "Eksempel: Fingre som flyter sammen eller ser ut som for mange fingre.",
+                            "Eksempel: Bokstaver på et skilt som ikke blir et ekte ord.",
+                            "Eksempel: Bakgrunn som gjentar samme mønster flere ganger."
+                        },
+                        new String[]{
+                            "Se på små detaljer først.",
+                            "Rare småfeil kan avsløre hele bildet."
+                        }
+                    ),
+                    new Slide(
+                        "",
+                        "Hva er forskjellen på KI og manipulering?",
+                        "Et manipulert bilde starter ofte som et ekte bilde som noen har endret etterpå. Et KI-bilde er vanligvis laget helt fra bunnen av, og da kan mange ting i hele bildet se litt rare ut samtidig.",
+                        new String[]{
+                            "Manipulert: Et ekte klassebilde der noen har byttet ansiktet til en elev.",
+                            "KI-generert: Et helt nytt bilde av en hendelse som aldri skjedde."
+                        },
+                        new String[]{
+                            "Begge deler kan brukes for å lure deg.",
+                            "Spør alltid om bildet kan sjekkes andre steder."
+                        }
+                    ),
                     new Quiz("q1", "Hva er vanlige feil i KI-genererte bilder?", new String[]{"For mange farger", "Merkelige hender og urealistisk glatt hud", "For lav bildekvalitet"}, "Merkelige hender og urealistisk glatt hud"),
                     new Quiz("q2", "Hva skiller et KI-generert bilde fra et manipulert bilde?", new String[]{"KI-bilder er alltid svart-hvitt", "KI-bilder er laget av AI, manipulerte er ekte bilder som er endret", "Manipulerte bilder har alltid bedre kvalitet"}, "KI-bilder er laget av AI, manipulerte er ekte bilder som er endret"),
                     new Quiz("q3", "Hva bør du gjøre om du er usikker på et bilde?", new String[]{"Dele det for å få andres mening", "Bruke omvendt bildesøk for å sjekke opprinnelsen", "Ignorere det"}, "Bruke omvendt bildesøk for å sjekke opprinnelsen")
@@ -119,9 +232,46 @@ public class DataLoader implements ApplicationRunner {
             ),
             learnTask(pwdStop, 1, "Lær om passord", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
-                    new Slide("🔐", "Hva gjør et passord sterkt?", "Et sterkt passord er langt (minst 12 tegn), bruker store og små bokstaver, tall og spesialtegn, og inneholder ikke navn, fødselsdato eller andre personlige opplysninger."),
-                    new Slide("⚠️", "Vanlige feil", "De svakeste passordene: eget navn, fødselsdato, 'passord', '123456', kjæledyrets navn. Hackere bruker programmer som prøver millioner av kombinasjoner per sekund."),
-                    new Slide("💡", "Passordfrase-trikset", "En rekke tilfeldige ord er lettere å huske og vanskeligere å knekke: 'Hest-Sol-Fjord-42!' er mye sterkere enn 'P@ss1'. Bruk aldri samme passord på flere nettsteder."),
+                    new Slide(
+                        "",
+                        "Hva gjør et passord sterkt?",
+                        "Et sterkt passord er langt og vanskelig å gjette. Det skal helst være noe som ikke handler om deg, så andre ikke kan finne det ut bare ved å kjenne navnet ditt, laget du spiller på eller fødselsåret ditt.",
+                        new String[]{
+                            "Innlogging: Oliver2014 er svakt fordi det ligner på navn + årstall.",
+                            "Innlogging: Fotball123 er svakt fordi mange kunne ha gjettet det.",
+                            "Innlogging: Fjord!TacoMaane42 er mye sterkere fordi det er langt og ikke handler om deg."
+                        },
+                        new String[]{
+                            "Langt er bedre enn kort.",
+                            "Unngå navn, årstall og enkle ord."
+                        }
+                    ),
+                    new Slide(
+                        "",
+                        "Hvorfor er enkle passord farlige?",
+                        "Hackere bruker programmer som prøver masse vanlige passord veldig fort. Hvis passordet ditt ligner på noe mange andre også bruker, kan det knekkes mye raskere enn du tror.",
+                        new String[]{
+                            "Vanlige dårlige passord: passord123, 123456, qwerty",
+                            "Også dårlige: Emma2013 eller Liverpool10, fordi de er lette å gjette"
+                        },
+                        new String[]{
+                            "Det som er lett å huske, kan også være lett å gjette.",
+                            "Ikke bruk samme passord flere steder."
+                        }
+                    ),
+                    new Slide(
+                        "",
+                        "Hva er en passordfrase?",
+                        "En passordfrase er flere ord satt sammen med tall eller tegn. Den kan være lettere å huske enn en rotete kode, men samtidig mye tryggere hvis du velger ord som ikke handler om deg.",
+                        new String[]{
+                            "Eksempel: Hest!Maanelys42Fjord",
+                            "Ikke så bra: Oliver!Trondheim2014 fordi det handler om deg"
+                        },
+                        new String[]{
+                            "Lag noe langt og litt rart.",
+                            "Bruk forskjellig passord på forskjellige kontoer."
+                        }
+                    ),
                     new Quiz("q1", "Hva gjør et passord sterkest?", new String[]{"Det er enkelt å huske", "Det er langt og bruker ulike tegn uten personlig info", "Det inneholder navn og fødselsdato"}, "Det er langt og bruker ulike tegn uten personlig info"),
                     new Quiz("q2", "Hvilket av disse er et svakt passord?", new String[]{"Sol!Fjord#42Hest", "Ola2010", "hX9!wP$3mQ"}, "Ola2010"),
                     new Quiz("q3", "Hva er en passordfrase?", new String[]{"Et langt ord", "En rekke tilfeldige ord som danner et langt passord", "Passordet til telefonen"}, "En rekke tilfeldige ord som danner et langt passord")
@@ -129,9 +279,45 @@ public class DataLoader implements ApplicationRunner {
             ),
             learnTask(marketStop, 1, "Lær om nettsvindel", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
-                    new Slide("🛒", "Nettsalg-svindel", "Svindlere lager falske nettbutikker for å ta pengene dine. Produktet kommer aldri, og noen ganger stjeler de betalingsinformasjonen din."),
-                    new Slide("🚩", "Varseltegn i nettbutikker", "Se etter: urealistisk lave priser, ukjente domener (.xyz, .cc), betaling med gavekort eller Western Union, og manglende kontaktinformasjon."),
-                    new Slide("✅", "Trygg netthandel", "Handle kun på kjente nettsteder. Sjekk at adressen starter med 'https'. Betal med kort — da har du bedre sjanse til å få pengene tilbake."),
+                    new Slide(
+                        "",
+                        "Hvordan ser nettsvindel ut?",
+                        "En falsk nettbutikk prøver å få deg til å kjøpe noe raskt før du rekker å tenke deg om. Derfor bruker den ofte kjempestore rabatter og ord som \"kun i dag\" eller \"bare 2 igjen\".",
+                        new String[]{
+                            "Produktside: \"Vinterjakke før 2 499 kr - nå 199 kr - bare 2 igjen!\" er et klassisk lokketilbud.",
+                            "Banner: \"SALGET SLUTTER OM 10 MINUTTER\" som kommer tilbake hver gang du åpner siden, er et dårlig tegn."
+                        },
+                        new String[]{
+                            "Hvis tilbudet virker altfor godt, er det ofte fordi noe er galt.",
+                            "Svindlere prøver å få deg til å skynde deg."
+                        }
+                    ),
+                    new Slide(
+                        "",
+                        "Hvilke røde flagg bør du se etter?",
+                        "Se på domenet, kontaktinformasjonen og betalingsmåten. Ekte butikker vil vanligvis vise hvem de er, hvordan du kan kontakte dem, og bruke normale betalingsløsninger.",
+                        new String[]{
+                            "Butikknavn: komplett.no og elkjop.no virker mer troverdige enn billig-ps5.cc eller supertilbud-now.xyz.",
+                            "Betaling: \"Send beløpet med gavekortkode\" eller \"betal til privat konto\" er mistenkelig."
+                        },
+                        new String[]{
+                            "Ukjent domene er et tegn du bør merke deg.",
+                            "Rare betalingsmåter er ofte et stort varselsignal."
+                        }
+                    ),
+                    new Slide(
+                        "",
+                        "Hvordan handler du tryggere?",
+                        "Ta deg tid før du kjøper. Søk opp butikken, se om andre har erfaringer med den, og sjekk om kontaktinformasjonen faktisk ser ekte ut.",
+                        new String[]{
+                            "Se etter telefonnummer, ekte e-post og organisasjonsnavn.",
+                            "Kortbetaling er tryggere enn gavekort fordi du lettere kan klage hvis noe går galt."
+                        },
+                        new String[]{
+                            "Sjekk før du betaler.",
+                            "Det er lov å vente litt før du bestemmer deg."
+                        }
+                    ),
                     new Quiz("q1", "Hva er et varseltegn på en useriøs nettbutikk?", new String[]{"De har mange produkter", "De krever betaling med gavekort", "De tilbyr gratis frakt"}, "De krever betaling med gavekort"),
                     new Quiz("q2", "Hva gjør betaling med gavekort risikabelt?", new String[]{"Det er saktere", "Pengene er nesten umulige å spore og få tilbake", "Du får ikke kvittering"}, "Pengene er nesten umulige å spore og få tilbake"),
                     new Quiz("q3", "Hva bør du gjøre om en nettbutikk virker mistenkelig?", new String[]{"Kjøp og håp det ordner seg", "Be venner handle der først", "Søk opp butikken og les anmeldelser"}, "Søk opp butikken og les anmeldelser")
@@ -139,9 +325,45 @@ public class DataLoader implements ApplicationRunner {
             ),
             learnTask(socialStop, 1, "Lær om sosiale medier", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
                 learnContentJson(
-                    new Slide("📱", "Sosiale medier og manipulasjon", "Sosiale medier kan brukes til å spre feilinformasjon og påvirke hva du tenker. Innhold som vekker sterke følelser spres mye raskere enn faktabasert innhold."),
-                    new Slide("🎭", "Falske kontoer", "Fremmede som raskt vil bli nære venner, noen som ber om personlig informasjon, eller 'kjente' som oppfører seg rart — kan alle være falske kontoer."),
-                    new Slide("🤔", "Tenk før du deler", "Innlegg med mange utropstegn, kapslås og 'del NÅ!' forsøker å hindre deg i å tenke. Stopp, pust, sjekk kilden — del aldri noe du ikke har bekreftet."),
+                    new Slide(
+                        "",
+                        "Hvorfor lures vi lettere i feeden?",
+                        "På sosiale medier går ting fort, og vi scroller ofte uten å stoppe opp. Innlegg som gjør oss sinte, redde eller veldig nysgjerrige får ofte mest oppmerksomhet, og derfor er det lett å dele noe før vi har tenkt oss om.",
+                        new String[]{
+                            "Innlegg: \"DEL NÅ før dette blir slettet!!!\" prøver å få deg til å reagere fort i stedet for å sjekke først.",
+                            "Skolerykte: \"Jeg har hørt at prøven er lekket til 7B\" kan spre seg raskt selv om ingen har vist bevis."
+                        },
+                        new String[]{
+                            "Sterke følelser er ikke det samme som sterke bevis.",
+                            "Jo mer dramatisk et innlegg er, jo roligere bør du bli."
+                        }
+                    ),
+                    new Slide(
+                        "",
+                        "Hvordan kan en falsk konto se ut?",
+                        "En falsk konto kan late som den er en elev, en gamer eller en kjent person. Den har ofte lite ekte informasjon, rare brukernavn eller prøver å bli veldig personlig veldig fort.",
+                        new String[]{
+                            "DM: \"Hei! Jeg går også på skolen din. Hva heter læreren din igjen? Send Snapen din\" kan være en falsk konto som tester deg.",
+                            "Profil: Et rart brukernavn, få bilder og nesten ingen ekte venner kan være tegn på at kontoen later som."
+                        },
+                        new String[]{
+                            "Du må ikke svare bare for å være høflig.",
+                            "Rapporter og blokker hvis noe føles feil."
+                        }
+                    ),
+                    new Slide(
+                        "",
+                        "Hva bør du gjøre før du deler?",
+                        "Før du deler, spør: Hvem la dette ut, og vet de faktisk at det stemmer? Hvis et innlegg navngir folk uten bevis eller prøver å få deg til å dele med en gang, bør du stoppe og sjekke først.",
+                        new String[]{
+                            "Innlegg om skolen kan sjekkes i skolens meldinger eller ved å spørre en lærer.",
+                            "Hvis noen skriver \"Det var sikkert Emil som gjorde det\", skal du ikke dele videre bare fordi andre allerede har gjort det."
+                        },
+                        new String[]{
+                            "Ikke hjelp et rykte med å bli større.",
+                            "Det tryggeste er å sjekke før du deler."
+                        }
+                    ),
                     new Quiz("q1", "Hva slags innhold spres raskest på sosiale medier?", new String[]{"Rolig faktabasert nyheter", "Innhold som vekker sterke følelser som sinne eller frykt", "Vitenskapelige artikler"}, "Innhold som vekker sterke følelser som sinne eller frykt"),
                     new Quiz("q2", "Hva bør du gjøre om en fremmed ber om personlig informasjon?", new String[]{"Svare høflig og gi informasjonen", "Avvise og rapportere kontoen", "Be dem spørre igjen"}, "Avvise og rapportere kontoen"),
                     new Quiz("q3", "Hva betyr det om et innlegg bruker kapslås og ber om hastedeling?", new String[]{"Innholdet er viktig og sant", "Avsenderen prøver å hindre deg i å tenke kritisk", "Det er bare en stil"}, "Avsenderen prøver å hindre deg i å tenke kritisk")
@@ -154,24 +376,36 @@ public class DataLoader implements ApplicationRunner {
                 newsStop,
                 2,
                 "Vinterstengte skoler",
-                "Finn ut hvilken av de to nyhetssakene som er ekte.",
+                "Finn den ekte saken blant tre artikler om snøkaos og skolehverdag.",
                 """
                     {
                       "articles": [
                         {
-                          "headline": "Kommunen holder skolene åpne etter snøfallet",
-                          "body": "Kommunen melder at brøytemannskapene har jobbet gjennom natten. Elever bes følge vanlig skolerute, men beregne ekstra tid.",
+                          "headline": "Trondheim kommune holder skolene åpne etter nattens snøfall",
+                          "body": "Brøytemannskapene har jobbet gjennom natten, og kommunen opplyser at skolene følger vanlig timeplan torsdag morgen. Elever og foresatte blir bedt om å beregne ekstra tid og følge meldinger fra skolen dersom busser blir forsinket.",
                           "source": "Trondheim kommune",
+                          "author": "Ingrid Solberg",
+                          "date": "2026-01-14",
                           "isReal": true
                         },
                         {
-                          "headline": "Alle skoler i Norge stenger i morgen på grunn av kulde",
-                          "body": "En anonym kilde sier at regjeringen har bestemt at alle skoler må holde stengt, men ingen offentlige kanaler har bekreftet dette.",
-                          "source": "NorskNyhet24.info",
+                          "headline": "SJOKK: Regjeringen stenger ALLE skoler i Norge før lunsj på grunn av iskald luft",
+                          "body": "Ifølge SkoleRedning24 får alle elever fri allerede i dag, og flere lærere skal ha fått hemmelige SMS-er om å sende barna hjem. Ingen kommune eller skole har publisert noe om dette, men artikkelen hevder at vedtaket gjelder hele landet.",
+                          "source": "SkoleRedning24",
+                          "author": "Admin",
+                          "date": "2026-01-14",
+                          "isReal": false
+                        },
+                        {
+                          "headline": "Forskere: Ny snøspray over byen gjør at skolegårder blir helt isfrie på fem sekunder",
+                          "body": "En ukjent blogg hevder at kommunen har testet en hemmelig kjemispray som smelter all is med én gang og gjør skolegårder varme resten av vinteren. Påstanden viser ikke til forskning, navn på eksperter eller noen steder teknologien faktisk brukes.",
+                          "source": "Vintermirakel.blog",
+                          "author": "Maks Nyhet",
+                          "date": "2026-01-13",
                           "isReal": false
                         }
                       ],
-                      "explanation": "Den andre artikkelen er falsk fordi den bruker en anonym kilde, mangler offentlig bekreftelse og kommer fra en ukjent nettadresse."
+                      "explanation": "Den ekte saken viser til en kjent offentlig kilde og konkrete råd. De falske artiklene bruker ukjente kilder, dramatiske ord og påstander som ikke gir mening i virkeligheten."
                     }
                     """
             ),
@@ -179,24 +413,36 @@ public class DataLoader implements ApplicationRunner {
                 newsStop,
                 3,
                 "Mobilforbud på buss",
-                "Sjekk kilder og detaljer før du bestemmer deg.",
+                "Les overskriftene som om de dukket opp i feeden din på vei hjem fra skolen.",
                 """
                     {
                       "articles": [
                         {
-                          "headline": "AtB tester stille sone på utvalgte bussruter",
-                          "body": "AtB opplyser at ordningen er frivillig og skal testes på tre ruter i to uker før den evalueres.",
+                          "headline": "AtB tester stille sone på utvalgte bussavganger i rushtiden",
+                          "body": "AtB opplyser at ordningen skal testes på tre avganger i to uker for å se om flere ønsker en roligere busstur. Tiltaket er frivillig og gjelder bare bakerst i bussen på de aktuelle rutene.",
                           "source": "AtB pressemelding",
+                          "author": "Marius Heggli",
+                          "date": "2026-02-03",
                           "isReal": true
                         },
                         {
-                          "headline": "Nå blir mobiltelefon forbudt på alle busser",
-                          "body": "Passasjerer som bruker mobil kan få bot allerede i dag, ifølge et innlegg som deles mye på sosiale medier.",
-                          "source": "DelDetteNå.net",
+                          "headline": "NÅ KOMMER MOBILBOT: 1500 kroner hvis du ser på TikTok på bussen",
+                          "body": "Flere innlegg hevder at kontrollører allerede deler ut bøter til ungdom som bruker mobil på buss til og fra skolen. Ingen viser til vedtak, dato eller noen offisiell melding fra AtB eller kommunen.",
+                          "source": "DelDetVidere24",
+                          "author": "Redaksjonen",
+                          "date": "2026-02-03",
+                          "isReal": false
+                        },
+                        {
+                          "headline": "Ny sensor i taket skal automatisk blokkere mobilsignaler på alle busser i Midt-Norge",
+                          "body": "Artikkelen påstår at et nytt system kan lese skjermene til passasjerene og slå av internett for dem som ser på videoer. Den forklarer ikke hvordan dette skulle være lovlig eller teknisk mulig, og ingen seriøse kilder omtaler systemet.",
+                          "source": "framtidsbuss.info",
+                          "author": "TekTeam",
+                          "date": "2026-02-02",
                           "isReal": false
                         }
                       ],
-                      "explanation": "Den andre artikkelen er falsk fordi den overdriver, mangler offisiell kilde og prøver å få leseren til å dele raskt."
+                      "explanation": "Den ekte saken er konkret og begrenset til en liten test. De falske artiklene går rett på frykt og sensasjon, men mangler troverdige kilder og beskriver ting som høres usannsynlige ut."
                     }
                     """
             ),
@@ -204,24 +450,36 @@ public class DataLoader implements ApplicationRunner {
                 newsStop,
                 4,
                 "Gratis spillvaluta",
-                "Avgjør om saken er troverdig.",
+                "Tre saker lover ulike ting til spillere. Bare én tåler en kritisk sjekk.",
                 """
                     {
                       "articles": [
                         {
-                          "headline": "Spillselskap advarer mot falske gavekort",
-                          "body": "Selskapet ber spillere aldri oppgi passord på nettsider som lover gratis valuta utenfor spillets egen butikk.",
+                          "headline": "Spillselskap advarer mot falske gavekort og gratis valuta-lenker",
+                          "body": "I en sikkerhetsmelding ber spillselskapet brukere ignorere sider som lover gratis valuta eller eksklusive skins mot innlogging. Selskapet minner om at all bonusvaluta deles ut inne i spillet eller på offisielle kampanjesider.",
                           "source": "Spillselskapets sikkerhetsblogg",
+                          "author": "Security Team",
+                          "date": "2026-03-08",
                           "isReal": true
                         },
                         {
-                          "headline": "Hemmelig lenke gir alle barn gratis spillpenger",
-                          "body": "Du må bare logge inn med brukernavn og passord før midnatt. Tilbudet finnes ikke på den offisielle nettsiden.",
+                          "headline": "HEMMELIG PÅSKEKODE gir alle norske barn 50 000 spillmynter i kveld",
+                          "body": "Saken lover at alle som logger inn før midnatt får gratis spillvaluta og sjeldne skins sendt direkte til kontoen. Kampanjen finnes ikke på spillets egne kanaler, og artikkelen prøver å presse leseren til å handle raskt.",
                           "source": "GameBonusGratis.xyz",
+                          "author": "BonusNytt",
+                          "date": "2026-03-08",
+                          "isReal": false
+                        },
+                        {
+                          "headline": "Skjult server i Sverige deler ut gratis skins hvis du oppgir passord og telefonnummer",
+                          "body": "En ukjent side hevder at en privat server samarbeider med spillet og kan fylle opp kontoer med premium-innhold på sekunder. Påstanden er umulig å sjekke, og siden ber om både passord, telefonnummer og engangskode.",
+                          "source": "UltraSkinDrop.net",
+                          "author": "AK Gamer",
+                          "date": "2026-03-07",
                           "isReal": false
                         }
                       ],
-                      "explanation": "Den andre artikkelen er falsk fordi den lover en urealistisk premie og ber om innlogging på en uoffisiell side."
+                      "explanation": "Den ekte saken advarer og viser til offisielle kanaler. De falske sakene lover urealistiske gevinster, bruker hastverk og prøver å få deg til å gi fra deg innloggingsinformasjon."
                     }
                     """
             ),
@@ -229,48 +487,75 @@ public class DataLoader implements ApplicationRunner {
                 mailStop,
                 2,
                 "Bankvarsel",
-                "DNB Kundeservice",
-                "support@dnb-kundeservice.com",
-                "Viktig: Bekreft kontoen din",
-                "Kjære kunde, kontoen din blir stengt om 2 timer. Klikk HER umiddelbart og bekreft BankID-informasjonen din.",
+                "DNB",
+                "kundevarsling@dnb-kundeservice.com",
+                "Vi har satt betalingen din på pause",
+                """
+                Hei Oliver,
+
+                Vi oppdaget et uvanlig forsøk på å gjennomføre en betaling fra kortet ditt på 4 890 kr til Steam Market. Dersom dette ikke ble gjort av deg, må du bekrefte kontoen din innen 30 minutter for å unngå midlertidig sperring av nettbanken.
+
+                Kontroller opplysningene dine her: dnb-kontroll.com/bekreft
+
+                Med vennlig hilsen
+                DNB Kundeservice
+                """,
                 List.of(
-                    new Clue("sender", "sender", "support@dnb-kundeservice.com", true, "Avsenderdomenet er ikke dnb.no — det er et falskt domene."),
-                    new Clue("link1", "link", "Klikk HER", true, "Lenker som ikke viser URL er et klassisk phishing-triks."),
-                    new Clue("urgency", "text", "umiddelbart", true, "Hastverk brukes for å hindre deg i å tenke deg om."),
-                    new Clue("brand", "text", "DNB Kundeservice", false, null)
+                    new Clue("sender", "sender", "kundevarsling@dnb-kundeservice.com", true, "Avsenderen ser ekte ut ved første blikk, men domenet er ikke dnb.no."),
+                    new Clue("link1", "link", "dnb-kontroll.com/bekreft", true, "Lenken peker til et annet domene enn banken sin offisielle nettside."),
+                    new Clue("urgency", "text", "innen 30 minutter", true, "Svindlere bruker tidspress for å få deg til å klikke før du rekker å sjekke."),
+                    new Clue("amount", "text", "4 890 kr til Steam Market", false, null)
                 ),
-                "Avsenderadressen er ikke dnb.no, meldingen haster kunstig og ber deg klikke på en mistenkelig lenke."
+                "E-posten ser profesjonell ut, men avsenderen og lenken er falske. Tidspresset er laget for å stresse deg til å gi fra deg BankID-opplysninger."
             ),
             phishingTask(
                 mailStop,
                 3,
                 "Pakkemelding",
-                "Posten Norge",
-                "pakke@posten-levering.net",
-                "Pakken din mangler porto",
-                "Hei! Du skylder 19 kroner i porto. Betal innen i kveld for å unngå at pakken returneres. Betal her.",
+                "Posten",
+                "varsling@posten-levering.net",
+                "Pakken din er forsinket i terminal",
+                """
+                Hei!
+
+                Vi forsøkte å sende pakken din videre til utleveringsstedet, men sendingen er stoppet fordi det mangler et lite toll- og behandlingsgebyr på 19 kr. Betal i dag for å unngå at pakken blir sendt i retur til avsender.
+
+                Betal gebyret her: posten-oppdatering.net/betaling
+
+                Hilsen Posten
+                """,
                 List.of(
-                    new Clue("sender", "sender", "pakke@posten-levering.net", true, "Avsenderadressen ligner Posten, men er ikke offisiell (posten.no)."),
-                    new Clue("link1", "link", "Betal her", true, "Lenker til betalingssider fra ukjente avsendere bør aldri klikkes."),
-                    new Clue("urgency", "text", "innen i kveld", true, "Hastverk brukes for å stresse deg til å handle uten å tenke."),
-                    new Clue("brand", "text", "Posten Norge", false, null)
+                    new Clue("sender", "sender", "varsling@posten-levering.net", true, "Adressen ligner på Posten, men bruker ikke det offisielle domenet posten.no."),
+                    new Clue("link1", "link", "posten-oppdatering.net/betaling", true, "Betalingslenken går til en side som ikke tilhører Posten."),
+                    new Clue("urgency", "text", "Betal i dag", true, "Kunstig hastverk er et vanlig grep i phishing."),
+                    new Clue("fee", "text", "19 kr", false, null)
                 ),
-                "Avsenderadressen ligner på Posten, men er ikke offisiell. Små gebyrer og hastverk brukes ofte i svindel."
+                "Dette ligner på en ekte pakkemelding, men både avsender og lenke er feil. Det lille gebyret og tidspresset er klassiske phishing-grep."
             ),
             phishingTask(
                 mailStop,
                 4,
                 "Skolekonto",
-                "IT-avdelingen",
-                "it-hjelp@skole-login.com",
-                "Passordet ditt utløper i dag",
-                "Logg inn med skolebrukeren din på lenken under for å beholde tilgang til Teams og e-post. Logg inn her.",
+                "IT-support VGS",
+                "it-support@skole-login.com",
+                "Kontoen din mister tilgang til Teams i dag",
+                """
+                Hei,
+
+                Vi oppdaterer innloggingen for elever etter flere feilforsøk mot skolekontoer denne uka. For å beholde tilgang til Teams, Canvas og skolemail må du logge inn og bekrefte brukeren din før kl. 14.00 i dag.
+
+                Gå til elevportalen her: skole-login.com/verify
+
+                Mvh
+                IT-support
+                """,
                 List.of(
-                    new Clue("sender", "sender", "it-hjelp@skole-login.com", true, "Skole-IT bruker skolens eget domene — ikke skole-login.com."),
-                    new Clue("link1", "link", "Logg inn her", true, "En lenke fra ukjent domene kan stjele innloggingsinformasjonen din."),
-                    new Clue("brand", "text", "IT-avdelingen", false, null)
+                    new Clue("sender", "sender", "it-support@skole-login.com", true, "Skolen ville brukt sitt eget domene, ikke skole-login.com."),
+                    new Clue("link1", "link", "skole-login.com/verify", true, "Lenken leder til et ukjent domene som kan stjele skoleinnloggingen din."),
+                    new Clue("urgency", "text", "før kl. 14.00 i dag", true, "Tidspress gjør det lettere å lure elever til å handle raskt."),
+                    new Clue("brand", "text", "IT-support VGS", false, null)
                 ),
-                "E-posten ber om innlogging via et ukjent domene. IT-meldinger bør sjekkes mot skolens offisielle kanaler."
+                "Meldingen ser ut som en vanlig IT-beskjed, men domenet er feil og haster unødvendig. Slike e-poster bør alltid sjekkes i skolens offisielle kanaler før du klikker."
             ),
             finalBossTask(stops.get(6))
         ));
@@ -279,8 +564,20 @@ public class DataLoader implements ApplicationRunner {
                 """
                 {
                   "images": [
-                    { "id": "image_0", "src": "", "alt": "En person sitter på en benk i en park. Fingrene ser litt rare ut.", "label": "Bilde A" },
-                    { "id": "image_1", "src": "", "alt": "Utsikt over en by tatt fra et vindu. Normalt mobilbilde.", "label": "Bilde B" }
+                    {
+                      "id": "image_0",
+                      "src": "",
+                      "alt": "En person sitter på en benk i en park. Hånden som holder mobilen har unaturlige fingre, og kanten på jakken flyter litt inn i bakgrunnen.",
+                      "label": "Bilde A",
+                      "explanation": "Legg merke til hånden rundt mobilen: fingrene flyter sammen og får en form som ikke ser menneskelig ut. Jakken og benken glir også litt inn i hverandre ved kanten, noe som er typisk for KI-genererte bilder."
+                    },
+                    {
+                      "id": "image_1",
+                      "src": "",
+                      "alt": "Utsikt over en by tatt fra et vindu. Bildet har naturlige refleksjoner, vanlig støy og realistiske linjer i bygningene.",
+                      "label": "Bilde B",
+                      "explanation": "Dette bildet har vanlige mobilkamerategn som litt støy i himmelen og naturlige refleksjoner i glasset. Linjene i bygningene og detaljene i bakgrunnen holder seg konsistente hele veien."
+                    }
                   ],
                   "question": "Sorter hvert bilde: er det ekte, KI-generert eller manipulert?"
                 }
@@ -290,9 +587,27 @@ public class DataLoader implements ApplicationRunner {
                 """
                 {
                   "images": [
-                    { "id": "image_0", "src": "", "alt": "En person på et torg. Bakgrunnen gjentar seg tydelig.", "label": "Bilde A" },
-                    { "id": "image_1", "src": "", "alt": "Et mobilbilde av samme torg. Normalt lys og naturlig bakgrunn.", "label": "Bilde B" },
-                    { "id": "image_2", "src": "", "alt": "Et bilde der ansiktet er urealistisk glatt og jevnt.", "label": "Bilde C" }
+                    {
+                      "id": "image_0",
+                      "src": "",
+                      "alt": "En person står på et bytorg. Flere vinduer og personer i bakgrunnen ser nesten identiske ut.",
+                      "label": "Bilde A",
+                      "explanation": "Bakgrunnen gjentar de samme mønstrene flere steder, særlig i vinduene og menneskene bak personen. Slike kopierte detaljer er et vanlig tegn på at bildet er generert av KI."
+                    },
+                    {
+                      "id": "image_1",
+                      "src": "",
+                      "alt": "Et mobilbilde av samme torg med naturlig lys, vanlige skygger og litt uskarphet i bevegelse.",
+                      "label": "Bilde B",
+                      "explanation": "Her oppfører lyset seg naturlig, og små ting som bevegelsesuskarphet og skjeve skygger ser ekte ut. Ingenting i ansikter, klær eller bygninger bryter mønsteret vi forventer fra et vanlig mobilbilde."
+                    },
+                    {
+                      "id": "image_2",
+                      "src": "",
+                      "alt": "Et portrett på torget der huden er veldig glatt, og ansiktet virker retusjert sammenlignet med resten av bildet.",
+                      "label": "Bilde C",
+                      "explanation": "Ansiktet er unaturlig glatt og nesten uten hudtekstur, mens resten av bildet fortsatt har støy og detaljer. Det tyder på at bildet er ekte i bunn, men at personen er manipulert etterpå."
+                    }
                   ],
                   "question": "Sorter hvert bilde: ekte, KI-generert eller manipulert?"
                 }
@@ -302,9 +617,27 @@ public class DataLoader implements ApplicationRunner {
                 """
                 {
                   "images": [
-                    { "id": "image_0", "src": "", "alt": "Bilde med uvanlige skygger som ikke stemmer med lyskilden.", "label": "Bilde A" },
-                    { "id": "image_1", "src": "", "alt": "Bilde der teksten på skiltene i bakgrunnen er uskarp og uleselig.", "label": "Bilde B" },
-                    { "id": "image_2", "src": "", "alt": "Et klart mobilbilde. Alle detaljer ser naturlige ut.", "label": "Bilde C" }
+                    {
+                      "id": "image_0",
+                      "src": "",
+                      "alt": "Et bilde fra en gangvei der skyggen til personen faller i én retning, mens lyset på bakken tilsier en annen.",
+                      "label": "Bilde A",
+                      "explanation": "Skyggene peker i forskjellige retninger selv om scenen bare ser ut til å ha én lyskilde. Når lys og skygge ikke henger sammen, er bildet ofte manipulert."
+                    },
+                    {
+                      "id": "image_1",
+                      "src": "",
+                      "alt": "Et bilde med skilt og tekst i bakgrunnen der bokstavene er rare, skeive og delvis uleselige.",
+                      "label": "Bilde B",
+                      "explanation": "Tekst er noe KI ofte sliter med, og her blir bokstavene uklare og meningsløse når du ser nærmere. Det gjør bildet lite troverdig som bevis."
+                    },
+                    {
+                      "id": "image_2",
+                      "src": "",
+                      "alt": "Et klart mobilbilde fra samme sted med naturlige skygger, leselige skilt og vanlige detaljer i klær og ansikter.",
+                      "label": "Bilde C",
+                      "explanation": "Her er både tekst, skygger og små detaljer konsistente gjennom hele bildet. Det er akkurat slike naturlige feil og variasjoner vi forventer i et ekte mobilfoto."
+                    }
                   ],
                   "question": "Hvilket bilde kan vi stole på som ekte bevis?"
                 }
@@ -370,10 +703,10 @@ public class DataLoader implements ApplicationRunner {
                     "contactText": "Kontakt: kontakt@sneaker-blitz.shop"
                   },
                   "elements": [
-                    { "id": "domain",  "label": "sneaker-blitz.shop",      "explanation": "Domenet er ukjent og bruker .shop, ikke .no. Ekte norske butikker har som regel .no-adresser.", "isSuspicious": true },
-                    { "id": "payment", "label": "Western Union / Gavekort", "explanation": "Seriøse nettbutikker aksepterer ikke gavekort eller Western Union — slik betaling er nesten umulig å spore.", "isSuspicious": true },
-                    { "id": "contact", "label": "kontakt@sneaker-blitz.shop", "explanation": "Kontaktadressen bruker det ukjente domenet, men det er ikke det sterkeste varseltegnet alene.", "isSuspicious": false },
-                    { "id": "price",   "label": "299",                      "explanation": "Veldig lav pris er et tegn, men ikke et klikkbart element i seg selv for denne oppgaven.", "isSuspicious": false }
+                    { "id": "domain",  "label": "sneaker-blitz.shop",      "explanation": "Ukjent domene er et klassisk varselsignal.", "isSuspicious": true },
+                    { "id": "payment", "label": "Western Union / Gavekort", "explanation": "Denne betalingsmåten brukes ofte i svindel.", "isSuspicious": true },
+                    { "id": "contact", "label": "kontakt@sneaker-blitz.shop", "explanation": "Kontaktinfo finnes, så dette alene er ikke nok.", "isSuspicious": false },
+                    { "id": "price",   "label": "299",                      "explanation": "Prisen er rar, men ikke det tydeligste klikkmålet her.", "isSuspicious": false }
                   ],
                   "explanation": "Domenet er ukjent og betalingsmåten (Western Union/gavekort) er klassiske svindeltegn."
                 }
@@ -397,10 +730,10 @@ public class DataLoader implements ApplicationRunner {
                     "contactText": "Kontakt: ingen informasjon tilgjengelig"
                   },
                   "elements": [
-                    { "id": "domain",  "label": "billig-elektronikk.cc",          "explanation": "Domenet .cc er uvanlig for norske butikker, og 'billig-elektronikk' er et generisk navn uten synlig firma bak.", "isSuspicious": true },
-                    { "id": "contact", "label": "ingen informasjon tilgjengelig",  "explanation": "Manglende kontaktinformasjon er et alvorlig varseltegn. Lovlige butikker har alltid adresse og telefon.", "isSuspicious": true },
-                    { "id": "payment", "label": "Visa / Mastercard",               "explanation": "Kortbetaling er ikke mistenkelig i seg selv — det er en standard betalingsmåte.", "isSuspicious": false },
-                    { "id": "price",   "label": "1 499",                           "explanation": "Prisen er veldig lav, men prisen alene er ikke det primære varseltegnet her.", "isSuspicious": false }
+                    { "id": "domain",  "label": "billig-elektronikk.cc",          "explanation": "Domenet virker generisk og lite troverdig.", "isSuspicious": true },
+                    { "id": "contact", "label": "ingen informasjon tilgjengelig",  "explanation": "Seriøse butikker skjuler ikke kontaktinfo.", "isSuspicious": true },
+                    { "id": "payment", "label": "Visa / Mastercard",               "explanation": "Vanlig kortbetaling er ikke mistenkelig i seg selv.", "isSuspicious": false },
+                    { "id": "price",   "label": "1 499",                           "explanation": "Veldig lav pris er et hint, men ikke hovedsporet her.", "isSuspicious": false }
                   ],
                   "explanation": "Domenet er ukjent og det mangler kontaktinformasjon — to alvorlige varseltegn."
                 }
@@ -424,9 +757,9 @@ public class DataLoader implements ApplicationRunner {
                     "contactText": "Kontakt: 23 05 52 00 | kundeservice@komplett.no"
                   },
                   "elements": [
-                    { "id": "domain",  "label": "komplett.no",                            "explanation": "komplett.no er en kjent og lovlig norsk nettbutikk med lang historikk.", "isSuspicious": false },
-                    { "id": "payment", "label": "Visa, Mastercard, Vipps",                "explanation": "Standard og trygge betalingsmåter — ingenting mistenkelig her.", "isSuspicious": false },
-                    { "id": "contact", "label": "23 05 52 00 | kundeservice@komplett.no", "explanation": "Full og tydelig kontaktinformasjon er et tegn på en seriøs aktør.", "isSuspicious": false }
+                    { "id": "domain",  "label": "komplett.no",                            "explanation": "Dette er et kjent norsk domenenavn.", "isSuspicious": false },
+                    { "id": "payment", "label": "Visa, Mastercard, Vipps",                "explanation": "Betalingsmåtene ser helt normale ut.", "isSuspicious": false },
+                    { "id": "contact", "label": "23 05 52 00 | kundeservice@komplett.no", "explanation": "Tydelig kontaktinfo er et godt tegn.", "isSuspicious": false }
                   ],
                   "explanation": "Dette er en legitim nettbutikk. Det riktige svaret var å ikke flagge noe — noen ganger er alt trygt!"
                 }
@@ -438,9 +771,9 @@ public class DataLoader implements ApplicationRunner {
                 {
                   "type": "CHOOSE_ACTION",
                   "post": {
-                    "username": "TrondheimNytt", "handle": "@trondheim_nytt", "avatar": "📰",
-                    "content": "DELE DETTE NÅ!!! Ordførerens pengeskandal er MYE VERRE enn noen tror 😱😱😱 Anonym kilde avslører det ingen tør si høyt!!!",
-                    "likes": 2847, "comments": 431, "timestamp": "3 timer siden", "verified": false
+                    "username": "Maja 9B", "handle": "@maja_9b", "avatar": "📚",
+                    "content": "DELE DETTE NÅ!!! Rektor skal visst forby alle mobiler fra mandag, også i storefri 😱 Kusina til venninna mi sier lærerne fikk beskjed i går kveld, men ingen voksne vil si noe ennå!!!",
+                    "likes": 287, "comments": 46, "timestamp": "I dag kl. 08:14", "verified": false
                   },
                   "question": "Hva bør du gjøre med dette innlegget?",
                   "options": [
@@ -449,7 +782,7 @@ public class DataLoader implements ApplicationRunner {
                     { "id": "CHECK_SOURCES", "text": "Sjekk kilden og faktasjekk før du gjør noe" },
                     { "id": "ASK_ADULT", "text": "Spør en voksen" }
                   ],
-                  "explanation": "Kapslås, utropstegn, anonym kilde og oppfordring til hastedeling er alle tegn på manipulerende innhold."
+                  "explanation": "Innlegget spiller på stress og rykter fra skolemiljøet, men viser ikke til noen faktisk beskjed fra skolen. Slike ting bør sjekkes i Visma, på skolens nettside eller med en lærer før du deler videre."
                 }
                 """,
                 "{\"action\": \"CHECK_SOURCES\"}"),
@@ -458,9 +791,9 @@ public class DataLoader implements ApplicationRunner {
                 {
                   "type": "CHOOSE_ACTION",
                   "post": {
-                    "username": "Bekymret Borger", "handle": "@bekymret_borger_99", "avatar": "😤",
-                    "content": "Politiet gjør INGENTING. Byen vår er UTRYGG. Del dette til ALLE du kjenner så vi kan stoppe dette galskapet en gang for alle!!!",
-                    "likes": 9432, "comments": 2109, "timestamp": "1 time siden", "verified": false
+                    "username": "LukasVG1", "handle": "@lukas_vg1", "avatar": "⚽",
+                    "content": "Helt sykt hvis dette stemmer: noen sier prøven i samfunnsfag allerede er lekket i en Snap-gruppe 😡 Del så alle får vite hvor urettferdig skolen er!!!",
+                    "likes": 613, "comments": 128, "timestamp": "I dag kl. 10:27", "verified": false
                   },
                   "question": "Hva bør du gjøre?",
                   "options": [
@@ -469,7 +802,7 @@ public class DataLoader implements ApplicationRunner {
                     { "id": "IGNORE", "text": "Ignorer innlegget" },
                     { "id": "ASK_ADULT", "text": "Spør en voksen om råd" }
                   ],
-                  "explanation": "Innlegget bruker sinne, kapslås og gruppepress for å få deg til å dele raskt uten å tenke."
+                  "explanation": "Innlegget prøver å gjøre deg sint og få deg til å reagere før du vet om det faktisk stemmer. Når skole-rykter kobles med sterk språkbruk og press om å dele, bør du alltid sjekke først."
                 }
                 """,
                 "{\"action\": \"CHECK_SOURCES\"}"),
@@ -479,17 +812,17 @@ public class DataLoader implements ApplicationRunner {
                   "type": "IDENTIFY_WORST",
                   "question": "Hvilket innlegg er mest illegitimt?",
                   "posts": [
-                    { "id": "post_0", "username": "Ordførerens kontor", "handle": "@ordforer_trondheim", "avatar": "🏛️",
-                      "content": "Kommunen jobber aktivt med saken. Vi informerer fortløpende på kommunens offisielle nettside.",
-                      "likes": 312, "comments": 44, "timestamp": "1 time siden", "verified": true },
-                    { "id": "post_1", "username": "SannhetsJegeren99", "handle": "@sannhet99", "avatar": "👁️",
-                      "content": "JEG VET HVEM TYVEN ER!! Myndighetene prøver å dekke over sannheten!! Del dette til ALLE du kjenner FØR de sletter det 🔥🔥🔥",
-                      "likes": 18432, "comments": 2341, "timestamp": "45 min siden", "verified": false },
-                    { "id": "post_2", "username": "Lokal Reporter", "handle": "@lokal_reporter", "avatar": "📝",
-                      "content": "Politiet bekrefter at etterforskningen pågår. Ingen mistenkte er offentlig navngitt ennå.",
-                      "likes": 891, "comments": 123, "timestamp": "2 timer siden", "verified": false }
+                    { "id": "post_0", "username": "Charlottenlund vgs", "handle": "@charl_vgs", "avatar": "🏫",
+                      "content": "Vi undersøker ryktene om innbruddet i medielaben. Elever får informasjon i løpet av dagen via Teams og skolens offisielle kanaler.",
+                      "likes": 182, "comments": 19, "timestamp": "I dag kl. 09:02", "verified": true },
+                    { "id": "post_1", "username": "Sannheten_kommer", "handle": "@ingenkanstoppeoss", "avatar": "👀",
+                      "content": "JEG VET hvem som tok Mac-ene fra medierommet!! Skolen dekker det over for å beskytte en elev i 2STA. Del dette FØR de sletter sporene 🔥🔥🔥",
+                      "likes": 1421, "comments": 304, "timestamp": "I dag kl. 09:18", "verified": false },
+                    { "id": "post_2", "username": "Elevrådet CLVGS", "handle": "@elevrad_clvgs", "avatar": "🗣️",
+                      "content": "Vi har spurt ledelsen om hva som har skjedd, men det er fortsatt lite bekreftet informasjon. Vent med å dele navn eller rykter om medelever.",
+                      "likes": 409, "comments": 37, "timestamp": "I dag kl. 09:41", "verified": false }
                   ],
-                  "explanation": "Innlegg 2 (SannhetsJegeren99) bruker kapslås, udokumenterte påstander, konspirasjonsspråk og oppfordrer til hastedeling."
+                  "explanation": "Innlegg 2 er minst troverdig fordi det navngir et rykte uten bevis, bruker kapslås og prøver å presse folk til å dele før noen får sjekket saken."
                 }
                 """,
                 "{\"selected\": \"post_1\"}")
@@ -522,19 +855,22 @@ public class DataLoader implements ApplicationRunner {
     private Task fakeNewsTask(Stop stop, int orderIndex, String title, String description, String contentJson) {
         Task task = baseTask(stop, orderIndex, title, description, TaskType.FAKE_NEWS);
         task.setContentJson(contentJson);
-        task.setCorrectAnswerJson("""
-            {
-              "article_0": true,
-              "article_1": false
-            }
-            """);
+        task.setCorrectAnswerJson(fakeNewsCorrectAnswerJson(contentJson));
         task.setGuidanceText("Les overskrift, kilde og detaljer før du bestemmer hvilke artikler som er ekte.");
         return task;
     }
 
     record Clue(String id, String type, String label, boolean isClue, String explanation) {}
 
-    record Slide(String icon, String heading, String body) {}
+    record Slide(String icon, String heading, String exampleType, String body, String[] examples, String[] checks) {
+        Slide(String icon, String heading, String body, String[] examples, String[] checks) {
+            this(icon, heading, "Eksempel", body, examples, checks);
+        }
+
+        Slide(String icon, String heading, String body) {
+            this(icon, heading, "Eksempel", body, new String[0], new String[0]);
+        }
+    }
 
     record Quiz(String id, String question, String[] options, String correct) {}
 
@@ -554,7 +890,14 @@ public class DataLoader implements ApplicationRunner {
             ObjectNode n = objectMapper.createObjectNode();
             n.put("icon", s.icon());
             n.put("heading", s.heading());
+            n.put("exampleType", s.exampleType());
             n.put("body", s.body());
+            ArrayNode examples = objectMapper.createArrayNode();
+            for (String example : s.examples()) examples.add(example);
+            n.set("examples", examples);
+            ArrayNode checks = objectMapper.createArrayNode();
+            for (String check : s.checks()) checks.add(check);
+            n.set("checks", checks);
             slides.add(n);
         }
         root.set("slides", slides);
@@ -643,6 +986,24 @@ public class DataLoader implements ApplicationRunner {
             return objectMapper.writeValueAsString(root);
         } catch (JsonProcessingException exception) {
             throw new IllegalStateException("Failed to build phishing task seed content", exception);
+        }
+    }
+
+    String fakeNewsCorrectAnswerJson(String contentJson) {
+        try {
+            JsonNode root = objectMapper.readTree(contentJson);
+            JsonNode articlesNode = root.path("articles");
+            if (!articlesNode.isArray()) {
+                throw new IllegalStateException("Fake news seed content JSON is missing an 'articles' array");
+            }
+            ArrayNode articles = (ArrayNode) articlesNode;
+            ObjectNode answer = objectMapper.createObjectNode();
+            for (int i = 0; i < articles.size(); i++) {
+                answer.put("article_" + i, articles.path(i).path("isReal").asBoolean(false));
+            }
+            return objectMapper.writeValueAsString(answer);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Failed to build fake news correctAnswerJson", e);
         }
     }
 

@@ -8,6 +8,9 @@
       :badge="mysteryScenario.badge"
       :title="mysteryScenario.title"
       :scenario="mysteryScenario.scenario"
+      :image-src="mysteryScenario.imageSrc"
+      :image-alt="mysteryScenario.imageAlt"
+      @back="goToMap"
       @accept="acceptMystery"
     />
 
@@ -21,7 +24,11 @@
     </div>
 
     <!-- Task area -->
-    <div v-else class="task-view__main cork-board-bg">
+    <div
+      v-else
+      class="task-view__main"
+      :class="currentTask?.taskType === 'LEARN' ? 'task-view__main--clean' : 'cork-board-bg'"
+    >
 
       <StopSummary
         v-if="showSummary"
@@ -39,15 +46,6 @@
         <p v-else-if="!currentTask" class="task-view__state">Ingen oppgaver funnet for dette stoppet.</p>
 
         <section v-else class="task-view__section">
-          <!-- Replay tutorial button (always visible) -->
-          <button
-            class="task-view__replay-btn"
-            @click="showTutorial = true"
-            aria-label="Se oppgaveforklaringen på nytt"
-          >
-            Se oppgaven på nytt 🔁
-          </button>
-
           <!-- Progress dots -->
           <div class="task-dots" role="list" :aria-label="`Oppgave ${currentTaskIndex + 1} av ${tasks.length}`">
             <span
@@ -267,17 +265,48 @@ const TUTORIAL_TEXTS = {
   }
 }
 
-const MYSTERY_SCENARIOS = {
-  1: { badge: '📰 OPPDRAG 1', title: 'Et spor i nyhetsstrømmen', scenario: 'Noen sprer falske nyheter om byen din. Innbyggerne er forvirret og redde. Detektiv-laget trenger din hjelp til å skille fakta fra løgner — er du klar?' },
-  2: { badge: '📧 OPPDRAG 2', title: 'Ukjent avsender', scenario: 'En innbygger klikket på en lenke i en mistenkelig e-post — nå er kontoen hennes hacket. Vi trenger deg til å forstå hvordan svindelen fungerte.' },
-  3: { badge: '📷 OPPDRAG 3', title: 'Bildet lyver', scenario: 'Et bilde fra hendelsesstedet har dukket opp på nett. Men er det ekte bevis — eller er det manipulert? Lær å avsløre KI-genererte og manipulerte bilder.' },
-  4: { badge: '🔐 OPPDRAG 4', title: 'Passordlekkasje', scenario: 'En konto ble hacket. Passordet var for svakt. Nå trenger vi en ekspert til å lære hva som gjør et passord trygt nok til å stå imot et angrep.' },
-  5: { badge: '🛒 OPPDRAG 5', title: 'Svindel på nett', scenario: 'En elev mistet pengene sine i en falsk nettbutikk. Svindlerne er flinke til å late som. Det er din jobb å avsløre dem.' },
-  6: { badge: '📱 OPPDRAG 6', title: 'Falsk venn', scenario: 'En ukjent person kontakter elever på sosiale medier og later som de er en venn. Noen har allerede delt for mye. Lær å gjenkjenne manipulasjon.' },
-  7: { badge: '💻 OPPDRAG 7', title: 'Datasenteret er hacket', scenario: 'Alt du har lært settes på prøve. Tyven har aktivert en automatisk backup-plan. Stopp alle sikkerhetssystemene — det er nå eller aldri.' },
+const THEME_EMOJI = {
+  FAKE_NEWS:     '📰',
+  PHISHING_EMAIL:'📧',
+  AI_PHOTO:      '📷',
+  PASSWORD:      '🔐',
+  MARKETPLACE:   '🛒',
+  SOCIAL_MEDIA:  '📱',
+  FINAL_BOSS:    '💻',
 }
 
-const mysteryScenario = computed(() => MYSTERY_SCENARIOS[stopId.value] ?? null)
+const STOP_MYSTERY_TITLES = {
+  1: 'Et spor i nyhetsstrømmen',
+  2: 'Ukjent avsender',
+  3: 'Bildet lyver',
+  4: 'Passordlekkasje',
+  5: 'Svindel på nett',
+  6: 'Falsk venn',
+  7: 'Datasenteret er hacket',
+}
+
+const STOP_IMAGES = {
+  1: { src: '/story_pictures/news-quarter-start.png', alt: 'Nyhetskvartalet med dyredetektiver, skjermer og aviser om de forsvunne idrettsparkpengene' },
+  2: { src: '/story_pictures/post-office-start.png', alt: 'Postkontoret med mistenkelige meldinger, brev og digitale spor' },
+  3: { src: '/story_pictures/photographer-start.png', alt: 'Fotografen med bevisbilder, kameraer og mistenkelige detaljer i et foto' },
+  4: { src: '/story_pictures/password-bank-start.png', alt: 'Passordbanken med hvelv, digitale låser og spor etter svake passord' },
+  5: { src: '/story_pictures/marketplace-start.png', alt: 'Markedsplassen med mistenkelige butikker, falske tilbud og svindelspor' },
+  6: { src: '/story_pictures/social-media-start.png', alt: 'Den sosiale møteplassen med meldinger, rykter og falske kontoer' },
+}
+
+const mysteryScenario = computed(() => {
+  const t = tasks.value[0]
+  if (!t?.stopDescription) return null
+  const emoji = THEME_EMOJI[t.stopTheme] ?? '🔍'
+  const img   = STOP_IMAGES[t.stopOrderIndex]
+  return {
+    badge:    `${emoji} OPPDRAG ${t.stopOrderIndex}`,
+    title:    STOP_MYSTERY_TITLES[t.stopOrderIndex] ?? t.stopName,
+    scenario: t.stopDescription,
+    imageSrc: img?.src ?? '',
+    imageAlt: img?.alt ?? '',
+  }
+})
 
 const tutorialTitle = computed(() =>
   TUTORIAL_TEXTS[currentTask.value?.taskType]?.title ?? 'Hva er oppgaven?'
@@ -326,7 +355,7 @@ async function loadTasks() {
 
 function checkMystery() {
   if (!stopId.value || !tasks.value.length) return
-  if (mysteryScenario.value && !localStorage.getItem(`mystery_seen_stop_${stopId.value}`)) {
+  if (mysteryScenario.value) {
     showMystery.value = true
     console.log('[TaskView] Showing mystery screen for stop', stopId.value)
     return
@@ -335,7 +364,6 @@ function checkMystery() {
 }
 
 function acceptMystery() {
-  localStorage.setItem(`mystery_seen_stop_${stopId.value}`, '1')
   showMystery.value = false
   console.log('[TaskView] Mystery accepted for stop', stopId.value)
   checkTutorial()
@@ -749,24 +777,13 @@ function goToMap() {
   padding: var(--space-6) clamp(var(--space-4), 5vw, var(--space-10));
 }
 
-.task-view__replay-btn {
-  display: block;
-  margin: 0 auto var(--space-3);
-  background: transparent;
-  color: var(--color-wood);
-  border: 1px dashed var(--color-cork);
-  border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  cursor: pointer;
-  min-height: 44px;
-  transition: background var(--transition-fast);
+.task-view__main--clean {
+  background:
+    radial-gradient(circle at top right, rgba(244, 201, 76, 0.18), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
 }
-.task-view__replay-btn:hover { background: rgba(168, 114, 48, 0.12); border-style: solid; }
-.task-view__replay-btn:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 2px; }
 
-.task-view__state { text-align: center; padding: var(--space-8); color: var(--color-cork-dark); }
+.task-view__state { text-align: center; padding: var(--space-8); color: var(--color-text); }
 .task-view__state--error { color: var(--color-danger); }
 
 .task-view__mock-badge {
@@ -790,11 +807,11 @@ function goToMap() {
   width: 12px;
   height: 12px;
   border-radius: var(--radius-full);
-  background: rgba(0,0,0,0.15);
+  background: rgba(30, 41, 59, 0.16);
   border: 2px solid transparent;
   transition: background var(--transition-fast), transform var(--transition-fast);
 }
-.dot--current { border-color: var(--color-wood); background: var(--color-cork-light); transform: scale(1.2); }
+.dot--current { border-color: var(--color-primary); background: var(--color-primary-soft); transform: scale(1.2); }
 .dot--correct { background: var(--color-success); }
 .dot--wrong   { background: var(--color-danger); }
 

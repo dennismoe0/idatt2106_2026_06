@@ -42,7 +42,7 @@ services:
       context: ./frontend
       args:
         VITE_API_URL: ""
-        VITE_SHOW_DEV_TOOLS: "true"
+        VITE_SHOW_DEV_TOOLS: "false"
     ports:
       - "${FRONTEND_PORT:-5173}:80"
     depends_on:

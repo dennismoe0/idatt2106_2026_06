@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    List<Task> findByStop_IdOrderByIdAsc(Long stopId);
+    List<Task> findByStop_IdOrderByOrderIndexAscIdAsc(Long stopId);
     long countByStop_Id(Long stopId);
 }
