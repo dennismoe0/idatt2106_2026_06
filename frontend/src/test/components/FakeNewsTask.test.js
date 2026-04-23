@@ -92,4 +92,48 @@ describe('FakeNewsTask', () => {
 
     expect(wrapper.find('.next-btn').exists()).toBe(true)
   })
+
+  it('masthead shows plain name for simple source (NRK)', () => {
+    const task = {
+      id: 2,
+      taskType: 'FAKE_NEWS',
+      guidanceText: 'Finn den falske.',
+      contentJson: { articles: [ { headline: 'H1', body: 'B1', source: 'NRK' } ] }
+    }
+    const wrapper = mount(FakeNewsTask, { props: { task } })
+    expect(wrapper.find('.newspaper__brand').text()).toBe('NRK')
+  })
+
+  it('masthead shows domain string unchanged', () => {
+    const task = {
+      id: 3,
+      taskType: 'FAKE_NEWS',
+      guidanceText: 'Finn den falske.',
+      contentJson: { articles: [ { headline: 'H2', body: 'B2', source: 'dagbladet.no' } ] }
+    }
+    const wrapper = mount(FakeNewsTask, { props: { task } })
+    expect(wrapper.find('.newspaper__brand').text()).toBe('dagbladet.no')
+  })
+
+  it('masthead extracts hostname from full URL and strips www', () => {
+    const task = {
+      id: 4,
+      taskType: 'FAKE_NEWS',
+      guidanceText: 'Finn den falske.',
+      contentJson: { articles: [ { headline: 'H3', body: 'B3', source: 'https://www.vg.no/nyheter' } ] }
+    }
+    const wrapper = mount(FakeNewsTask, { props: { task } })
+    expect(wrapper.find('.newspaper__brand').text()).toBe('vg.no')
+  })
+
+  it('masthead falls back to NYHETER on empty/null input', () => {
+    const task = {
+      id: 5,
+      taskType: 'FAKE_NEWS',
+      guidanceText: 'Finn den falske.',
+      contentJson: { articles: [ { headline: 'H4', body: 'B4', source: '' } ] }
+    }
+    const wrapper = mount(FakeNewsTask, { props: { task } })
+    expect(wrapper.find('.newspaper__brand').text()).toBe('NYHETER')
+  })
 })
