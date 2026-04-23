@@ -48,7 +48,7 @@
             </div>
           </article>
 
-          <article class="medals__stat medals__stat--wide">
+          <article class="medals__stat">
             <span class="medals__stat-icon" aria-hidden="true">📅</span>
             <div>
               <p class="medals__stat-label">Siste trofe</p>
@@ -185,7 +185,7 @@ onMounted(load)
   display: flex;
   flex-direction: column;
   gap: clamp(var(--space-4), 2vw, var(--space-8));
-  color: #fff7e6;
+  color: var(--color-medals-text-on-cork);
 }
 
 .medals__state {
@@ -196,18 +196,18 @@ onMounted(load)
   justify-content: center;
   gap: var(--space-3);
   text-align: center;
-  color: #fff3d0;
+  color: var(--color-ink);
 }
 
 .medals__state--error {
-  color: #ffe0d1;
+  color: var(--color-danger);
 }
 
 .medals__spinner {
   width: 36px;
   height: 36px;
-  border: 3px solid rgba(255, 247, 230, 0.25);
-  border-top-color: #fff7e6;
+  border: 3px solid var(--color-medals-state-spinner);
+  border-top-color: var(--color-medals-text-on-cork);
   border-radius: 50%;
   animation: medals-spin 0.8s linear infinite;
 }
@@ -220,11 +220,11 @@ onMounted(load)
   border: none;
   border-radius: 999px;
   padding: 0.75rem 1.25rem;
-  background: linear-gradient(180deg, #ffd76a 0%, #efb45c 100%);
-  color: #4d2d07;
+  background: var(--color-medals-button-bg);
+  color: var(--color-medals-button-text);
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 8px 16px rgba(59, 31, 8, 0.25);
+  box-shadow: 0 8px 16px var(--color-medals-button-shadow);
 }
 
 .medals__hero {
@@ -236,13 +236,13 @@ onMounted(load)
   padding: clamp(1.4rem, 4vw, 2.25rem);
   border-radius: 28px;
   background:
-    radial-gradient(circle at top left, rgba(255, 228, 150, 0.35), transparent 40%),
-    radial-gradient(circle at 80% 20%, rgba(255, 244, 214, 0.22), transparent 28%),
-    linear-gradient(135deg, rgba(62, 35, 11, 0.95) 0%, rgba(106, 62, 17, 0.92) 55%, rgba(135, 88, 31, 0.92) 100%);
-  border: 3px solid rgba(255, 227, 155, 0.28);
+    radial-gradient(circle at top left, var(--color-medals-hero-glow), transparent 40%),
+    radial-gradient(circle at 80% 20%, var(--color-medals-hero-glow-soft), transparent 28%),
+    var(--color-medals-hero-panel);
+  border: 3px solid var(--color-medals-hero-border);
   box-shadow:
-    inset 0 0 0 2px rgba(255, 242, 211, 0.12),
-    0 18px 30px rgba(41, 20, 4, 0.22);
+    inset 0 0 0 2px var(--color-medals-hero-shadow-inner),
+    0 18px 30px var(--color-medals-hero-shadow);
 }
 
 .medals__hero::after {
@@ -250,8 +250,8 @@ onMounted(load)
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, transparent 0, rgba(255, 255, 255, 0.05) 20%, transparent 36%),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.03) 10px, transparent 10px, transparent 22px);
+    linear-gradient(90deg, transparent 0, var(--color-medals-hero-overlay) 20%, transparent 36%),
+    repeating-linear-gradient(90deg, var(--color-medals-hero-overlay-soft), var(--color-medals-hero-overlay-soft) 10px, transparent 10px, transparent 22px);
   pointer-events: none;
 }
 
@@ -268,14 +268,14 @@ onMounted(load)
   font-weight: 800;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #ffd470;
+  color: var(--color-medals-hero-kicker);
 }
 
 .medals__title {
   margin: 0;
   font-size: clamp(1.8rem, 4vw, 2.8rem);
   line-height: 1.05;
-  color: #fff9ec;
+  color: var(--color-medals-hero-title);
 }
 
 .medals__lead {
@@ -283,7 +283,7 @@ onMounted(load)
   max-width: 34rem;
   font-size: 1rem;
   line-height: 1.6;
-  color: rgba(255, 246, 223, 0.88);
+  color: var(--color-medals-hero-body);
 }
 
 .medals__hero-display {
@@ -297,7 +297,7 @@ onMounted(load)
   position: absolute;
   inset: 4% 14% auto;
   height: 82%;
-  background: radial-gradient(circle at 50% 10%, rgba(255, 245, 216, 0.88), rgba(255, 217, 102, 0.18) 50%, transparent 72%);
+  background: radial-gradient(circle at 50% 10%, var(--color-medals-spotlight-core), var(--color-medals-spotlight-edge) 50%, transparent 72%);
   filter: blur(2px);
 }
 
@@ -320,11 +320,10 @@ onMounted(load)
   place-items: center;
   font-size: 4.25rem;
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 30% 30%, #fff6bf 0%, #ffd76a 28%, #efb45c 62%, #c67b1c 100%);
+  background: var(--color-medals-showcase-medal);
   box-shadow:
-    0 0 0 10px rgba(255, 239, 196, 0.12),
-    0 18px 28px rgba(37, 19, 6, 0.34);
+    0 0 0 10px var(--color-medals-showcase-ring),
+    0 18px 28px var(--color-medals-showcase-shadow);
 }
 
 .medals__showcase-medal::before,
@@ -340,13 +339,13 @@ onMounted(load)
 
 .medals__showcase-medal::before {
   left: 28px;
-  background: linear-gradient(180deg, #ef4444 0%, #9f1239 100%);
+  background: var(--color-medals-showcase-ribbon-left);
   transform: rotate(10deg);
 }
 
 .medals__showcase-medal::after {
   right: 28px;
-  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  background: var(--color-medals-showcase-ribbon-right);
   transform: rotate(-10deg);
 }
 
@@ -358,9 +357,9 @@ onMounted(load)
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.06em;
-  color: #422006;
-  background: #ffe18c;
-  box-shadow: 0 8px 16px rgba(31, 18, 7, 0.18);
+  color: var(--color-medals-podium-ribbon-text);
+  background: var(--color-medals-podium-ribbon-bg);
+  box-shadow: 0 8px 16px var(--color-medals-podium-ribbon-shadow);
 }
 
 .medals__podium-ribbon--left {
@@ -384,9 +383,9 @@ onMounted(load)
   position: relative;
   overflow: hidden;
   border-radius: 24px;
-  background: linear-gradient(180deg, rgba(255, 252, 243, 0.96) 0%, rgba(255, 243, 219, 0.94) 100%);
-  border: 2px solid rgba(122, 78, 26, 0.18);
-  box-shadow: 0 14px 24px rgba(59, 31, 8, 0.16);
+  background: var(--color-medals-card-bg);
+  border: 2px solid var(--color-medals-card-border);
+  box-shadow: 0 14px 24px var(--color-medals-card-shadow);
 }
 
 .medals__stat {
@@ -394,11 +393,7 @@ onMounted(load)
   align-items: center;
   gap: 1rem;
   padding: 1.2rem 1.25rem;
-  color: #492708;
-}
-
-.medals__stat--wide {
-  grid-column: span 1;
+  color: var(--color-medals-card-text);
 }
 
 .medals__stat::after,
@@ -406,7 +401,7 @@ onMounted(load)
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(130deg, rgba(255, 255, 255, 0.32), transparent 55%);
+  background: linear-gradient(130deg, var(--color-medals-card-gloss), transparent 55%);
   pointer-events: none;
 }
 
@@ -418,8 +413,8 @@ onMounted(load)
   place-items: center;
   border-radius: 18px;
   font-size: 1.5rem;
-  background: linear-gradient(180deg, #fff6d0 0%, #ffd776 100%);
-  box-shadow: inset 0 -3px 6px rgba(186, 124, 20, 0.18);
+  background: var(--color-medals-stat-icon-bg);
+  box-shadow: inset 0 -3px 6px var(--color-medals-stat-icon-shadow);
 }
 
 .medals__stat-label {
@@ -428,12 +423,12 @@ onMounted(load)
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #8b5d24;
+  color: var(--color-medals-card-label);
 }
 
 .medals__stat-value {
   font-size: clamp(1.05rem, 2vw, 1.35rem);
-  color: #3e2207;
+  color: var(--color-medals-card-title);
 }
 
 .medals__progress-card {
@@ -442,7 +437,7 @@ onMounted(load)
   justify-content: space-between;
   gap: var(--space-4);
   padding: 1.2rem 1.35rem;
-  color: #492708;
+  color: var(--color-medals-card-text);
 }
 
 .medals__progress-title {
@@ -462,15 +457,15 @@ onMounted(load)
   min-width: 160px;
   height: 18px;
   border-radius: 999px;
-  background: rgba(92, 50, 16, 0.12);
-  box-shadow: inset 0 2px 4px rgba(59, 31, 8, 0.16);
+  background: var(--color-medals-meter-track);
+  box-shadow: inset 0 2px 4px var(--color-medals-meter-shadow);
 }
 
 .medals__meter-fill {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #efb45c 0%, #ffd76a 52%, #fff0ab 100%);
-  box-shadow: 0 0 16px rgba(255, 206, 84, 0.45);
+  background: var(--color-medals-meter-fill);
+  box-shadow: 0 0 16px var(--color-medals-meter-glow);
   transition: width var(--transition-normal);
 }
 
@@ -478,10 +473,9 @@ onMounted(load)
   padding: clamp(1rem, 2vw, 1.5rem);
   border-radius: 30px;
   background:
-    linear-gradient(180deg, rgba(68, 38, 12, 0.2) 0%, rgba(68, 38, 12, 0.08) 100%),
-    linear-gradient(135deg, rgba(255, 248, 229, 0.1), rgba(255, 232, 179, 0.02));
-  border: 2px solid rgba(255, 230, 168, 0.16);
-  box-shadow: inset 0 0 0 1px rgba(255, 248, 229, 0.06);
+    var(--color-medals-room-bg);
+  border: 2px solid var(--color-medals-room-border);
+  box-shadow: inset 0 0 0 1px var(--color-medals-room-inner-border);
 }
 
 .medals__section-head {
@@ -495,7 +489,7 @@ onMounted(load)
 .medals__section-title {
   margin: 0;
   font-size: clamp(1.4rem, 3vw, 2rem);
-  color: #fff7e6;
+  color: var(--color-medals-text-on-cork);
 }
 
 .medals__section-note {
@@ -503,7 +497,7 @@ onMounted(load)
   max-width: 26rem;
   text-align: right;
   line-height: 1.5;
-  color: rgba(255, 244, 218, 0.82);
+  color: var(--color-medals-room-note);
 }
 
 .medals__locker-grid {
@@ -528,11 +522,11 @@ onMounted(load)
   padding: 1rem;
   border-radius: 24px;
   background:
-    linear-gradient(180deg, rgba(255, 250, 237, 0.98) 0%, rgba(247, 227, 192, 0.96) 100%);
-  border: 3px solid #8a5b25;
+    var(--color-medals-locker-bg);
+  border: 3px solid var(--color-medals-locker-border);
   box-shadow:
-    inset 0 0 0 4px rgba(255, 244, 214, 0.85),
-    0 14px 24px rgba(35, 18, 3, 0.24);
+    inset 0 0 0 4px var(--color-medals-locker-inner-border),
+    0 14px 24px var(--color-medals-locker-shadow);
   transition: transform var(--transition-normal), box-shadow var(--transition-normal), filter var(--transition-normal);
 }
 
@@ -541,22 +535,22 @@ onMounted(load)
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(138, 91, 37, 0.22), transparent 16%, transparent 84%, rgba(138, 91, 37, 0.22)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.25), transparent 26%);
+    linear-gradient(90deg, var(--color-medals-locker-panel), transparent 16%, transparent 84%, var(--color-medals-locker-panel)),
+    linear-gradient(180deg, var(--color-medals-locker-highlight), transparent 26%);
   pointer-events: none;
 }
 
 .medals__locker:hover .medals__locker-frame {
   transform: translateY(-6px) rotate(-0.5deg);
   box-shadow:
-    inset 0 0 0 4px rgba(255, 244, 214, 0.85),
-    0 18px 30px rgba(35, 18, 3, 0.28);
+    inset 0 0 0 4px var(--color-medals-locker-inner-border),
+    0 18px 30px var(--color-medals-locker-shadow-hover);
 }
 
 .medals__locker--locked .medals__locker-frame {
   filter: grayscale(0.3) saturate(0.7);
   background:
-    linear-gradient(180deg, rgba(245, 240, 228, 0.94) 0%, rgba(214, 202, 181, 0.96) 100%);
+    var(--color-medals-locker-bg-locked);
 }
 
 .medals__locker-number {
@@ -569,10 +563,10 @@ onMounted(load)
   min-width: 2.5rem;
   padding: 0.25rem 0.5rem;
   border-radius: 999px;
-  background: rgba(76, 45, 14, 0.12);
+  background: var(--color-medals-locker-number-bg);
   font-size: 0.72rem;
   font-weight: 800;
-  color: #6a4418;
+  color: var(--color-medals-locker-number-text);
 }
 
 .medals__locker-shine {
@@ -581,7 +575,7 @@ onMounted(load)
   left: -28%;
   width: 70%;
   height: 180%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0));
+  background: linear-gradient(180deg, transparent, var(--color-medals-locker-shine), transparent);
   transform: rotate(18deg);
   opacity: 0.55;
   pointer-events: none;
@@ -596,22 +590,20 @@ onMounted(load)
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 30% 30%, #fff8cf 0%, #ffd76a 24%, #efb45c 60%, #b76a12 100%);
+  background: var(--color-medals-locker-medal);
   box-shadow:
-    inset 0 5px 8px rgba(255, 255, 255, 0.3),
-    0 10px 18px rgba(59, 31, 8, 0.24);
+    inset 0 5px 8px var(--color-medals-locker-medal-shadow-inner),
+    0 10px 18px var(--color-medals-locker-medal-shadow);
 }
 
 .medals__locker--locked .medals__medal-plate {
-  background:
-    radial-gradient(circle at 30% 30%, #f5f5f5 0%, #d1d5db 34%, #9ca3af 72%, #6b7280 100%);
+  background: var(--color-medals-locker-medal-locked);
 }
 
 .medals__medal-icon {
   font-size: 3rem;
   line-height: 1;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15));
+  filter: drop-shadow(0 2px 2px var(--color-medals-locker-icon-shadow));
 }
 
 .medals__locker-body {
@@ -621,7 +613,7 @@ onMounted(load)
   flex-direction: column;
   gap: 0.65rem;
   text-align: center;
-  color: #432308;
+  color: var(--color-medals-locker-text);
 }
 
 .medals__locker-title {
@@ -635,7 +627,7 @@ onMounted(load)
   margin: 0;
   min-height: 3.6em;
   line-height: 1.5;
-  color: #5d3810;
+  color: var(--color-medals-locker-desc);
 }
 
 .medals__locker-date,
@@ -650,13 +642,13 @@ onMounted(load)
 }
 
 .medals__locker-date {
-  color: #205329;
-  background: rgba(56, 161, 105, 0.14);
+  color: var(--color-medals-success-text);
+  background: var(--color-medals-locker-date-bg);
 }
 
 .medals__locker-hint {
-  color: #6b7280;
-  background: rgba(107, 114, 128, 0.14);
+  color: var(--color-medals-locker-hint-text);
+  background: var(--color-medals-locker-hint-bg);
 }
 
 @media (max-width: 900px) {
