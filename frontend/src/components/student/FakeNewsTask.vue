@@ -128,16 +128,28 @@ function mastheadBrand(article) {
 
 function extractDomainOrName(input) {
   if (!input || typeof input !== 'string') return 'NYHETER'
-  const s = input.trim()
+  let s = String(input).trim().replace(/\+/g, ' ')
+  try {
+    s = decodeURIComponent(s)
+  } catch {
+    // ignore decoding errors, keep original
+  }
+  s = s.replace(/\s+/g, ' ').trim()
+
   try {
     const url = s.includes('://') ? new URL(s) : new URL(`https://${s}`)
     const host = url.hostname.replace(/^www\./i, '')
-    return host || s
+    if (host && host.includes('.')) return host
   } catch {
-    const m = s.match(/[A-Za-z0-9.-]+\.[A-Za-z]{2,}/)
-    if (m && m[0]) return m[0].replace(/^www\./i, '')
-    return s
+    // Not a URL, fall through
   }
+
+  // If the string contains a domain somewhere inside (e.g., in text), extract it
+  const m = s.match(/[A-Za-z0-9.-]+\.[A-Za-z]{2,}/)
+  if (m && m[0]) return m[0].replace(/^www\./i, '')
+
+  // Otherwise return the cleaned source name as-is (e.g., "Trondheim kommune", "ATB Pressemelding")
+  return s
 }
 </script>
 
@@ -230,7 +242,6 @@ function extractDomainOrName(input) {
 .next-btn:active { transform: scale(0.98); }
 .next-btn:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 2px; }
 
-/* ── Newspaper (70s) look for articles ───────────────────── */
 .newspaper {
   --paper-bg: #f4efe2;
   --ink: #111;
@@ -244,6 +255,8 @@ function extractDomainOrName(input) {
   box-shadow: 2px 3px 10px rgba(0,0,0,0.25);
   transform: rotate(var(--card-rotate, 0deg));
   max-width: 36ch;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .newspaper__masthead {
@@ -267,9 +280,12 @@ function extractDomainOrName(input) {
   font-family: Georgia, "Times New Roman", serif;
   font-weight: 900;
   letter-spacing: 0.2px;
-  line-height: 1.05;
-  font-size: clamp(20px, 3.6vw, 28px);
+  line-height: 1.15;
+  font-size: clamp(18px, 3vw, 24px);
   text-transform: uppercase;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .newspaper__byline {
