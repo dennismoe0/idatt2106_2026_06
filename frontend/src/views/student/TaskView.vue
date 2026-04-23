@@ -46,15 +46,6 @@
         <p v-else-if="!currentTask" class="task-view__state">Ingen oppgaver funnet for dette stoppet.</p>
 
         <section v-else class="task-view__section">
-          <!-- Replay tutorial button (always visible) -->
-          <button
-            class="task-view__replay-btn"
-            @click="showTutorial = true"
-            aria-label="Se oppgaveforklaringen på nytt"
-          >
-            Se oppgaven på nytt 🔁
-          </button>
-
           <!-- Progress dots -->
           <div class="task-dots" role="list" :aria-label="`Oppgave ${currentTaskIndex + 1} av ${tasks.length}`">
             <span
@@ -791,28 +782,6 @@ function goToMap() {
     radial-gradient(circle at top right, rgba(244, 201, 76, 0.18), transparent 30%),
     linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
 }
-
-.task-view__replay-btn {
-  display: block;
-  margin: 0 auto var(--space-3);
-  background: rgba(255, 255, 255, 0.85);
-  color: var(--color-heading);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  cursor: pointer;
-  min-height: 44px;
-  transition: background var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
-  box-shadow: 0 10px 20px rgba(20, 30, 48, 0.06);
-}
-.task-view__replay-btn:hover {
-  background: #ffffff;
-  border-color: var(--color-primary-soft-strong);
-  box-shadow: 0 14px 26px rgba(20, 30, 48, 0.1);
-}
-.task-view__replay-btn:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 2px; }
 
 .task-view__state { text-align: center; padding: var(--space-8); color: var(--color-text); }
 .task-view__state--error { color: var(--color-danger); }
