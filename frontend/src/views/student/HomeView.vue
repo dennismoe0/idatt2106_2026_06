@@ -67,6 +67,11 @@
         </div>
 
       </nav>
+
+      <ActiveMysteryWidget
+        v-if="classroomStore.currentClassroomId"
+        :classroom-id="Number(classroomStore.currentClassroomId)"
+      />
     </div>
 
   </div>
@@ -77,6 +82,7 @@ import { computed, onMounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useClassroomStore } from '@/stores/classroom'
+import ActiveMysteryWidget from '@/components/student/ActiveMysteryWidget.vue'
 
 const authStore = useAuthStore()
 const classroomStore = useClassroomStore()
@@ -96,8 +102,7 @@ const activeCards = [
 ]
 
 const lockedCards = [
-  { title: 'Ukens Mysterium', icon: '🧩' },
-  { title: 'Hjelp',           icon: '💡' },
+  { title: 'Hjelp', icon: '💡' },
 ]
 
 function formatDisplayName(email) {
