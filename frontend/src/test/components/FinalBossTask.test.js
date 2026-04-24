@@ -87,18 +87,36 @@ describe('FinalBossTask', () => {
     expect(wrapper.text()).toContain('Hovedlås')
   })
 
+  it('locks in failure after the retry is spent and lets the player move on', async () => {
+    const wrapper = mount(FinalBossTask, { props: { task: TASK } })
+
+    await wrapper.find('.boss__btn--start').trigger('click')
+    await wrapper.findComponent({ name: 'BossFakeNews' }).vm.$emit('answer', { article_0: false, article_1: true })
+    await wrapper.get('.boss__retry-btn').trigger('click')
+    await wrapper.findComponent({ name: 'BossFakeNews' }).vm.$emit('answer', { article_0: false, article_1: true })
+
+    expect(wrapper.find('.boss__retry-btn').exists()).toBe(false)
+    expect(wrapper.text()).toContain('Gå videre')
+
+    await wrapper.get('.boss__continue-btn').trigger('click')
+
+    expect(wrapper.text()).toContain('Hovedlås')
+  })
+
   it('emits all collected answers on finish', async () => {
     const wrapper = mount(FinalBossTask, { props: { task: TASK } })
 
     await wrapper.find('.boss__btn--start').trigger('click')
-    await wrapper.findComponent({ name: 'BossFakeNews' }).vm.$emit('answer', { article_0: true, article_1: false })
+    await wrapper.findComponent({ name: 'BossFakeNews' }).vm.$emit('answer', { article_0: false, article_1: true })
+    await wrapper.get('.boss__retry-btn').trigger('click')
+    await wrapper.findComponent({ name: 'BossFakeNews' }).vm.$emit('answer', { article_0: false, article_1: true })
     await wrapper.get('.boss__btn:not(.boss__btn--finish)').trigger('click')
     await wrapper.findComponent({ name: 'BossPassword' }).vm.$emit('answer', { selected: 'b' })
     await wrapper.get('.boss__btn--finish').trigger('click')
 
     expect(wrapper.emitted('submitted')).toBeTruthy()
     expect(wrapper.emitted('submitted')[0][0]).toEqual({
-      challenge_0: { article_0: true, article_1: false },
+      challenge_0: null,
       challenge_1: { selected: 'b' },
     })
   })
