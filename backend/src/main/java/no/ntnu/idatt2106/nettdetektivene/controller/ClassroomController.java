@@ -112,7 +112,7 @@ public class ClassroomController {
     }
 
     @GetMapping("/{id}/school-leaderboard")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER')")
     public List<SchoolLeaderboardEntryDto> getSchoolLeaderboard(
         @AuthenticationPrincipal UserDetails userDetails,
         @PathVariable Long id
@@ -122,7 +122,7 @@ public class ClassroomController {
     }
 
     @GetMapping("/{id}/global-leaderboard")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER')")
     public List<SchoolLeaderboardEntryDto> getGlobalLeaderboard(
         @AuthenticationPrincipal UserDetails userDetails,
         @PathVariable Long id

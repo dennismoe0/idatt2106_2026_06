@@ -125,7 +125,7 @@ public class SchoolService {
     private void syncTeacherClassroomsToSchool(Long teacherId, School school) {
         List<Classroom> classrooms = classroomRepository.findByTeachers_Teacher_UserId(teacherId);
         for (Classroom classroom : classrooms) {
-            if (classroom.getSchool() == school) {
+            if (school.equals(classroom.getSchool())) {
                 continue;
             }
             classroom.setSchool(school);

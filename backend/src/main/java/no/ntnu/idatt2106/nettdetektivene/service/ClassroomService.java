@@ -189,7 +189,7 @@ public class ClassroomService {
             .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<SchoolLeaderboardEntryDto> getSchoolLeaderboard(Long userId, Long classroomId) {
         log.info("[ClassroomService] getSchoolLeaderboard userId={} classroomId={}", userId, classroomId);
         Classroom classroom = classroomRepository.findById(classroomId)
