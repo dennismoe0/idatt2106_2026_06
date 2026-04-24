@@ -65,6 +65,15 @@ const IDENTIFY_WORST_TASK = {
   }
 }
 
+const IDENTIFY_WORST_TASK_WITHOUT_TYPE = {
+  ...IDENTIFY_WORST_TASK,
+  contentJson: {
+    ...IDENTIFY_WORST_TASK.contentJson,
+  },
+}
+
+delete IDENTIFY_WORST_TASK_WITHOUT_TYPE.contentJson.type
+
 describe('SocialMediaTask', () => {
   it('renders platform label, post, and options', () => {
     const wrapper = mount(SocialMediaTask, { props: { task: TASK } })
@@ -113,5 +122,13 @@ describe('SocialMediaTask', () => {
 
     expect(wrapper.emitted('submitted')).toHaveLength(1)
     expect(wrapper.emitted('submitted')[0][0]).toEqual({ selected: 'post_1' })
+  })
+
+  it('still renders ranking mode when identify-worst posts exist but type is omitted', () => {
+    const wrapper = mount(SocialMediaTask, { props: { task: IDENTIFY_WORST_TASK_WITHOUT_TYPE } })
+
+    expect(wrapper.findAll('.post-card')).toHaveLength(3)
+    expect(wrapper.findAll('.rank-picker__select')).toHaveLength(3)
+    expect(wrapper.text()).toContain('Hvilket innlegg er mest illegitimt?')
   })
 })
