@@ -2,7 +2,7 @@
   <section class="fake-news-task">
     <p class="fake-news-task__guidance">{{ task.guidanceText }}</p>
 
-    <p class="fake-news-task__instruction">🔍 Klikk på den artikkelen du tror er <strong>falsk</strong></p>
+    <p class="fake-news-task__instruction">🔍 Klikk på den artikkelen du tror er falsk</p>
 
     <div class="fake-news-task__articles">
       <article
@@ -12,9 +12,9 @@
         :class="articleClass(index)"
         :style="`--card-rotate: ${cardRotation(index)}deg`"
         role="button"
-        :aria-pressed="chosenIndex === index"
         tabindex="0"
         :aria-label="`Velg denne artikkelen som falsk: ${article.headline}`"
+        :aria-pressed="chosenIndex === index"
         :aria-disabled="!!result"
         @click="pickCard(index)"
         @keydown.enter.space.prevent="pickCard(index)"
@@ -64,63 +64,47 @@ const props = defineProps({
 
 const emit = defineEmits(['submitted', 'next', 'backToMap'])
 
-const chosenIndex = ref(null)
-const shakingIndex = ref(null)
-const highlightedCorrectIndex = ref(null)
-const revealCorrect = ref(null)
+const chosenIndex    = ref(null)
+const shakingIndex   = ref(null)
+const bouncingIndex  = ref(null)
+const revealCorrect  = ref(null)
 
 const articles = computed(() => props.task?.contentJson?.articles ?? [])
 
 watch(() => props.task?.id, () => {
-  chosenIndex.value = null
-  shakingIndex.value = null
-  highlightedCorrectIndex.value = null
+  chosenIndex.value   = null
+  shakingIndex.value  = null
+  bouncingIndex.value = null
   revealCorrect.value = null
 }, { immediate: true })
 
 watch(() => props.result, (r) => {
   if (!r) return
-
-  const correctIndex = getCorrectIndex(r)
-
   if (r.correct) {
-    revealCorrect.value = correctIndex
-    highlightedCorrectIndex.value = chosenIndex.value
+    bouncingIndex.value = chosenIndex.value
+    setTimeout(() => { bouncingIndex.value = null }, 600)
   } else {
     shakingIndex.value = chosenIndex.value
-    setTimeout(() => {
-      shakingIndex.value = null
-      revealCorrect.value = correctIndex
-      highlightedCorrectIndex.value = correctIndex
-    }, 550)
+    setTimeout(() => { shakingIndex.value = null; revealCorrect.value = getCorrectIndex(r) }, 400)
   }
 })
 
 function getCorrectIndex(r) {
-  if (typeof r?.correctArticleIndex === 'number') {
-    return r.correctArticleIndex
-  }
-
+  // Prefer an explicit index from the server (future-proof)
+  if (typeof r?.correctArticleIndex === 'number') return r.correctArticleIndex
+  // Fallback: derive from the submit-response object — the correct article has value false
   return articles.value.findIndex((_, index) => r?.[`article_${index}`] === false)
 }
 
 function articleClass(index) {
   if (props.result) {
-    const isChosen = index === chosenIndex.value
+    const isChosen  = index === chosenIndex.value
     const isCorrect = index === revealCorrect.value || (props.result.correct && index === chosenIndex.value)
-
-    if (isChosen && props.result.correct) {
-      return ['article-card--correct', highlightedCorrectIndex.value === index ? 'card-glow' : '']
-    }
-
-    if (isChosen && !props.result.correct) {
-      return ['article-card--wrong', shakingIndex.value === index ? 'card-shake' : '']
-    }
-
+    if (isChosen && props.result.correct)   return ['article-card--correct', bouncingIndex.value === index ? 'card-bounce' : '']
+    if (isChosen && !props.result.correct)  return ['article-card--wrong',   shakingIndex.value  === index ? 'card-shake'  : '']
     if (!props.result.correct && isCorrect) return ['article-card--correct']
     return ['article-card--muted']
   }
-
   if (index === chosenIndex.value) return ['article-card--chosen']
   return []
 }
@@ -147,20 +131,28 @@ function mastheadBrand(article) {
 
 function extractDomainOrName(input) {
   if (!input || typeof input !== 'string') return 'NYHETER'
+  // Trim and safely decode percent-encoding (e.g., %20 -> space). Also convert '+' to space.
   let s = String(input).trim().replace(/\+/g, ' ')
   try {
     s = decodeURIComponent(s)
   } catch {
     // ignore decoding errors, keep original
   }
+  // Collapse excessive whitespace
   s = s.replace(/\s+/g, ' ').trim()
 
+  // If it looks like a URL or domain, extract the hostname (without www.)
+  // Guard: require a dot in the hostname. Browsers (unlike Node) silently
+  // percent-encode plain words — e.g. new URL("https://Trondheim kommune")
+  // succeeds in Chrome with hostname "trondheim%20kommune". Rejecting any
+  // hostname without a dot ensures plain source names fall through to the
+  // final return-as-is path instead of being returned URL-encoded.
   try {
     const url = s.includes('://') ? new URL(s) : new URL(`https://${s}`)
     const host = url.hostname.replace(/^www\./i, '')
     if (host && host.includes('.')) return host
   } catch {
-    // Not a URL, fall through
+    // Not a URL — fall through
   }
 
   // If the string contains a domain somewhere inside (e.g., in text), extract it
@@ -199,15 +191,9 @@ function extractDomainOrName(input) {
 }
 
 .article-card {
-  position: relative;
-  overflow: hidden;
   transform: rotate(var(--card-rotate, 0deg));
   cursor: pointer;
-  transition:
-    transform var(--transition-normal),
-    box-shadow var(--transition-normal),
-    border-color var(--transition-normal),
-    background var(--transition-normal);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
   user-select: none;
 }
 .article-card:hover:not([aria-disabled="true"]) {
@@ -268,10 +254,15 @@ function extractDomainOrName(input) {
 .next-btn:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 2px; }
 
 .newspaper {
-  background: var(--color-newspaper-bg);
-  border: 1.5px solid var(--color-newspaper-rule);
+  --paper-bg: #f4efe2;
+  --ink: #111;
+  --masthead-ink: #0d0d0d;
+  --rule: rgba(0,0,0,0.15);
+
+  background: var(--paper-bg);
+  border: 1.5px solid var(--rule);
   padding: clamp(12px, 1.5vw, 18px);
-  color: var(--color-newspaper-ink);
+  color: var(--ink);
   box-shadow: 2px 3px 10px rgba(0,0,0,0.25);
   transform: rotate(var(--card-rotate, 0deg));
   max-width: 36ch;
@@ -283,7 +274,7 @@ function extractDomainOrName(input) {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  border-bottom: 2px solid var(--color-newspaper-rule);
+  border-bottom: 2px solid var(--rule);
   margin-bottom: 8px;
   letter-spacing: 0.5px;
 }
@@ -292,7 +283,7 @@ function extractDomainOrName(input) {
   font-weight: 800;
   font-size: clamp(18px, 2.6vw, 22px);
   text-transform: uppercase;
-  color: var(--color-newspaper-ink);
+  color: var(--masthead-ink);
 }
 
 .newspaper__headline {
@@ -312,11 +303,12 @@ function extractDomainOrName(input) {
   margin: 0 0 8px 0;
   font-size: 12px;
   opacity: 0.9;
-  border-bottom: 1px solid var(--color-newspaper-rule);
+  border-bottom: 1px solid var(--rule);
   padding-bottom: 6px;
 }
 
 .newspaper__body {
+  column-count: 1;
   column-gap: 18px;
 }
 .newspaper__lede {
@@ -326,11 +318,13 @@ function extractDomainOrName(input) {
   font-size: 14px;
 }
 
+/* Preserve interaction visuals */
 .newspaper.article-card:hover:not([aria-disabled="true"]) {
   transform: rotate(0deg) scale(1.02) translateY(-3px);
   box-shadow: 4px 6px 16px rgba(0,0,0,0.35);
 }
 
+/* Card state feedback, articleClass() returns these class names */
 .newspaper.article-card--chosen {
   border-color: var(--color-wood);
   box-shadow: 0 0 0 3px var(--color-wood);
