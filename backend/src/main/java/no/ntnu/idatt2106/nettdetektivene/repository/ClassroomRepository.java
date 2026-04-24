@@ -22,4 +22,6 @@ public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
     boolean existsByJoinCode(String joinCode);
 
     java.util.List<no.ntnu.idatt2106.nettdetektivene.entity.Classroom> findBySchool_Id(Long schoolId);
+
+    List<Classroom> findByIsActiveTrue();
 }

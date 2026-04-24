@@ -112,13 +112,23 @@ public class ClassroomController {
     }
 
     @GetMapping("/{id}/school-leaderboard")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER')")
     public List<SchoolLeaderboardEntryDto> getSchoolLeaderboard(
         @AuthenticationPrincipal UserDetails userDetails,
         @PathVariable Long id
     ) {
         log.info("[ClassroomController] GET /api/classrooms/{}/school-leaderboard", id);
         return classroomService.getSchoolLeaderboard(currentUserId(userDetails), id);
+    }
+
+    @GetMapping("/{id}/global-leaderboard")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER')")
+    public List<SchoolLeaderboardEntryDto> getGlobalLeaderboard(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+        log.info("[ClassroomController] GET /api/classrooms/{}/global-leaderboard", id);
+        return classroomService.getGlobalLeaderboard(currentUserId(userDetails), id);
     }
 
     @PutMapping("/{id}/my-displayname")

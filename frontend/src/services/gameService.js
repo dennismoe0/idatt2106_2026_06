@@ -46,6 +46,11 @@ export const gameService = {
     return api.get(`/api/classrooms/${classroomId}/school-leaderboard`)
   },
 
+  getGlobalLeaderboard(classroomId) {
+    console.log('[gameService] getGlobalLeaderboard classroomId:', classroomId)
+    return api.get(`/api/classrooms/${classroomId}/global-leaderboard`)
+  },
+
   getProfile() {
     console.log('[gameService] getProfile')
     return api.get('/api/game/profile')
