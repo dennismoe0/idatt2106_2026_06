@@ -82,7 +82,16 @@
           <template v-if="systemState.mode === 'failed'">
             <p class="boss__stopped-label boss__stopped-label--failed">Prøv igjen</p>
             <p class="boss__retry-copy">{{ systemState.explanation }}</p>
-            <button class="boss__btn boss__retry-btn" @click="retryCurrentSystem">Prøv én gang til</button>
+            <button
+              v-if="!isRetrySpent"
+              class="boss__btn boss__retry-btn"
+              @click="retryCurrentSystem"
+            >Prøv én gang til</button>
+            <button
+              v-else
+              class="boss__btn boss__continue-btn"
+              @click="goToNextSystem"
+            >Gå videre</button>
           </template>
           <template v-else>
             <p class="boss__stopped-label">✅ System stoppet!</p>
@@ -148,25 +157,29 @@ const phase      = ref('intro')
 const currentIdx = ref(0)
 const answers    = ref({})
 const systemState = ref({ mode: 'idle', explanation: '' })
-const usedRetry = ref({})
+const failedAttempts = ref({})
 
 const challenges       = computed(() => props.task.contentJson?.challenges ?? [])
 const currentChallenge = computed(() => challenges.value[currentIdx.value])
 const solvedCount = computed(() => Object.keys(answers.value).length)
 const isSystemLocked = computed(() => systemState.value.mode !== 'idle')
+const isRetrySpent = computed(() => (failedAttempts.value[currentIdx.value] ?? 0) > 1)
 
 function recordAnswer(answer) {
   const challenge = currentChallenge.value
   if (!challenge) return
 
   if (isCorrectAnswer(challenge.correctAnswer, answer)) {
+    console.log('[FinalBossTask] challenge', currentIdx.value, 'answered:', answer)
     answers.value = { ...answers.value, [currentIdx.value]: answer }
     systemState.value = { mode: 'passed', explanation: challenge.successExplanation ?? '' }
     return
   }
 
-  if (!usedRetry.value[currentIdx.value]) {
-    usedRetry.value = { ...usedRetry.value, [currentIdx.value]: true }
+  const attempts = (failedAttempts.value[currentIdx.value] ?? 0) + 1
+  failedAttempts.value = { ...failedAttempts.value, [currentIdx.value]: attempts }
+
+  if (attempts === 1) {
     systemState.value = {
       mode: 'failed',
       explanation: challenge.failureExplanation ?? 'Dette stoppet ikke systemet. Les forklaringen og prøv én gang til.',
@@ -174,6 +187,8 @@ function recordAnswer(answer) {
     return
   }
 
+  console.log('[FinalBossTask] challenge', currentIdx.value, 'failed after retry:', answer)
+  answers.value = { ...answers.value, [currentIdx.value]: null }
   systemState.value = {
     mode: 'failed',
     explanation: challenge.failureExplanation ?? 'Dette stoppet ikke systemet.',
@@ -200,7 +215,7 @@ function goToNextSystem() {
 
 function isCorrectAnswer(expected, actual) {
   if (!expected) return true
-  return JSON.stringify(expected) === JSON.stringify(actual)
+  return Object.keys(expected).every((key) => String(actual?.[key]) === String(expected[key]))
 }
 
 watch(() => props.result, (r) => {
@@ -244,7 +259,7 @@ watch(() => props.result, (r) => {
   border-radius: var(--radius-lg); padding: var(--space-4);
   display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap;
 }
-.boss__system-stopped--failed { background: #fff4e8; border-color: #f59e0b; }
+.boss__system-stopped--failed { background: var(--color-warning-light); border-color: #f59e0b; }
 .boss__stopped-label { margin: 0; font-weight: var(--font-bold); color: var(--color-success); font-size: var(--text-lg); }
 .boss__stopped-label--failed { color: #b45309; }
 .boss__retry-copy,
