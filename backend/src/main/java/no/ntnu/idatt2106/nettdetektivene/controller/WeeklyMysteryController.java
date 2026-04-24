@@ -129,7 +129,7 @@ public class WeeklyMysteryController {
     ) {
         Long teacherId = currentUserId(userDetails);
         log.info("[WeeklyMysteryController] PUT /{} teacherId={}", id, teacherId);
-        WeeklyMystery updated = weeklyMysteryService.editMystery(id, dto);
+        WeeklyMystery updated = weeklyMysteryService.editMystery(id, dto, teacherId);
         return ResponseEntity.ok(toResponseDto(updated));
     }
 
@@ -146,7 +146,7 @@ public class WeeklyMysteryController {
     ) {
         Long teacherId = currentUserId(userDetails);
         log.info("[WeeklyMysteryController] PUT /{}/activate teacherId={} classroomId={}", id, teacherId, classroomId);
-        WeeklyMystery activated = weeklyMysteryService.activateMystery(id, classroomId);
+        WeeklyMystery activated = weeklyMysteryService.activateMystery(id, classroomId, teacherId);
         return ResponseEntity.ok(toResponseDto(activated));
     }
 
@@ -162,7 +162,7 @@ public class WeeklyMysteryController {
     ) {
         Long teacherId = currentUserId(userDetails);
         log.info("[WeeklyMysteryController] PUT /{}/reject teacherId={}", id, teacherId);
-        WeeklyMystery rejected = weeklyMysteryService.rejectMystery(id);
+        WeeklyMystery rejected = weeklyMysteryService.rejectMystery(id, teacherId);
         return ResponseEntity.ok(toResponseDto(rejected));
     }
 
@@ -175,7 +175,7 @@ public class WeeklyMysteryController {
     }
 
     private WeeklyMysteryResponseDto toResponseDto(WeeklyMystery m) {
-        String displayName = m.getStudent() != null ? m.getStudent().getEmail() : "Ukjent";
+        String displayName = "Anonym elev";
         return new WeeklyMysteryResponseDto(
                 m.getId(), m.getTitle(), m.getDescription(), m.getImageUrl(),
                 m.getStatus().name(), m.isFeatured(),

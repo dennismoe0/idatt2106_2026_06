@@ -9,7 +9,9 @@ import no.ntnu.idatt2106.nettdetektivene.entity.StudentMedal;
 import no.ntnu.idatt2106.nettdetektivene.entity.StudentMysteryCompletion;
 import no.ntnu.idatt2106.nettdetektivene.entity.User;
 import no.ntnu.idatt2106.nettdetektivene.entity.WeeklyMystery;
+import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomRepository;
+import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomStudentRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.MedalRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentMedalRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentMysteryCompletionRepository;
@@ -37,6 +39,7 @@ public class WeeklyMysteryService {
     private final StudentMedalRepository studentMedalRepo;
     private final UserRepository userRepo;
     private final ClassroomRepository classroomRepo;
+    private final ClassroomStudentRepository classroomStudentRepo;
 
     public WeeklyMysteryService(
             WeeklyMysteryRepository mysteryRepo,
@@ -44,13 +47,15 @@ public class WeeklyMysteryService {
             MedalRepository medalRepo,
             StudentMedalRepository studentMedalRepo,
             UserRepository userRepo,
-            ClassroomRepository classroomRepo) {
+            ClassroomRepository classroomRepo,
+            ClassroomStudentRepository classroomStudentRepo) {
         this.mysteryRepo = mysteryRepo;
         this.completionRepo = completionRepo;
         this.medalRepo = medalRepo;
         this.studentMedalRepo = studentMedalRepo;
         this.userRepo = userRepo;
         this.classroomRepo = classroomRepo;
+        this.classroomStudentRepo = classroomStudentRepo;
     }
 
     // -------------------------------------------------------------------------
@@ -107,6 +112,12 @@ public class WeeklyMysteryService {
     public MysteryCompleteResultDto completeMystery(User student, MysteryCompleteDto dto) {
         log.info("[WeeklyMysteryService] completeMystery studentId={} classroomId={}", student.getId(), dto.classroomId());
 
+        if (!classroomStudentRepo.existsByClassroom_IdAndStudent_IdAndStatus(
+                dto.classroomId(), student.getId(), ClassroomStudentStatus.APPROVED)) {
+            log.warn("[WeeklyMysteryService] student not enrolled studentId={} classroomId={}", student.getId(), dto.classroomId());
+            throw new SecurityException("Student is not enrolled in this classroom");
+        }
+
         WeeklyMystery mystery = mysteryRepo.findByClassroomIdAndFeaturedTrue(dto.classroomId())
                 .orElseThrow(() -> {
                     log.warn("[WeeklyMysteryService] no featured mystery for classroomId={}", dto.classroomId());
@@ -136,6 +147,12 @@ public class WeeklyMysteryService {
         boolean medalEarned = false;
 
         if (correct) {
+            User studentEntity = userRepo.findById(student.getId())
+                    .orElseThrow(() -> new IllegalStateException("Student not found: " + student.getId()));
+            studentEntity.setXp(studentEntity.getXp() + xpEarned);
+            studentEntity.setStarBalance(studentEntity.getStarBalance() + starsEarned);
+            userRepo.save(studentEntity);
+            log.info("[WeeklyMysteryService] awarded xp={} stars={} to studentId={}", xpEarned, starsEarned, student.getId());
             long correctCount = completionRepo.countByStudentIdAndCorrectTrue(student.getId());
             log.info("[WeeklyMysteryService] correctCount for studentId={} is {}", student.getId(), correctCount);
 
@@ -178,14 +195,19 @@ public class WeeklyMysteryService {
     // -------------------------------------------------------------------------
 
     @Transactional
-    public WeeklyMystery editMystery(Long mysteryId, WeeklyMysteryEditDto dto) {
-        log.info("[WeeklyMysteryService] editMystery mysteryId={}", mysteryId);
+    public WeeklyMystery editMystery(Long mysteryId, WeeklyMysteryEditDto dto, Long teacherId) {
+        log.info("[WeeklyMysteryService] editMystery mysteryId={} teacherId={}", mysteryId, teacherId);
 
         WeeklyMystery mystery = mysteryRepo.findById(mysteryId)
                 .orElseThrow(() -> {
                     log.warn("[WeeklyMysteryService] mystery not found id={}", mysteryId);
                     return new IllegalArgumentException("Mystery not found: " + mysteryId);
                 });
+
+        if (!classroomRepo.isTeacherOfClassroom(mystery.getClassroom().getId(), teacherId)) {
+            log.warn("[WeeklyMysteryService] unauthorized edit attempt teacherId={} mysteryId={}", teacherId, mysteryId);
+            throw new SecurityException("Not authorized to edit this mystery");
+        }
 
         if (dto.title() != null)         mystery.setTitle(dto.title());
         if (dto.description() != null)   mystery.setDescription(dto.description());
@@ -209,8 +231,13 @@ public class WeeklyMysteryService {
     // -------------------------------------------------------------------------
 
     @Transactional
-    public WeeklyMystery activateMystery(Long mysteryId, Long classroomId) {
-        log.info("[WeeklyMysteryService] activateMystery mysteryId={} classroomId={}", mysteryId, classroomId);
+    public WeeklyMystery activateMystery(Long mysteryId, Long classroomId, Long teacherId) {
+        log.info("[WeeklyMysteryService] activateMystery mysteryId={} classroomId={} teacherId={}", mysteryId, classroomId, teacherId);
+
+        if (!classroomRepo.isTeacherOfClassroom(classroomId, teacherId)) {
+            log.warn("[WeeklyMysteryService] unauthorized activate attempt teacherId={} classroomId={}", teacherId, classroomId);
+            throw new SecurityException("Not authorized to activate mystery in this classroom");
+        }
 
         // Deactivate any currently featured mystery in this classroom
         mysteryRepo.findByClassroomIdAndFeaturedTrue(classroomId).ifPresent(current -> {
@@ -236,14 +263,19 @@ public class WeeklyMysteryService {
     // -------------------------------------------------------------------------
 
     @Transactional
-    public WeeklyMystery rejectMystery(Long mysteryId) {
-        log.info("[WeeklyMysteryService] rejectMystery mysteryId={}", mysteryId);
+    public WeeklyMystery rejectMystery(Long mysteryId, Long teacherId) {
+        log.info("[WeeklyMysteryService] rejectMystery mysteryId={} teacherId={}", mysteryId, teacherId);
 
         WeeklyMystery mystery = mysteryRepo.findById(mysteryId)
                 .orElseThrow(() -> {
                     log.warn("[WeeklyMysteryService] mystery not found id={}", mysteryId);
                     return new IllegalArgumentException("Mystery not found: " + mysteryId);
                 });
+
+        if (!classroomRepo.isTeacherOfClassroom(mystery.getClassroom().getId(), teacherId)) {
+            log.warn("[WeeklyMysteryService] unauthorized reject attempt teacherId={} mysteryId={}", teacherId, mysteryId);
+            throw new SecurityException("Not authorized to reject this mystery");
+        }
 
         mystery.setStatus(WeeklyMystery.Status.REJECTED);
         WeeklyMystery saved = mysteryRepo.save(mystery);
