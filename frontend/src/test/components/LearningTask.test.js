@@ -33,35 +33,34 @@ describe('LearningTask', () => {
   beforeEach(() => { vi.useFakeTimers() })
   afterEach(() => { vi.useRealTimers() })
 
-  it('starts in LEARN phase and shows all learning sections on one page', () => {
+  it('starts in LEARN phase on the first learning section only', () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
     expect(wrapper.text()).toContain('Overskrift 1')
-    expect(wrapper.text()).toContain('Overskrift 2')
     expect(wrapper.text()).toContain('Brødtekst 1')
     expect(wrapper.text()).toContain('Eksempel 1A')
-    expect(wrapper.text()).toContain('Husk 2A')
     expect(wrapper.text()).toContain('Første spørsmål?')
-    expect(wrapper.text()).toContain('Andre spørsmål?')
+    expect(wrapper.text()).not.toContain('Overskrift 2')
+    expect(wrapper.text()).not.toContain('Andre spørsmål?')
     expect(wrapper.text()).toContain('Svar på alle spørsmål først')
   })
 
-  it('shows inline questions and no separate start quiz button', () => {
+  it('shows one inline question at a time and no separate start quiz button', () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
     expect(wrapper.find('.nav-btn--start-quiz').exists()).toBe(false)
-    expect(wrapper.findAll('.inline-question')).toHaveLength(2)
-    expect(wrapper.find('.learn-complete .nav-btn').attributes('disabled')).toBeDefined()
-    expect(wrapper.find('.nav-btn--next').exists()).toBe(false)
-    expect(wrapper.find('.nav-btn--back').exists()).toBe(false)
+    expect(wrapper.findAll('.inline-question')).toHaveLength(1)
+    expect(wrapper.find('.learn-complete').exists()).toBe(false)
+    expect(wrapper.text()).toContain('Neste del →')
+    expect(wrapper.text()).toContain('Forrige del')
   })
 
-  it('renders answer options directly under each learning part', async () => {
+  it('renders answer options for the active learning part', async () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
     expect(wrapper.text()).toContain('Første spørsmål?')
-    expect(wrapper.text()).toContain('Andre spørsmål?')
-    expect(wrapper.findAll('.option-btn')).toHaveLength(4)
+    expect(wrapper.text()).not.toContain('Andre spørsmål?')
+    expect(wrapper.findAll('.option-btn')).toHaveLength(2)
   })
 
-  it('marks an inline correct answer without hiding the learning content', async () => {
+  it('marks an inline correct answer and unlocks the next section', async () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
 
     const options = wrapper.findAll('.option-btn')
@@ -70,6 +69,13 @@ describe('LearningTask', () => {
     expect(wrapper.find('.option-btn--correct').exists()).toBe(true)
     expect(wrapper.text()).toContain('Riktig!')
     expect(wrapper.text()).toContain('Overskrift 1')
+    expect(wrapper.text()).not.toContain('Andre spørsmål?')
+
+    const nextButton = wrapper.find('.nav-btn--primary')
+    expect(nextButton.attributes('disabled')).toBeUndefined()
+
+    await nextButton.trigger('click')
+    expect(wrapper.text()).toContain('Overskrift 2')
     expect(wrapper.text()).toContain('Andre spørsmål?')
   })
 
@@ -94,12 +100,14 @@ describe('LearningTask', () => {
 
     // Answer q1 correctly
     await wrapper.findAll('.option-btn')[0].trigger('click')
-    vi.advanceTimersByTime(900)
     await wrapper.vm.$nextTick()
+
+    await wrapper.find('.nav-btn--primary').trigger('click')
+    expect(wrapper.text()).toContain('Andre spørsmål?')
 
     // Answer q2 correctly
     const opts = wrapper.findAll('.option-btn')
-    await opts[3].trigger('click') // 'B' — correct
+    await opts[1].trigger('click') // 'B' — correct
     vi.advanceTimersByTime(900)
     await wrapper.vm.$nextTick()
 
@@ -118,7 +126,7 @@ describe('LearningTask', () => {
 
     await wrapper.setProps({ task: { ...TASK, id: 99 } })
     expect(wrapper.text()).toContain('Overskrift 1')
-    expect(wrapper.text()).toContain('Overskrift 2')
+    expect(wrapper.text()).not.toContain('Overskrift 2')
     expect(wrapper.find('.option-btn--correct').exists()).toBe(false)
   })
 
