@@ -11,7 +11,7 @@
         class="newspaper pinned-note article-card"
         :class="articleClass(index)"
         :style="`--card-rotate: ${cardRotation(index)}deg`"
-        role="region"
+        role="button"
         tabindex="0"
         :aria-label="`Velg denne artikkelen som falsk: ${article.headline}`"
         :aria-pressed="chosenIndex === index"
@@ -142,6 +142,11 @@ function extractDomainOrName(input) {
   s = s.replace(/\s+/g, ' ').trim()
 
   // If it looks like a URL or domain, extract the hostname (without www.)
+  // Guard: require a dot in the hostname. Browsers (unlike Node) silently
+  // percent-encode plain words — e.g. new URL("https://Trondheim kommune")
+  // succeeds in Chrome with hostname "trondheim%20kommune". Rejecting any
+  // hostname without a dot ensures plain source names fall through to the
+  // final return-as-is path instead of being returned URL-encoded.
   try {
     const url = s.includes('://') ? new URL(s) : new URL(`https://${s}`)
     const host = url.hostname.replace(/^www\./i, '')
@@ -317,6 +322,24 @@ function extractDomainOrName(input) {
 .newspaper.article-card:hover:not([aria-disabled="true"]) {
   transform: rotate(0deg) scale(1.02) translateY(-3px);
   box-shadow: 4px 6px 16px rgba(0,0,0,0.35);
+}
+
+/* Card state feedback, articleClass() returns these class names */
+.newspaper.article-card--chosen {
+  border-color: var(--color-wood);
+  box-shadow: 0 0 0 3px var(--color-wood);
+}
+.newspaper.article-card--correct {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px var(--color-success);
+}
+.newspaper.article-card--wrong {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px var(--color-danger);
+}
+.newspaper.article-card--muted {
+  opacity: 0.55;
+  filter: grayscale(30%);
 }
 
 </style>
