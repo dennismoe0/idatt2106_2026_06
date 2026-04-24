@@ -24,6 +24,8 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
 
     boolean existsByClassroom_IdAndStudent_Id(Long classroomId, Long studentId);
 
+    boolean existsByClassroom_IdAndStudent_IdAndStatus(Long classroomId, Long studentId, ClassroomStudentStatus status);
+
     @Query("select cs from ClassroomStudent cs where cs.student.id = :studentId and cs.status = :status")
     Optional<ClassroomStudent> findByStudentIdAndStatus(
         @Param("studentId") Long studentId,

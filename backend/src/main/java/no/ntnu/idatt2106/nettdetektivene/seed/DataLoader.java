@@ -863,7 +863,9 @@ public class DataLoader implements ApplicationRunner {
             medal("Trygg handler", "Fullfør Markedsplassen.", stops.get(3)),
             medal("Sosial speider", "Fullfør Den sosiale møteplassen.", stops.get(4)),
             medal("Passordvokter", "Fullfør Passordbanken.", stops.get(5)),
-            medal("Datasenterhelt", "Fullfør Datasenteret.", stops.get(6))
+            medal("Datasenterhelt", "Fullfør Datasenteret.", stops.get(6)),
+            medal("Ukens detektiv", "Fullførte sitt første ukentlige mysterium"),
+            medal("Mysterium-mester", "Fullførte fem ukentlige mysterier riktig")
         ));
     }
 
@@ -1051,6 +1053,15 @@ public class DataLoader implements ApplicationRunner {
         medal.setDescription(description);
         medal.setStop(stop);
         medal.setImageUrl("/medals/stop-" + stop.getOrderIndex() + ".png");
+        return medal;
+    }
+
+    private Medal medal(String name, String description) {
+        Medal medal = new Medal();
+        medal.setName(name);
+        medal.setDescription(description);
+        medal.setStop(null);
+        medal.setImageUrl("/medals/mystery.png");
         return medal;
     }
 

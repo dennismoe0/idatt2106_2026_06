@@ -9,6 +9,12 @@
           <button class="copy-btn" @click="copyCode">{{ codeCopied ? 'Kopiert!' : 'Kopier' }}</button>
         </div>
       </div>
+      <RouterLink
+        :to="{ name: 'WeeklyMysteryManage', params: { classroomId } }"
+        class="mysterium-link"
+      >
+        Ukens Mysterium
+      </RouterLink>
     </header>
 
     <LoadingSpinner v-if="loading" />
@@ -172,6 +178,26 @@ async function copyCode() {
 }
 .classroom-detail__header {
   margin-bottom: var(--space-6);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.mysterium-link {
+  align-self: center;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-primary);
+  text-decoration: none;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.mysterium-link:hover {
+  background: var(--color-primary-soft);
 }
 .back-btn {
   background: none;

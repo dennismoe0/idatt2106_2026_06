@@ -25,6 +25,8 @@ const routes = [
   { path: '/medals',        name: 'Medals',         component: () => import('@/views/student/MedalsView.vue'),        meta: { role: 'STUDENT', requiresClassroom: true } },
   { path: '/notebook',      name: 'Notebook',       component: () => import('@/views/student/NotebookView.vue'),      meta: { role: 'STUDENT', requiresClassroom: true } },
   { path: '/leaderboard',  name: 'Leaderboard',    component: () => import('@/views/student/LeaderboardView.vue'),   meta: { role: 'STUDENT', requiresClassroom: true } },
+  { path: '/student/send-inn',   name: 'SendInn',          component: () => import('@/views/student/SendInnView.vue'),          meta: { role: 'STUDENT' } },
+  { path: '/student/mysterium', name: 'UkasMysterium',    component: () => import('@/views/student/UkasMysteriumView.vue'),    meta: { role: 'STUDENT', requiresClassroom: true } },
 
 
 
@@ -32,6 +34,7 @@ const routes = [
   { path: '/teacher',                 name: 'Dashboard',       component: () => import('@/views/teacher/DashboardView.vue'),       meta: { role: 'TEACHER' } },
   { path: '/teacher/classrooms/:id',  name: 'ClassroomDetail', component: () => import('@/views/teacher/ClassroomDetailView.vue'), meta: { role: 'TEACHER' } },
   { path: '/teacher/students/:studentId/notebook', name: 'TeacherNotebook', component: () => import('@/views/teacher/TeacherNotebookView.vue'), meta: { role: 'TEACHER' } },
+  { path: '/teacher/classroom/:classroomId/mysterium', name: 'WeeklyMysteryManage', component: () => import('@/views/teacher/WeeklyMysteryManageView.vue'), meta: { role: 'TEACHER' } },
 
   // Fallback
   { path: '/:pathMatch(.*)*', redirect: '/login' }
