@@ -167,6 +167,36 @@ class NotebookServiceTest {
         assertThat(captor.getValue().getContent()).isEqualTo("Tyven hadde røde sko.");
     }
 
+    @Test
+    void createAutoClueIfNotExists_fallsBackToAutoTipWhenClueTextIsBlank() {
+        Stop stop = makeStop(1L, 1);
+        stop.setClueText("");
+        stop.setAutoTip("Tyven brukte norsk IP-adresse.");
+
+        when(notebookRepository.existsByStudent_IdAndStop_IdAndEntryType(
+            1L, 1L, NotebookEntry.EntryType.AUTO_TIP)).thenReturn(false);
+        when(userRepository.getReferenceById(1L)).thenReturn(new User());
+
+        notebookService.createAutoClueIfNotExists(1L, stop);
+
+        ArgumentCaptor<NotebookEntry> captor = ArgumentCaptor.forClass(NotebookEntry.class);
+        verify(notebookRepository).save(captor.capture());
+        assertThat(captor.getValue().getContent()).isEqualTo("Tyven brukte norsk IP-adresse.");
+    }
+
+    @Test
+    void createAutoClueIfNotExists_skipsWhenEntryAlreadyExists() {
+        Stop stop = makeStop(1L, 1);
+        stop.setClueText("Tyven hadde røde sko.");
+
+        when(notebookRepository.existsByStudent_IdAndStop_IdAndEntryType(
+            1L, 1L, NotebookEntry.EntryType.AUTO_TIP)).thenReturn(true);
+
+        notebookService.createAutoClueIfNotExists(1L, stop);
+
+        verify(notebookRepository, never()).save(any());
+    }
+
     // ── createReflection ───────────────────────────────────────
 
     @Test
