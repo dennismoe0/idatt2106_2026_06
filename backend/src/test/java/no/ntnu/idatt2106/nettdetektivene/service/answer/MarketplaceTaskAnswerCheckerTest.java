@@ -36,7 +36,7 @@ class MarketplaceTaskAnswerCheckerTest {
     }
 
     @Test
-    void clickSuspicious_missingElement_fails() throws Exception {
+    void clickSuspicious_partialMatch_fails() throws Exception {
         var correct = mapper.readTree("{\"correctElementIds\": [\"domain\", \"payment\"]}");
         var answer  = Map.<String, Object>of("flaggedElementIds", List.of("domain"));
         assertThat(checker.isCorrect(null, correct, answer)).isFalse();
@@ -77,9 +77,16 @@ class MarketplaceTaskAnswerCheckerTest {
     }
 
     @Test
-    void clickSuspicious_duplicateAndNumericIds_areNormalizedBeforeComparison() throws Exception {
-        var correct = mapper.readTree("{\"correctElementIds\": [1, \"domain\", \"domain\"]}");
-        var answer  = Map.<String, Object>of("flaggedElementIds", List.of("domain", 1, "domain"));
+    void clickSuspicious_duplicateIds_areDeduplicatedBeforeComparison() throws Exception {
+        var correct = mapper.readTree("{\"correctElementIds\": [\"domain\", \"domain\"]}");
+        var answer  = Map.<String, Object>of("flaggedElementIds", List.of("domain", "domain"));
+        assertThat(checker.isCorrect(null, correct, answer)).isTrue();
+    }
+
+    @Test
+    void clickSuspicious_numericIds_areNormalizedToStringBeforeComparison() throws Exception {
+        var correct = mapper.readTree("{\"correctElementIds\": [1]}");
+        var answer  = Map.<String, Object>of("flaggedElementIds", List.of(1));
         assertThat(checker.isCorrect(null, correct, answer)).isTrue();
     }
 
