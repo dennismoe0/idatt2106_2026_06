@@ -167,6 +167,11 @@
       v-if="showSuspectLineup"
       @chosen="handleSuspectChosen"
     />
+    <ArrestScene
+      v-if="arrestScene"
+      :scene="arrestScene"
+      @continue="advanceArrestScene"
+    />
     <ConfettiOverlay :active="confettiMode" />
     <MedalToast :medal="medalToast" />
   </div>
@@ -191,6 +196,7 @@ import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
 import FinalBossTask from '@/components/student/FinalBossTask.vue'
 import ClueRevealModal from '@/components/student/ClueRevealModal.vue'
 import SuspectLineup from '@/components/student/SuspectLineup.vue'
+import ArrestScene from '@/components/student/ArrestScene.vue'
 import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
 import MedalToast from '@/components/common/MedalToast.vue'
 import StopSummary from '@/components/student/StopSummary.vue'
@@ -219,6 +225,7 @@ const showSuspectLineup = ref(false)
 const showSummary      = ref(false)
 const showTutorial     = ref(false)
 const showMystery      = ref(false)
+const arrestSceneStep  = ref(-1)
 let confettiTimer = null
 let medalTimer    = null
 
@@ -233,6 +240,19 @@ const classroomId = computed(() => {
 })
 const currentTask = computed(() => tasks.value[currentTaskIndex.value] ?? null)
 const stopName    = computed(() => tasks.value[0]?.stopName ?? 'Oppgaver')
+const arrestScenes = [
+  {
+    title: 'Tyven er arrestert!',
+    body: 'Etterforskningen i Passordbanken avslørte hvordan tyven brukte svake passord og stjålne innlogginger. Politiet har tatt hovedmistenkte inn til avhør.',
+    buttonText: 'Hva skjer nå?',
+  },
+  {
+    title: 'Reserveplanen er i gang',
+    body: 'Før arrestasjonen rakk tyven å aktivere en reserveplan i Datasenteret. Hvis du ikke stopper den nå, kan sporene etter de stjålne idrettsparkpengene bli slettet.',
+    buttonText: 'Til Datasenteret',
+  },
+]
+const arrestScene = computed(() => arrestScenes[arrestSceneStep.value] ?? null)
 
 const TUTORIAL_TEXTS = {
   LEARN: {
@@ -730,6 +750,42 @@ function handleSuspectChosen() {
   showSuspectLineup.value = false
 }
 
+function shouldShowArrestScene() {
+  return result.value?.correct
+    && result.value?.stopCompleted
+    && currentTask.value?.stopTheme === 'PASSWORD'
+}
+
+async function advanceArrestScene() {
+  if (arrestSceneStep.value < arrestScenes.length - 1) {
+    arrestSceneStep.value += 1
+    return
+  }
+
+  let nextStopId = gameStore.stops.find((stop) => stop.orderIndex === 7 || stop.theme === 'FINAL_BOSS')?.id
+  if (!nextStopId && classroomId.value) {
+    try {
+      const stops = await gameStore.fetchStops(classroomId.value)
+      nextStopId = stops.find((stop) => stop.orderIndex === 7 || stop.theme === 'FINAL_BOSS')?.id
+    } catch (fetchError) {
+      console.error('[TaskView] Failed to resolve Datasenteret stop id.', fetchError)
+    }
+  }
+
+  arrestSceneStep.value = -1
+  if (!nextStopId) {
+    router.push({ name: preferredMap })
+    return
+  }
+  router.push({
+    name: 'Task',
+    query: {
+      stopId: String(nextStopId),
+      classroomId: String(classroomId.value),
+    },
+  })
+}
+
 onBeforeUnmount(() => {
   clearTimeout(confettiTimer)
   clearTimeout(medalTimer)
@@ -738,6 +794,10 @@ onBeforeUnmount(() => {
 function goNext() {
   if (result.value && currentTask.value) {
     taskResults.value[currentTask.value.id] = result.value
+  }
+  if (shouldShowArrestScene()) {
+    arrestSceneStep.value = 0
+    return
   }
   if (currentTaskIndex.value < tasks.value.length - 1) {
     currentTaskIndex.value += 1
