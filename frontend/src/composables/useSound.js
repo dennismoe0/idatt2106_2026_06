@@ -110,5 +110,59 @@ export function useSound() {
     }
   }
 
-  return { playCorrect, playWrong, playFanfare, playClick }
+  /**
+   * Soft page-turn / paper-rustle style cue for notebook navigation.
+   */
+  function noiseBurst(ctx, startTime, duration, volume = 0.2, bandFreq = 1200, Q = 0.8) {
+    const sampleRate = ctx.sampleRate
+    const frameCount = Math.max(1, Math.floor(sampleRate * duration))
+    const buffer = ctx.createBuffer(1, frameCount, sampleRate)
+    const data = buffer.getChannelData(0)
+    for (let i = 0; i < frameCount; i++) {
+      // white noise with gentle decay
+      data[i] = (Math.random() * 2 - 1) * (1 - i / frameCount)
+    }
+    const src = ctx.createBufferSource()
+    src.buffer = buffer
+
+    const filter = ctx.createBiquadFilter()
+    filter.type = 'bandpass'
+    filter.frequency.setValueAtTime(bandFreq, startTime)
+    filter.Q.setValueAtTime(Q, startTime)
+
+    const gain = ctx.createGain()
+    gain.gain.setValueAtTime(0.0001, startTime)
+    gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.005)
+    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration)
+
+    src.connect(filter)
+    filter.connect(gain)
+    gain.connect(ctx.destination)
+
+    src.start(startTime)
+    src.stop(startTime + duration + 0.02)
+  }
+
+  function playPageTurn() {
+    const vol = audioStore.effectiveVolume
+    if (vol === 0) return
+    try {
+      const ctx = getCtx()
+      const now = ctx.currentTime
+      const v = vol * 0.18
+
+      // low body — the weight of the page
+      tone(200, now, 0.06, v * 0.55, 'triangle', ctx)
+      // crisp edge — the page's leading edge
+      tone(1200, now + 0.006, 0.03, v * 0.28, 'triangle', ctx)
+      // mid-band rustle (main paper sound)
+      noiseBurst(ctx, now, 0.18, v * 0.9, 900, 0.7)
+      // high flutter (edge and paper fibres)
+      noiseBurst(ctx, now + 0.02, 0.10, v * 0.5, 3500, 0.5)
+    } catch (e) {
+      console.warn('[useSound] playPageTurn failed:', e)
+    }
+  }
+
+  return { playCorrect, playWrong, playFanfare, playClick, playPageTurn }
 }

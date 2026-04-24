@@ -102,6 +102,57 @@
   --color-mystery-border:    #c8b89a;
   --color-mystery-text:      #2c1f0e;
 
+  /* Notebook journal — leather-bound field journal palette.
+     Grouped together so the whole journal theme lives in one place. */
+  --color-journal-ink:             #3b2817;
+  --color-journal-ink-strong:      #2f1d10;
+  --color-journal-ink-soft:        #523115;
+  --color-journal-accent:          #734420;
+  --color-journal-danger:          #99281f;
+  --color-journal-error:           #9e2a21;
+  --color-journal-modal-ink:       #382617;
+
+  --color-journal-parchment:        #f9efd9;
+  --color-journal-parchment-warm:   #f9efd8;
+  --color-journal-parchment-bright: #fff1ce;
+  --color-journal-parchment-light:  #ffefca;
+  --color-journal-highlight:        #ffe1a6;
+  --color-journal-error-soft:       #ffd4cc;
+
+  --color-journal-paper-top:     #f5ead2;
+  --color-journal-paper-mid:     #ecdcb9;
+  --color-journal-paper-bottom:  #e8d5af;
+  --color-journal-pages-top:     #f7efdd;
+  --color-journal-pages-bottom:  #ede0c2;
+
+  --color-journal-leather-top:     #7f4b21;
+  --color-journal-leather-bottom:  #5b3117;
+  --color-journal-leather-light:   #784623;
+  --color-journal-leather-mid:     #562d17;
+  --color-journal-leather-dark:    #351a0e;
+  --color-journal-retry-top:       #7c4a24;
+  --color-journal-retry-bottom:    #5a2f17;
+
+  --color-journal-cover-inside-top:    #8a552f;
+  --color-journal-cover-inside-mid:    #653819;
+  --color-journal-cover-inside-bottom: #43200f;
+
+  --color-journal-spine-top:        #3f2110;
+  --color-journal-spine-mid:        #683918;
+  --color-journal-spine-dark:       #2e170b;
+  --color-journal-spine-edge:       #71411f;
+  --color-journal-spine-cover-top:  #5d3518;
+  --color-journal-spine-cover-mid:  #73421e;
+  --color-journal-spine-cover-dark: #4a2712;
+
+  --color-journal-rule-soft:      rgba(188, 101, 51, 0.18);
+  --color-journal-rule-strong:    rgba(188, 101, 51, 0.4);
+  --color-journal-stamp:          rgba(133, 36, 24, 0.78);
+  --color-journal-stamp-border:   rgba(133, 36, 24, 0.42);
+  --color-journal-locked:         rgba(95, 79, 58, 0.66);
+  --color-journal-locked-border:  rgba(95, 79, 58, 0.32);
+  --color-journal-modal-surface:  rgba(255, 253, 247, 0.96);
+
   /* Leaderboard medal tiers */
   --color-medal-gold-border:   #f59e0b;
   --color-medal-gold-bg:       #fffbeb;
