@@ -4,7 +4,9 @@ import LeaderboardView from '@/views/student/LeaderboardView.vue'
 
 const mockGameStore = vi.hoisted(() => ({
   schoolLeaderboard: [],
+  globalLeaderboard: [],
   fetchSchoolLeaderboard: vi.fn().mockResolvedValue(undefined),
+  fetchGlobalLeaderboard: vi.fn().mockResolvedValue(undefined),
 }))
 
 const mockClassroomStore = vi.hoisted(() => ({
@@ -66,11 +68,13 @@ describe('LeaderboardView', () => {
     mockClassroomStore.displayName = 'Ole Pettersen'
     mockAuthStore.userId = 2002
     mockGameStore.fetchSchoolLeaderboard.mockClear()
+    mockGameStore.fetchGlobalLeaderboard.mockClear()
     mockGameStore.schoolLeaderboard = [
       {
         studentId: 2001,
         classroomId: 101,
         classroomName: '3A',
+        schoolName: 'Nordbyen skole',
         displayName: 'Ada Lovelace',
         completedTasks: 10,
         totalTasks: 12,
@@ -91,6 +95,7 @@ describe('LeaderboardView', () => {
         studentId: 2002,
         classroomId: 101,
         classroomName: '3A',
+        schoolName: 'Nordbyen skole',
         displayName: 'Ole Pettersen',
         completedTasks: 8,
         totalTasks: 12,
@@ -100,6 +105,7 @@ describe('LeaderboardView', () => {
         studentId: 3001,
         classroomId: 202,
         classroomName: '3B',
+        schoolName: 'Nordbyen skole',
         displayName: 'Kari Nordmann',
         completedTasks: 11,
         totalTasks: 12,
@@ -117,14 +123,28 @@ describe('LeaderboardView', () => {
         },
       },
     ]
+    mockGameStore.globalLeaderboard = [
+      ...mockGameStore.schoolLeaderboard,
+      {
+        studentId: 4001,
+        classroomId: 303,
+        classroomName: '4C',
+        schoolName: 'Sorlia skole',
+        displayName: 'Mina Verdensrom',
+        completedTasks: 9,
+        totalTasks: 12,
+        avatar: null,
+      },
+    ]
   })
 
-  it('renders only the top five while showing the current student rank in the stat card', async () => {
+  it('renders local and global tabs while keeping top-five ranking behavior', async () => {
     mockGameStore.schoolLeaderboard = [
       {
         studentId: 1999,
         classroomId: 101,
         classroomName: '3A',
+        schoolName: 'Nordbyen skole',
         displayName: 'Grace Hopper',
         completedTasks: 12,
         totalTasks: 12,
@@ -135,6 +155,7 @@ describe('LeaderboardView', () => {
         studentId: 2003,
         classroomId: 101,
         classroomName: '3A',
+        schoolName: 'Nordbyen skole',
         displayName: 'Linus Torvalds',
         completedTasks: 7,
         totalTasks: 12,
@@ -144,6 +165,7 @@ describe('LeaderboardView', () => {
         studentId: 2004,
         classroomId: 101,
         classroomName: '3A',
+        schoolName: 'Nordbyen skole',
         displayName: 'Margaret Hamilton',
         completedTasks: 6,
         totalTasks: 12,
@@ -153,6 +175,7 @@ describe('LeaderboardView', () => {
         studentId: 2005,
         classroomId: 101,
         classroomName: '3A',
+        schoolName: 'Nordbyen skole',
         displayName: 'Alan Turing',
         completedTasks: 5,
         totalTasks: 12,
@@ -162,6 +185,7 @@ describe('LeaderboardView', () => {
         studentId: 2006,
         classroomId: 101,
         classroomName: '3A',
+        schoolName: 'Nordbyen skole',
         displayName: 'Katherine Johnson',
         completedTasks: 4,
         totalTasks: 12,
@@ -175,6 +199,7 @@ describe('LeaderboardView', () => {
         studentId: 3001,
         classroomId: 202,
         classroomName: '3B',
+        schoolName: 'Nordbyen skole',
         displayName: 'Kari Nordmann',
         completedTasks: 11,
         totalTasks: 12,
@@ -192,19 +217,37 @@ describe('LeaderboardView', () => {
         },
       },
     ]
+    mockGameStore.globalLeaderboard = [
+      ...mockGameStore.schoolLeaderboard,
+      {
+        studentId: 4001,
+        classroomId: 303,
+        classroomName: '4C',
+        schoolName: 'Sorlia skole',
+        displayName: 'Mina Verdensrom',
+        completedTasks: 9,
+        totalTasks: 12,
+        avatar: null,
+      },
+    ]
 
     const wrapper = mount(LeaderboardView)
     await flushPromises()
 
     expect(mockGameStore.fetchSchoolLeaderboard).toHaveBeenCalledWith(101)
+    expect(mockGameStore.fetchGlobalLeaderboard).toHaveBeenCalledWith(101)
     expect(wrapper.findAll('table')).toHaveLength(2)
     expect(wrapper.find('ol').exists()).toBe(false)
     expect(wrapper.text()).toContain('Sammenlign deg selv med klassen')
+    expect(wrapper.text()).toContain('SAMMENLIGN DEG MED ANDRE PÅ')
+    expect(wrapper.text()).toContain('Nordbyen skole')
+    expect(wrapper.text()).toContain('RESTEN AV VERDEN')
     expect(wrapper.text()).toContain('Kun topp fem elever')
     expect(wrapper.text()).toContain('#7')
     expect(wrapper.text()).toContain('Fremdrift')
-    expect(wrapper.text()).toContain('Andre klasser på skolen')
     expect(wrapper.text()).toContain('Kari Nordmann')
+    expect(wrapper.text()).toContain('Nordbyen skole')
+    expect(wrapper.text()).not.toContain('Mina Verdensrom')
 
     const avatarTexts = wrapper.findAll('.avatar-preview-stub').map((avatar) => avatar.text())
     expect(avatarTexts).toContain('bun')
@@ -214,6 +257,12 @@ describe('LeaderboardView', () => {
 
     expect(ownRow).toBeUndefined()
     expect(wrapper.findAll('.leaderboard-student__badge')).toHaveLength(0)
+
+    await wrapper.get('button[aria-selected="false"]').trigger('click')
+
+    expect(wrapper.text()).toContain('Mina Verdensrom')
+    expect(wrapper.text()).toContain('Sorlia skole')
+    expect(wrapper.findAll('table')).toHaveLength(3)
   })
 
   it('does not highlight another student with the same display name', async () => {
@@ -222,6 +271,7 @@ describe('LeaderboardView', () => {
         studentId: 9999,
         classroomId: 101,
         classroomName: '3A',
+        schoolName: 'Nordbyen skole',
         displayName: 'Ole Pettersen',
         completedTasks: 10,
         totalTasks: 12,
@@ -231,12 +281,14 @@ describe('LeaderboardView', () => {
         studentId: 2002,
         classroomId: 101,
         classroomName: '3A',
+        schoolName: 'Nordbyen skole',
         displayName: 'Ole Pettersen',
         completedTasks: 8,
         totalTasks: 12,
         avatar: null,
       },
     ]
+    mockGameStore.globalLeaderboard = [...mockGameStore.schoolLeaderboard]
 
     const wrapper = mount(LeaderboardView)
     await flushPromises()

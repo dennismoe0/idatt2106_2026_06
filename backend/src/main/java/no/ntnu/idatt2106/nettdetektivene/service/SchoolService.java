@@ -52,6 +52,7 @@ public class SchoolService {
         school = schoolRepository.save(school);
         teacher.setSchool(school);
         userRepository.save(teacher);
+        syncTeacherClassroomsToSchool(teacherId, school);
         log.info("[SchoolService] School created: schoolId={} teacherId={} joinCode={}", school.getId(), teacherId, school.getJoinCode());
         return toSchoolResponse(school);
     }
@@ -71,6 +72,7 @@ public class SchoolService {
             });
         teacher.setSchool(school);
         userRepository.save(teacher);
+        syncTeacherClassroomsToSchool(teacherId, school);
         log.info("[SchoolService] Teacher {} joined school {}", teacherId, school.getId());
         return toSchoolResponse(school);
     }
@@ -118,6 +120,23 @@ public class SchoolService {
                 log.warn("[SchoolService] Teacher not found: {}", teacherId);
                 return new ResourceNotFoundException("User not found");
             });
+    }
+
+    private void syncTeacherClassroomsToSchool(Long teacherId, School school) {
+        List<Classroom> classrooms = classroomRepository.findByTeachers_Teacher_UserId(teacherId);
+        for (Classroom classroom : classrooms) {
+            if (classroom.getSchool() == school) {
+                continue;
+            }
+            classroom.setSchool(school);
+        }
+        classroomRepository.saveAll(classrooms);
+        log.info(
+            "[SchoolService] Synced {} classrooms to school {} for teacher {}",
+            classrooms.size(),
+            school.getId(),
+            teacherId
+        );
     }
 
     private SchoolResponse toSchoolResponse(School school) {

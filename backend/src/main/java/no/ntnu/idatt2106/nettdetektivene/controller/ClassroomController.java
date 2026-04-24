@@ -121,6 +121,16 @@ public class ClassroomController {
         return classroomService.getSchoolLeaderboard(currentUserId(userDetails), id);
     }
 
+    @GetMapping("/{id}/global-leaderboard")
+    @PreAuthorize("isAuthenticated()")
+    public List<SchoolLeaderboardEntryDto> getGlobalLeaderboard(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+        log.info("[ClassroomController] GET /api/classrooms/{}/global-leaderboard", id);
+        return classroomService.getGlobalLeaderboard(currentUserId(userDetails), id);
+    }
+
     @PutMapping("/{id}/my-displayname")
     @PreAuthorize("hasRole('STUDENT')")
     public StudentInClassroomResponse updateMyDisplayName(
