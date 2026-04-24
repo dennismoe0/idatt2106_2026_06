@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface MedalRepository extends JpaRepository<Medal, Long> {
     Optional<Medal> findByStop_Id(Long stopId);
+    Optional<Medal> findByName(String name);
 }
