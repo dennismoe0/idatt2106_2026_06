@@ -42,6 +42,13 @@ class PasswordTaskAnswerCheckerTest {
     }
 
     @Test
+    void choice_defaultsToChoiceWhenTypeIsUnknown() throws Exception {
+        var correct = mapper.readTree("{\"selected\": \"safe\"}");
+
+        assertThat(checker.isCorrect(task(13L, "{\"type\": \"MYSTERY\"}"), correct, Map.of("selected", "safe"))).isTrue();
+    }
+
+    @Test
     void choice_wrongSelected_fails() throws Exception {
         var correct = mapper.readTree("{\"selected\": \"d\"}");
 
@@ -95,6 +102,7 @@ class PasswordTaskAnswerCheckerTest {
         var correct = mapper.readTree("{}");
 
         assertThat(checker.isCorrect(task(11L, "{\"type\": \"BUILDER\"}"), correct, Map.of("password", "abc123"))).isFalse();
+        assertThat(checker.isCorrect(task(11L, "{\"type\": \"BUILDER\"}"), correct, Map.of("password", "Tiger42!"))).isTrue();
     }
 
     @Test
