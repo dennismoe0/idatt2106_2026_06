@@ -26,32 +26,32 @@
 
         <div class="learn-sections">
           <article
-            v-for="(slide, index) in slides"
-            :key="`${task.id}-slide-${index}`"
+            v-if="currentSlide"
+            :key="`${task.id}-slide-${currentSlideIndex}`"
             class="slide"
           >
             <div class="slide__header">
-              <span class="slide__step">Del {{ index + 1 }}</span>
-            <span v-if="slide.icon" class="slide__icon" aria-hidden="true">{{ slide.icon }}</span>
+              <span class="slide__step">Del {{ currentSlideIndex + 1 }} av {{ slides.length }}</span>
+            <span v-if="currentSlide.icon" class="slide__icon" aria-hidden="true">{{ currentSlide.icon }}</span>
             </div>
-            <h3 class="slide__heading">{{ slide.heading }}</h3>
-            <p class="slide__body">{{ slide.body }}</p>
+            <h3 class="slide__heading">{{ currentSlide.heading }}</h3>
+            <p class="slide__body">{{ currentSlide.body }}</p>
 
-            <div v-if="slide.examples?.length" class="slide__examples">
+            <div v-if="currentSlide.examples?.length" class="slide__examples">
               <p class="slide__examples-title">Slik kan det se ut i virkeligheten</p>
-              <div v-if="task.stopTheme === 'FAKE_NEWS' && slide.exampleType === 'Nyhetsartikkel'" class="news-examples">
+              <div v-if="task.stopTheme === 'FAKE_NEWS' && currentSlide.exampleType === 'Nyhetsartikkel'" class="news-examples">
                 <article class="news-example">
-                  <p class="news-example__label">{{ slide.exampleType }}</p>
-                  <h4 class="news-example__headline">{{ buildNewsExample(slide.examples).headline }}</h4>
-                  <p v-if="buildNewsExample(slide.examples).body" class="news-example__body">
-                    {{ buildNewsExample(slide.examples).body }}
+                  <p class="news-example__label">{{ currentSlide.exampleType }}</p>
+                  <h4 class="news-example__headline">{{ buildNewsExample(currentSlide.examples).headline }}</h4>
+                  <p v-if="buildNewsExample(currentSlide.examples).body" class="news-example__body">
+                    {{ buildNewsExample(currentSlide.examples).body }}
                   </p>
                 </article>
-                <div v-if="buildNewsExample(slide.examples).comments.length" class="news-comments">
+                <div v-if="buildNewsExample(currentSlide.examples).comments.length" class="news-comments">
                   <p class="news-comments__title">Kommentar</p>
                   <ul class="news-comments__list">
                     <li
-                      v-for="comment in buildNewsExample(slide.examples).comments"
+                      v-for="comment in buildNewsExample(currentSlide.examples).comments"
                       :key="comment"
                       class="news-comments__item"
                     >
@@ -61,28 +61,28 @@
                 </div>
               </div>
               <div v-else-if="task.stopTheme === 'FAKE_NEWS'" class="typed-examples">
-                <p class="typed-examples__label">{{ slide.exampleType || 'Eksempel' }}</p>
+                <p class="typed-examples__label">{{ currentSlide.exampleType || 'Eksempel' }}</p>
                 <ul class="slide__list">
-                  <li v-for="example in slide.examples" :key="example" class="slide__list-item">
+                  <li v-for="example in currentSlide.examples" :key="example" class="slide__list-item">
                     {{ example }}
                   </li>
                 </ul>
               </div>
-              <div v-else-if="marketplaceVisualFor(index)" class="marketplace-visual">
-                <div v-if="marketplaceVisualFor(index).shop" class="marketplace-visual__frame">
+              <div v-else-if="marketplaceVisualFor(currentSlideIndex)" class="marketplace-visual">
+                <div v-if="marketplaceVisualFor(currentSlideIndex).shop" class="marketplace-visual__frame">
                   <FakeWebshop
-                    v-bind="marketplaceVisualFor(index).shop"
-                    :clickable-elements="marketplaceVisualFor(index).callouts.map((callout) => ({ id: callout.key, label: '', isSuspicious: true, explanation: callout.text }))"
+                    v-bind="marketplaceVisualFor(currentSlideIndex).shop"
+                    :clickable-elements="marketplaceVisualFor(currentSlideIndex).callouts.map((callout) => ({ id: callout.key, label: '', isSuspicious: true, explanation: callout.text }))"
                     :flagged-elements="new Set()"
-                    :feedback-states="Object.fromEntries(marketplaceVisualFor(index).callouts.map((callout) => [callout.key, 'focus']))"
-                    :field-markers="Object.fromEntries(marketplaceVisualFor(index).callouts.map((callout, calloutIndex) => [callout.key, String(calloutIndex + 1)]))"
+                    :feedback-states="Object.fromEntries(marketplaceVisualFor(currentSlideIndex).callouts.map((callout) => [callout.key, 'focus']))"
+                    :field-markers="Object.fromEntries(marketplaceVisualFor(currentSlideIndex).callouts.map((callout, calloutIndex) => [callout.key, String(calloutIndex + 1)]))"
                     :disabled="true"
                   />
                 </div>
 
-                <div v-if="marketplaceVisualFor(index).callouts" class="marketplace-compare">
+                <div v-if="marketplaceVisualFor(currentSlideIndex).callouts" class="marketplace-compare">
                   <article
-                    v-for="callout in marketplaceVisualFor(index).callouts"
+                    v-for="callout in marketplaceVisualFor(currentSlideIndex).callouts"
                     :key="callout.key"
                     class="marketplace-compare__card marketplace-compare__card--risky"
                     :class="`marketplace-compare__card--${callout.key}`"
@@ -95,9 +95,9 @@
                   </article>
                 </div>
 
-                <div v-else-if="marketplaceVisualFor(index).comparisons" class="marketplace-compare">
+                <div v-else-if="marketplaceVisualFor(currentSlideIndex).comparisons" class="marketplace-compare">
                   <article
-                    v-for="item in marketplaceVisualFor(index).comparisons"
+                    v-for="item in marketplaceVisualFor(currentSlideIndex).comparisons"
                     :key="item.key"
                     class="marketplace-compare__card"
                     :class="`marketplace-compare__card--${item.tone}`"
@@ -110,15 +110,15 @@
                 </div>
               </div>
               <ul v-else class="slide__list">
-                <li v-for="example in slide.examples" :key="example" class="slide__list-item">
+                <li v-for="example in currentSlide.examples" :key="example" class="slide__list-item">
                   {{ example }}
                 </li>
               </ul>
             </div>
 
-            <div v-if="slide.checks?.length" class="slide__notes">
+            <div v-if="currentSlide.checks?.length" class="slide__notes">
               <div
-                v-for="check in slide.checks"
+                v-for="check in currentSlide.checks"
                 :key="check"
                 class="slide__note"
               >
@@ -127,20 +127,20 @@
               </div>
             </div>
 
-            <div v-if="questionForSlide(index)" class="inline-question" :class="questionClass(index)">
+            <div v-if="currentQuestion" class="inline-question" :class="questionClass(currentSlideIndex)">
               <div class="inline-question__content">
-                <p class="inline-question__eyebrow">Sjekk at du forstår del {{ index + 1 }}</p>
-                <p class="inline-question__text">{{ questionForSlide(index).question }}</p>
+                <p class="inline-question__eyebrow">Sjekk at du forstår del {{ currentSlideIndex + 1 }}</p>
+                <p class="inline-question__text">{{ currentQuestion.question }}</p>
 
                 <Transition name="feedback-pop">
                   <p
-                    v-if="questionStateFor(index) === 'CORRECT'"
+                    v-if="questionStateFor(currentSlideIndex) === 'CORRECT'"
                     class="question__feedback question__feedback--correct"
                   >
                     Riktig!
                   </p>
                   <p
-                    v-else-if="questionStateFor(index) === 'WRONG'"
+                    v-else-if="questionStateFor(currentSlideIndex) === 'WRONG'"
                     class="question__feedback question__feedback--wrong"
                   >
                     Prøv igjen
@@ -149,24 +149,49 @@
               </div>
 
               <div class="inline-question__footer">
-                <div class="question__options" role="group" :aria-label="questionForSlide(index).question">
+                <div class="question__options" role="group" :aria-label="currentQuestion.question">
                   <button
-                    v-for="opt in questionForSlide(index).options"
+                    v-for="opt in currentQuestion.options"
                     :key="opt"
                     class="option-btn"
-                    :class="optionClass(opt, index)"
-                    :disabled="questionStateFor(index) === 'CORRECT'"
-                    @click="submitAnswer(opt, index)"
+                    :class="optionClass(opt, currentSlideIndex)"
+                    :disabled="questionStateFor(currentSlideIndex) === 'CORRECT'"
+                    @click="submitAnswer(opt, currentSlideIndex)"
                   >
                     {{ opt }}
                   </button>
                 </div>
               </div>
             </div>
+
+            <div class="slide-nav">
+              <button
+                type="button"
+                class="nav-btn nav-btn--secondary"
+                :disabled="currentSlideIndex === 0"
+                @click="goToPreviousSlide"
+              >
+                ← Forrige del
+              </button>
+
+              <button
+                v-if="!isLastSlide"
+                type="button"
+                class="nav-btn nav-btn--primary"
+                :disabled="!canAdvanceFromCurrentSlide"
+                @click="goToNextSlide"
+              >
+                Neste del →
+              </button>
+            </div>
           </article>
         </div>
 
-        <div class="learn-complete" :class="{ 'learn-complete--locked': !allQuestionsCorrect }">
+        <div
+          v-if="isLastSlide"
+          class="learn-complete"
+          :class="{ 'learn-complete--locked': !allQuestionsCorrect }"
+        >
           <div>
             <p class="learn-complete__title">{{ allQuestionsCorrect ? 'Bra jobbet, detektiv!' : 'Fullfør læringssjekken' }}</p>
             <p class="learn-complete__body">
@@ -216,6 +241,7 @@ const THEME_INSTRUCTIONS = {
 
 const phase      = ref('LEARN')
 const submittedOnce = ref(false)
+const currentSlideIndex = ref(0)
 
 // 'UNANSWERED' | 'CORRECT' | 'WRONG'
 const mayorImage = '/story_pictures/mayor-guide.png'
@@ -223,6 +249,13 @@ const primaryInstruction = computed(() => THEME_INSTRUCTIONS[props.task?.stopThe
 
 const questionStates = ref({})
 const selectedAnswers = ref({})
+const currentSlide = computed(() => slides.value[currentSlideIndex.value] ?? null)
+const currentQuestion = computed(() => questionForSlide(currentSlideIndex.value))
+const isLastSlide = computed(() => currentSlideIndex.value === slides.value.length - 1)
+const canAdvanceFromCurrentSlide = computed(() => {
+  if (!currentQuestion.value) return true
+  return questionStateFor(currentSlideIndex.value) === 'CORRECT'
+})
 const allQuestionsCorrect = computed(() => quiz.value.length > 0
   && quiz.value.every((_, index) => questionStateFor(index) === 'CORRECT'))
 const nextButtonLabel = computed(() => {
@@ -313,6 +346,7 @@ const MARKETPLACE_VISUAL_EXAMPLES = {
 watch(() => props.task?.id, () => {
   phase.value         = 'LEARN'
   submittedOnce.value = false
+  currentSlideIndex.value = 0
   questionStates.value = {}
   selectedAnswers.value = {}
 }, { immediate: true })
@@ -365,6 +399,16 @@ function submitAnswer(opt, index) {
 function resetQuestion(index) {
   selectedAnswers.value = { ...selectedAnswers.value, [index]: null }
   questionStates.value = { ...questionStates.value, [index]: 'UNANSWERED' }
+}
+
+function goToPreviousSlide() {
+  if (currentSlideIndex.value === 0) return
+  currentSlideIndex.value -= 1
+}
+
+function goToNextSlide() {
+  if (!canAdvanceFromCurrentSlide.value || isLastSlide.value) return
+  currentSlideIndex.value += 1
 }
 
 function splitExample(example) {
@@ -876,6 +920,13 @@ function completeIfAllCorrect() {
   background: var(--color-surface);
 }
 
+.slide-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
 .learn-complete {
   position: sticky;
   bottom: var(--space-4);
@@ -934,18 +985,33 @@ function completeIfAllCorrect() {
 }
 
 .nav-btn--start-quiz,
-.nav-btn--learn-next {
+.nav-btn--learn-next,
+.nav-btn--primary {
   background: var(--color-primary);
   color: var(--color-text-on-dark);
   box-shadow: 0 10px 22px rgba(47, 106, 255, 0.22);
 }
 .nav-btn--start-quiz:hover,
-.nav-btn--learn-next:hover:not(:disabled) { background: var(--color-btn-primary-hover); }
+.nav-btn--learn-next:hover:not(:disabled),
+.nav-btn--primary:hover:not(:disabled) { background: var(--color-btn-primary-hover); }
+
+.nav-btn--secondary {
+  background: var(--color-surface);
+  color: var(--color-heading);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-btn--secondary:hover:not(:disabled) {
+  background: var(--color-surface-soft);
+}
+
 .nav-btn:active { transform: scale(0.97); }
 .nav-btn:disabled {
-  cursor: wait;
+  cursor: not-allowed;
   opacity: 0.7;
   transform: none;
+  box-shadow: none;
 }
 
 /* ── Quiz progress ── */
@@ -1114,6 +1180,14 @@ function completeIfAllCorrect() {
   .learn-complete {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .slide-nav {
+    flex-direction: column;
+  }
+
+  .slide-nav .nav-btn {
+    width: 100%;
   }
 
   .marketplace-compare {
