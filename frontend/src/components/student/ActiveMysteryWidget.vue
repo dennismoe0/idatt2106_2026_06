@@ -71,8 +71,8 @@ async function submitAnswer() {
       </p>
     </div>
 
-    <div v-else-if="mystery.questionText" class="mystery-widget__question">
-      <p>{{ mystery.questionText }}</p>
+    <div v-else-if="mystery.mysteryType === 'REAL_OR_FAKE' || mystery.questionText" class="mystery-widget__question">
+      <p>{{ mystery.questionText || 'Er dette ekte eller falskt?' }}</p>
       <div class="mystery-widget__choices">
         <label><input v-model="answer" type="radio" value="REAL" /> Ekte</label>
         <label><input v-model="answer" type="radio" value="FAKE" /> Falsk</label>
@@ -137,10 +137,11 @@ async function submitAnswer() {
 
 .mystery-widget__image {
   width: 100%;
-  max-height: 240px;
-  object-fit: cover;
+  max-height: 480px;
+  object-fit: contain;
   border-radius: 0.75rem;
   margin-bottom: 1rem;
+  background: var(--color-surface-soft);
 }
 
 .mystery-widget__question p {

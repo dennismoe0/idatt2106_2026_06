@@ -29,7 +29,7 @@ public class WeeklyMystery {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(length = 500)
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)

@@ -7,6 +7,6 @@ import jakarta.validation.constraints.Size;
 public record WeeklyMysterySubmissionDto(
     @NotBlank @Size(max = 200) String title,
     @Size(max = 2000) String description,
-    @Size(max = 500) String imageUrl,
+    String imageUrl,
     @NotNull Long classroomId
 ) {}
