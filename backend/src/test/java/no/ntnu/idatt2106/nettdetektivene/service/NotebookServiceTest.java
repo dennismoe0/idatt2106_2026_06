@@ -150,6 +150,23 @@ class NotebookServiceTest {
         verify(notebookRepository, never()).save(any());
     }
 
+    @Test
+    void createAutoClueIfNotExists_savesClueTextWhenNoneExists() {
+        Stop stop = makeStop(1L, 1);
+        stop.setClueText("Tyven hadde røde sko.");
+
+        when(notebookRepository.existsByStudent_IdAndStop_IdAndEntryType(
+            1L, 1L, NotebookEntry.EntryType.AUTO_TIP)).thenReturn(false);
+        when(userRepository.getReferenceById(1L)).thenReturn(new User());
+
+        notebookService.createAutoClueIfNotExists(1L, stop);
+
+        ArgumentCaptor<NotebookEntry> captor = ArgumentCaptor.forClass(NotebookEntry.class);
+        verify(notebookRepository).save(captor.capture());
+        assertThat(captor.getValue().getEntryType()).isEqualTo(NotebookEntry.EntryType.AUTO_TIP);
+        assertThat(captor.getValue().getContent()).isEqualTo("Tyven hadde røde sko.");
+    }
+
     // ── createReflection ───────────────────────────────────────
 
     @Test
