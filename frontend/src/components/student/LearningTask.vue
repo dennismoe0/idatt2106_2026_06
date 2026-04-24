@@ -2,7 +2,7 @@
   <section class="learn-task">
     <template v-if="phase === 'LEARN'">
       <div class="learn-shell">
-        <header class="learn-hero">
+        <header v-if="currentSlideIndex === 0" class="learn-hero">
           <div class="learn-hero__intro">
             <p class="learn-hero__eyebrow">Briefing fra borgermesteren</p>
             <h2 class="learn-hero__title">Før du starter oppgaven</h2>
@@ -25,11 +25,27 @@
         </header>
 
         <div class="learn-sections">
-          <article
-            v-if="currentSlide"
-            :key="`${task.id}-slide-${currentSlideIndex}`"
-            class="slide"
-          >
+          <div class="learn-progress">
+            <p class="learn-progress__label">Læringsdel {{ currentSlideIndex + 1 }} / {{ slides.length }}</p>
+            <div class="learn-progress__steps" aria-hidden="true">
+              <span
+                v-for="(_, index) in slides"
+                :key="`step-${index}`"
+                class="learn-progress__step"
+                :class="{
+                  'learn-progress__step--active': index === currentSlideIndex,
+                  'learn-progress__step--done': questionStateFor(index) === 'CORRECT',
+                }"
+              />
+            </div>
+          </div>
+
+          <Transition name="slide-page" mode="out-in">
+            <article
+              v-if="currentSlide"
+              :key="`${task.id}-slide-${currentSlideIndex}`"
+              class="slide learn-page"
+            >
             <div class="slide__header">
               <span class="slide__step">Del {{ currentSlideIndex + 1 }} av {{ slides.length }}</span>
             <span v-if="currentSlide.icon" class="slide__icon" aria-hidden="true">{{ currentSlide.icon }}</span>
@@ -184,7 +200,8 @@
                 Neste del →
               </button>
             </div>
-          </article>
+            </article>
+          </Transition>
         </div>
 
         <div
@@ -404,11 +421,13 @@ function resetQuestion(index) {
 function goToPreviousSlide() {
   if (currentSlideIndex.value === 0) return
   currentSlideIndex.value -= 1
+  scrollToLearningTop()
 }
 
 function goToNextSlide() {
   if (!canAdvanceFromCurrentSlide.value || isLastSlide.value) return
   currentSlideIndex.value += 1
+  scrollToLearningTop()
 }
 
 function splitExample(example) {
@@ -441,6 +460,12 @@ function completeIfAllCorrect() {
     submittedOnce.value = true
     console.log('[LearningTask] All quiz questions passed — submitting')
     emit('submitted', { quizPassed: true })
+  }
+}
+
+function scrollToLearningTop() {
+  if (typeof window !== 'undefined') {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 }
 </script>
@@ -562,11 +587,56 @@ function completeIfAllCorrect() {
   gap: var(--space-6);
 }
 
+.learn-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.learn-progress__label {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.learn-progress__steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.learn-progress__step {
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+}
+
+.learn-progress__step--active {
+  background: var(--color-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary-light) 45%, transparent);
+}
+
+.learn-progress__step--done {
+  background: var(--color-success);
+}
+
 /* ── Slide ── */
 .slide {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+}
+
+.learn-page {
+  min-height: 70vh;
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-bg) 100%);
+  box-shadow: var(--shadow-lg);
 }
 
 .slide__header {
@@ -1143,6 +1213,21 @@ function completeIfAllCorrect() {
 .feedback-pop-enter-active { transition: opacity 0.2s ease, transform 0.2s ease; }
 .feedback-pop-enter-from   { opacity: 0; transform: scale(0.85); }
 
+.slide-page-enter-active,
+.slide-page-leave-active {
+  transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.slide-page-enter-from {
+  opacity: 0;
+  transform: translateX(24px);
+}
+
+.slide-page-leave-to {
+  opacity: 0;
+  transform: translateX(-24px);
+}
+
 @media (max-width: 768px) {
   .learn-hero {
     grid-template-columns: 1fr;
@@ -1175,6 +1260,11 @@ function completeIfAllCorrect() {
 
   .slide__note {
     width: 100%;
+  }
+
+  .learn-page {
+    min-height: auto;
+    padding: var(--space-4);
   }
 
   .learn-complete {
