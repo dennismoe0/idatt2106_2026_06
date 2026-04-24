@@ -45,31 +45,31 @@ public class DataLoader implements ApplicationRunner {
                  "FAKE_NEWS", 1, false,
                  "Falske nyheter bruker gjerne skremmende overskrifter og anonyme kilder. Sjekk alltid hvem som har skrevet saken: er nettadressen til et kjent mediehus? Søk opp saken på andre seriøse nettsteder for å se om historien stemmer. Overdrevne påstander uten dokumentasjon er et varseltegn.",
                  "Tyven hadde på seg en mørk jakke, rød hette og lyse sko."),
-            stop("Postkontoret",
-                 "Et nytt spor har dukket opp: noen i kommunen fikk en e-post som så helt ekte ut, klikket på lenken og mistet kontroll over kontoen sin. Det kan være akkurat slik tyven kom seg inn i systemene rundt ordførerens prosjekt.\n\nFor å komme videre i saken må vi forstå hvordan phishing faktisk fungerer. Hvis du lærer å avsløre falske e-poster, kan du finne ut hvordan tyven åpnet døren innenfra.",
-                 "PHISHING_EMAIL", 2, false,
-                 "Phishing-e-poster later som de er fra banker, skoler eller kjente selskaper for å lure deg til å gi fra deg passord eller penger. Se etter skrivefeil, ukjente avsenderadresser og lenker der nettadressen ikke stemmer med avsenderen. En ekte avsender ber aldri om passord eller betalingsinformasjon via e-post.",
-                 "Ordføreren mottok en farlig e-post fra adressen hjelp@by-service.net."),
             stop("Fotografen",
                  "Nå hevder flere at de har funnet \"bevisbildet\" som viser hvem som sto ved rådhuset den kvelden pengene forsvant. Problemet er at bildet som deles kan være manipulert, eller til og med laget av KI.\n\nHvis vi skal komme nærmere tyven, må vi vite om bildet er ekte eller bare et nytt forsøk på å villede etterforskningen. Dette oppdraget handler om å lære å se forskjell på ekte spor og falske bevis.",
-                 "AI_PHOTO", 3, false,
+                 "AI_PHOTO", 2, false,
                  "Bilder kan manipuleres og AI kan lage realistiske falske bilder. Se etter unaturlige detaljer: rare fingre, jevne bakgrunner og uskarp tekst er vanlige feil. Du kan bruke omvendt bildesøk til å sjekke om et bilde er tatt ut av en helt annen sammenheng enn det påstår.",
                  "Et ekte bilde viser tyven med en konvolutt utenfor en nettkafé i Bytorget."),
-            stop("Passordbanken",
-                 "Etterforskerne tror nå at tyven ikke bare lurte folk, men også brukte stjålne innlogginger for å bevege seg videre i systemene. Noen brukte svake passord, og det ga tyven en enklere vei mot ordførerens prosjektkonto.\n\nSkal vi forstå hvordan innbruddet skjedde, må vi lære hva som gjør et passord lett å knekke og hva som faktisk beskytter en konto. Jo bedre du blir her, jo nærmere kommer vi hvordan tyven jobbet.",
-                 "PASSWORD", 4, false,
-                 "Et sterkt passord er langt, tilfeldig og unikt for hver konto du bruker. En rekke tilfeldige ord er lettere å huske og vanskeligere å knekke enn korte passord med spesialtegn. Del aldri passordet ditt med andre, og bruk aldri samme passord på flere nettsteder.",
-                 null),
+            stop("Postkontoret",
+                 "Et nytt spor har dukket opp: noen i kommunen fikk en e-post som så helt ekte ut, klikket på lenken og mistet kontroll over kontoen sin. Det kan være akkurat slik tyven kom seg inn i systemene rundt ordførerens prosjekt.\n\nFor å komme videre i saken må vi forstå hvordan phishing faktisk fungerer. Hvis du lærer å avsløre falske e-poster, kan du finne ut hvordan tyven åpnet døren innenfra.",
+                 "PHISHING_EMAIL", 3, false,
+                 "Phishing-e-poster later som de er fra banker, skoler eller kjente selskaper for å lure deg til å gi fra deg passord eller penger. Se etter skrivefeil, ukjente avsenderadresser og lenker der nettadressen ikke stemmer med avsenderen. En ekte avsender ber aldri om passord eller betalingsinformasjon via e-post.",
+                 "Ordføreren mottok en farlig e-post fra adressen hjelp@by-service.net."),
             stop("Markedsplassen",
                  "Et nytt spor peker mot en falsk nettbutikk og et domene registrert nær Bytorget. Det ser ut som tyven brukte svindelsider for å samle inn penger og informasjon, kanskje som en del av planen rundt pengene som forsvant.\n\nFor å koble svindelen til hovedsaken må du lære hvordan falske nettbutikker avsløres. Hvis du finner hva som er galt med sidene, kan vi koble sporene nærmere personen bak hele planen.",
-                 "MARKETPLACE", 5, false,
+                 "MARKETPLACE", 4, false,
                  "Svindel på nett bruker priser som er for gode til å være sanne, krever betaling på forhånd og har vage eller kopierte produktbeskrivelser. Sjekk alltid selgerprofilen og les tilbakemeldinger fra andre kjøpere. Betal aldri med gavekort eller kryptovaluta — det er nesten umulig å spore.",
                  "Svindelbutikken «best-deals-city.xyz» var registrert på en adresse ved Bytorget."),
             stop("Den sosiale møteplassen",
                  "Nå vet vi at noen også har brukt falske kontoer for å kontakte elever og spre rykter om saken. Målet virker å være å få folk til å dele feil informasjon, peke mot feil mistenkte og holde den ekte tyven skjult litt lenger.\n\nDerfor må du lære hvordan manipulasjon i sosiale medier ser ut. Hvis du avslører de falske kontoene og ryktene, får vi det siste sporet vi trenger før konfrontasjonen med tyven.",
-                 "SOCIAL_MEDIA", 6, false,
+                 "SOCIAL_MEDIA", 5, false,
                  "Sosiale medier viser deg mest det du allerede er enig i, noe som kan gjøre det vanskelig å se helhetsbildet. Fremmede som tar kontakt og raskt ber om personlig informasjon kan ha skjulte hensikter. Del aldri telefonnummer, adresse, passord eller bilder du ikke vil at alle skal se.",
                  "En falsk konto på Fjesbok.no ble opprettet fra nettkafeen på Bytorget."),
+            stop("Passordbanken",
+                 "Etterforskerne tror nå at tyven ikke bare lurte folk, men også brukte stjålne innlogginger for å bevege seg videre i systemene. Noen brukte svake passord, og det ga tyven en enklere vei mot ordførerens prosjektkonto.\n\nSkal vi forstå hvordan innbruddet skjedde, må vi lære hva som gjør et passord lett å knekke og hva som faktisk beskytter en konto. Jo bedre du blir her, jo nærmere kommer vi hvordan tyven jobbet.",
+                 "PASSWORD", 6, false,
+                 "Et sterkt passord er langt, tilfeldig og unikt for hver konto du bruker. En rekke tilfeldige ord er lettere å huske og vanskeligere å knekke enn korte passord med spesialtegn. Del aldri passordet ditt med andre, og bruk aldri samme passord på flere nettsteder.",
+                 null),
             stop("Datasenteret",
                  "Nå har vi nesten hele bildet: pengene for idrettsparken ble stjålet, byen ble forvirret med falske nyheter, kontoer ble kompromittert med phishing og svake passord, og falske spor ble spredd med bilder, nettbutikker og sosiale medier.\n\nTyven har aktivert en reserveplan fra datasenteret for å slette sporene sine en gang for alle. Nå må du bruke alt du har lært for å stanse systemene før sannheten forsvinner.",
                  "FINAL_BOSS", 7, true,
@@ -78,11 +78,11 @@ public class DataLoader implements ApplicationRunner {
         ));
 
         Stop newsStop   = stops.get(0);
-        Stop mailStop   = stops.get(1);
-        Stop photoStop  = stops.get(2);
-        Stop pwdStop    = stops.get(3);
-        Stop marketStop = stops.get(4);
-        Stop socialStop = stops.get(5);
+        Stop photoStop  = stops.get(1);
+        Stop mailStop   = stops.get(2);
+        Stop marketStop = stops.get(3);
+        Stop socialStop = stops.get(4);
+        Stop pwdStop    = stops.get(5);
 
         List<Task> tasks = new ArrayList<>();
 
@@ -831,11 +831,11 @@ public class DataLoader implements ApplicationRunner {
 
         medalRepository.saveAll(List.of(
             medal("Nyhetsjeger", "Fullfør Nyhetskvartalet.", stops.get(0)),
-            medal("E-postetterforsker", "Fullfør Postkontoret.", stops.get(1)),
-            medal("Bildegransker", "Fullfør Fotografen.", stops.get(2)),
-            medal("Passordvokter", "Fullfør Passordbanken.", stops.get(3)),
-            medal("Trygg handler", "Fullfør Markedsplassen.", stops.get(4)),
-            medal("Sosial speider", "Fullfør Den sosiale møteplassen.", stops.get(5)),
+            medal("Bildegransker", "Fullfør Fotografen.", stops.get(1)),
+            medal("E-postetterforsker", "Fullfør Postkontoret.", stops.get(2)),
+            medal("Trygg handler", "Fullfør Markedsplassen.", stops.get(3)),
+            medal("Sosial speider", "Fullfør Den sosiale møteplassen.", stops.get(4)),
+            medal("Passordvokter", "Fullfør Passordbanken.", stops.get(5)),
             medal("Datasenterhelt", "Fullfør Datasenteret.", stops.get(6)),
             medal("Ukens detektiv", "Fullførte sitt første ukentlige mysterium"),
             medal("Mysterium-mester", "Fullførte fem ukentlige mysterier riktig")
@@ -1087,25 +1087,30 @@ public class DataLoader implements ApplicationRunner {
               "type": "FAKE_NEWS",
               "systemName": "Nyhetsfilter",
               "description": "Stopp spredning av falske nyheter",
+              "failureExplanation": "Den virkelige artikkelen hadde troverdig kilde og rolig språk. Du må stanse artikkelen som prøver å skape panikk uten bevis.",
               "articles": [
                 { "headline": "Pengene er funnet i utlandet", "source": "NRK.no", "body": "Politiet bekrefter at etterforskerne har sporet transaksjonen." },
                 { "headline": "AVSLØRT: Ordføreren stjal pengene SELV!!!!", "source": "SannNyhet.xyz", "body": "Anonym kilde sier at ordføreren er den egentlige tyven og at politiet dekker over det." }
-              ]
+              ],
+              "correctAnswer": { "article_0": true, "article_1": false }
             },
             {
               "id": 1,
               "type": "AI_PHOTO",
               "systemName": "Bildekontroll",
               "description": "Stopp falske bevis",
+              "failureExplanation": "Se etter unaturlige detaljer. Bildet som skal stoppes er KI-laget og kan ikke brukes som ekte bevis.",
               "images": [
                 { "src": "/tasks/ai-photo/boss-b.jpg", "alt": "Bilde av en person ved datamaskin", "label": "Bilde A" }
-              ]
+              ],
+              "correctAnswer": { "image_0": "AI_GENERATED" }
             },
             {
               "id": 2,
               "type": "PHISHING_EMAIL",
               "systemName": "E-postskjold",
               "description": "Stopp nye phishing-forsøk",
+              "failureExplanation": "Dette er en falsk trusselmelding. Den tryggeste handlingen er å rapportere den som phishing, ikke å svare eller klikke.",
               "email": {
                 "fromName": "Politiet",
                 "fromEmail": "politi@norge-sikkerhet.com",
@@ -1117,25 +1122,29 @@ public class DataLoader implements ApplicationRunner {
                 { "id": "REPORT", "text": "Rapporter som phishing" },
                 { "id": "REPLY",  "text": "Svar med informasjon" },
                 { "id": "OPEN",   "text": "Klikk på lenken" }
-              ]
+              ],
+              "correctAnswer": { "action": "REPORT" }
             },
             {
               "id": 3,
               "type": "MARKETPLACE",
               "systemName": "Butikksjekk",
               "description": "Stopp svindelside som samler data",
+              "failureExplanation": "Det tydeligste faresignalet er den falske nettadressen kombinert med utrygg betaling. Det er det som avslører svindelsiden.",
               "question": "Hva er galt med denne nettsiden?",
               "options": [
                 { "id": "a", "text": "Ingenting, den ser legitim ut" },
                 { "id": "b", "text": "URL-en er falsk og betalingsvalget er utrygt" },
                 { "id": "c", "text": "Kun prisen er for lav" }
-              ]
+              ],
+              "correctAnswer": { "selected": "b" }
             },
             {
               "id": 4,
               "type": "SOCIAL_MEDIA",
               "systemName": "Sosial signaljakt",
               "description": "Stopp ryktespredning",
+              "failureExplanation": "Innlegget prøver å presse deg til å dele før du vet om det stemmer. Du må sjekke kilden før du gjør noe.",
               "post": {
                 "username": "DataTyvenEr",
                 "handle": "@datatyven_er",
@@ -1151,20 +1160,23 @@ public class DataLoader implements ApplicationRunner {
                 { "id": "SHARE",         "text": "Del videre med en gang" },
                 { "id": "CHECK_SOURCES", "text": "Sjekk kilden først" },
                 { "id": "IGNORE",        "text": "Ignorer innlegget" }
-              ]
+              ],
+              "correctAnswer": { "selected": "CHECK_SOURCES" }
             },
             {
               "id": 5,
               "type": "PASSWORD",
               "systemName": "Hovedlåsen",
               "description": "Lås opp den digitale safe og redd pengene",
+              "failureExplanation": "Den digitale safen krever et langt og uforutsigbart passord. Velg alternativet som er vanskeligst å gjette.",
               "question": "Hvilket passord er sterkt nok til å sikre den redde kontoen?",
               "options": [
                 { "id": "a", "value": "admin123" },
                 { "id": "b", "value": "Trondheim" },
                 { "id": "c", "value": "S0l!Bj0rn#77" },
                 { "id": "d", "value": "passord" }
-              ]
+              ],
+              "correctAnswer": { "selected": "c" }
             }
           ]
         }

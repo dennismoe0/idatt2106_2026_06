@@ -36,7 +36,7 @@ class MarketplaceTaskAnswerCheckerTest {
     }
 
     @Test
-    void clickSuspicious_missingElement_fails() throws Exception {
+    void clickSuspicious_partialMatch_fails() throws Exception {
         var correct = mapper.readTree("{\"correctElementIds\": [\"domain\", \"payment\"]}");
         var answer  = Map.<String, Object>of("flaggedElementIds", List.of("domain"));
         assertThat(checker.isCorrect(null, correct, answer)).isFalse();
@@ -63,6 +63,43 @@ class MarketplaceTaskAnswerCheckerTest {
         assertThat(checker.isCorrect(null, correct, answer)).isFalse();
     }
 
+    @Test
+    void clickSuspicious_missingFlaggedElementIds_fails() throws Exception {
+        var correct = mapper.readTree("{\"correctElementIds\": [\"domain\"]}");
+        assertThat(checker.isCorrect(null, correct, Map.of())).isFalse();
+    }
+
+    @Test
+    void clickSuspicious_nonIterableFlaggedElementIds_fails() throws Exception {
+        var correct = mapper.readTree("{\"correctElementIds\": [\"domain\"]}");
+        var answer  = Map.<String, Object>of("flaggedElementIds", "domain");
+        assertThat(checker.isCorrect(null, correct, answer)).isFalse();
+    }
+
+    @Test
+    void clickSuspicious_duplicateIds_areDeduplicatedBeforeComparison() throws Exception {
+        var correct = mapper.readTree("{\"correctElementIds\": [\"domain\", \"domain\"]}");
+        var answer  = Map.<String, Object>of("flaggedElementIds", List.of("domain", "domain"));
+        assertThat(checker.isCorrect(null, correct, answer)).isTrue();
+    }
+
+    @Test
+    void clickSuspicious_numericIds_areNormalizedToStringBeforeComparison() throws Exception {
+        var correct = mapper.readTree("{\"correctElementIds\": [1]}");
+        var answer  = Map.<String, Object>of("flaggedElementIds", List.of(1));
+        assertThat(checker.isCorrect(null, correct, answer)).isTrue();
+    }
+
+    @Test
+    void clickSuspicious_takesPriorityOverLegacySelected() throws Exception {
+        var correct = mapper.readTree("{\"correctElementIds\": [\"domain\"], \"selected\": \"wrong\"}");
+        var answer  = Map.<String, Object>of(
+            "flaggedElementIds", List.of("domain"),
+            "selected", "wrong"
+        );
+        assertThat(checker.isCorrect(null, correct, answer)).isTrue();
+    }
+
     // ── Legacy branch ────────────────────────────────────────────────────────
 
     @Test
@@ -87,5 +124,11 @@ class MarketplaceTaskAnswerCheckerTest {
     void legacy_missingSelected_fails() throws Exception {
         var correct = mapper.readTree("{\"selected\": \"b\"}");
         assertThat(checker.isCorrect(null, correct, Map.of())).isFalse();
+    }
+
+    @Test
+    void legacy_missingSelectedInCorrectAnswer_fails() throws Exception {
+        var correct = mapper.readTree("{\"other\": \"b\"}");
+        assertThat(checker.isCorrect(null, correct, Map.of("selected", "b"))).isFalse();
     }
 }

@@ -1,16 +1,17 @@
 <template>
   <RouterView />
-  <DevNav v-if="isDev" />
+  <DevNav v-if="isDev && !route.meta.hideNav" />
 </template>
 
 <script setup>
 import { watch, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import DevNav from '@/components/common/DevNav.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useClassroomStore } from '@/stores/classroom'
 
 const isDev = import.meta.env.DEV
+const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const classroomStore = useClassroomStore()

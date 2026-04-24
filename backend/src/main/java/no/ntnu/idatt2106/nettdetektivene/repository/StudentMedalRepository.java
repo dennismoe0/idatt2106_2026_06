@@ -10,4 +10,5 @@ public interface StudentMedalRepository extends JpaRepository<StudentMedal, Long
     @EntityGraph(attributePaths = "medal")
     List<StudentMedal> findByStudent_Id(Long studentId);
     boolean existsByStudent_IdAndMedal_Id(Long studentId, Long medalId);
+    long countByStudent_Id(Long studentId);
 }

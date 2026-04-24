@@ -8,7 +8,7 @@
         <div class="profile-avatar__frame">
           <AvatarPreview
             :selections="avatarStore.avatar ?? {}"
-            :size="100"
+            :size="160"
             class="profile-avatar__img"
             :aria-label="`Avatar for ${displayName}`"
           />
@@ -190,17 +190,13 @@ onMounted(async () => {
   border-radius: var(--radius-full);
   background: var(--color-primary-soft);
   border: 3px solid var(--color-primary);
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 11px;
   overflow: hidden;
   box-shadow: var(--shadow-lg);
   flex-shrink: 0;
-}
-
-.profile-avatar__img {
-  width: 85%;
-  height: 85%;
-  object-fit: contain;
 }
 
 .profile-avatar__edit-btn {

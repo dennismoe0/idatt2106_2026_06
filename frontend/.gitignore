@@ -37,3 +37,8 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+.superpowers/
+
+# Alternative package managers
+pnpm-lock.yaml
+yarn.lock
