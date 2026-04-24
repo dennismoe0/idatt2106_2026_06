@@ -68,10 +68,6 @@
 
       </nav>
 
-      <ActiveMysteryWidget
-        v-if="classroomStore.currentClassroomId"
-        :classroom-id="Number(classroomStore.currentClassroomId)"
-      />
     </div>
 
   </div>
@@ -82,7 +78,6 @@ import { computed, onMounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useClassroomStore } from '@/stores/classroom'
-import ActiveMysteryWidget from '@/components/student/ActiveMysteryWidget.vue'
 
 const authStore = useAuthStore()
 const classroomStore = useClassroomStore()
@@ -99,7 +94,8 @@ const activeCards = [
   { title: 'Notatblokk',       icon: '📝', route: { name: 'Notebook' },     color: '#0E7490' },
   { title: 'Profil',           icon: '🕵️', route: { name: 'Profile' },      color: '#6D28D9' },
   { title: 'Ledertavle',       icon: '📊', route: { name: 'Leaderboard' },  color: '#1D4ED8' },
-  { title: 'Send inn mysterium', icon: '🔍', route: { name: 'SendInn' },    color: '#065F46' },
+  { title: 'Ukas Mysterium',     icon: '🧩', route: { name: 'UkasMysterium' }, color: '#7C3AED' },
+  { title: 'Send inn mysterium', icon: '🔍', route: { name: 'SendInn' },       color: '#065F46' },
 ]
 
 const lockedCards = [

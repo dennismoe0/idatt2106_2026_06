@@ -24,7 +24,8 @@ const routes = [
   { path: '/medals',        name: 'Medals',         component: () => import('@/views/student/MedalsView.vue'),        meta: { role: 'STUDENT', requiresClassroom: true } },
   { path: '/notebook',      name: 'Notebook',       component: () => import('@/views/student/NotebookView.vue'),      meta: { role: 'STUDENT', requiresClassroom: true } },
   { path: '/leaderboard',  name: 'Leaderboard',    component: () => import('@/views/student/LeaderboardView.vue'),   meta: { role: 'STUDENT', requiresClassroom: true } },
-  { path: '/student/send-inn', name: 'SendInn',   component: () => import('@/views/student/SendInnView.vue'),        meta: { role: 'STUDENT' } },
+  { path: '/student/send-inn',   name: 'SendInn',          component: () => import('@/views/student/SendInnView.vue'),          meta: { role: 'STUDENT' } },
+  { path: '/student/mysterium', name: 'UkasMysterium',    component: () => import('@/views/student/UkasMysteriumView.vue'),    meta: { role: 'STUDENT', requiresClassroom: true } },
 
 
 

@@ -27,7 +27,7 @@ public class StudentMysteryCompletion {
     @JoinColumn(name = "classroom_id", nullable = false)
     private Classroom classroom;
 
-    @Column(nullable = false)
+    @Column(name = "is_correct", nullable = false)
     private boolean correct = false;
 
     private LocalDateTime completedAt = LocalDateTime.now();
