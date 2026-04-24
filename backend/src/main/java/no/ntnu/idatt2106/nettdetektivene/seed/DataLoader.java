@@ -376,7 +376,7 @@ public class DataLoader implements ApplicationRunner {
                 newsStop,
                 2,
                 "Vinterstengte skoler",
-                "Finn den ekte saken blant tre artikler om snøkaos og skolehverdag.",
+                "Finn den ekte saken blant fire artikler om snøkaos og skolehverdag.",
                 """
                     {
                       "articles": [
@@ -397,6 +397,13 @@ public class DataLoader implements ApplicationRunner {
                           "isReal": false
                         },
                         {
+                          "headline": "Foreldre raser etter snøkaos, men eksperter advarer mot å stole på skjermbilder alene",
+                          "body": "Saken viser til flere delte skjermbilder av meldinger mellom foreldre, men oppgir ikke når de er sendt eller hvem som faktisk står bak dem. Artikkelen lenker til en side som ser ut som lokalavis, men ingen konkret skole eller kommune er sitert direkte.",
+                          "source": "Trondheimnytt.com",
+                          "author": "Nyhetsdesk",
+                          "isReal": false
+                        },
+                        {
                           "headline": "Forskere: Ny snøspray over byen gjør at skolegårder blir helt isfrie på fem sekunder",
                           "body": "En ukjent blogg hevder at kommunen har testet en hemmelig kjemispray som smelter all is med én gang og gjør skolegårder varme resten av vinteren. Påstanden viser ikke til forskning, navn på eksperter eller noen steder teknologien faktisk brukes.",
                           "source": "Vintermirakel.blog",
@@ -405,7 +412,7 @@ public class DataLoader implements ApplicationRunner {
                           "isReal": false
                         }
                       ],
-                      "explanation": "Den ekte saken viser til en kjent offentlig kilde og konkrete råd. De falske artiklene bruker ukjente kilder, dramatiske ord og påstander som ikke gir mening i virkeligheten."
+                      "explanation": "Den ekte saken viser til en kjent offentlig kilde og konkrete råd. De falske artiklene bruker dramatiske ord, uklare kilder eller påstander som ikke henger sammen med virkeligheten."
                     }
                     """
             ),
@@ -434,6 +441,13 @@ public class DataLoader implements ApplicationRunner {
                           "isReal": false
                         },
                         {
+                          "headline": "AtB vurderer strengere mobilregler etter klager fra voksne reisende",
+                          "body": "Artikkelen hevder at transportselskapet vurderer å forby lyd og video på buss for alle under 18 år. Den viser til at 'flere passasjerer reagerer', men mangler dato for når vurderingen skal tas opp og oppgir bare en vag kilde omtalt som 'en person nær kollektivmiljøet'.",
+                          "source": "atb-nyheter.net",
+                          "author": "Signe Dahl",
+                          "isReal": false
+                        },
+                        {
                           "headline": "Ny sensor i taket skal automatisk blokkere mobilsignaler på alle busser i Midt-Norge",
                           "body": "Artikkelen påstår at et nytt system kan lese skjermene til passasjerene og slå av internett for dem som ser på videoer. Den forklarer ikke hvordan dette skulle være lovlig eller teknisk mulig, og ingen seriøse kilder omtaler systemet.",
                           "source": "framtidsbuss.info",
@@ -442,7 +456,7 @@ public class DataLoader implements ApplicationRunner {
                           "isReal": false
                         }
                       ],
-                      "explanation": "Den ekte saken er konkret og begrenset til en liten test. De falske artiklene går rett på frykt og sensasjon, men mangler troverdige kilder og beskriver ting som høres usannsynlige ut."
+                      "explanation": "Den ekte saken er konkret og begrenset til en liten test. De falske artiklene mangler tydelige kilder, datoer eller beskriver løsninger som høres usannsynlige ut."
                     }
                     """
             ),
@@ -450,7 +464,7 @@ public class DataLoader implements ApplicationRunner {
                 newsStop,
                 4,
                 "Gratis spillvaluta",
-                "Tre saker lover ulike ting til spillere. Bare én tåler en kritisk sjekk.",
+                "Fire saker lover ulike ting til spillere. Bare én tåler en kritisk sjekk.",
                 """
                     {
                       "articles": [
@@ -471,6 +485,13 @@ public class DataLoader implements ApplicationRunner {
                           "isReal": false
                         },
                         {
+                          "headline": "Kjent e-sportprofil sier nye bonusmynter kan hentes via ekstern partner",
+                          "body": "Saken viser til en partnerkampanje som skal være koblet til en stor turnering, men nevner verken hvilken turnering eller hvilken partner som står bak. Det finnes heller ingen dato eller offisiell lenke til spillselskapet, bare en oppfordring om å registrere seg raskt for å ikke gå glipp av tilbudet.",
+                          "source": "E-sportNorge24",
+                          "author": "LiveDesk",
+                          "isReal": false
+                        },
+                        {
                           "headline": "Skjult server i Sverige deler ut gratis skins hvis du oppgir passord og telefonnummer",
                           "body": "En ukjent side hevder at en privat server samarbeider med spillet og kan fylle opp kontoer med premium-innhold på sekunder. Påstanden er umulig å sjekke, og siden ber om både passord, telefonnummer og engangskode.",
                           "source": "UltraSkinDrop.net",
@@ -479,7 +500,7 @@ public class DataLoader implements ApplicationRunner {
                           "isReal": false
                         }
                       ],
-                      "explanation": "Den ekte saken advarer og viser til offisielle kanaler. De falske sakene lover urealistiske gevinster, bruker hastverk og prøver å få deg til å gi fra deg innloggingsinformasjon."
+                      "explanation": "Den ekte saken advarer og viser til offisielle kanaler. De falske sakene lover urealistiske gevinster, bruker hastverk eller peker til uklare kampanjer uten sporbare kilder."
                     }
                     """
             ),
@@ -504,7 +525,7 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("sender", "sender", "kundevarsling@dnb-kundeservice.com", true, "Avsenderen ser ekte ut ved første blikk, men domenet er ikke dnb.no."),
                     new Clue("link1", "link", "dnb-kontroll.com/bekreft", true, "Lenken peker til et annet domene enn banken sin offisielle nettside."),
                     new Clue("urgency", "text", "innen 30 minutter", true, "Svindlere bruker tidspress for å få deg til å klikke før du rekker å sjekke."),
-                    new Clue("amount", "text", "4 890 kr til Steam Market", false, null)
+                    new Clue("logo", "branding", "DNB Kundeservice", false, "Logo og avsendernavn alene er ikke nok. Svindlere kopierer ofte kjente merkevarer for å se troverdige ut.")
                 ),
                 "E-posten ser profesjonell ut, men avsenderen og lenken er falske. Tidspresset er laget for å stresse deg til å gi fra deg BankID-opplysninger."
             ),
@@ -528,7 +549,7 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("sender", "sender", "varsling@posten-levering.net", true, "Adressen ligner på Posten, men bruker ikke det offisielle domenet posten.no."),
                     new Clue("link1", "link", "posten-oppdatering.net/betaling", true, "Betalingslenken går til en side som ikke tilhører Posten."),
                     new Clue("urgency", "text", "Betal i dag", true, "Kunstig hastverk er et vanlig grep i phishing."),
-                    new Clue("fee", "text", "19 kr", false, null)
+                    new Clue("sender_name", "sender_name", "Posten", false, "Avsendernavnet kan se riktig ut selv når selve e-postadressen er falsk.")
                 ),
                 "Dette ligner på en ekte pakkemelding, men både avsender og lenke er feil. Det lille gebyret og tidspresset er klassiske phishing-grep."
             ),
@@ -553,7 +574,7 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("sender", "sender", "it-support@skole-login.com", true, "Skolen ville brukt sitt eget domene, ikke skole-login.com."),
                     new Clue("link1", "link", "skole-login.com/verify", true, "Lenken leder til et ukjent domene som kan stjele skoleinnloggingen din."),
                     new Clue("urgency", "text", "før kl. 14.00 i dag", true, "Tidspress gjør det lettere å lure elever til å handle raskt."),
-                    new Clue("brand", "text", "IT-support VGS", false, null)
+                    new Clue("greeting", "text", "Hei,", false, "En vanlig hilsen er ikke i seg selv et tegn på svindel. Du må se på domenet og lenken også.")
                 ),
                 "Meldingen ser ut som en vanlig IT-beskjed, men domenet er feil og haster unødvendig. Slike e-poster bør alltid sjekkes i skolens offisielle kanaler før du klikker."
             ),
@@ -681,6 +702,7 @@ public class DataLoader implements ApplicationRunner {
                   "words": ["Tiger", "Måne", "Pizza", "Hund", "Sol", "Isbjørn", "Fjord"],
                   "symbols": ["!", "#", "@", "?", "&", "*"],
                   "numbers": ["7", "42", "99", "3", "2026"],
+                  "pitfalls": ["OlaErBest", "2005", "hund"],
                   "minStrength": "STRONG",
                   "explanation": "Et sterkt passord er langt, bruker store og små bokstaver, tall og spesialtegn, og inneholder ikke personlig informasjon."
                 }
