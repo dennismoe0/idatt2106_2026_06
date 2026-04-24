@@ -3,13 +3,16 @@ import { mount } from '@vue/test-utils'
 import FakeWebshop from '@/components/student/FakeWebshop.vue'
 
 describe('FakeWebshop', () => {
-  it('renders required webshop content', () => {
+  it('renders webshop content with structured facts', () => {
     const wrapper = mount(FakeWebshop, {
       props: {
         siteName: 'super-deals-norge.xyz',
         headline: 'Eksklusive sko til halv pris',
         productName: 'Street Runner X',
         price: '79 kr',
+        paymentText: 'Kun gavekort',
+        contactText: 'ingen info tilgjengelig',
+        returnPolicyText: 'Ingen retur',
       }
     })
 
@@ -17,6 +20,8 @@ describe('FakeWebshop', () => {
     expect(wrapper.text()).toContain('Eksklusive sko til halv pris')
     expect(wrapper.text()).toContain('Street Runner X')
     expect(wrapper.text()).toContain('79 kr')
+    expect(wrapper.text()).toContain('Kun gavekort')
+    expect(wrapper.text()).toContain('Ingen retur')
   })
 
   it('shows original price and badges only when provided', () => {
@@ -43,15 +48,20 @@ describe('FakeWebshop', () => {
     expect(wrapper.find('.fake-shop__badges').exists()).toBe(false)
   })
 
-  it('renders payment and contact text from props', () => {
+  it('emits toggle when a clickable webshop element is pressed', async () => {
     const wrapper = mount(FakeWebshop, {
       props: {
-        paymentText: 'Betaling: Kun gavekort',
-        contactText: 'Kontakt: ingen info tilgjengelig',
+        clickableElements: [
+          { id: 'domain', label: 'sketchy-shop.biz', isSuspicious: true, explanation: 'Ukjent domene' },
+          { id: 'payment', label: 'Kun gavekort', isSuspicious: true, explanation: 'Mistenkelig betaling' },
+        ],
+        flaggedElements: new Set(['domain']),
       }
     })
 
-    expect(wrapper.text()).toContain('Betaling: Kun gavekort')
-    expect(wrapper.text()).toContain('Kontakt: ingen info tilgjengelig')
+    await wrapper.find('.fake-shop__nav-url').trigger('click')
+    await wrapper.findAll('.fake-shop__fact-value')[0].trigger('click')
+
+    expect(wrapper.emitted('toggle')).toEqual([['domain'], ['payment']])
   })
 })
