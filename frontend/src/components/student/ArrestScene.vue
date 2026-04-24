@@ -37,7 +37,7 @@ defineEmits(['continue'])
   gap: var(--space-4);
   padding: clamp(var(--space-5), 4vw, var(--space-8));
   border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, #fff8eb 0%, #ffffff 100%);
+  background: linear-gradient(180deg, var(--color-warning-light) 0%, var(--color-surface) 100%);
   box-shadow: var(--shadow-lg);
 }
 
