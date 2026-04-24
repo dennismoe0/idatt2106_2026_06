@@ -7,6 +7,7 @@ public record SchoolLeaderboardEntryDto(
     String displayName,
     long classroomId,
     String classroomName,
+    String schoolName,
     int completedTasks,
     int totalTasks,
     AvatarResponse avatar

@@ -23,6 +23,8 @@ public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
 
     java.util.List<no.ntnu.idatt2106.nettdetektivene.entity.Classroom> findBySchool_Id(Long schoolId);
 
+    List<Classroom> findByIsActiveTrue();
+
     @Query("select count(ct) > 0 from ClassroomTeacher ct where ct.classroom.id = :classroomId and ct.teacher.id = :teacherId")
     boolean isTeacherOfClassroom(@Param("classroomId") Long classroomId, @Param("teacherId") Long teacherId);
 }

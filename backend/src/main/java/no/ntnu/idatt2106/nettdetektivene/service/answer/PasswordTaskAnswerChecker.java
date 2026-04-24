@@ -39,7 +39,7 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
             String subtype = content.path("type").asText("CHOICE");
 
             if ("BUILDER".equals(subtype)) {
-                return checkBuilderAnswer(correctAnswer, answer);
+                return checkBuilderAnswer(content, correctAnswer, answer);
             }
 
             Object submitted = answer.get("selected");
@@ -53,7 +53,7 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
         }
     }
 
-    private boolean checkBuilderAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
+    private boolean checkBuilderAnswer(JsonNode content, JsonNode correctAnswer, Map<String, Object> answer) {
         String requiredStrength = correctAnswer.path("minStrength").asText("STRONG");
         Object submittedPassword = answer.get("password");
         if (submittedPassword == null) {
@@ -61,7 +61,13 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
             return false;
         }
 
-        String strength = passwordStrengthEvaluator.evaluate(String.valueOf(submittedPassword));
+        String password = String.valueOf(submittedPassword);
+        if (containsPitfall(content.path("pitfalls"), password)) {
+            log.info("[PasswordTaskAnswerChecker] PASSWORD BUILDER rejected due to configured pitfall");
+            return false;
+        }
+
+        String strength = passwordStrengthEvaluator.evaluate(password);
         log.info(
             "[PasswordTaskAnswerChecker] PASSWORD BUILDER submitted strength={} required={}",
             strength,
@@ -71,5 +77,20 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
         int submitted = passwordStrengthEvaluator.strengthLevel(strength);
         int required = passwordStrengthEvaluator.strengthLevel(requiredStrength);
         return submitted >= required;
+    }
+
+    private boolean containsPitfall(JsonNode pitfalls, String password) {
+        if (!pitfalls.isArray()) {
+            return false;
+        }
+
+        String normalizedPassword = password.toLowerCase();
+        for (JsonNode pitfall : pitfalls) {
+            String value = pitfall.asText("");
+            if (!value.isBlank() && normalizedPassword.contains(value.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -42,7 +42,7 @@ public class DevSeeder implements ApplicationRunner {
     }
 
     private void wipe() {
-        for (String code : List.of("dataing-2", "norsk-3")) {
+        for (String code : List.of("dataing-2", "dataing-1", "norsk-3")) {
             classroomRepository.findByJoinCode(code).ifPresent(c -> {
                 classroomRepository.delete(c);
                 log.info("[DevSeeder] Deleted classroom: {}", code);
@@ -53,7 +53,9 @@ public class DevSeeder implements ApplicationRunner {
             "dennis@student.local", "shakti@student.local", "kristian@student.local",
             "oliver@student.local", "kasper@student.local", "ola@student.local",
             "christian@student.local", "aleksander@student.local", "mia@student.local",
-            "nora@student.local", "lars@student.local", "emma@student.local"
+            "nora@student.local", "lars@student.local", "emma@student.local",
+            "sofie@student.local", "magnus@student.local", "ida@student.local",
+            "william@student.local", "lea@student.local"
         )) {
             userRepository.findByEmail(email).ifPresent(u -> {
                 userRepository.delete(u);
@@ -76,7 +78,8 @@ public class DevSeeder implements ApplicationRunner {
         User ali    = createTeacher("ali@teacher.no",    skoleB);
 
         Classroom c1 = createClassroom("DATAING 2. klasse", "dataing-2", grethe, skoleA);
-        Classroom c2 = createClassroom("Norsk 3. klasse",   "norsk-3",   ali,    skoleB);
+        Classroom c2 = createClassroom("DATAING 1. klasse", "dataing-1", grethe, skoleA);
+        Classroom c3 = createClassroom("Norsk 3. klasse",   "norsk-3",   ali,    skoleB);
 
         for (String[] s : List.of(
             new String[]{"dennis",    "Dennis"},
@@ -97,10 +100,20 @@ public class DevSeeder implements ApplicationRunner {
             new String[]{"lars",       "Lars"},
             new String[]{"emma",       "Emma"}
         )) {
-            enroll(createStudent(s[0], skoleB), c2, s[1]);
+            enroll(createStudent(s[0], skoleB), c3, s[1]);
         }
 
-        log.info("[DevSeeder] Seeded: 2 schools, 2 teachers, 2 classrooms, 12 students");
+        for (String[] s : List.of(
+            new String[]{"sofie",   "Sofie"},
+            new String[]{"magnus",  "Magnus"},
+            new String[]{"ida",     "Ida"},
+            new String[]{"william", "William"},
+            new String[]{"lea",     "Lea"}
+        )) {
+            enroll(createStudent(s[0], skoleA), c2, s[1]);
+        }
+
+        log.info("[DevSeeder] Seeded: 2 schools, 2 teachers, 3 classrooms, 17 students");
     }
 
     private School createSchool(String name, String joinCode) {

@@ -5,6 +5,7 @@ public interface SchoolLeaderboardRow {
     String getDisplayName();
     Long getClassroomId();
     String getClassroomName();
+    String getSchoolName();
     Long getCompletedTasks();
     String getAvatarGender();
     String getAvatarEyeColor();

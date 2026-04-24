@@ -64,17 +64,24 @@ class SchoolServiceTest {
     @Test
     void createSchool_createsSchoolAndLinksTeacher() {
         User teacher = teacher(null);
+        Classroom classroom = new Classroom();
+        classroom.setId(5L);
+        classroom.setName("7A");
         when(userRepository.findById(TEACHER_ID)).thenReturn(Optional.of(teacher));
         when(schoolCodeGenerator.generate(schoolRepository)).thenReturn("nord-01");
         School saved = school();
         when(schoolRepository.save(any(School.class))).thenReturn(saved);
+        when(classroomRepository.findByTeachers_Teacher_UserId(TEACHER_ID)).thenReturn(List.of(classroom));
+        when(classroomRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
 
         SchoolResponse response = schoolService.createSchool(TEACHER_ID, new CreateSchoolRequest("Vågsbygd skole"));
 
         assertThat(response.name()).isEqualTo("Vågsbygd skole");
         assertThat(response.joinCode()).isEqualTo("nord-01");
         verify(userRepository).save(teacher);
+        verify(classroomRepository).saveAll(List.of(classroom));
         assertThat(teacher.getSchool()).isEqualTo(saved);
+        assertThat(classroom.getSchool()).isEqualTo(saved);
     }
 
     @Test
@@ -91,14 +98,21 @@ class SchoolServiceTest {
     void joinSchool_linksTeacherToSchool() {
         User teacher = teacher(null);
         School s = school();
+        Classroom classroom = new Classroom();
+        classroom.setId(5L);
+        classroom.setName("7A");
         when(userRepository.findById(TEACHER_ID)).thenReturn(Optional.of(teacher));
         when(schoolRepository.findByJoinCode("nord-01")).thenReturn(Optional.of(s));
+        when(classroomRepository.findByTeachers_Teacher_UserId(TEACHER_ID)).thenReturn(List.of(classroom));
+        when(classroomRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
 
         SchoolResponse response = schoolService.joinSchool(TEACHER_ID, new JoinSchoolRequest("nord-01"));
 
         assertThat(response.id()).isEqualTo(SCHOOL_ID);
         verify(userRepository).save(teacher);
+        verify(classroomRepository).saveAll(List.of(classroom));
         assertThat(teacher.getSchool()).isEqualTo(s);
+        assertThat(classroom.getSchool()).isEqualTo(s);
     }
 
     @Test

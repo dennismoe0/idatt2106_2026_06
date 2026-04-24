@@ -57,6 +57,7 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
                cs.display_name       AS displayName,
                c.id                  AS classroomId,
                c.name                AS classroomName,
+               s.name                AS schoolName,
                COUNT(sp.id)          AS completedTasks,
                a.gender              AS avatarGender,
                a.eye_color           AS avatarEyeColor,
@@ -70,13 +71,14 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
                a.accessory           AS avatarAccessory
         FROM classroom_students cs
         JOIN classrooms c ON c.id = cs.classroom_id
+        LEFT JOIN schools s ON s.id = c.school_id
         LEFT JOIN avatars a ON a.student_id = cs.student_id
         LEFT JOIN student_progress sp
             ON sp.student_id = cs.student_id
             AND sp.completed = true
         WHERE cs.classroom_id IN :classroomIds
           AND cs.status = 'APPROVED'
-        GROUP BY cs.student_id, cs.display_name, c.id, c.name,
+        GROUP BY cs.student_id, cs.display_name, c.id, c.name, s.name,
                  a.gender, a.eye_color, a.eye_style, a.skin_color,
                  a.hair_color, a.hair_style, a.outfit, a.outfit_color,
                  a.hat_color, a.accessory

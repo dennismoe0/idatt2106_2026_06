@@ -26,6 +26,35 @@
           </div>
         </section>
 
+        <section class="leaderboard-switcher" aria-label="Velg ledertavlevisning">
+          <div class="leaderboard-tabs" role="tablist" aria-label="Velg ledertavlevisning">
+            <button
+              class="leaderboard-tab"
+              :class="{ 'leaderboard-tab--active': activeScope === 'local' }"
+              type="button"
+              role="tab"
+              :aria-label="localScopeAriaLabel"
+              :aria-selected="activeScope === 'local'"
+              @click="activeScope = 'local'"
+            >
+              <span class="leaderboard-tab__eyebrow">SAMMENLIGN DEG MED ANDRE PÅ</span>
+              <span class="leaderboard-tab__main">{{ ownSchoolButtonLabel }}</span>
+            </button>
+            <button
+              class="leaderboard-tab"
+              :class="{ 'leaderboard-tab--active': activeScope === 'global' }"
+              type="button"
+              role="tab"
+              :aria-label="globalScopeAriaLabel"
+              :aria-selected="activeScope === 'global'"
+              @click="activeScope = 'global'"
+            >
+              <span class="leaderboard-tab__eyebrow">SAMMENLIGN DEG MED</span>
+              <span class="leaderboard-tab__main">RESTEN AV VERDEN</span>
+            </button>
+          </div>
+        </section>
+
         <section class="leaderboard-stats" aria-label="Din plassering">
           <article class="leaderboard-stat">
             <div>
@@ -54,6 +83,7 @@
             <div>
               <p class="leaderboard-room__kicker">Ledertavle</p>
               <h2 class="leaderboard-room__title">{{ ownClassroomName }}</h2>
+              <p class="leaderboard-room__school">{{ ownSchoolLabel }}</p>
             </div>
             <p class="leaderboard-room__note">Kun topp fem elever vises her.</p>
           </div>
@@ -68,28 +98,21 @@
         </section>
 
         <section
-          v-if="otherClassrooms.length > 0"
           class="leaderboard-school"
-          aria-labelledby="other-classrooms-title"
+          :aria-label="activeSectionTitle"
         >
-          <div class="leaderboard-school__head">
-            <p class="leaderboard-room__kicker">Skolen</p>
-            <h2 id="other-classrooms-title" class="leaderboard-school__title">
-              Andre klasser på skolen
-            </h2>
-          </div>
-
-          <div class="leaderboard-school__grid">
+          <div v-if="activeClassrooms.length > 0" class="leaderboard-school__stack">
             <section
-              v-for="group in otherClassrooms"
-              :key="group.classroomId"
-              class="leaderboard-room leaderboard-room--compact"
+              v-for="group in activeClassrooms"
+              :key="`${activeScope}-${group.classroomId}`"
+              class="leaderboard-room"
               :aria-label="group.classroomName"
             >
               <div class="leaderboard-room__head">
                 <div>
                   <p class="leaderboard-room__kicker">Klasse</p>
                   <h3 class="leaderboard-room__title">{{ group.classroomName }}</h3>
+                  <p class="leaderboard-room__school">{{ group.schoolName }}</p>
                 </div>
                 <p class="leaderboard-room__note">Topp fem elever vises her.</p>
               </div>
@@ -104,6 +127,14 @@
               />
             </section>
           </div>
+
+          <section
+            v-else
+            class="leaderboard-view__state leaderboard-view__state--compact"
+            aria-live="polite"
+          >
+            <p>{{ activeEmptyLabel }}</p>
+          </section>
         </section>
       </template>
     </div>
@@ -126,18 +157,31 @@ const avatarStore = useAvatarStore()
 
 const loading = ref(true)
 const error = ref(null)
+const activeScope = ref('local')
 
-const schoolLeaderboard = computed(() => gameStore.schoolLeaderboard)
+const localLeaderboard = computed(() => gameStore.schoolLeaderboard)
+const globalLeaderboard = computed(() => gameStore.globalLeaderboard)
 const currentStudentId = computed(() => authStore.userId)
 const myClassroomId = computed(() => classroomStore.currentClassroomId)
 
 const ownEntries = computed(() =>
   sortLeaderboardEntries(
-    schoolLeaderboard.value.filter((entry) => entry.classroomId === myClassroomId.value),
+    localLeaderboard.value.filter((entry) => entry.classroomId === myClassroomId.value),
   ),
 )
 
 const ownClassroomName = computed(() => ownEntries.value[0]?.classroomName ?? 'Din klasse')
+const ownSchoolName = computed(() => {
+  const localEntry = ownEntries.value[0]
+  if (localEntry?.schoolName) return localEntry.schoolName
+
+  const globalEntry = globalLeaderboard.value.find((entry) => entry.classroomId === myClassroomId.value)
+  return globalEntry?.schoolName ?? 'Ukjent skole'
+})
+const ownSchoolLabel = computed(() => ownSchoolName.value || 'Ukjent skole')
+const ownSchoolButtonLabel = computed(() => compactSchoolLabel(ownSchoolLabel.value))
+const localScopeAriaLabel = computed(() => `Sammenlign deg med andre pa ${ownSchoolLabel.value}`)
+const globalScopeAriaLabel = computed(() => 'Sammenlign deg med resten av verden')
 
 const currentRank = computed(() => {
   const index = ownEntries.value.findIndex((entry) => entry.studentId === currentStudentId.value)
@@ -153,16 +197,41 @@ const comparisonEntries = computed(() => {
   return ownEntries.value.slice(0, 5)
 })
 
-const otherClassrooms = computed(() => {
+const localClassrooms = computed(() => {
+  return groupLeaderboardEntries(localLeaderboard.value)
+})
+
+const globalClassrooms = computed(() => {
+  return groupLeaderboardEntries(globalLeaderboard.value)
+})
+
+const activeClassrooms = computed(() => {
+  return activeScope.value === 'local' ? localClassrooms.value : globalClassrooms.value
+})
+
+const activeSectionTitle = computed(() => {
+  return activeScope.value === 'local'
+    ? 'Andre klasser pa samme skole'
+    : 'Klasser fra hele verden'
+})
+
+const activeEmptyLabel = computed(() => {
+  return activeScope.value === 'local'
+    ? 'Ingen andre klasser pa samme skole a vise enda.'
+    : 'Ingen andre klasser i verden a vise enda.'
+})
+
+function groupLeaderboardEntries(entries) {
   const classrooms = new Map()
 
-  for (const entry of schoolLeaderboard.value) {
+  for (const entry of entries) {
     if (entry.classroomId === myClassroomId.value) continue
 
     if (!classrooms.has(entry.classroomId)) {
       classrooms.set(entry.classroomId, {
         classroomId: entry.classroomId,
         classroomName: entry.classroomName,
+        schoolName: entry.schoolName ?? 'Ukjent skole',
         entries: [],
       })
     }
@@ -173,8 +242,12 @@ const otherClassrooms = computed(() => {
   return [...classrooms.values()].map((group) => ({
     ...group,
     entries: sortLeaderboardEntries(group.entries).slice(0, 5),
-  }))
-})
+  })).sort((a, b) => {
+    const schoolDiff = a.schoolName.localeCompare(b.schoolName, 'nb')
+    if (schoolDiff !== 0) return schoolDiff
+    return a.classroomName.localeCompare(b.classroomName, 'nb')
+  })
+}
 
 const classCompletedTasks = computed(() => {
   return ownEntries.value.reduce((total, entry) => total + (Number(entry.completedTasks) || 0), 0)
@@ -194,6 +267,13 @@ function sortLeaderboardEntries(entries) {
   })
 }
 
+function compactSchoolLabel(schoolName) {
+  return schoolName
+    .replace(/videregående skole/gi, 'VGS')
+    .replace(/videregaende skole/gi, 'VGS')
+    .trim()
+}
+
 async function load() {
   loading.value = true
   error.value = null
@@ -207,8 +287,15 @@ async function load() {
       return
     }
 
-    await gameStore.fetchSchoolLeaderboard(classroomId)
-    console.log('[LeaderboardView] Loaded', schoolLeaderboard.value.length, 'entries')
+    await Promise.all([
+      gameStore.fetchSchoolLeaderboard(classroomId),
+      gameStore.fetchGlobalLeaderboard(classroomId),
+    ])
+    console.log(
+      '[LeaderboardView] Loaded local/global entries',
+      localLeaderboard.value.length,
+      globalLeaderboard.value.length,
+    )
   } catch (err) {
     console.error('[LeaderboardView] Failed to load leaderboard:', err)
     error.value = 'Kunne ikke laste ledertavlen. Prøv igjen.'
@@ -332,6 +419,10 @@ onMounted(load)
   box-shadow: 0 8px 16px var(--color-medals-button-shadow);
 }
 
+.leaderboard-switcher {
+  width: 100%;
+}
+
 .leaderboard-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -401,6 +492,13 @@ onMounted(load)
   color: var(--color-medals-text-on-cork);
 }
 
+.leaderboard-room__school {
+  margin: var(--space-2) 0 0;
+  font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--color-medals-text-on-cork) 82%, white);
+}
+
 .leaderboard-room__note {
   margin: 0;
   max-width: 26rem;
@@ -416,29 +514,92 @@ onMounted(load)
   color: var(--color-medals-text-on-cork);
 }
 
-.leaderboard-school__head {
+.leaderboard-tabs {
   display: grid;
-  gap: var(--space-1);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  width: 100%;
 }
 
-.leaderboard-school__title {
-  margin: 0;
-  font-size: clamp(1.3rem, 2.5vw, 1.75rem);
-  color: var(--color-medals-text-on-cork);
+.leaderboard-tab {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  height: 60px;
+  max-height: 60px;
+  border: 2px solid color-mix(in srgb, var(--color-medals-card-border) 88%, white);
+  border-radius: var(--radius-2xl);
+  padding: 0.5rem 1rem 0.55rem;
+  background:
+    linear-gradient(135deg, rgba(255, 247, 231, 0.96), rgba(244, 228, 198, 0.94)),
+    var(--color-medals-card-bg);
+  color: var(--color-wood);
+  font-weight: var(--font-bold);
+  text-align: center;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow:
+    0 14px 24px var(--color-medals-card-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
-.leaderboard-school__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+.leaderboard-tab__eyebrow {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.05;
+}
+
+.leaderboard-tab__main {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: clamp(1rem, 1.65vw, 1.16rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.02;
+}
+
+.leaderboard-tab:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--color-gold) 45%, white);
+}
+
+.leaderboard-tab--active {
+  background:
+    radial-gradient(circle at top, rgba(255, 245, 196, 0.98), rgba(255, 245, 196, 0.18) 56%),
+    linear-gradient(145deg, rgba(252, 233, 175, 0.98), rgba(219, 168, 73, 0.96));
+  border-color: color-mix(in srgb, #c98d28 72%, white);
+  color: #4a2b08;
+  box-shadow:
+    0 18px 28px rgba(59, 31, 8, 0.22),
+    inset 0 0 0 1px rgba(255, 247, 220, 0.92);
+}
+
+.leaderboard-school__stack {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
 }
 
-.leaderboard-room--compact {
-  border-radius: var(--radius-2xl);
-}
-
-.leaderboard-room--compact .leaderboard-room__title {
-  font-size: clamp(1.2rem, 2vw, 1.5rem);
+.leaderboard-view__state--compact {
+  min-height: auto;
+  padding: 1.2rem;
+  border: 1px dashed rgba(255, 240, 211, 0.24);
+  border-radius: var(--radius-xl);
+  color: var(--color-medals-text-on-cork);
 }
 
 @media (max-width: 900px) {
@@ -466,5 +627,8 @@ onMounted(load)
     border-radius: var(--radius-2xl);
   }
 
+  .leaderboard-tabs {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
