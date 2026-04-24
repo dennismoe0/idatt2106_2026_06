@@ -18,6 +18,7 @@
 
     <!-- Active challenge -->
     <template v-else-if="phase === 'challenge'">
+      <p class="boss__progress-copy">{{ solvedCount }} av {{ challenges.length }} systemer stoppet</p>
       <div class="boss__progress" :aria-label="`System ${currentIdx + 1} av ${challenges.length}`">
         <div
           v-for="(c, i) in challenges"
@@ -42,38 +43,58 @@
       <BossFakeNews
         v-if="currentChallenge.type === 'FAKE_NEWS'"
         :challenge="currentChallenge"
-        :submitted="answers[currentIdx] !== undefined"
+        :submitted="isSystemLocked"
         @answer="recordAnswer"
       />
       <BossAiPhoto
         v-else-if="currentChallenge.type === 'AI_PHOTO'"
         :challenge="currentChallenge"
-        :submitted="answers[currentIdx] !== undefined"
+        :submitted="isSystemLocked"
         @answer="recordAnswer"
       />
       <BossPhishing
         v-else-if="currentChallenge.type === 'PHISHING_EMAIL'"
         :challenge="currentChallenge"
-        :submitted="answers[currentIdx] !== undefined"
+        :submitted="isSystemLocked"
+        @answer="recordAnswer"
+      />
+      <BossSocialMedia
+        v-else-if="currentChallenge.type === 'SOCIAL_MEDIA'"
+        :challenge="currentChallenge"
+        :submitted="isSystemLocked"
+        @answer="recordAnswer"
+      />
+      <BossPassword
+        v-else-if="currentChallenge.type === 'PASSWORD'"
+        :challenge="currentChallenge"
+        :submitted="isSystemLocked"
         @answer="recordAnswer"
       />
       <BossChoice
         v-else
         :challenge="currentChallenge"
-        :submitted="answers[currentIdx] !== undefined"
+        :submitted="isSystemLocked"
         @answer="recordAnswer"
       />
 
       <Transition name="result-slide">
-        <div v-if="answers[currentIdx] !== undefined" class="boss__system-stopped">
-          <p class="boss__stopped-label">✅ System stoppet!</p>
+        <div v-if="systemState.mode !== 'idle'" class="boss__system-stopped" :class="`boss__system-stopped--${systemState.mode}`">
+          <template v-if="systemState.mode === 'failed'">
+            <p class="boss__stopped-label boss__stopped-label--failed">Prøv igjen</p>
+            <p class="boss__retry-copy">{{ systemState.explanation }}</p>
+            <button class="boss__btn boss__retry-btn" @click="retryCurrentSystem">Prøv én gang til</button>
+          </template>
+          <template v-else>
+            <p class="boss__stopped-label">✅ System stoppet!</p>
+            <p v-if="systemState.explanation" class="boss__success-copy">{{ systemState.explanation }}</p>
+          </template>
           <button
-            v-if="currentIdx < challenges.length - 1"
+            v-if="systemState.mode === 'passed' && currentIdx < challenges.length - 1"
             class="boss__btn"
-            @click="currentIdx++"
+            @click="goToNextSystem"
           >Neste system →</button>
           <button
-            v-else
+            v-else-if="systemState.mode === 'passed'"
             class="boss__btn boss__btn--finish"
             @click="submitAll"
           >Send alle svar →</button>
@@ -104,6 +125,8 @@ import { ref, computed, watch } from 'vue'
 import BossFakeNews from '@/components/student/boss/BossFakeNews.vue'
 import BossAiPhoto  from '@/components/student/boss/BossAiPhoto.vue'
 import BossPhishing from '@/components/student/boss/BossPhishing.vue'
+import BossSocialMedia from '@/components/student/boss/BossSocialMedia.vue'
+import BossPassword from '@/components/student/boss/BossPassword.vue'
 import BossChoice   from '@/components/student/boss/BossChoice.vue'
 
 const SYSTEM_ICONS = {
@@ -124,13 +147,37 @@ const emit = defineEmits(['submitted', 'next'])
 const phase      = ref('intro')
 const currentIdx = ref(0)
 const answers    = ref({})
+const systemState = ref({ mode: 'idle', explanation: '' })
+const usedRetry = ref({})
 
 const challenges       = computed(() => props.task.contentJson?.challenges ?? [])
 const currentChallenge = computed(() => challenges.value[currentIdx.value])
+const solvedCount = computed(() => Object.keys(answers.value).length)
+const isSystemLocked = computed(() => systemState.value.mode !== 'idle')
 
 function recordAnswer(answer) {
-  answers.value = { ...answers.value, [currentIdx.value]: answer }
-  console.log('[FinalBossTask] challenge', currentIdx.value, 'answered:', answer)
+  const challenge = currentChallenge.value
+  if (!challenge) return
+
+  if (isCorrectAnswer(challenge.correctAnswer, answer)) {
+    answers.value = { ...answers.value, [currentIdx.value]: answer }
+    systemState.value = { mode: 'passed', explanation: challenge.successExplanation ?? '' }
+    return
+  }
+
+  if (!usedRetry.value[currentIdx.value]) {
+    usedRetry.value = { ...usedRetry.value, [currentIdx.value]: true }
+    systemState.value = {
+      mode: 'failed',
+      explanation: challenge.failureExplanation ?? 'Dette stoppet ikke systemet. Les forklaringen og prøv én gang til.',
+    }
+    return
+  }
+
+  systemState.value = {
+    mode: 'failed',
+    explanation: challenge.failureExplanation ?? 'Dette stoppet ikke systemet.',
+  }
 }
 
 function submitAll() {
@@ -140,6 +187,20 @@ function submitAll() {
   }
   console.log('[FinalBossTask] submitting all:', payload)
   emit('submitted', payload)
+}
+
+function retryCurrentSystem() {
+  systemState.value = { mode: 'idle', explanation: '' }
+}
+
+function goToNextSystem() {
+  currentIdx.value += 1
+  systemState.value = { mode: 'idle', explanation: '' }
+}
+
+function isCorrectAnswer(expected, actual) {
+  if (!expected) return true
+  return JSON.stringify(expected) === JSON.stringify(actual)
 }
 
 watch(() => props.result, (r) => {
@@ -161,6 +222,7 @@ watch(() => props.result, (r) => {
   border-radius: var(--radius-full); padding: var(--space-1) var(--space-3); font-size: var(--text-sm);
 }
 
+.boss__progress-copy { margin: 0; font-weight: var(--font-bold); color: var(--color-primary-dark); }
 .boss__progress { display: flex; gap: var(--space-2); overflow-x: auto; padding-bottom: var(--space-2); }
 .boss__progress-step {
   flex: 1; min-width: 70px;
@@ -180,9 +242,13 @@ watch(() => props.result, (r) => {
 .boss__system-stopped {
   background: var(--color-success-light); border: 2px solid var(--color-success);
   border-radius: var(--radius-lg); padding: var(--space-4);
-  display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap;
 }
+.boss__system-stopped--failed { background: #fff4e8; border-color: #f59e0b; }
 .boss__stopped-label { margin: 0; font-weight: var(--font-bold); color: var(--color-success); font-size: var(--text-lg); }
+.boss__stopped-label--failed { color: #b45309; }
+.boss__retry-copy,
+.boss__success-copy { margin: 0; flex: 1 1 240px; }
 
 .boss__btn {
   background: var(--color-primary); color: var(--color-text-on-dark);
