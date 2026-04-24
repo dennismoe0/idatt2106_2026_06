@@ -7,59 +7,26 @@
     <template v-if="taskSubtype === 'CLICK_SUSPICIOUS'">
       <p class="question">{{ contentJson.question ?? 'Klikk på de delene av nettstedet som virker mistenkelige.' }}</p>
 
-      <div class="cs-shop">
-        <div class="cs-shop__url-bar">
-          <span class="cs-shop__lock" aria-hidden="true">🔓</span>
-          <component
-            :is="isClickable('domain') ? 'button' : 'span'"
-            class="cs-shop__url"
-            :class="clueClass('domain')"
-            v-bind="isClickable('domain') ? { type: 'button', disabled: !!result, 'aria-pressed': flagged.has('domain') } : {}"
-            @click="isClickable('domain') ? toggle('domain') : undefined"
-          >{{ contentJson.siteName ?? 'ukjent.example' }}</component>
-        </div>
-
-        <div class="cs-shop__body">
-          <div class="cs-shop__hero">
-            <p class="cs-shop__headline">{{ mockup.headline }}</p>
-            <p v-if="mockup.tagline" class="cs-shop__tagline">{{ mockup.tagline }}</p>
-          </div>
-
-          <div class="cs-shop__product">
-            <div class="cs-shop__img" aria-hidden="true">🛒</div>
-            <div class="cs-shop__details">
-              <p class="cs-shop__product-name">{{ mockup.productName }}</p>
-              <div class="cs-shop__price-row">
-                <component
-                  :is="isClickable('price') ? 'button' : 'span'"
-                  class="cs-shop__price"
-                  :class="clueClass('price')"
-                  v-bind="isClickable('price') ? { type: 'button', disabled: !!result, 'aria-pressed': flagged.has('price') } : {}"
-                  @click="isClickable('price') ? toggle('price') : undefined"
-                >KR {{ mockup.price }},-</component>
-                <span v-if="mockup.originalPrice" class="cs-shop__old-price">{{ mockup.originalPrice }}</span>
-              </div>
-              <div v-if="mockup.badges?.length" class="cs-shop__badges">
-                <span v-for="b in mockup.badges" :key="b" class="cs-shop__badge">{{ b }}</span>
-              </div>
-              <component
-                :is="isClickable('payment') ? 'button' : 'p'"
-                class="cs-shop__meta"
-                :class="clueClass('payment')"
-                v-bind="isClickable('payment') ? { type: 'button', disabled: !!result, 'aria-pressed': flagged.has('payment') } : {}"
-                @click="isClickable('payment') ? toggle('payment') : undefined"
-              >{{ mockup.paymentText }}</component>
-              <component
-                :is="isClickable('contact') ? 'button' : 'p'"
-                class="cs-shop__meta"
-                :class="clueClass('contact')"
-                v-bind="isClickable('contact') ? { type: 'button', disabled: !!result, 'aria-pressed': flagged.has('contact') } : {}"
-                @click="isClickable('contact') ? toggle('contact') : undefined"
-              >{{ mockup.contactText }}</component>
-            </div>
-          </div>
-        </div>
-      </div>
+      <FakeWebshop
+        :site-name="siteLabel"
+        :eyebrow="mockupContent.eyebrow"
+        :headline="mockupContent.headline"
+        :tagline="mockupContent.tagline"
+        :product-name="mockupContent.productName"
+        :price="mockupContent.price"
+        :original-price="mockupContent.originalPrice"
+        :badges="mockupContent.badges"
+        :payment-text="mockupContent.paymentText"
+        :contact-text="mockupContent.contactText"
+        :return-policy-text="mockupContent.returnPolicyText"
+        :notice="mockupContent.notice"
+        :cta-text="mockupContent.ctaText"
+        :clickable-elements="csElements"
+        :flagged-elements="flagged"
+        :feedback-states="feedbackStates"
+        :disabled="!!result"
+        @toggle="toggle"
+      />
 
       <div v-if="flagged.size > 0 && !result" class="cs-chips" aria-live="polite">
         <span v-for="id in [...flagged]" :key="id" class="cs-chip">🚩 {{ elementLabel(id) }}</span>
@@ -217,9 +184,7 @@ const flagged  = reactive(new Set())
 
 const contentJson = computed(() => props.task?.contentJson ?? {})
 const taskSubtype = computed(() => normalizeSubtype(contentJson.value.type))
-const mockup      = computed(() => contentJson.value.mockup ?? {})
 const csElements  = computed(() => contentJson.value.elements ?? [])
-const clickableIds = computed(() => csElements.value.map(e => e.id))
 const renderMode = computed(() => normalizeRenderMode(contentJson.value))
 const questionText = computed(() => contentJson.value.question ?? 'Hva er det tryggeste valget?')
 const siteLabel = computed(() =>
@@ -256,6 +221,10 @@ const mockupContent = computed(() => {
       mockup.contactText ??
       contentJson.value.contactText ??
       'Kontakt: ingen info tilgjengelig',
+    returnPolicyText:
+      mockup.returnPolicyText ??
+      contentJson.value.returnPolicyText ??
+      'Retur: ingen informasjon tilgjengelig',
     ctaText: mockup.ctaText ?? 'Kjøp nå',
     badges,
     notice:
@@ -273,8 +242,6 @@ watch(
   },
   { immediate: true },
 )
-
-function isClickable(id) { return clickableIds.value.includes(id) }
 
 function toggle(id) {
   if (props.result) return
@@ -307,16 +274,20 @@ function elementResultIcon(el) {
   return 'cs-icon--ok'
 }
 
-function clueClass(id) {
-  if (!props.result) return { 'cs-clue--flagged': flagged.has(id) }
-  const wasFlagged = flagged.has(id)
-  const isCorrect  = correctIds.value.has(id)
-  return {
-    'cs-clue--correct': wasFlagged && isCorrect,
-    'cs-clue--wrong':   wasFlagged && !isCorrect,
-    'cs-clue--missed':  !wasFlagged && isCorrect,
-  }
-}
+const feedbackStates = computed(() =>
+  Object.fromEntries(csElements.value.map((element) => {
+    const wasFlagged = flagged.has(element.id)
+    const isCorrect = correctIds.value.has(element.id)
+
+    if (!props.result) {
+      return [element.id, wasFlagged ? 'flagged' : '']
+    }
+    if (wasFlagged && isCorrect) return [element.id, 'correct']
+    if (wasFlagged && !isCorrect) return [element.id, 'wrong']
+    if (!wasFlagged && isCorrect) return [element.id, 'missed']
+    return [element.id, '']
+  }))
+)
 
 function submit() {
   if (taskSubtype.value === 'CLICK_SUSPICIOUS') {
@@ -666,97 +637,6 @@ function hasDisplayValue(value) {
   transform: translateY(-12px);
   opacity: 0;
 }
-
-/* ── CLICK_SUSPICIOUS shop ── */
-.cs-shop {
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--color-surface);
-}
-
-.cs-shop__url-bar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  background: var(--color-bg);
-  border-bottom: 1px solid var(--color-border);
-  font-family: ui-monospace, monospace;
-  font-size: var(--text-sm);
-}
-
-.cs-shop__lock { color: var(--color-warning); }
-
-.cs-shop__body { padding: var(--space-4); display: grid; gap: var(--space-4); }
-
-.cs-shop__hero { display: grid; gap: var(--space-1); }
-.cs-shop__headline { margin: 0; font-weight: 700; font-size: var(--text-base); color: var(--color-text); }
-.cs-shop__tagline  { margin: 0; font-size: var(--text-sm); color: var(--color-text-muted); }
-
-.cs-shop__product {
-  display: flex;
-  gap: var(--space-4);
-  align-items: flex-start;
-}
-.cs-shop__img {
-  font-size: 3rem;
-  line-height: 1;
-  flex-shrink: 0;
-}
-.cs-shop__details { flex: 1; display: grid; gap: var(--space-2); }
-
-.cs-shop__product-name { margin: 0; font-weight: 600; font-size: var(--text-sm); color: var(--color-text); }
-
-.cs-shop__price-row { display: flex; align-items: baseline; gap: var(--space-2); }
-.cs-shop__price { font-weight: 700; font-size: var(--text-lg); color: var(--color-text); }
-.cs-shop__old-price { font-size: var(--text-sm); color: var(--color-text-muted); text-decoration: line-through; }
-
-.cs-shop__badges { display: flex; flex-wrap: wrap; gap: var(--space-1); }
-.cs-shop__badge {
-  background: var(--color-danger);
-  color: #fff;
-  font-size: var(--text-xs);
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-}
-
-.cs-shop__meta {
-  margin: 0;
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-}
-
-/* Clue buttons inside the shop (inline) */
-button.cs-shop__url,
-button.cs-shop__price,
-button.cs-shop__meta {
-  cursor: pointer;
-  border: 1.5px dashed var(--color-border);
-  border-radius: 3px;
-  padding: 1px 5px;
-  background: rgba(255,255,255,0.5);
-  transition: background var(--transition-fast), border-color var(--transition-fast);
-  text-align: left;
-  font: inherit;
-  color: inherit;
-  display: inline;
-}
-button.cs-shop__url:hover:not(:disabled),
-button.cs-shop__price:hover:not(:disabled),
-button.cs-shop__meta:hover:not(:disabled) {
-  background: var(--color-warning-light);
-  border-style: solid;
-}
-button.cs-shop__url:disabled,
-button.cs-shop__price:disabled,
-button.cs-shop__meta:disabled { cursor: not-allowed; }
-
-.cs-clue--flagged  { background: var(--color-danger-light) !important; border-color: var(--color-danger) !important; border-style: solid !important; color: var(--color-danger) !important; font-weight: 600; }
-.cs-clue--correct  { background: var(--color-success-light) !important; border-color: var(--color-success) !important; border-style: solid !important; color: var(--color-success) !important; }
-.cs-clue--wrong    { background: var(--color-danger-light) !important; border-color: var(--color-danger) !important; border-style: solid !important; color: var(--color-danger) !important; }
-.cs-clue--missed   { background: var(--color-warning-light) !important; border-color: var(--color-warning) !important; border-style: solid !important; animation: clue-pulse 0.6s ease-out; }
 
 @keyframes clue-pulse {
   0%, 100% { transform: scale(1); }
