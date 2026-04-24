@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.entity.*;
 import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import no.ntnu.idatt2106.nettdetektivene.repository.*;
+import no.ntnu.idatt2106.nettdetektivene.repository.WeeklyMysteryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -30,6 +31,7 @@ public class DevSeeder implements ApplicationRunner {
     private final ClassroomTeacherRepository classroomTeacherRepository;
     private final ClassroomStudentRepository classroomStudentRepository;
     private final SchoolRepository schoolRepository;
+    private final WeeklyMysteryRepository weeklyMysteryRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManager entityManager;
 
@@ -81,8 +83,9 @@ public class DevSeeder implements ApplicationRunner {
         Classroom c2 = createClassroom("DATAING 1. klasse", "dataing-1", grethe, skoleA);
         Classroom c3 = createClassroom("Norsk 3. klasse",   "norsk-3",   ali,    skoleB);
 
+        User dennis = createStudent("dennis", skoleA);
+        enroll(dennis, c1, "Dennis");
         for (String[] s : List.of(
-            new String[]{"dennis",    "Dennis"},
             new String[]{"shakti",    "Shakti"},
             new String[]{"kristian",  "Kristian"},
             new String[]{"oliver",    "Oliver"},
@@ -113,7 +116,9 @@ public class DevSeeder implements ApplicationRunner {
             enroll(createStudent(s[0], skoleA), c2, s[1]);
         }
 
-        log.info("[DevSeeder] Seeded: 2 schools, 2 teachers, 3 classrooms, 17 students");
+        seedMystery(c1, dennis);
+
+        log.info("[DevSeeder] Seeded: 2 schools, 2 teachers, 3 classrooms, 17 students, 1 featured mystery");
     }
 
     private School createSchool(String name, String joinCode) {
@@ -155,6 +160,33 @@ public class DevSeeder implements ApplicationRunner {
         classroomTeacherRepository.save(ct);
 
         return c;
+    }
+
+    private void seedMystery(Classroom classroom, User submitter) {
+        WeeklyMystery m = new WeeklyMystery();
+        m.setClassroom(classroom);
+        m.setStudent(submitter);
+        m.setTitle("Mystisk melding fra rådhuset");
+        m.setDescription(
+            "En av ordførerens ansatte fikk denne meldingen på telefonen sin rett etter at pengene " +
+            "forsvant fra prosjektkontoen. Avsenderen utgir seg for å være fra kommunens IT-avdeling " +
+            "og ber om innloggingsdetaljer for å \"sikre kontoen\".\n\n" +
+            "Klarer du å avgjøre om dette er en ekte melding fra IT-avdelingen, " +
+            "eller et forsøk på å lure til seg passord?"
+        );
+        m.setMysteryType("REAL_OR_FAKE");
+        m.setQuestionText("Er denne meldingen ekte eller falsk?");
+        m.setCorrectAnswer("FALSK");
+        m.setTeacherComment(
+            "Legg merke til avsenderadressen — den er nesten lik den ekte, men har en ekstra bokstav. " +
+            "IT-avdelinger ber aldri om passord via SMS eller e-post. Dette er et klassisk phishing-forsøk!"
+        );
+        m.setRewardStars(5);
+        m.setRewardXp(50);
+        m.setStatus(WeeklyMystery.Status.APPROVED);
+        m.setFeatured(true);
+        weeklyMysteryRepository.save(m);
+        log.info("[DevSeeder] Seeded featured mystery for classroomId={}", classroom.getId());
     }
 
     private void enroll(User student, Classroom classroom, String displayName) {
