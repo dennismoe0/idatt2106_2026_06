@@ -530,6 +530,27 @@ class GameServiceTest {
     }
 
     @Test
+    void submitAnswer_stopCompleteWithClueText_createsNotebookAutoClue() {
+        Stop stop = stop(1L, 1, "Postkontoret");
+        stop.setClueText("Tyven brukte nettkafeen.");
+        Task task = phishingTask(10L, stop);
+        User studentUser = student(STUDENT_ID);
+
+        when(taskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 10L)).thenReturn(Optional.empty());
+        when(taskRepository.countByStop_Id(1L)).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(1L);
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(studentUser);
+        when(medalRepository.findByStop_Id(1L)).thenReturn(Optional.empty());
+
+        var result = gameService.submitAnswer(STUDENT_ID, CLASSROOM_ID, 10L, new SubmitAnswerRequest(Map.of("action", "REPORT")));
+
+        assertThat(result.correct()).isTrue();
+        verify(notebookService).createAutoClueIfNotExists(STUDENT_ID, stop);
+    }
+
+    @Test
     void submitAnswer_doesNotAwardStarsOrXpOnWrongAnswer() {
         Stop stop = stop(1L, 1, "Postkontoret");
         Task task = phishingTask(10L, stop);
