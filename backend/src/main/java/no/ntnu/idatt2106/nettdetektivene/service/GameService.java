@@ -220,7 +220,7 @@ public class GameService {
             log.info("[GameService] stop completed studentId={} stopId={}", studentId, task.getStop().getId());
             student.setXp(student.getXp() + XP_PER_STOP);
             xpEarned += XP_PER_STOP;
-            notebookService.createAutoTipIfNotExists(studentId, task.getStop());
+            notebookService.createAutoClueIfNotExists(studentId, task.getStop());
             int taskCount = Math.toIntExact(taskRepository.countByStop_Id(task.getStop().getId()));
             StudentXpLog xpLog = new StudentXpLog();
             xpLog.setStudent(student);
