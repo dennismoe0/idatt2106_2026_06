@@ -121,4 +121,31 @@ describe('LearningTask', () => {
     expect(wrapper.text()).toContain('Overskrift 2')
     expect(wrapper.find('.option-btn--correct').exists()).toBe(false)
   })
+
+  it('renders annotated webshop example in marketplace learning mode', () => {
+    const wrapper = mount(LearningTask, {
+      props: {
+        task: {
+          ...TASK,
+          stopTheme: 'MARKETPLACE',
+          contentJson: {
+            slides: [
+              {
+                heading: 'Hvordan ser nettsvindel ut?',
+                body: 'Se på dette eksempelet.',
+                exampleType: 'Nettbutikk-eksempel',
+                examples: ['Ukjent domene', 'Usikker betaling'],
+                checks: [],
+              },
+            ],
+            quiz: [{ id: 'q1', question: 'Test?', options: ['Ja'], correct: 'Ja' }],
+          },
+        },
+      },
+    })
+
+    expect(wrapper.find('.marketplace-visual').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Ukjent nettadresse')
+    expect(wrapper.text()).toContain('Utrygg betaling')
+  })
 })
