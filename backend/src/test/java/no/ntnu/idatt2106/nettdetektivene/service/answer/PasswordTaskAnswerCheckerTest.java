@@ -106,10 +106,32 @@ class PasswordTaskAnswerCheckerTest {
     }
 
     @Test
+    void builder_passwordContainingConfiguredPitfall_fails() throws Exception {
+        var correct = mapper.readTree("{\"minStrength\": \"STRONG\"}");
+
+        assertThat(checker.isCorrect(
+            task(12L, "{\"type\": \"BUILDER\", \"pitfalls\": [\"OlaErBest\", \"2005\", \"hund\"]}"),
+            correct,
+            Map.of("password", "Trygg!OlaErBest#42")
+        )).isFalse();
+    }
+
+    @Test
+    void builder_pitfallComparisonIsCaseInsensitive() throws Exception {
+        var correct = mapper.readTree("{\"minStrength\": \"STRONG\"}");
+
+        assertThat(checker.isCorrect(
+            task(13L, "{\"type\": \"BUILDER\", \"pitfalls\": [\"OlaErBest\", \"2005\", \"hund\"]}"),
+            correct,
+            Map.of("password", "TRYGG!hund#42")
+        )).isFalse();
+    }
+
+    @Test
     void malformedContentJson_fails() throws Exception {
         var correct = mapper.readTree("{\"selected\": \"d\"}");
 
-        assertThat(checker.isCorrect(task(12L, "{not-valid-json"), correct, Map.of("selected", "d"))).isFalse();
+        assertThat(checker.isCorrect(task(14L, "{not-valid-json"), correct, Map.of("selected", "d"))).isFalse();
     }
 
     private Task task(Long id, String contentJson) {
