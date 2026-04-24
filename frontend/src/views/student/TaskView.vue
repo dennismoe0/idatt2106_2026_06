@@ -297,21 +297,21 @@ const THEME_EMOJI = {
 
 const STOP_MYSTERY_TITLES = {
   1: 'Et spor i nyhetsstrømmen',
-  2: 'Ukjent avsender',
-  3: 'Bildet lyver',
-  4: 'Passordlekkasje',
-  5: 'Svindel på nett',
-  6: 'Falsk venn',
+  2: 'Bildet lyver',
+  3: 'Ukjent avsender',
+  4: 'Svindel på nett',
+  5: 'Falsk venn',
+  6: 'Passordlekkasje',
   7: 'Datasenteret er hacket',
 }
 
 const STOP_IMAGES = {
   1: { src: '/story_pictures/news-quarter-start.png', alt: 'Nyhetskvartalet med dyredetektiver, skjermer og aviser om de forsvunne idrettsparkpengene' },
-  2: { src: '/story_pictures/post-office-start.png', alt: 'Postkontoret med mistenkelige meldinger, brev og digitale spor' },
-  3: { src: '/story_pictures/photographer-start.png', alt: 'Fotografen med bevisbilder, kameraer og mistenkelige detaljer i et foto' },
-  4: { src: '/story_pictures/password-bank-start.png', alt: 'Passordbanken med hvelv, digitale låser og spor etter svake passord' },
-  5: { src: '/story_pictures/marketplace-start.png', alt: 'Markedsplassen med mistenkelige butikker, falske tilbud og svindelspor' },
-  6: { src: '/story_pictures/social-media-start.png', alt: 'Den sosiale møteplassen med meldinger, rykter og falske kontoer' },
+  2: { src: '/story_pictures/photographer-start.png', alt: 'Fotografen med bevisbilder, kameraer og mistenkelige detaljer i et foto' },
+  3: { src: '/story_pictures/post-office-start.png', alt: 'Postkontoret med mistenkelige meldinger, brev og digitale spor' },
+  4: { src: '/story_pictures/marketplace-start.png', alt: 'Markedsplassen med mistenkelige butikker, falske tilbud og svindelspor' },
+  5: { src: '/story_pictures/social-media-start.png', alt: 'Den sosiale møteplassen med meldinger, rykter og falske kontoer' },
+  6: { src: '/story_pictures/password-bank-start.png', alt: 'Passordbanken med hvelv, digitale låser og spor etter svake passord' },
 }
 
 const mysteryScenario = computed(() => {
@@ -520,7 +520,7 @@ function buildMockTasks() {
     },
     {
       id: 3001,
-      stopId: 3,
+      stopId: 2,
       taskType: 'AI_PHOTO',
       guidanceText: 'Sorter hvert bilde: er det ekte, KI-generert eller manipulert?',
       contentJson: {
@@ -534,7 +534,7 @@ function buildMockTasks() {
     },
     {
       id: 4001,
-      stopId: 4,
+      stopId: 6,
       taskType: 'PASSWORD',
       guidanceText: 'Finn ut hvilket passord som er best.',
       contentJson: {
@@ -553,7 +553,7 @@ function buildMockTasks() {
     },
     {
       id: 6001,
-      stopId: 6,
+      stopId: 5,
       taskType: 'SOCIAL_MEDIA',
       guidanceText: 'Les innlegget nøye og velg den tryggeste handlingen.',
       contentJson: {
@@ -576,7 +576,7 @@ function buildMockTasks() {
     },
     {
       id: 6002,
-      stopId: 6,
+      stopId: 5,
       taskType: 'SOCIAL_MEDIA',
       guidanceText: 'Les innlegget nøye og velg den tryggeste handlingen.',
       contentJson: {
@@ -599,7 +599,7 @@ function buildMockTasks() {
     },
     {
       id: 6003,
-      stopId: 6,
+      stopId: 5,
       taskType: 'SOCIAL_MEDIA',
       guidanceText: 'Les innlegget nøye og velg den tryggeste handlingen.',
       contentJson: {
@@ -622,7 +622,7 @@ function buildMockTasks() {
     },
     {
       id: 5001,
-      stopId: 5,
+      stopId: 4,
       taskType: 'MARKETPLACE',
       guidanceText: 'Se etter priser, betaling og hastverk før du handler.',
       contentJson: {
@@ -651,7 +651,7 @@ function buildMockTasks() {
     },
     {
       id: 5002,
-      stopId: 5,
+      stopId: 4,
       taskType: 'MARKETPLACE',
       guidanceText: 'Velg det mest mistenkelige tegnet før du betaler.',
       contentJson: {
@@ -680,7 +680,7 @@ function buildMockTasks() {
     },
     {
       id: 5003,
-      stopId: 5,
+      stopId: 4,
       taskType: 'MARKETPLACE',
       guidanceText: 'Velg nettstedet du ville styrt unna.',
       contentJson: {
