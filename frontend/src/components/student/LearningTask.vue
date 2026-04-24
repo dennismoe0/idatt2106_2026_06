@@ -68,6 +68,47 @@
                   </li>
                 </ul>
               </div>
+              <div v-else-if="marketplaceVisualFor(index)" class="marketplace-visual">
+                <div v-if="marketplaceVisualFor(index).shop" class="marketplace-visual__frame">
+                  <FakeWebshop
+                    v-bind="marketplaceVisualFor(index).shop"
+                    :clickable-elements="marketplaceVisualFor(index).callouts.map((callout) => ({ id: callout.key, label: '', isSuspicious: true, explanation: callout.text }))"
+                    :flagged-elements="new Set()"
+                    :feedback-states="Object.fromEntries(marketplaceVisualFor(index).callouts.map((callout) => [callout.key, 'focus']))"
+                    :field-markers="Object.fromEntries(marketplaceVisualFor(index).callouts.map((callout, calloutIndex) => [callout.key, String(calloutIndex + 1)]))"
+                    :disabled="true"
+                  />
+                </div>
+
+                <div v-if="marketplaceVisualFor(index).callouts" class="marketplace-compare">
+                  <article
+                    v-for="callout in marketplaceVisualFor(index).callouts"
+                    :key="callout.key"
+                    class="marketplace-compare__card marketplace-compare__card--risky"
+                    :class="`marketplace-compare__card--${callout.key}`"
+                  >
+                    <p class="marketplace-compare__title">
+                      <span class="marketplace-compare__marker">{{ callout.marker }}</span>
+                      {{ callout.title }}
+                    </p>
+                    <p class="marketplace-compare__body">{{ callout.text }}</p>
+                  </article>
+                </div>
+
+                <div v-else-if="marketplaceVisualFor(index).comparisons" class="marketplace-compare">
+                  <article
+                    v-for="item in marketplaceVisualFor(index).comparisons"
+                    :key="item.key"
+                    class="marketplace-compare__card"
+                    :class="`marketplace-compare__card--${item.tone}`"
+                  >
+                    <p class="marketplace-compare__eyebrow">{{ item.label }}</p>
+                    <p class="marketplace-compare__title">{{ item.title }}</p>
+                    <p class="marketplace-compare__value">{{ item.value }}</p>
+                    <p class="marketplace-compare__body">{{ item.body }}</p>
+                  </article>
+                </div>
+              </div>
               <ul v-else class="slide__list">
                 <li v-for="example in slide.examples" :key="example" class="slide__list-item">
                   {{ example }}
@@ -151,6 +192,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
+import FakeWebshop from '@/components/student/FakeWebshop.vue'
 
 const props = defineProps({
   task:       { type: Object,  required: true },
@@ -188,6 +230,85 @@ const nextButtonLabel = computed(() => {
   if (!props.result?.correct) return 'Lagrer...'
   return props.isLastTask ? 'Se oppsummering →' : 'Neste oppgave →'
 })
+
+const MARKETPLACE_VISUAL_EXAMPLES = {
+  0: {
+    shop: {
+      siteName: 'sneaker-blitz.shop',
+      eyebrow: 'Bare i dag',
+      headline: 'Nike Air Max til 299 kr',
+      tagline: 'Salget slutter om 10 minutter. Bestill før det er for sent.',
+      productName: 'Nike Air Max 270',
+      price: '299 kr',
+      originalPrice: '2 599 kr',
+      badges: ['90 % rabatt', 'Kun få igjen'],
+      paymentText: 'Kun gavekort eller bankoverføring',
+      contactText: 'Kontakt oss via DM på ShopChat',
+      returnPolicyText: 'Ingen retur på kampanjevarer',
+      sellerText: 'Solgt av Sneaker Blitz Global',
+      shippingText: 'Sendes i dag hvis du bestiller nå',
+      ratingText: '4.9 av 5 stjerner',
+      notice: 'Vær ekstra forsiktig når en butikk prøver å få deg til å skynde deg.',
+      ctaText: 'Kjøp nå',
+    },
+    callouts: [
+      {
+        key: 'domain',
+        marker: '1',
+        title: 'Ukjent nettadresse',
+        text: 'Nettbutikken bruker et rart domenenavn som ikke ligner på en kjent norsk butikk.',
+      },
+      {
+        key: 'price',
+        marker: '2',
+        title: 'For godt til å være sant',
+        text: 'Kjempestor rabatt og “kun få igjen” prøver å få deg til å skynde deg.',
+      },
+      {
+        key: 'payment',
+        marker: '3',
+        title: 'Utrygg betaling',
+        text: 'Gavekort og bankoverføring gjør det vanskelig å få hjelp hvis butikken er falsk.',
+      },
+    ],
+  },
+  1: {
+    comparisons: [
+      {
+        key: 'domain-safe',
+        label: 'Ser mer troverdig ut',
+        tone: 'safe',
+        title: 'Nettadresse',
+        value: 'komplett.no  •  elkjop.no',
+        body: 'Kjente butikker bruker ofte korte, tydelige domenenavn som passer med navnet på butikken.',
+      },
+      {
+        key: 'domain-risky',
+        label: 'Bør sjekkes ekstra nøye',
+        tone: 'risky',
+        title: 'Nettadresse',
+        value: 'billig-ps5.cc  •  supertilbud-now.xyz',
+        body: 'Rare endelser og veldig “billig nå!”-navn er vanlige faresignaler i svindelbutikker.',
+      },
+      {
+        key: 'payment-safe',
+        label: 'Tryggere løsning',
+        tone: 'safe',
+        title: 'Betaling',
+        value: 'Kort, Vipps eller kjent checkout',
+        body: 'Vanlige betalingsløsninger gjør det lettere å klage eller få hjelp hvis noe går galt.',
+      },
+      {
+        key: 'payment-risky',
+        label: 'Mistenkelig løsning',
+        tone: 'risky',
+        title: 'Betaling',
+        value: 'Send gavekortkode eller betal til privat konto',
+        body: 'Svindlere liker betalingsmåter som er vanskelige å spore og nesten umulige å få tilbake.',
+      },
+    ],
+  },
+}
 
 watch(() => props.task?.id, () => {
   phase.value         = 'LEARN'
@@ -265,6 +386,10 @@ function buildNewsExample(examples = []) {
     body: bodyExample?.content ? bodyExample.content.slice(1, -1) : '',
     comments,
   }
+}
+
+function marketplaceVisualFor(index) {
+  return props.task?.stopTheme === 'MARKETPLACE' ? MARKETPLACE_VISUAL_EXAMPLES[index] ?? null : null
 }
 
 function completeIfAllCorrect() {
@@ -463,6 +588,95 @@ function completeIfAllCorrect() {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-primary);
+}
+
+.marketplace-visual {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.marketplace-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.marketplace-compare__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.marketplace-compare__card--safe {
+  background: color-mix(in srgb, var(--color-success-light) 45%, white);
+  border-color: var(--color-success);
+}
+
+.marketplace-compare__card--risky {
+  background: color-mix(in srgb, var(--color-warning-light) 55%, white);
+  border-color: var(--color-accent);
+}
+
+.marketplace-compare__eyebrow {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.marketplace-compare__title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  color: var(--color-heading);
+}
+
+.marketplace-compare__marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-text-on-dark);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.marketplace-compare__value {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--color-heading);
+}
+
+.marketplace-compare__body {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--color-text);
+}
+
+.marketplace-visual__frame {
+  position: relative;
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--color-surface-soft) 0%, var(--color-surface) 100%);
+  border: 1px solid var(--color-border);
 }
 
 .news-example {
@@ -900,6 +1114,10 @@ function completeIfAllCorrect() {
   .learn-complete {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .marketplace-compare {
+    grid-template-columns: 1fr;
   }
 }
 </style>
