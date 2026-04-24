@@ -41,7 +41,7 @@ describe('LearningTask', () => {
     expect(wrapper.text()).toContain('Første spørsmål?')
     expect(wrapper.text()).not.toContain('Overskrift 2')
     expect(wrapper.text()).not.toContain('Andre spørsmål?')
-    expect(wrapper.text()).toContain('Svar på alle spørsmål først')
+    expect(wrapper.text()).toContain('Neste del →')
   })
 
   it('shows one inline question at a time and no separate start quiz button', () => {
