@@ -705,8 +705,9 @@ public class DataLoader implements ApplicationRunner {
                   "elements": [
                     { "id": "domain",  "label": "sneaker-blitz.shop",      "explanation": "Ukjent domene er et klassisk varselsignal.", "isSuspicious": true },
                     { "id": "payment", "label": "Western Union / Gavekort", "explanation": "Denne betalingsmåten brukes ofte i svindel.", "isSuspicious": true },
-                    { "id": "contact", "label": "kontakt@sneaker-blitz.shop", "explanation": "Kontaktinfo finnes, så dette alene er ikke nok.", "isSuspicious": false },
-                    { "id": "price",   "label": "299",                      "explanation": "Prisen er rar, men ikke det tydeligste klikkmålet her.", "isSuspicious": false }
+                    { "id": "price",   "label": "299",                      "explanation": "Prisen er veldig lav, men i denne oppgaven er det domene og betaling som er de tydeligste faresignalene.", "isSuspicious": false },
+                    { "id": "seller",  "label": "Solgt av Nordisk Butikk AS", "explanation": "Dette ser ganske vanlig ut alene og er ikke hovedproblemet her.", "isSuspicious": false },
+                    { "id": "shipping","label": "Levering 2-4 virkedager", "explanation": "Vanlig leveringstid er ikke i seg selv et faresignal.", "isSuspicious": false }
                   ],
                   "explanation": "Domenet er ukjent og betalingsmåten (Western Union/gavekort) er klassiske svindeltegn."
                 }
@@ -732,40 +733,44 @@ public class DataLoader implements ApplicationRunner {
                   "elements": [
                     { "id": "domain",  "label": "billig-elektronikk.cc",          "explanation": "Domenet virker generisk og lite troverdig.", "isSuspicious": true },
                     { "id": "contact", "label": "ingen informasjon tilgjengelig",  "explanation": "Seriøse butikker skjuler ikke kontaktinfo.", "isSuspicious": true },
-                    { "id": "payment", "label": "Visa / Mastercard",               "explanation": "Vanlig kortbetaling er ikke mistenkelig i seg selv.", "isSuspicious": false },
-                    { "id": "price",   "label": "1 499",                           "explanation": "Veldig lav pris er et hint, men ikke hovedsporet her.", "isSuspicious": false }
+                    { "id": "productName", "label": "PlayStation 5",               "explanation": "Produktnavnet i seg selv sier ikke at butikken er falsk.", "isSuspicious": false },
+                    { "id": "payment", "label": "Visa / Mastercard",               "explanation": "Vanlig kortbetaling ser mer normalt ut og er ikke hovedproblemet her.", "isSuspicious": false },
+                    { "id": "price",   "label": "1 499",                           "explanation": "Prisen er lav, men i denne oppgaven er det domenet og manglende kontaktinfo som avslører butikken best.", "isSuspicious": false }
                   ],
                   "explanation": "Domenet er ukjent og det mangler kontaktinformasjon — to alvorlige varseltegn."
                 }
                 """,
                 "{\"correctElementIds\": [\"domain\", \"contact\"]}",
                 "Mangler kontaktinfo og ukjent domene er alvorlige varseltegn."),
-            marketplaceTask(marketStop, 4, "Er dette trygt?", "Sjekk nøye — er noe mistenkelig her?",
+            marketplaceTask(marketStop, 4, "Outlet med skjulte feller", "Klikk på de delene av nettstedet som virker mistenkelige.",
                 """
                 {
                   "type": "CLICK_SUSPICIOUS",
-                  "siteName": "komplett.no",
-                  "question": "Klikk på det som er mistenkelig — eller send tomt svar om alt ser bra ut.",
+                  "siteName": "streetwear-fast.net",
+                  "question": "Klikk på de delene du synes er mistenkelige.",
                   "mockup": {
-                    "headline": "Samsung Galaxy S24",
-                    "tagline": "Rask levering. 30 dagers returrett.",
-                    "productName": "Samsung Galaxy S24 256GB",
-                    "price": "8 490",
-                    "originalPrice": "",
-                    "badges": [],
-                    "paymentText": "Betaling: Visa, Mastercard, Vipps",
-                    "contactText": "Kontakt: 23 05 52 00 | kundeservice@komplett.no"
+                    "headline": "Streetwear-jakke til spesialpris",
+                    "tagline": "Midlertidig kampanje. Begrenset antall.",
+                    "productName": "Urban Storm Jacket",
+                    "price": "899 kr",
+                    "originalPrice": "1 499 kr",
+                    "badges": ["Populær", "Nyhet"],
+                    "paymentText": "Kun bankoverføring før sending",
+                    "contactText": "Kontakt oss kun via DM på ShopChat",
+                    "returnPolicyText": "30 dagers retur med kvittering"
                   },
                   "elements": [
-                    { "id": "domain",  "label": "komplett.no",                            "explanation": "Dette er et kjent norsk domenenavn.", "isSuspicious": false },
-                    { "id": "payment", "label": "Visa, Mastercard, Vipps",                "explanation": "Betalingsmåtene ser helt normale ut.", "isSuspicious": false },
-                    { "id": "contact", "label": "23 05 52 00 | kundeservice@komplett.no", "explanation": "Tydelig kontaktinfo er et godt tegn.", "isSuspicious": false }
+                    { "id": "payment", "label": "Kun bankoverføring før sending", "explanation": "Bare bankoverføring gjør det mye vanskeligere å få hjelp hvis noe går galt.", "isSuspicious": true },
+                    { "id": "contact", "label": "Kontakt oss kun via DM på ShopChat", "explanation": "Seriøse butikker har vanligvis ordentlig kontaktinfo, ikke bare DM.", "isSuspicious": true },
+                    { "id": "returnPolicy", "label": "30 dagers retur med kvittering", "explanation": "En tydelig returregel er et godt tegn, ikke et faresignal.", "isSuspicious": false },
+                    { "id": "domain", "label": "streetwear-fast.net", "explanation": "Domenet kan se litt rart ut, men i denne oppgaven er det ikke det tydeligste faresignalet.", "isSuspicious": false },
+                    { "id": "productName", "label": "Urban Storm Jacket", "explanation": "Produktnavnet ser helt vanlig ut og er ikke mistenkelig i seg selv.", "isSuspicious": false }
                   ],
-                  "explanation": "Dette er en legitim nettbutikk. Det riktige svaret var å ikke flagge noe — noen ganger er alt trygt!"
+                  "explanation": "Her er det betalingsmåten og den dårlige kontaktløsningen som avslører butikken."
                 }
                 """,
-                "{\"correctElementIds\": []}",
-                "Les alt nøye — noen ganger er alt trygt og du skal ikke flagge noe."),
+                "{\"correctElementIds\": [\"payment\", \"contact\"]}",
+                "Se etter butikker som gjør det vanskelig å kontakte dem eller krever usikre betalingsmåter."),
             socialMediaTask(socialStop, 2, "Del eller vent?", "Velg riktig handling.",
                 """
                 {
