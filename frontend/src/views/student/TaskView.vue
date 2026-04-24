@@ -563,7 +563,7 @@ function buildMockTasks() {
           avatar: '👤',
           content: 'Hei! Jeg vant en premie og trenger telefonnummeret ditt for å sende den.'
         },
-        question: 'Hva gjør du?',
+        question: 'Hva er det tryggeste du bør gjøre nå?',
         options: [
           { id: 'reply', text: 'Svar med telefonnummeret mitt' },
           { id: 'ignore', text: 'Ignorer meldingen' },
@@ -586,7 +586,7 @@ function buildMockTasks() {
           avatar: '📢',
           content: 'Alle må dele dette nå! Skolen stenger i morgen for alltid. Ingen andre tør å si sannheten.'
         },
-        question: 'Hva gjør du?',
+        question: 'Hva er smartest å gjøre før du reagerer på dette?',
         options: [
           { id: 'share', text: 'Del innlegget videre med en gang' },
           { id: 'ignore', text: 'Ignorer innlegget' },

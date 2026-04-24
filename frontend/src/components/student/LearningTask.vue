@@ -84,6 +84,66 @@
                   </li>
                 </ul>
               </div>
+              <div v-else-if="socialMediaVisualFor(currentSlideIndex)" class="social-learn">
+                <article
+                  v-for="card in socialMediaVisualFor(currentSlideIndex)"
+                  :key="card.key"
+                  class="social-learn__card"
+                  :class="card.kind === 'profile' ? 'social-learn__card--profile' : 'social-learn__card--post'"
+                >
+                  <div class="social-learn__platform">
+                    <span class="social-learn__platform-dot" aria-hidden="true" />
+                    {{ card.platform }}
+                  </div>
+
+                  <template v-if="card.kind === 'profile'">
+                    <div class="social-learn__profile-top">
+                      <span class="social-learn__avatar" :style="socialAvatarStyle(card.username)">
+                        {{ socialInitials(card.username) }}
+                      </span>
+                      <div class="social-learn__identity">
+                        <div class="social-learn__name-row">
+                          <p class="social-learn__name">{{ card.username }}</p>
+                          <span v-if="card.verified" class="social-learn__verified" aria-label="Verifisert konto">✓</span>
+                        </div>
+                        <p class="social-learn__handle">{{ card.handle }}</p>
+                      </div>
+                    </div>
+                    <div class="social-learn__profile-metrics">
+                      <span>{{ card.posts }}</span>
+                      <span>{{ card.followers }}</span>
+                      <span>{{ card.following }}</span>
+                    </div>
+                    <p class="social-learn__profile-note">{{ card.note }}</p>
+                  </template>
+
+                  <template v-else>
+                    <div class="social-learn__post-top">
+                      <span class="social-learn__avatar" :style="socialAvatarStyle(card.username)">
+                        {{ socialInitials(card.username) }}
+                      </span>
+                      <div class="social-learn__identity">
+                        <div class="social-learn__name-row">
+                          <p class="social-learn__name">{{ card.username }}</p>
+                          <span v-if="card.verified" class="social-learn__verified" aria-label="Verifisert konto">✓</span>
+                        </div>
+                        <p class="social-learn__meta">{{ card.handle }} · {{ card.timestamp }}</p>
+                      </div>
+                    </div>
+                    <p class="social-learn__content">{{ card.content }}</p>
+                    <div class="social-learn__stats">
+                      <span>♡ {{ card.likes }}</span>
+                      <span>💬 {{ card.comments }}</span>
+                      <span>↗ {{ card.shares }}</span>
+                    </div>
+                  </template>
+
+                  <div class="social-learn__callout">
+                    <p class="social-learn__callout-title">{{ card.calloutTitle }}</p>
+                    <p class="social-learn__callout-body">{{ card.calloutBody }}</p>
+                  </div>
+                </article>
+              </div>
               <div v-else-if="marketplaceVisualFor(currentSlideIndex)" class="marketplace-visual">
                 <div v-if="marketplaceVisualFor(currentSlideIndex).shop" class="marketplace-visual__frame">
                   <FakeWebshop
@@ -132,8 +192,26 @@
               </ul>
             </div>
 
-            <div v-if="currentSlide.checks?.length" class="slide__notes">
+            <div
+              v-if="currentSlide.checks?.length"
+              class="slide__notes"
+              :class="{ 'slide__notes--highlight': shouldHighlightSocialChecks(currentSlideIndex) }"
+            >
               <div
+                v-if="shouldHighlightSocialChecks(currentSlideIndex)"
+                class="slide__note-box"
+              >
+                <p class="slide__note-box-title">Slik kan det se ut i virkeligheten</p>
+                <p
+                  v-for="check in currentSlide.checks"
+                  :key="check"
+                  class="slide__note-box-item"
+                >
+                  {{ check }}
+                </p>
+              </div>
+              <div
+                v-else
                 v-for="check in currentSlide.checks"
                 :key="check"
                 class="slide__note"
@@ -360,6 +438,68 @@ const MARKETPLACE_VISUAL_EXAMPLES = {
   },
 }
 
+const SOCIAL_MEDIA_VISUAL_EXAMPLES = {
+  0: [
+    {
+      key: 'panic-post',
+      kind: 'post',
+      platform: 'Tweety.no',
+      username: 'RykteRadar',
+      handle: '@rykteradar',
+      timestamp: '2 min siden',
+      content: 'DEL NÅ før dette blir slettet!!! Rektor skal visst ta mobilen fra alle allerede fra i morgen 😡 Ingen tør å si det offentlig ennå!',
+      likes: '1 284',
+      comments: '219',
+      shares: '406',
+      calloutTitle: 'Prøver å stresse deg',
+      calloutBody: 'Når et innlegg roper at du må dele med en gang, er målet ofte å få deg til å reagere før du rekker å sjekke om det stemmer.',
+    },
+    {
+      key: 'school-rumour',
+      kind: 'post',
+      platform: 'Fjesbok.no',
+      username: 'Anonym elevsnakk',
+      handle: '@elevsnakk24',
+      timestamp: '14 min siden',
+      content: 'Jeg har hørt at prøven er lekket til 7B, men ingen vil si det høyt. Hvis dette er sant er det sykt urettferdig.',
+      likes: '342',
+      comments: '97',
+      shares: '51',
+      calloutTitle: 'Rykter uten bevis sprer seg fort',
+      calloutBody: 'Formuleringer som “jeg har hørt” eller “noen sier” høres ekte ut, men de viser ikke at noen faktisk vet om påstanden stemmer.',
+    },
+  ],
+  1: [
+    {
+      key: 'fake-dm',
+      kind: 'post',
+      platform: 'Tweety.no',
+      username: 'GamerLoke99',
+      handle: '@gamerloke99_',
+      timestamp: 'Nå',
+      content: 'Hei! Jeg går også på skolen din. Hva heter kontaktlæreren din igjen? Send Snapen din så kan jeg forklare hva som skjer 👀',
+      likes: '12',
+      comments: '0',
+      shares: '0',
+      calloutTitle: 'Blir personlig veldig fort',
+      calloutBody: 'Falske kontoer prøver ofte å bygge tillit raskt og spør om detaljer som kan brukes til å virke mer ekte neste gang.',
+    },
+    {
+      key: 'suspicious-profile',
+      kind: 'profile',
+      platform: 'Fjesbok.no',
+      username: 'Emma.clvgs_real',
+      handle: '@emma.clvgs_real',
+      posts: '2 innlegg',
+      followers: '14 følgere',
+      following: '387 følger',
+      note: 'Nytt profilbilde, nesten ingen innlegg og veldig mange følg-forespørsler på kort tid.',
+      calloutTitle: 'Profilen ser tynn ut',
+      calloutBody: 'Få innlegg, lite historikk og ubalanse mellom følgere og følger kan være tegn på at kontoen er laget for å virke ekte, ikke for å være ekte.',
+    },
+  ],
+}
+
 watch(() => props.task?.id, () => {
   phase.value         = 'LEARN'
   submittedOnce.value = false
@@ -453,6 +593,37 @@ function buildNewsExample(examples = []) {
 
 function marketplaceVisualFor(index) {
   return props.task?.stopTheme === 'MARKETPLACE' ? MARKETPLACE_VISUAL_EXAMPLES[index] ?? null : null
+}
+
+function socialMediaVisualFor(index) {
+  return props.task?.stopTheme === 'SOCIAL_MEDIA' ? SOCIAL_MEDIA_VISUAL_EXAMPLES[index] ?? null : null
+}
+
+function socialInitials(username) {
+  const words = String(username ?? '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+
+  if (!words.length) return 'SM'
+  if (words.length === 1) return words[0].replace(/[^a-zA-Z0-9ÆØÅæøå]/g, '').slice(0, 2).toUpperCase() || 'SM'
+
+  return words.slice(0, 2).map(word => word[0] ?? '').join('').toUpperCase()
+}
+
+function socialAvatarStyle(username) {
+  const seed = Array.from(String(username ?? ''))
+    .reduce((sum, char) => sum + char.charCodeAt(0), 0)
+  const hue = seed % 360
+  const secondaryHue = (hue + 32) % 360
+
+  return {
+    background: `linear-gradient(135deg, hsl(${hue} 80% 74%) 0%, hsl(${secondaryHue} 62% 56%) 100%)`,
+  }
+}
+
+function shouldHighlightSocialChecks(index) {
+  return props.task?.stopTheme === 'SOCIAL_MEDIA' && index === 2
 }
 
 function completeIfAllCorrect() {
@@ -709,6 +880,163 @@ function scrollToLearningTop() {
   gap: var(--space-3);
 }
 
+.social-learn {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.social-learn__card {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid #cfe0ff;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  box-shadow: 0 12px 28px rgba(34, 72, 140, 0.08);
+}
+
+.social-learn__card--profile {
+  border-color: #d8e6ef;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbfc 100%);
+}
+
+.social-learn__platform {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  justify-self: start;
+  border-radius: var(--radius-full);
+  padding: 0.35rem 0.8rem;
+  background: #dbeafe;
+  color: #1d5fa8;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.social-learn__platform-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.social-learn__post-top,
+.social-learn__profile-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.social-learn__avatar {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+  box-shadow: 0 8px 18px rgba(34, 72, 140, 0.16);
+}
+
+.social-learn__identity {
+  min-width: 0;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.social-learn__name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.social-learn__name,
+.social-learn__meta,
+.social-learn__content,
+.social-learn__stats,
+.social-learn__handle,
+.social-learn__profile-note,
+.social-learn__callout-title,
+.social-learn__callout-body,
+.social-learn__profile-metrics {
+  margin: 0;
+}
+
+.social-learn__name {
+  font-size: var(--text-base);
+  font-weight: 800;
+  color: var(--color-heading);
+}
+
+.social-learn__verified {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: #2f6aff;
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.social-learn__handle,
+.social-learn__meta {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.social-learn__content {
+  font-size: var(--text-base);
+  line-height: 1.65;
+  color: var(--color-text);
+}
+
+.social-learn__stats,
+.social-learn__profile-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid #d8e5f7;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.social-learn__profile-note {
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.social-learn__callout {
+  display: grid;
+  gap: 0.35rem;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: #fff3cd;
+  border: 1px solid #f0d98a;
+}
+
+.social-learn__callout-title {
+  font-size: var(--text-sm);
+  font-weight: 800;
+  color: #6f4e00;
+}
+
+.social-learn__callout-body {
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: #6f4e00;
+}
+
 .marketplace-compare {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -907,6 +1235,43 @@ function scrollToLearningTop() {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
+}
+
+.slide__notes--highlight {
+  display: block;
+}
+
+.slide__note-box {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.55), transparent 28%),
+    linear-gradient(135deg, #fff2a8 0%, #ffd6a5 48%, #ffb4c8 100%);
+  border: 2px solid #f0ae58;
+  box-shadow: 0 16px 34px rgba(196, 116, 30, 0.16);
+}
+
+.slide__note-box-title,
+.slide__note-box-item {
+  margin: 0;
+}
+
+.slide__note-box-title {
+  font-size: var(--text-sm);
+  font-weight: 800;
+  color: #6a3e00;
+}
+
+.slide__note-box-item {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(146, 88, 18, 0.16);
+  font-size: var(--text-base);
+  line-height: 1.65;
+  color: #593600;
 }
 
 .slide__note {
@@ -1282,6 +1647,12 @@ function scrollToLearningTop() {
 
   .marketplace-compare {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 720px) {
+  .social-learn {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 </style>
