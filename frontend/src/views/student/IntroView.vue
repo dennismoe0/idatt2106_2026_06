@@ -20,7 +20,7 @@
 
       <div class="intro-carousel__track" aria-live="polite">
         <article class="intro-slide">
-          <div class="intro-slide__illustration" aria-hidden="true">
+          <div class="intro-slide__illustration" :class="{ 'intro-slide__illustration--dramatic': current === 0 }" aria-hidden="true">
             {{ slides[current].emoji }}
           </div>
 
@@ -89,44 +89,44 @@ const current = ref(0)
 
 const slides = [
   {
-    emoji: '🕵️',
-    title: 'Du er en detektiv!',
+    emoji: '👩‍💼',
+    title: 'Ordføreren trenger hjelp',
     body: [
-      'Velkommen til Nettdetektivene! Du har blitt rekruttert til en hemmelig organisasjon som beskytter folk på internett.',
-      'Som detektiv er det din jobb å avsløre lureri, falske nyheter og digitale feller.'
+      'Pengene som skulle bygge den nye idrettsparken er stjålet fra prosjektkontoen til ordføreren. Hele Internettbyen peker i forskjellige retninger, men ingen vet hva som egentlig skjedde.',
+      'Ordføreren ber deg som nettdetektiv om hjelp før flere falske spor får folk til å glemme hva saken handler om.'
     ]
   },
   {
-    emoji: '🦹',
-    title: 'Hva er oppdraget?',
+    emoji: '🕵️',
+    title: 'Du er nettdetektiven',
     body: [
-      'En mystisk datatyv sprer falsk informasjon og prøver å lure folk i Internettbyen. Du må stoppe han!'
+      'Du er valgt ut som nettdetektiv. Oppdraget ditt er å finne ut hvordan tyven lurte seg inn i systemene og følge sporene helt fram til den som tok pengene.'
     ],
     bullets: [
-      { icon: '📰', text: 'Avsløre falske nyheter og clickbait' },
-      { icon: '📧', text: 'Gjenkjenne farlige e-poster' },
-      { icon: '🔒', text: 'Lage trygge passord' },
-      { icon: '🛒', text: 'Skille mellom trygge og useriøse nettsider' }
+      { icon: '📰', text: 'Avsløre falske nyheter som peker mot feil mistenkte' },
+      { icon: '📧', text: 'Stoppe phishing-spor som ga tyven tilgang' },
+      { icon: '📷', text: 'Avdekke falske bilder og andre plantede bevis' },
+      { icon: '🔐', text: 'Forstå hvordan svake passord åpnet døren videre' }
     ]
   },
   {
     emoji: '🗺️',
-    title: 'Slik fungerer kartet',
+    title: 'Sporene ligger ute i byen',
     body: [
-      'Kartet viser steder i Internettbyen. Hvert stoppested har oppgaver du må løse for å komme videre.'
+      'Kartet viser hvor sporene leder deg. Hvert stoppested avslører en ny del av historien om de stjålne idrettsparkpengene.'
     ],
     bullets: [
-      { icon: '🟢', text: 'Grønne stoppesteder er klare til å utforskes' },
-      { icon: '🔒', text: 'Låste stoppesteder åpnes når du fullfører det forrige' },
-      { icon: '🏅', text: 'Fullfør alle oppgavene på et stopp og få en medalje!' }
+      { icon: '🟢', text: 'Nye stopp låses opp når du følger sporene i riktig rekkefølge' },
+      { icon: '🧩', text: 'Hver oppgave lærer deg en metode tyven brukte' },
+      { icon: '🏅', text: 'Når du fullfører et stopp, er du nærmere å redde pengene' }
     ]
   },
   {
-    emoji: '🚀',
-    title: 'Klar for oppdraget?',
+    emoji: '⚡',
+    title: 'Før kartet åpner seg',
     body: [
-      'Husk: en god detektiv stiller alltid spørsmål, sjekker kildene sine og tenker seg om to ganger.',
-      'Lykke til, detektiv!'
+      'Ordføreren stoler på at du finner sannheten før reserveplanen til tyven blir aktivert. Stopp opp, sjekk sporene og tenk deg om før du klikker.',
+      'Internettbyen trenger en nettdetektiv. Start etterforskningen nå.'
     ]
   }
 ]
@@ -253,6 +253,10 @@ function startGame() {
   margin-bottom: var(--space-2);
 }
 
+.intro-slide__illustration--dramatic {
+  animation: intro-dramatic-enter 0.75s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
 .intro-slide__title {
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
@@ -359,6 +363,17 @@ function startGame() {
 .intro-carousel__start:hover {
   background: var(--color-accent-dark);
   transform: translateY(-1px);
+}
+
+@keyframes intro-dramatic-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @media (max-width: 480px) {

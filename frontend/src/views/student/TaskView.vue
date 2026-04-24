@@ -167,6 +167,11 @@
       v-if="showSuspectLineup"
       @chosen="handleSuspectChosen"
     />
+    <ArrestScene
+      v-if="arrestScene"
+      :scene="arrestScene"
+      @continue="advanceArrestScene"
+    />
     <ConfettiOverlay :active="confettiMode" />
     <MedalToast :medal="medalToast" />
   </div>
@@ -191,6 +196,7 @@ import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
 import FinalBossTask from '@/components/student/FinalBossTask.vue'
 import ClueRevealModal from '@/components/student/ClueRevealModal.vue'
 import SuspectLineup from '@/components/student/SuspectLineup.vue'
+import ArrestScene from '@/components/student/ArrestScene.vue'
 import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
 import MedalToast from '@/components/common/MedalToast.vue'
 import StopSummary from '@/components/student/StopSummary.vue'
@@ -219,6 +225,7 @@ const showSuspectLineup = ref(false)
 const showSummary      = ref(false)
 const showTutorial     = ref(false)
 const showMystery      = ref(false)
+const arrestSceneStep  = ref(-1)
 let confettiTimer = null
 let medalTimer    = null
 
@@ -233,6 +240,19 @@ const classroomId = computed(() => {
 })
 const currentTask = computed(() => tasks.value[currentTaskIndex.value] ?? null)
 const stopName    = computed(() => tasks.value[0]?.stopName ?? 'Oppgaver')
+const arrestScenes = [
+  {
+    title: 'Tyven er arrestert!',
+    body: 'Etterforskningen i Passordbanken avslørte hvordan tyven brukte svake passord og stjålne innlogginger. Politiet har tatt hovedmistenkte inn til avhør.',
+    buttonText: 'Hva skjer nå?',
+  },
+  {
+    title: 'Reserveplanen er i gang',
+    body: 'Før arrestasjonen rakk tyven å aktivere en reserveplan i Datasenteret. Hvis du ikke stopper den nå, kan sporene etter de stjålne idrettsparkpengene bli slettet.',
+    buttonText: 'Til Datasenteret',
+  },
+]
+const arrestScene = computed(() => arrestScenes[arrestSceneStep.value] ?? null)
 
 const TUTORIAL_TEXTS = {
   LEARN: {
@@ -277,21 +297,21 @@ const THEME_EMOJI = {
 
 const STOP_MYSTERY_TITLES = {
   1: 'Et spor i nyhetsstrømmen',
-  2: 'Ukjent avsender',
-  3: 'Bildet lyver',
-  4: 'Passordlekkasje',
-  5: 'Svindel på nett',
-  6: 'Falsk venn',
+  2: 'Bildet lyver',
+  3: 'Ukjent avsender',
+  4: 'Svindel på nett',
+  5: 'Falsk venn',
+  6: 'Passordlekkasje',
   7: 'Datasenteret er hacket',
 }
 
 const STOP_IMAGES = {
   1: { src: '/story_pictures/news-quarter-start.png', alt: 'Nyhetskvartalet med dyredetektiver, skjermer og aviser om de forsvunne idrettsparkpengene' },
-  2: { src: '/story_pictures/post-office-start.png', alt: 'Postkontoret med mistenkelige meldinger, brev og digitale spor' },
-  3: { src: '/story_pictures/photographer-start.png', alt: 'Fotografen med bevisbilder, kameraer og mistenkelige detaljer i et foto' },
-  4: { src: '/story_pictures/password-bank-start.png', alt: 'Passordbanken med hvelv, digitale låser og spor etter svake passord' },
-  5: { src: '/story_pictures/marketplace-start.png', alt: 'Markedsplassen med mistenkelige butikker, falske tilbud og svindelspor' },
-  6: { src: '/story_pictures/social-media-start.png', alt: 'Den sosiale møteplassen med meldinger, rykter og falske kontoer' },
+  2: { src: '/story_pictures/photographer-start.png', alt: 'Fotografen med bevisbilder, kameraer og mistenkelige detaljer i et foto' },
+  3: { src: '/story_pictures/post-office-start.png', alt: 'Postkontoret med mistenkelige meldinger, brev og digitale spor' },
+  4: { src: '/story_pictures/marketplace-start.png', alt: 'Markedsplassen med mistenkelige butikker, falske tilbud og svindelspor' },
+  5: { src: '/story_pictures/social-media-start.png', alt: 'Den sosiale møteplassen med meldinger, rykter og falske kontoer' },
+  6: { src: '/story_pictures/password-bank-start.png', alt: 'Passordbanken med hvelv, digitale låser og spor etter svake passord' },
 }
 
 const mysteryScenario = computed(() => {
@@ -500,7 +520,7 @@ function buildMockTasks() {
     },
     {
       id: 3001,
-      stopId: 3,
+      stopId: 2,
       taskType: 'AI_PHOTO',
       guidanceText: 'Sorter hvert bilde: er det ekte, KI-generert eller manipulert?',
       contentJson: {
@@ -514,7 +534,7 @@ function buildMockTasks() {
     },
     {
       id: 4001,
-      stopId: 4,
+      stopId: 6,
       taskType: 'PASSWORD',
       guidanceText: 'Finn ut hvilket passord som er best.',
       contentJson: {
@@ -533,7 +553,7 @@ function buildMockTasks() {
     },
     {
       id: 6001,
-      stopId: 6,
+      stopId: 5,
       taskType: 'SOCIAL_MEDIA',
       guidanceText: 'Les innlegget nøye og velg den tryggeste handlingen.',
       contentJson: {
@@ -556,7 +576,7 @@ function buildMockTasks() {
     },
     {
       id: 6002,
-      stopId: 6,
+      stopId: 5,
       taskType: 'SOCIAL_MEDIA',
       guidanceText: 'Les innlegget nøye og velg den tryggeste handlingen.',
       contentJson: {
@@ -579,7 +599,7 @@ function buildMockTasks() {
     },
     {
       id: 6003,
-      stopId: 6,
+      stopId: 5,
       taskType: 'SOCIAL_MEDIA',
       guidanceText: 'Les innlegget nøye og velg den tryggeste handlingen.',
       contentJson: {
@@ -602,7 +622,7 @@ function buildMockTasks() {
     },
     {
       id: 5001,
-      stopId: 5,
+      stopId: 4,
       taskType: 'MARKETPLACE',
       guidanceText: 'Se etter priser, betaling og hastverk før du handler.',
       contentJson: {
@@ -631,7 +651,7 @@ function buildMockTasks() {
     },
     {
       id: 5002,
-      stopId: 5,
+      stopId: 4,
       taskType: 'MARKETPLACE',
       guidanceText: 'Velg det mest mistenkelige tegnet før du betaler.',
       contentJson: {
@@ -660,7 +680,7 @@ function buildMockTasks() {
     },
     {
       id: 5003,
-      stopId: 5,
+      stopId: 4,
       taskType: 'MARKETPLACE',
       guidanceText: 'Velg nettstedet du ville styrt unna.',
       contentJson: {
@@ -730,6 +750,42 @@ function handleSuspectChosen() {
   showSuspectLineup.value = false
 }
 
+function shouldShowArrestScene() {
+  return result.value?.correct
+    && result.value?.stopCompleted
+    && currentTask.value?.stopTheme === 'PASSWORD'
+}
+
+async function advanceArrestScene() {
+  if (arrestSceneStep.value < arrestScenes.length - 1) {
+    arrestSceneStep.value += 1
+    return
+  }
+
+  let nextStopId = gameStore.stops.find((stop) => stop.orderIndex === 7 || stop.theme === 'FINAL_BOSS')?.id
+  if (!nextStopId && classroomId.value) {
+    try {
+      const stops = await gameStore.fetchStops(classroomId.value)
+      nextStopId = stops.find((stop) => stop.orderIndex === 7 || stop.theme === 'FINAL_BOSS')?.id
+    } catch (fetchError) {
+      console.error('[TaskView] Failed to resolve Datasenteret stop id.', fetchError)
+    }
+  }
+
+  arrestSceneStep.value = -1
+  if (!nextStopId) {
+    router.push({ name: preferredMap })
+    return
+  }
+  router.push({
+    name: 'Task',
+    query: {
+      stopId: String(nextStopId),
+      classroomId: String(classroomId.value),
+    },
+  })
+}
+
 onBeforeUnmount(() => {
   clearTimeout(confettiTimer)
   clearTimeout(medalTimer)
@@ -738,6 +794,10 @@ onBeforeUnmount(() => {
 function goNext() {
   if (result.value && currentTask.value) {
     taskResults.value[currentTask.value.id] = result.value
+  }
+  if (shouldShowArrestScene()) {
+    arrestSceneStep.value = 0
+    return
   }
   if (currentTaskIndex.value < tasks.value.length - 1) {
     currentTaskIndex.value += 1
