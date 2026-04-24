@@ -3,6 +3,32 @@ import { mount } from '@vue/test-utils'
 import FakeWebshop from '@/components/student/FakeWebshop.vue'
 import MarketplaceTask from '@/components/student/MarketplaceTask.vue'
 
+const CLICK_SUSPICIOUS_TASK = {
+  id: 4,
+  taskType: 'MARKETPLACE',
+  guidanceText: 'Klikk på de delene som virker mistenkelige.',
+  contentJson: {
+    type: 'CLICK_SUSPICIOUS',
+    siteName: 'sneaker-blitz.shop',
+    question: 'Klikk på de delene du synes er mistenkelige.',
+    mockup: {
+      headline: 'Nike Air Max — KUN I DAG!',
+      tagline: 'Salg slutter om 2 timer.',
+      productName: 'Nike Air Max 270',
+      price: '299 kr',
+      originalPrice: '2 599 kr',
+      paymentText: 'Western Union / Gavekort',
+      contactText: 'kontakt@sneaker-blitz.shop',
+      returnPolicyText: 'Ingen retur på kampanjevarer',
+    },
+    elements: [
+      { id: 'domain', label: 'sneaker-blitz.shop', isSuspicious: true, explanation: 'Ukjent domene.' },
+      { id: 'payment', label: 'Western Union / Gavekort', isSuspicious: true, explanation: 'Mistenkelig betaling.' },
+      { id: 'price', label: '299 kr', isSuspicious: false, explanation: 'Prisen alene er ikke klikkmålet her.' },
+    ],
+  },
+}
+
 const IDENTIFY_TASK = {
   id: 5,
   taskType: 'MARKETPLACE',
@@ -41,6 +67,29 @@ const RANK_TASK = {
 }
 
 describe('MarketplaceTask', () => {
+  it('renders click suspicious webshop and shows the task question', () => {
+    const wrapper = mount(MarketplaceTask, { props: { task: CLICK_SUSPICIOUS_TASK } })
+
+    expect(wrapper.findComponent(FakeWebshop).exists()).toBe(true)
+    expect(wrapper.text()).toContain('Klikk på de delene du synes er mistenkelige.')
+    expect(wrapper.text()).toContain('Nike Air Max — KUN I DAG!')
+  })
+
+  it('toggles flagged webshop elements and emits flaggedElementIds', async () => {
+    const wrapper = mount(MarketplaceTask, { props: { task: CLICK_SUSPICIOUS_TASK } })
+
+    const shop = wrapper.findComponent(FakeWebshop)
+    await shop.vm.$emit('toggle', 'domain')
+    await shop.vm.$emit('toggle', 'payment')
+    await wrapper.vm.$nextTick()
+    await wrapper.find('.submit-btn').trigger('click')
+
+    expect(wrapper.text()).toContain('sneaker-blitz.shop')
+    expect(wrapper.text()).toContain('Western Union / Gavekort')
+    expect(wrapper.emitted('submitted')).toHaveLength(1)
+    expect(wrapper.emitted('submitted')[0][0]).toEqual({ flaggedElementIds: ['domain', 'payment'] })
+  })
+
   it('renders identify guidance, preview, and options', () => {
     const wrapper = mount(MarketplaceTask, { props: { task: IDENTIFY_TASK } })
 
@@ -129,15 +178,15 @@ describe('MarketplaceTask', () => {
     expect(wrapper.findComponent(FakeWebshop).exists()).toBe(false)
   })
 
-  it('warns when subtype is unknown and falls back to identify', () => {
+  it('warns when subtype is unknown and falls back to click suspicious', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     const wrapper = mount(MarketplaceTask, {
       props: {
         task: {
-          ...IDENTIFY_TASK,
+          ...CLICK_SUSPICIOUS_TASK,
           contentJson: {
-            ...IDENTIFY_TASK.contentJson,
+            ...CLICK_SUSPICIOUS_TASK.contentJson,
             type: 'RANK_MULTI',
           }
         }
@@ -145,7 +194,7 @@ describe('MarketplaceTask', () => {
     })
 
     expect(warnSpy).toHaveBeenCalled()
-    expect(wrapper.findAll('.option-btn')).toHaveLength(3)
+    expect(wrapper.findComponent(FakeWebshop).exists()).toBe(true)
 
     warnSpy.mockRestore()
   })
