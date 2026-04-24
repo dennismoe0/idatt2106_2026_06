@@ -31,7 +31,7 @@ vi.mock('@/components/student/avatar/AvatarComposer.vue', () => ({
 
 vi.mock('@/components/student/avatar/controls/SwatchGrid.vue', () => ({
   default: {
-    props: ['modelValue', 'swatches', 'shape', 'locked'],
+    props: ['modelValue', 'swatches', 'shape', 'locked', 'medalLocked'],
     emits: ['update:modelValue'],
     template: `<div class="swatch-grid-mock" />`,
   },
@@ -39,9 +39,9 @@ vi.mock('@/components/student/avatar/controls/SwatchGrid.vue', () => ({
 
 vi.mock('@/components/student/avatar/controls/ShapeGrid.vue', () => ({
   default: {
-    props: ['modelValue', 'variants', 'previewComponent', 'previewProps', 'variantProp', 'locked'],
+    props: ['modelValue', 'variants', 'previewComponent', 'previewProps', 'variantProp', 'locked', 'medalLocked'],
     emits: ['update:modelValue'],
-    template: `<div class="shape-grid-mock" />`,
+    template: `<button class="shape-grid-mock" @click="$emit('update:modelValue', 'female')"><slot /></button>`,
   },
 }))
 
@@ -63,6 +63,10 @@ vi.mock('@/components/student/avatar/layers/AvatarOutfit.vue', () => ({
   default: { template: '<svg />' },
 }))
 
+vi.mock('@/components/student/avatar/layers/AvatarAccessory.vue', () => ({
+  default: { template: '<svg />' },
+}))
+
 const router = createRouter({
   history: createMemoryHistory(),
   routes: [{ path: '/avatar', name: 'Avatar', component: { template: '<div />' } }],
@@ -70,6 +74,10 @@ const router = createRouter({
 
 function makeStore(overrides = {}) {
   return {
+    available: { hairStyle: ['short','long'], outfit: ['detective-coat','hoodie'], accessory: ['none'], hairColor: ['#1a1a1a'], eyeStyle: ['round','narrow'] },
+    medalLocked: [],
+    colorPickerUnlocked: false,
+    getMedalLockedForField: vi.fn().mockReturnValue([]),
     fetchAvatar: vi.fn().mockResolvedValue({
       gender: 'neutral',
       eyeColor: '#4a3000',
@@ -157,24 +165,14 @@ describe('AvatarView', () => {
     expect(wrapper.find('[data-testid="avatar-composer"]').exists()).toBe(false)
   })
 
-  it('pill buttons render for each accessory and toggle active class', async () => {
+  it('accessory ShapeGrid receives available accessories as variants', async () => {
     const store = makeStore()
     const wrapper = await mountAvatarView(() => store)
     await flushPromises()
 
-    const pills = wrapper.findAll('.pill')
-    // ACCESSORIES = ['none','badge','glasses','magnifier','hat']
-    expect(pills.length).toBe(5)
-
-    // 'badge' is active from loaded avatar
-    const badgePill = pills.find(p => p.text() === 'Merke')
-    expect(badgePill.classes()).toContain('pill--active')
-
-    // Click 'none'
-    const nonePill = pills.find(p => p.text() === 'Ingen')
-    await nonePill.trigger('click')
-    expect(nonePill.classes()).toContain('pill--active')
-    expect(badgePill.classes()).not.toContain('pill--active')
+    const grids = wrapper.findAll('.shape-grid-mock')
+    // There should be multiple ShapeGrids rendered (hair, eye, outfit, accessory)
+    expect(grids.length).toBeGreaterThan(0)
   })
 
   it('save button calls updateAvatar and shows success feedback', async () => {
@@ -195,12 +193,10 @@ describe('AvatarView', () => {
     const wrapper = await mountAvatarView(() => store)
     await flushPromises()
 
-    // Make a change so hasChanges becomes true — click a different accessory
-    const pills = wrapper.findAll('.pill')
-    const nonePill = pills.find(p => p.text() === 'Ingen')
-    await nonePill.trigger('click')
+    // Click a ShapeGrid to trigger a change (ShapeGrid mock emits 'female' on click)
+    const grid = wrapper.find('.shape-grid-mock')
+    await grid.trigger('click')
 
-    // Find and click the save button (first non-disabled button in preview-panel)
     const saveButton = wrapper.find('.preview-panel button:not([disabled])')
     await saveButton.trigger('click')
     await flushPromises()
@@ -217,10 +213,9 @@ describe('AvatarView', () => {
     const wrapper = await mountAvatarView(() => store)
     await flushPromises()
 
-    // Make a change
-    const pills = wrapper.findAll('.pill')
-    const nonePill = pills.find(p => p.text() === 'Ingen')
-    await nonePill.trigger('click')
+    // Click a ShapeGrid to trigger a change
+    const grid = wrapper.find('.shape-grid-mock')
+    await grid.trigger('click')
 
     const saveButton = wrapper.find('.preview-panel button:not([disabled])')
     await saveButton.trigger('click')

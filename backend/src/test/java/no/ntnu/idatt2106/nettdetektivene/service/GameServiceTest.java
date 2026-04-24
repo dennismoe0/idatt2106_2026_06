@@ -62,6 +62,7 @@ class GameServiceTest {
     @Mock ClassroomRepository classroomRepository;
     @Mock NotebookService notebookService;
     @Mock StudentXpLogRepository studentXpLogRepository;
+    @Mock AvatarService avatarService;
 
     GameService gameService;
 
@@ -78,6 +79,7 @@ class GameServiceTest {
             new ObjectMapper(),
             notebookService,
             studentXpLogRepository,
+            avatarService,
             List.of(
                 new FakeNewsTaskAnswerChecker(),
                 new PhishingEmailTaskAnswerChecker(),
