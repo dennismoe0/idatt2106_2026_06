@@ -13,13 +13,22 @@ vi.mock('@/components/common/BaseModal.vue', () => ({
     template: '<div data-testid="modal"><slot name="header" /><slot /></div>'
   }
 }))
+vi.mock('@/services/notificationService', () => ({
+  notificationService: {
+    getNotifications: vi.fn().mockResolvedValue({ data: [] }),
+    getUnreadCount: vi.fn().mockResolvedValue({ data: { unreadCount: 4 } }),
+    markAsRead: vi.fn(),
+    markAllAsRead: vi.fn()
+  }
+}))
 
 //Minimal router so router-link resolves
 const router = createRouter({
   history: createMemoryHistory(),
   routes: [
     { path: '/teacher', name: 'Dashboard', component: { template: '<div />' } },
-    { path: '/teacher/classrooms/:id', name: 'ClassroomDetail', component: { template: '<div />' } }
+    { path: '/teacher/classrooms/:id', name: 'ClassroomDetail', component: { template: '<div />' } },
+    { path: '/teacher/notifications', name: 'TeacherNotifications', component: { template: '<div />' } }
   ]
 })
 
@@ -34,7 +43,9 @@ async function mountDashboard () {
         router,
         pinia
       ],
-      stubs: { RouterLink: true }
+      stubs: {
+        RouterLink: { template: '<a v-bind="$attrs"><slot /></a>' }
+      }
     }
   })
 }
@@ -42,6 +53,37 @@ async function mountDashboard () {
 describe('DashboardView', () => {
   beforeEach(() => {
     vi.resetModules()
+  })
+
+  it('renders a teacher notification link with unread count', async () => {
+    vi.doMock('@/stores/auth', () => ({
+      useAuthStore: () => ({
+        user: { email: 'teacher@test.no' },
+        logout: vi.fn()
+      })
+    }))
+    vi.doMock('@/stores/classroom', () => ({
+      useClassroomStore: () => ({
+        classrooms: [],
+        fetchMyClassrooms: vi.fn().mockResolvedValue(undefined)
+      })
+    }))
+    vi.doMock('@/stores/school', () => ({
+      useSchoolStore: () => ({
+        school: null,
+        classrooms: [],
+        fetchMySchool: vi.fn().mockResolvedValue(null),
+        fetchSchoolClassrooms: vi.fn().mockResolvedValue([])
+      })
+    }))
+
+    const wrapper = await mountDashboard()
+    await flushPromises()
+
+    const link = wrapper.find('[data-testid="notifications-link"]')
+    expect(link.exists()).toBe(true)
+    expect(link.attributes('to')).toBe('/teacher/notifications')
+    expect(wrapper.find('[data-testid="notification-badge"]').text()).toBe('4')
   })
 
   //Error banner
