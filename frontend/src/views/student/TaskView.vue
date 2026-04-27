@@ -46,36 +46,35 @@
         <p v-else-if="!currentTask" class="task-view__state">Ingen oppgaver funnet for dette stoppet.</p>
 
         <section v-else class="task-view__section">
-          <!-- Progress dots -->
-          <div class="task-dots" role="list" :aria-label="`Oppgave ${currentTaskIndex + 1} av ${tasks.length}`">
-            <span
-              v-for="(t, i) in tasks"
-              :key="t.id"
-              class="dot"
-              role="listitem"
-              :class="{
-                'dot--current': i === currentTaskIndex && !taskResults[t.id],
-                'dot--correct': taskResults[t.id]?.correct === true,
-                'dot--wrong':   taskResults[t.id] && !taskResults[t.id].correct
-              }"
-              :aria-label="`Oppgave ${i + 1}${taskResults[t.id] ? (taskResults[t.id].correct ? ': riktig' : ': feil') : ''}`"
+          <!-- Progress dots (LEARN tasks excluded — they don't earn stars) -->
+          <div class="task-dots" role="list">
+            <template v-for="(t, i) in tasks" :key="t.id">
+              <span
+                v-if="t.taskType !== 'LEARN'"
+                class="dot"
+                role="listitem"
+                :class="{
+                  'dot--current': i === currentTaskIndex && !taskResults[t.id],
+                  'dot--correct': taskResults[t.id]?.correct === true,
+                  'dot--wrong':   taskResults[t.id] && !taskResults[t.id].correct
+                }"
+                :aria-label="`Oppgave ${i + 1}${taskResults[t.id] ? (taskResults[t.id].correct ? ': riktig' : ': feil') : ''}`"
+              />
+            </template>
+          </div>
+
+          <!-- Avatar: shown above task for non-LEARN tasks -->
+          <div v-if="currentTask?.taskType !== 'LEARN'" class="task-view__avatar-wrap">
+            <AvatarPreview
+              :selections="avatarStore.avatar ?? {}"
+              :size="160"
+              class="task-view__avatar"
+              aria-hidden="true"
             />
           </div>
 
-          <!-- Task layout: expanded avatar + task content -->
-          <div class="task-view__layout">
-            <!-- Expanded avatar (animates down from bar) -->
-            <div class="task-view__avatar-wrap">
-              <AvatarPreview
-                :selections="avatarStore.avatar ?? {}"
-                :size="160"
-                class="task-view__avatar"
-                aria-hidden="true"
-              />
-            </div>
-
-            <!-- Task component -->
-            <div class="task-view__content">
+          <!-- Task component -->
+          <div class="task-view__content">
               <LearningTask
                 v-if="currentTask.taskType === 'LEARN'"
                 :task="currentTask"
@@ -153,7 +152,6 @@
                 Ukjent taskType: {{ currentTask.taskType }}
               </p>
             </div>
-          </div>
         </section>
       </template>
     </div>
@@ -875,39 +873,22 @@ function goToMap() {
 .dot--correct { background: var(--color-success); }
 .dot--wrong   { background: var(--color-danger); }
 
-/* Task layout: avatar beside content */
-.task-view__layout {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-6);
-}
-
+/* Avatar shown above task content, centered */
 .task-view__avatar-wrap {
-  position: relative;
-  flex-shrink: 0;
-  align-self: flex-end;
-  overflow: hidden;
-  height: 200px;
-  width: 160px;
+  display: flex;
+  justify-content: center;
+  padding-bottom: var(--space-2);
 }
 
 .task-view__avatar {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  animation: avatar-drop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: avatar-drop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.35));
 }
 
 @keyframes avatar-drop-in {
-  from { transform: translateX(-50%) translateY(60px); opacity: 0; }
-  to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+  from { transform: translateY(-30px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
 }
 
-.task-view__content { flex: 1; min-width: 0; }
-
-@media (max-width: 640px) {
-  .task-view__layout { flex-direction: column; align-items: center; }
-  .task-view__avatar-wrap { height: 140px; width: 120px; }
-}
+.task-view__content { width: 100%; }
 </style>

@@ -1055,11 +1055,18 @@ function scrollToLearningTop() {
 }
 
 .nav-btn--start-quiz,
-.nav-btn--learn-next,
 .nav-btn--primary {
   background: var(--color-primary);
   color: var(--color-text-on-dark);
   box-shadow: 0 10px 22px rgba(47, 106, 255, 0.22);
+}
+
+.nav-btn--learn-next {
+  background: var(--color-primary);
+  color: var(--color-text-on-dark);
+  box-shadow: 0 10px 22px rgba(47, 106, 255, 0.22);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .nav-btn--start-quiz:hover,
 .nav-btn--learn-next:hover:not(:disabled),
