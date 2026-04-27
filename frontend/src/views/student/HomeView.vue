@@ -97,11 +97,10 @@ const activeCards = [
   { title: 'Butikk',            icon: '🏪', route: { name: 'Shop' },              color: '#065F46' },
   { title: 'Ukas Mysterium',    icon: '🧩', route: { name: 'UkasMysterium' },     color: '#7C3AED' },
   { title: 'Send inn mysterium', icon: '🔍', route: { name: 'SendInn' },          color: '#0F766E' },
+  { title: 'Hjelp',             icon: '💡', route: { name: 'Help' },              color: '#92400E' },
 ]
 
-const lockedCards = [
-  { title: 'Hjelp', icon: '💡' },
-]
+const lockedCards = []
 
 function formatDisplayName(email) {
   if (!email) return 'Ukjent'
