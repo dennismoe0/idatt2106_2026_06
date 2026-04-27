@@ -199,6 +199,7 @@ function submit() {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  min-height: clamp(340px, 48vh, 520px);
   font-size: var(--text-sm);
 }
 
@@ -225,9 +226,11 @@ function submit() {
 }
 
 .phishing-task__body {
+  flex: 1;
   margin: var(--space-2) 0 0;
   line-height: 1.7;
   color: var(--color-ink-body);
+  white-space: pre-line;
 }
 
 /* Clue inline buttons */
