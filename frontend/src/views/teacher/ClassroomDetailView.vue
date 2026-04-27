@@ -9,9 +9,12 @@
           <button class="copy-btn" @click="copyCode">{{ codeCopied ? 'Kopiert!' : 'Kopier' }}</button>
         </div>
       </div>
-      <button class="delete-btn" @click="showDeleteModal = true" aria-label="Slett klasserom">
-        🗑 Slett klasse
-      </button>
+      <RouterLink
+        :to="{ name: 'WeeklyMysteryManage', params: { classroomId } }"
+        class="mysterium-link"
+      >
+        Ukens Mysterium
+      </RouterLink>
     </header>
 
     <LoadingSpinner v-if="loading" />
@@ -68,13 +71,6 @@
         <button class="btn btn-danger" @click="kick(kickTarget.userId)">Ja, kast ut</button>
       </div>
     </BaseModal>
-
-    <DeleteClassroomModal
-      v-if="showDeleteModal && classroom"
-      :classroom-name="classroom.name"
-      @confirm="handleDelete"
-      @cancel="showDeleteModal = false"
-    />
   </main>
 </template>
 
@@ -85,7 +81,6 @@ import { useClassroomStore } from '@/stores/classroom'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import DeleteClassroomModal from '@/components/teacher/DeleteClassroomModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -96,7 +91,6 @@ const loading = ref(false)
 const error = ref('')
 const kickTarget = ref(null)
 const codeCopied = ref(false)
-const showDeleteModal = ref(false)
 let pollInterval = null
 
 const students = computed(() => classroomStore.students)
@@ -163,16 +157,6 @@ async function kick(studentId) {
   }
 }
 
-async function handleDelete() {
-  try {
-    await classroomStore.deleteClassroom(classroomId)
-    console.log('[ClassroomDetailView] Classroom deleted:', classroomId)
-    router.push({ name: 'Dashboard' })
-  } catch (err) {
-    console.error('[ClassroomDetailView] Failed to delete classroom:', err)
-  }
-}
-
 async function copyCode() {
   const code = classroom.value?.joinCode ?? ''
   try {
@@ -193,24 +177,28 @@ async function copyCode() {
   margin: 0 auto;
 }
 .classroom-detail__header {
+  margin-bottom: var(--space-6);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+  gap: var(--space-3);
 }
-.delete-btn {
-  background: none;
-  border: 1px solid var(--color-danger);
-  color: var(--color-danger);
-  border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-3);
-  font-family: inherit;
+.mysterium-link {
+  align-self: center;
   font-size: var(--text-sm);
-  cursor: pointer;
-  transition: background var(--transition-fast);
+  font-weight: var(--font-semibold);
+  color: var(--color-primary);
+  text-decoration: none;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
   white-space: nowrap;
+  flex-shrink: 0;
 }
-.delete-btn:hover { background: var(--color-danger-soft, #fee2e2); }
+.mysterium-link:hover {
+  background: var(--color-primary-soft);
+}
 .back-btn {
   background: none;
   border: none;

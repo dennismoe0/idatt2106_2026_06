@@ -5,6 +5,7 @@ import WorldMapNode from '@/components/student/WorldMapNode.vue'
 const makeStop = (overrides = {}) => ({
   id: 1,
   name: 'Nyhetskvartalet',
+  theme: 'FAKE_NEWS',
   locked: false,
   completed: false,
   ...overrides,
@@ -53,5 +54,56 @@ describe('WorldMapNode', () => {
   it('is aria-disabled when locked', () => {
     const wrapper = mount(WorldMapNode, { props: { stop: makeStop({ locked: true }) } })
     expect(wrapper.attributes('aria-disabled')).toBe('true')
+  })
+
+  it('adds the current class when isCurrent is true', () => {
+    const wrapper = mount(WorldMapNode, { props: { stop: makeStop(), isCurrent: true } })
+    expect(wrapper.classes()).toContain('world-node--current')
+  })
+
+  it('renders the pulse halo only when current and not locked', () => {
+    const current = mount(WorldMapNode, { props: { stop: makeStop(), isCurrent: true } })
+    expect(current.find('.world-node__halo').exists()).toBe(true)
+
+    const notCurrent = mount(WorldMapNode, { props: { stop: makeStop(), isCurrent: false } })
+    expect(notCurrent.find('.world-node__halo').exists()).toBe(false)
+
+    const lockedCurrent = mount(WorldMapNode, {
+      props: { stop: makeStop({ locked: true }), isCurrent: true },
+    })
+    expect(lockedCurrent.find('.world-node__halo').exists()).toBe(false)
+    expect(lockedCurrent.classes()).not.toContain('world-node--current')
+  })
+
+  it('renders the lock badge when locked', () => {
+    const wrapper = mount(WorldMapNode, { props: { stop: makeStop({ locked: true }) } })
+    expect(wrapper.find('.world-node__badge--lock').exists()).toBe(true)
+    expect(wrapper.find('.world-node__badge--done').exists()).toBe(false)
+  })
+
+  it('renders the completed check badge when completed', () => {
+    const wrapper = mount(WorldMapNode, { props: { stop: makeStop({ completed: true }) } })
+    expect(wrapper.find('.world-node__badge--done').exists()).toBe(true)
+    expect(wrapper.find('.world-node__badge--lock').exists()).toBe(false)
+  })
+
+  it('renders the theme icon matching stop.theme', () => {
+    const wrapper = mount(WorldMapNode, {
+      props: { stop: makeStop({ theme: 'PASSWORD', name: 'Passordbanken' }) },
+    })
+    expect(wrapper.find('.world-node__icon').attributes('data-icon')).toBe('key')
+  })
+
+  it('falls back to map-pin icon for unknown theme', () => {
+    const wrapper = mount(WorldMapNode, {
+      props: { stop: makeStop({ theme: 'UNKNOWN_THEME' }) },
+    })
+    expect(wrapper.find('.world-node__icon').attributes('data-icon')).toBe('map-pin')
+  })
+
+  it('renders an svg disk with a circle', () => {
+    const wrapper = mount(WorldMapNode, { props: { stop: makeStop() } })
+    expect(wrapper.find('svg.world-node__svg').exists()).toBe(true)
+    expect(wrapper.find('svg.world-node__svg circle').exists()).toBe(true)
   })
 })

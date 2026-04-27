@@ -19,6 +19,8 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "@dicebear/adventurer": "^9.4.2",
+    "@dicebear/core": "^9.4.2",
     "@tailwindcss/vite": "^4.2.2",
     "axios": "^1.15.0",
     "canvas-confetti": "^1.9.4",
@@ -29,6 +31,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@pinia/testing": "^1.0.3",
     "@vitejs/plugin-vue": "^6.0.5",
     "@vitest/eslint-plugin": "^1.6.13",
     "@vue/test-utils": "^2.4.6",

@@ -9,7 +9,6 @@ vi.mock('@/services/classroomService', () => ({
     joinClassroom: vi.fn(),
     getStudents: vi.fn(),
     updateStudentStatus: vi.fn(),
-    deleteClassroom: vi.fn(),
   }
 }))
 
@@ -71,23 +70,5 @@ describe('classroom store', () => {
     classroomService.getMyClassrooms.mockRejectedValue(new Error('Network error'))
     const store = useClassroomStore()
     await expect(store.fetchMyClassrooms()).rejects.toThrow('Network error')
-  })
-
-  it('deleteClassroom removes classroom from list', async () => {
-    classroomService.deleteClassroom.mockResolvedValue({})
-    const store = useClassroomStore()
-    store.classrooms = [{ id: 1, name: 'Alpha' }, { id: 2, name: 'Beta' }]
-    await store.deleteClassroom(1)
-    expect(classroomService.deleteClassroom).toHaveBeenCalledWith(1)
-    expect(store.classrooms).toHaveLength(1)
-    expect(store.classrooms[0].id).toBe(2)
-  })
-
-  it('deleteClassroom throws and does not mutate list when service fails', async () => {
-    classroomService.deleteClassroom.mockRejectedValue(new Error('forbidden'))
-    const store = useClassroomStore()
-    store.classrooms = [{ id: 1, name: 'Alpha' }]
-    await expect(store.deleteClassroom(1)).rejects.toThrow('forbidden')
-    expect(store.classrooms).toHaveLength(1)
   })
 })

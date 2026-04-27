@@ -1,6 +1,12 @@
 /* Tailwind v4 — replaces @tailwind base/components/utilities */
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Special Elite';
+  src: url('/fonts/SpecialElite-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
 /* ── Design tokens ──────────────────────────────────────────────
    @theme values become BOTH CSS custom properties AND Tailwind
    utilities. Change ONE hex value → whole UI updates.
@@ -49,10 +55,241 @@
   --color-heading: #20304A;
   --color-map-bg: #1a1a2e;
 
+  /* Newspaper (FakeNewsTask) */
+  --color-newspaper-bg:   #f4efe2;
+  --color-newspaper-ink:  #111111;
+  --color-newspaper-rule: rgba(0, 0, 0, 0.15);
+
+  /* Cork board theme */
+  --color-cork:      #A87230;
+  --color-cork-dark: #7A4E1A;
+  --color-cork-light: #C49240;
+  --color-wood:      #3B1F08;
+  --color-wood-mid:  #5C3210;
+  --color-gold:      #EFB45C;
+  --color-red-pin:   #9B2226;
+
+  /* Note / card surfaces */
+  --color-note-bg:     #FEFCF0;
+  --color-note-border: #D4A96A;
+  --color-note-chosen-bg: #FFF8EC;
+  --color-note-correct-bg: #F0FFF4;
+  --color-note-wrong-bg:   #FFF5F5;
+
+  /* Ink — text on cork/note backgrounds */
+  --color-ink:       #3B1F08;
+  --color-ink-body:  #333333;
+  --color-ink-subtle: #555555;
+  --color-ink-faint:  #777777;
+
+  /* Clue buttons (phishing interaction) */
+  --color-clue-bg:           #FFFBEB;
+  --color-clue-border:       #DD6B20;
+  --color-clue-hover-bg:     #FED7AA;
+  --color-clue-flagged-bg:   #FECACA;
+  --color-clue-flagged-text: #991B1B;
+  --color-clue-correct-bg:   #D1FAE5;
+  --color-clue-correct-text: #065F46;
+  --color-clue-missed-bg:    #FEF9C3;
+  --color-clue-missed-border: #CA8A04;
+
+  /* Mystery screen */
+  --color-mystery-dark:      #1a1209;
+  --color-mystery-darkest:   #0d0b07;
+  --color-mystery-parchment: #f5efdf;
+  --color-mystery-gold:      #f5c842;
+  --color-mystery-hover:     #3d2b0a;
+  --color-mystery-border:    #c8b89a;
+  --color-mystery-text:      #2c1f0e;
+
+  /* Notebook journal — leather-bound field journal palette.
+     Grouped together so the whole journal theme lives in one place. */
+  --color-journal-ink:             #3b2817;
+  --color-journal-ink-strong:      #2f1d10;
+  --color-journal-ink-soft:        #523115;
+  --color-journal-accent:          #734420;
+  --color-journal-danger:          #99281f;
+  --color-journal-error:           #9e2a21;
+  --color-journal-modal-ink:       #382617;
+
+  --color-journal-parchment:        #f9efd9;
+  --color-journal-parchment-warm:   #f9efd8;
+  --color-journal-parchment-bright: #fff1ce;
+  --color-journal-parchment-light:  #ffefca;
+  --color-journal-highlight:        #ffe1a6;
+  --color-journal-error-soft:       #ffd4cc;
+
+  --color-journal-paper-top:     #f5ead2;
+  --color-journal-paper-mid:     #ecdcb9;
+  --color-journal-paper-bottom:  #e8d5af;
+  --color-journal-pages-top:     #f7efdd;
+  --color-journal-pages-bottom:  #ede0c2;
+
+  --color-journal-leather-top:     #7f4b21;
+  --color-journal-leather-bottom:  #5b3117;
+  --color-journal-leather-light:   #784623;
+  --color-journal-leather-mid:     #562d17;
+  --color-journal-leather-dark:    #351a0e;
+  --color-journal-retry-top:       #7c4a24;
+  --color-journal-retry-bottom:    #5a2f17;
+
+  --color-journal-cover-inside-top:    #8a552f;
+  --color-journal-cover-inside-mid:    #653819;
+  --color-journal-cover-inside-bottom: #43200f;
+
+  --color-journal-spine-top:        #3f2110;
+  --color-journal-spine-mid:        #683918;
+  --color-journal-spine-dark:       #2e170b;
+  --color-journal-spine-edge:       #71411f;
+  --color-journal-spine-cover-top:  #5d3518;
+  --color-journal-spine-cover-mid:  #73421e;
+  --color-journal-spine-cover-dark: #4a2712;
+
+  --color-journal-rule-soft:      rgba(188, 101, 51, 0.18);
+  --color-journal-rule-strong:    rgba(188, 101, 51, 0.4);
+  --color-journal-stamp:          rgba(133, 36, 24, 0.78);
+  --color-journal-stamp-border:   rgba(133, 36, 24, 0.42);
+  --color-journal-locked:         rgba(95, 79, 58, 0.66);
+  --color-journal-locked-border:  rgba(95, 79, 58, 0.32);
+  --color-journal-modal-surface:  rgba(255, 253, 247, 0.96);
+
+  /* Leaderboard medal tiers */
+  --color-medal-gold-border:   #f59e0b;
+  --color-medal-gold-bg:       #fffbeb;
+  --color-medal-silver-border: #9ca3af;
+  --color-medal-silver-bg:     #f9fafb;
+  --color-medal-bronze-border: #b45309;
+  --color-medal-bronze-bg:     #fef3c7;
+  --color-leaderboard-me-bg:   #fff7df;
+
+  /* Medal room */
+  --color-medals-text-on-cork: #fff7e6;
+  --color-medals-hero-title: #fff9ec;
+  --color-medals-hero-body: color-mix(in srgb, var(--color-note-bg) 90%, transparent);
+  --color-medals-hero-kicker: #ffd470;
+  --color-medals-hero-panel: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-wood) 92%, black) 0%,
+    color-mix(in srgb, var(--color-cork-dark) 82%, var(--color-wood-mid)) 55%,
+    color-mix(in srgb, var(--color-cork) 78%, var(--color-wood-mid)) 100%
+  );
+  --color-medals-hero-glow: rgba(255, 228, 150, 0.35);
+  --color-medals-hero-glow-soft: rgba(255, 244, 214, 0.22);
+  --color-medals-hero-border: rgba(255, 227, 155, 0.28);
+  --color-medals-hero-overlay: rgba(255, 255, 255, 0.05);
+  --color-medals-hero-overlay-soft: rgba(255, 255, 255, 0.03);
+  --color-medals-hero-shadow-inner: rgba(255, 242, 211, 0.12);
+  --color-medals-hero-shadow: rgba(41, 20, 4, 0.22);
+  --color-medals-spotlight-core: rgba(255, 245, 216, 0.88);
+  --color-medals-spotlight-edge: rgba(255, 217, 102, 0.18);
+  --color-medals-state-spinner: rgba(255, 247, 230, 0.25);
+  --color-medals-button-bg: linear-gradient(180deg, #ffd76a 0%, #efb45c 100%);
+  --color-medals-button-text: #4d2d07;
+  --color-medals-button-shadow: rgba(59, 31, 8, 0.25);
+  --color-medals-showcase-medal: radial-gradient(
+    circle at 30% 30%,
+    #fff6bf 0%,
+    #ffd76a 28%,
+    #efb45c 62%,
+    #c67b1c 100%
+  );
+  --color-medals-showcase-ring: rgba(255, 239, 196, 0.12);
+  --color-medals-showcase-shadow: rgba(37, 19, 6, 0.34);
+  --color-medals-showcase-ribbon-left: linear-gradient(180deg, #ef4444 0%, #9f1239 100%);
+  --color-medals-showcase-ribbon-right: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  --color-medals-podium-ribbon-bg: #ffe18c;
+  --color-medals-podium-ribbon-text: #422006;
+  --color-medals-podium-ribbon-shadow: rgba(31, 18, 7, 0.18);
+  --color-medals-card-bg: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-note-bg) 96%, white) 0%,
+    color-mix(in srgb, var(--color-note-chosen-bg) 92%, var(--color-gold) 8%) 100%
+  );
+  --color-medals-card-border: rgba(122, 78, 26, 0.18);
+  --color-medals-card-shadow: rgba(59, 31, 8, 0.16);
+  --color-medals-card-gloss: rgba(255, 255, 255, 0.32);
+  --color-medals-card-text: #492708;
+  --color-medals-card-title: #3e2207;
+  --color-medals-card-label: #8b5d24;
+  --color-medals-stat-icon-bg: linear-gradient(180deg, #fff6d0 0%, #ffd776 100%);
+  --color-medals-stat-icon-shadow: rgba(186, 124, 20, 0.18);
+  --color-medals-meter-track: rgba(92, 50, 16, 0.12);
+  --color-medals-meter-shadow: rgba(59, 31, 8, 0.16);
+  --color-medals-meter-fill: linear-gradient(90deg, #efb45c 0%, #ffd76a 52%, #fff0ab 100%);
+  --color-medals-meter-glow: rgba(255, 206, 84, 0.45);
+  --color-medals-room-bg: linear-gradient(
+      180deg,
+      rgba(68, 38, 12, 0.2) 0%,
+      rgba(68, 38, 12, 0.08) 100%
+    ),
+    linear-gradient(135deg, rgba(255, 248, 229, 0.1), rgba(255, 232, 179, 0.02));
+  --color-medals-room-border: rgba(255, 230, 168, 0.16);
+  --color-medals-room-inner-border: rgba(255, 248, 229, 0.06);
+  --color-medals-room-note: rgba(255, 244, 218, 0.82);
+  --color-medals-locker-bg: linear-gradient(
+    180deg,
+    rgba(255, 250, 237, 0.98) 0%,
+    rgba(247, 227, 192, 0.96) 100%
+  );
+  --color-medals-locker-bg-locked: linear-gradient(
+    180deg,
+    rgba(245, 240, 228, 0.94) 0%,
+    rgba(214, 202, 181, 0.96) 100%
+  );
+  --color-medals-locker-border: #8a5b25;
+  --color-medals-locker-inner-border: rgba(255, 244, 214, 0.85);
+  --color-medals-locker-shadow: rgba(35, 18, 3, 0.24);
+  --color-medals-locker-shadow-hover: rgba(35, 18, 3, 0.28);
+  --color-medals-locker-panel: rgba(138, 91, 37, 0.22);
+  --color-medals-locker-highlight: rgba(255, 255, 255, 0.25);
+  --color-medals-locker-number-bg: rgba(76, 45, 14, 0.12);
+  --color-medals-locker-number-text: #6a4418;
+  --color-medals-locker-shine: rgba(255, 255, 255, 0.24);
+  --color-medals-locker-text: #432308;
+  --color-medals-locker-desc: #5d3810;
+  --color-medals-locker-medal: radial-gradient(
+    circle at 30% 30%,
+    #fff8cf 0%,
+    #ffd76a 24%,
+    #efb45c 60%,
+    #b76a12 100%
+  );
+  --color-medals-locker-medal-locked: radial-gradient(
+    circle at 30% 30%,
+    #f5f5f5 0%,
+    #d1d5db 34%,
+    #9ca3af 72%,
+    #6b7280 100%
+  );
+  --color-medals-locker-medal-shadow-inner: rgba(255, 255, 255, 0.3);
+  --color-medals-locker-medal-shadow: rgba(59, 31, 8, 0.24);
+  --color-medals-locker-icon-shadow: rgba(0, 0, 0, 0.15);
+  --color-medals-locker-date-bg: rgba(56, 161, 105, 0.14);
+  --color-medals-locker-hint-bg: rgba(107, 114, 128, 0.14);
+  --color-medals-locker-hint-text: #6b7280;
+  --color-medals-success-text: #205329;
+
   /* Button semantic tokens */
   --color-btn-primary-bg:   #2B6CB0;
   --color-btn-primary-fg:   #FFFFFF;
   --color-btn-primary-hover: color-mix(in srgb, #2B6CB0 80%, black);
+
+  /* World map node */
+  --color-map-plaque-bg:             var(--color-note-bg);
+  --color-map-plaque-ink:            var(--color-wood);
+  --color-map-plaque-border:         var(--color-wood-mid);
+  --color-map-plaque-locked-bg:      #D7CBB6;
+  --color-map-plaque-locked-ink:     #5A4A36;
+  --color-map-plaque-locked-border:  #7A6B52;
+  --color-map-badge-done-bg:         var(--color-success);
+  --color-map-badge-lock-bg:         #4A4A4A;
+  --color-map-badge-lock-fg:         #FFD54F;
+  --color-map-node-stroke:           var(--color-text-on-dark);
+
+  /* World map path segments */
+  --color-map-path-done:             #F5C518;
+  --color-map-path-upcoming:         #9E9E9E;
+  --color-map-path-locked:           #7A7A7A;
 
   /* Font */
   --font-sans: "Nunito", system-ui, -apple-system, sans-serif;
@@ -87,6 +324,7 @@
   --radius-md:       0.25rem;
   --radius-lg:       0.5rem;
   --radius-xl:       0.75rem;
+  --radius-2xl:      1.5rem;
   --radius-full:     9999px;
   --space-1:         0.25rem;
   --space-2:         0.5rem;
@@ -94,7 +332,12 @@
   --space-4:         1rem;
   --space-6:         1.5rem;
   --space-8:         2rem;
+  --space-10:        2.5rem;
   --space-12:        3rem;
   --transition-fast:   150ms ease;
   --transition-normal: 250ms ease;
+  --color-mystery-tape:        rgba(255, 220, 50, 0.85);
+  --color-mystery-tape-border: rgba(200, 160, 0, 0.5);
+  --color-map-halo:            rgba(245, 197, 24, 0.55);
+  --color-map-halo-fade:       rgba(245, 197, 24, 0);
 }

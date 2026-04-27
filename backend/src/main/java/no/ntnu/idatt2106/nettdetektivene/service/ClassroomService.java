@@ -1,6 +1,7 @@
 package no.ntnu.idatt2106.nettdetektivene.service;
 
 import lombok.RequiredArgsConstructor;
+import no.ntnu.idatt2106.nettdetektivene.dto.avatar.AvatarResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.ClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.CreateClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
@@ -13,6 +14,7 @@ import no.ntnu.idatt2106.nettdetektivene.repository.SchoolLeaderboardRow;
 import no.ntnu.idatt2106.nettdetektivene.entity.Classroom;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomTeacher;
+import no.ntnu.idatt2106.nettdetektivene.entity.School;
 import no.ntnu.idatt2106.nettdetektivene.entity.User;
 import no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException;
 import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
@@ -187,31 +189,56 @@ public class ClassroomService {
             .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<SchoolLeaderboardEntryDto> getSchoolLeaderboard(Long userId, Long classroomId) {
         log.info("[ClassroomService] getSchoolLeaderboard userId={} classroomId={}", userId, classroomId);
         Classroom classroom = classroomRepository.findById(classroomId)
             .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
         verifySchoolLeaderboardAccess(userId, classroomId);
-        int totalTasks = (int) taskRepository.count();
 
+        School school = resolveSchoolForClassroom(classroom);
+        int totalTasks = (int) taskRepository.count();
         List<Long> classroomIds;
-        if (classroom.getSchool() != null) {
-            classroomIds = classroomRepository.findBySchool_Id(classroom.getSchool().getId())
-                .stream().map(Classroom::getId).toList();
-            log.info("[ClassroomService] School {} has {} classrooms", classroom.getSchool().getId(), classroomIds.size());
+        if (school != null) {
+            classroomIds = classroomRepository.findBySchool_Id(school.getId()).stream()
+                .map(Classroom::getId)
+                .toList();
+            log.info("[ClassroomService] School {} leaderboard includes {} classrooms", school.getId(), classroomIds.size());
         } else {
             classroomIds = List.of(classroomId);
             log.info("[ClassroomService] No school for classroomId={}, using single-classroom leaderboard", classroomId);
         }
 
+        return toSchoolLeaderboardEntries(classroomIds, totalTasks);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SchoolLeaderboardEntryDto> getGlobalLeaderboard(Long userId, Long classroomId) {
+        log.info("[ClassroomService] getGlobalLeaderboard userId={} classroomId={}", userId, classroomId);
+        if (!classroomRepository.existsById(classroomId)) {
+            throw new ResourceNotFoundException("Classroom not found");
+        }
+        verifySchoolLeaderboardAccess(userId, classroomId);
+        int totalTasks = (int) taskRepository.count();
+        List<Long> classroomIds = classroomRepository.findByIsActiveTrue().stream()
+            .map(Classroom::getId)
+            .toList();
+        log.info("[ClassroomService] Global leaderboard includes {} active classrooms", classroomIds.size());
+
+        return toSchoolLeaderboardEntries(classroomIds, totalTasks);
+    }
+
+    private List<SchoolLeaderboardEntryDto> toSchoolLeaderboardEntries(List<Long> classroomIds, int totalTasks) {
         return classroomStudentRepository.getSchoolLeaderboard(classroomIds).stream()
             .map(row -> new SchoolLeaderboardEntryDto(
+                row.getStudentId(),
                 row.getDisplayName(),
                 row.getClassroomId(),
                 row.getClassroomName(),
+                row.getSchoolName(),
                 row.getCompletedTasks() == null ? 0 : row.getCompletedTasks().intValue(),
-                totalTasks
+                totalTasks,
+                toAvatarResponse(row)
             ))
             .toList();
     }
@@ -287,6 +314,45 @@ public class ClassroomService {
             log.warn("[ClassroomService] School leaderboard access denied: classroomId={} userId={}", classroomId, userId);
             throw new ResourceNotFoundException("Classroom not found");
         }
+    }
+
+    private School resolveSchoolForClassroom(Classroom classroom) {
+        if (classroom.getSchool() != null) {
+            return classroom.getSchool();
+        }
+
+        Optional<School> teacherSchool = classroomTeacherRepository.findSchoolByClassroomId(classroom.getId());
+        if (teacherSchool.isEmpty()) {
+            return null;
+        }
+
+        classroom.setSchool(teacherSchool.get());
+        classroomRepository.save(classroom);
+        log.info(
+            "[ClassroomService] Backfilled school {} for classroom {} from teacher membership",
+            teacherSchool.get().getId(),
+            classroom.getId()
+        );
+        return teacherSchool.get();
+    }
+
+    private AvatarResponse toAvatarResponse(SchoolLeaderboardRow row) {
+        if (row.getAvatarGender() == null) {
+            return null;
+        }
+
+        return new AvatarResponse(
+            row.getAvatarGender(),
+            row.getAvatarEyeColor(),
+            row.getAvatarEyeStyle(),
+            row.getAvatarSkinColor(),
+            row.getAvatarHairColor(),
+            row.getAvatarHairStyle(),
+            row.getAvatarOutfit(),
+            row.getAvatarOutfitColor(),
+            row.getAvatarHatColor(),
+            row.getAvatarAccessory()
+        );
     }
 
     private ClassroomResponse toClassroomResponse(Classroom classroom) {

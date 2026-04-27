@@ -20,6 +20,7 @@ public class Avatar {
 
     private String gender;
     private String eyeColor;
+    private String eyeStyle;
     private String skinColor;
     private String hairColor;
     private String hairStyle;

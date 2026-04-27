@@ -1,5 +1,6 @@
 package no.ntnu.idatt2106.nettdetektivene.controller;
 
+import no.ntnu.idatt2106.nettdetektivene.dto.avatar.AvatarOptionsResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.avatar.AvatarResponse;
 import no.ntnu.idatt2106.nettdetektivene.security.JwtAuthFilter;
 import no.ntnu.idatt2106.nettdetektivene.security.JwtTokenProvider;
@@ -67,12 +68,13 @@ class AvatarControllerTest {
     void getMyAvatar_returns200WithAvatar() throws Exception {
         when(avatarService.getMyAvatar()).thenReturn(new AvatarResponse(
             "neutral",
-            "brown",
-            "medium",
-            "black",
+            "#4a3000",
+            "round",
+            "#D08B5B",
+            "#8B4513",
             "short",
             "detective-coat",
-            "blue",
+            "#2563eb",
             "none",
             "badge"
         ));
@@ -88,12 +90,13 @@ class AvatarControllerTest {
     void updateMyAvatar_validRequest_returns200WithUpdatedAvatar() throws Exception {
         when(avatarService.updateMyAvatar(any())).thenReturn(new AvatarResponse(
             "female",
-            "green",
-            "medium",
-            "black",
+            "#15803d",
+            "round",
+            "#D08B5B",
+            "#1a1a1a",
             "curly",
             "hoodie",
-            "red",
+            "#2563eb",
             "none",
             "badge"
         ));
@@ -103,20 +106,21 @@ class AvatarControllerTest {
                 .content("""
                     {
                       "gender": "female",
-                      "eyeColor": "green",
-                      "skinColor": "medium",
-                      "hairColor": "black",
+                      "eyeColor": "#15803d",
+                      "eyeStyle": "round",
+                      "skinColor": "#D08B5B",
+                      "hairColor": "#1a1a1a",
                       "hairStyle": "curly",
                       "outfit": "hoodie",
-                      "outfitColor": "red",
+                      "outfitColor": "#2563eb",
                       "hatColor": "none",
                       "accessory": "badge"
                     }
                     """))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.gender").value("female"))
-            .andExpect(jsonPath("$.eyeColor").value("green"))
-            .andExpect(jsonPath("$.outfitColor").value("red"));
+            .andExpect(jsonPath("$.eyeColor").value("#15803d"))
+            .andExpect(jsonPath("$.outfitColor").value("#2563eb"));
     }
 
     @Test
@@ -125,28 +129,33 @@ class AvatarControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
-                      "eyeColor": "green",
-                      "skinColor": "medium",
-                      "hairColor": "black",
+                      "eyeColor": "#15803d",
+                      "skinColor": "#D08B5B",
+                      "hairColor": "#1a1a1a",
                       "hairStyle": "curly",
                       "outfit": "hoodie",
-                      "outfitColor": "red"
+                      "outfitColor": "#dc2626"
                     }
                     """))
             .andExpect(status().isBadRequest());
     }
 
     @Test
-    void getAvatarOptions_returns200WithOptions() throws Exception {
-        when(avatarService.getOptions()).thenReturn(Map.of(
-            "gender", List.of("neutral", "female", "male"),
-            "outfit", List.of("detective-coat", "hoodie")
+    void getMyOptions_returns200WithOptionsResponse() throws Exception {
+        when(avatarService.getMyOptions()).thenReturn(new AvatarOptionsResponse(
+            Map.of(
+                "gender", List.of("neutral", "female", "male"),
+                "hairStyle", List.of("short", "long")
+            ),
+            List.of(),
+            false
         ));
 
         mockMvc.perform(get("/api/avatars/options"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.gender[0]").value("neutral"))
-            .andExpect(jsonPath("$.gender[1]").value("female"))
-            .andExpect(jsonPath("$.outfit[1]").value("hoodie"));
+            .andExpect(jsonPath("$.available.gender[0]").value("neutral"))
+            .andExpect(jsonPath("$.available.hairStyle[0]").value("short"))
+            .andExpect(jsonPath("$.medalLocked").isArray())
+            .andExpect(jsonPath("$.colorPickerUnlocked").value(false));
     }
 }

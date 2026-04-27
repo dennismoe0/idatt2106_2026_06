@@ -1,6 +1,6 @@
 <template>
   <div class="map-view">
-    <StudentHeader title="Kart" :back-to="{ name: 'Home' }" />
+    <DetectiveBar page-title="Kart" :back-to="{ name: 'Home' }" />
     <button class="map-view__world-btn" @click="switchToWorldMap" aria-label="Bytt til verdenskart">
       Verdenskart
     </button>
@@ -33,7 +33,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { useClassroomStore } from '@/stores/classroom'
-import StudentHeader from '@/components/common/StudentHeader.vue'
+import DetectiveBar from '@/components/common/DetectiveBar.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import StopMarker from '@/components/student/StopMarker.vue'
 

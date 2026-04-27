@@ -62,6 +62,7 @@ class GameServiceTest {
     @Mock ClassroomRepository classroomRepository;
     @Mock NotebookService notebookService;
     @Mock StudentXpLogRepository studentXpLogRepository;
+    @Mock AvatarService avatarService;
 
     GameService gameService;
 
@@ -78,6 +79,7 @@ class GameServiceTest {
             new ObjectMapper(),
             notebookService,
             studentXpLogRepository,
+            avatarService,
             List.of(
                 new FakeNewsTaskAnswerChecker(),
                 new PhishingEmailTaskAnswerChecker(),
@@ -364,7 +366,7 @@ class GameServiceTest {
     }
 
     @Test
-    void submitAnswer_socialMedia_chooseAction_checksAction() {
+    void submitAnswer_socialMedia_checksSelectedOption() {
         Stop stop = stop(6L, 1, "Den sosiale møteplassen");
         Task task = socialMediaActionTask(25L, stop);
         when(taskRepository.findById(25L)).thenReturn(Optional.of(task));
@@ -378,7 +380,7 @@ class GameServiceTest {
             STUDENT_ID,
             CLASSROOM_ID,
             25L,
-            new SubmitAnswerRequest(Map.of("action", "CHECK_SOURCES"))
+            new SubmitAnswerRequest(Map.of("selected", "report"))
         );
 
         assertThat(response.correct()).isTrue();
@@ -386,21 +388,21 @@ class GameServiceTest {
     }
 
     @Test
-    void submitAnswer_socialMedia_identifyWorst_checksSelectedPost() {
+    void submitAnswer_socialMedia_acceptsLegacyActionPayloadForSelectedAnswer() {
         Stop stop = stop(6L, 1, "Den sosiale møteplassen");
-        Task task = socialMediaWorstTask(26L, stop);
-        when(taskRepository.findById(26L)).thenReturn(Optional.of(task));
-        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 26L)).thenReturn(Optional.empty());
+        Task task = socialMediaActionTask(25L, stop);
+        when(taskRepository.findById(25L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
-        when(taskRepository.countByStop_Id(6L)).thenReturn(3L);
+        when(taskRepository.countByStop_Id(6L)).thenReturn(2L);
         when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 6L)).thenReturn(1L);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
             CLASSROOM_ID,
-            26L,
-            new SubmitAnswerRequest(Map.of("selected", "post_1"))
+            25L,
+            new SubmitAnswerRequest(Map.of("action", "report"))
         );
 
         assertThat(response.correct()).isTrue();
@@ -525,6 +527,27 @@ class GameServiceTest {
         assertThat(userCaptor.getValue().getXp()).isEqualTo(40);
 
         verify(studentXpLogRepository).save(any(StudentXpLog.class));
+    }
+
+    @Test
+    void submitAnswer_stopCompleteWithClueText_createsNotebookAutoClue() {
+        Stop stop = stop(1L, 1, "Postkontoret");
+        stop.setClueText("Tyven brukte nettkafeen.");
+        Task task = phishingTask(10L, stop);
+        User studentUser = student(STUDENT_ID);
+
+        when(taskRepository.findById(10L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 10L)).thenReturn(Optional.empty());
+        when(taskRepository.countByStop_Id(1L)).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(1L);
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(studentUser);
+        when(medalRepository.findByStop_Id(1L)).thenReturn(Optional.empty());
+
+        var result = gameService.submitAnswer(STUDENT_ID, CLASSROOM_ID, 10L, new SubmitAnswerRequest(Map.of("action", "REPORT")));
+
+        assertThat(result.correct()).isTrue();
+        verify(notebookService).createAutoClueIfNotExists(STUDENT_ID, stop);
     }
 
     @Test
@@ -691,36 +714,25 @@ class GameServiceTest {
         Task task = task(id, stop, TaskType.SOCIAL_MEDIA);
         task.setContentJson("""
             {
-              "type": "CHOOSE_ACTION",
+              "post": {
+                "platform": "Fjesbok",
+                "username": "BesteFriend99",
+                "avatar": "👤",
+                "content": "Hei! Jeg vant en premie og trenger telefonnummeret ditt for å sende den."
+              },
               "question": "Hva bør du gjøre?",
               "options": [
-                { "id": "SHARE", "text": "Del med en gang" },
-                { "id": "CHECK_SOURCES", "text": "Sjekk kilden først" }
+                { "id": "reply",  "text": "Svar med telefonnummeret mitt" },
+                { "id": "ignore", "text": "Ignorer meldingen" },
+                { "id": "report", "text": "Rapporter og blokker kontoen" },
+                { "id": "ask",    "text": "Spør hvem det er" }
               ],
-              "explanation": "Sjekk kilden først."
+              "explanation": "Rapporter og blokker kontoen."
             }
             """);
         task.setCorrectAnswerJson("""
-            { "action": "CHECK_SOURCES" }
-            """);
-        return task;
-    }
-
-    private Task socialMediaWorstTask(Long id, Stop stop) {
-        Task task = task(id, stop, TaskType.SOCIAL_MEDIA);
-        task.setContentJson("""
-            {
-              "type": "IDENTIFY_WORST",
-              "question": "Hvilket innlegg er mest illegitimt?",
-              "posts": [
-                { "id": "post_0", "content": "Kommunen jobber med saken." },
-                { "id": "post_1", "content": "JEG VET HVEM TYVEN ER!!" }
-              ],
-              "explanation": "Post 1 er mest illegitimt."
+            { "selected": "report" }
             }
-            """);
-        task.setCorrectAnswerJson("""
-            { "selected": "post_1" }
             """);
         return task;
     }

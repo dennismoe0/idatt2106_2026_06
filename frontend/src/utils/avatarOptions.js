@@ -1,34 +1,29 @@
+export const SKIN_COLORS  = ['#FDDBB4','#EDB98A','#D08B5B','#AE5D29','#694D3D','#3B1F0E']
+export const HAIR_COLORS  = ['#1a1a1a','#8B4513','#D2691E','#F4D150','#E8E1E1','#CC2200','#FF69B4','#9B59B6']
+export const EYE_COLORS   = ['#4a3000','#1e40af','#15803d','#6b7280','#92400e']
+export const OUTFIT_COLORS = ['#2563eb','#dc2626','#16a34a','#d97706','#1f2937']
+
+export const HAIR_STYLES   = ['short','long','curly','ponytail','buzz','braids','bun','afro','bald']
+export const EYE_STYLES    = ['round','narrow','wide']
+export const OUTFITS       = ['detective-coat','hoodie','sweater','uniform','raincoat','bomber','trench-coat','cyber-suit','robe','cape']
+export const ACCESSORIES   = ['none','badge','glasses','magnifier','hat','deerstalker','fedora','lightsaber-blue','lightsaber-red','lightsaber-green']
+
 export const optionTranslations = {
-  neutral: 'Nøytral',
-  female: 'Jente',
-  male: 'Gutt',
-  blue: 'Blå',
-  brown: 'Brun',
-  green: 'Grønn',
-  gray: 'Grå',
-  light: 'Lys',
-  medium: 'Middels',
-  dark: 'Mørk',
-  black: 'Svart',
-  blonde: 'Blond',
-  red: 'Rød',
-  short: 'Kort',
-  curly: 'Krøllete',
-  ponytail: 'Hestehale',
-  buzz: 'Kortklipt',
-  'detective-coat': 'Detektivfrakk',
-  hoodie: 'Hettegenser',
-  uniform: 'Uniform',
-  raincoat: 'Regnjakke',
-  none: 'Ingen',
-  badge: 'Merke',
-  glasses: 'Briller',
-  magnifier: 'Forstørrelsesglass',
+  female: 'Jente', male: 'Gutt', neutral: 'Nøytral',
+  short: 'Kort', long: 'Langt', curly: 'Krøllete', ponytail: 'Hestehale',
+  buzz: 'Kort-klipp', braids: 'Fletter', bun: 'Knute', afro: 'Afro', bald: 'Skallet',
+  wavy: 'Bølgete', mohawk: 'Mohawk',
+  round: 'Runde', narrow: 'Smale', wide: 'Store',
+  'detective-coat': 'Detektivfrakk', hoodie: 'Hettegenser', sweater: 'Genser',
+  uniform: 'Uniform', raincoat: 'Regnjakke',
+  bomber: 'Bomberjakke', 'trench-coat': 'Trenchcoat', 'cyber-suit': 'Cyber-drakt',
+  robe: 'Kåpe', cape: 'Kappe',
+  none: 'Ingen', badge: 'Merke', glasses: 'Briller',
+  magnifier: 'Forstørrelsesglass', hat: 'Hatt',
+  deerstalker: 'Detektivhatt', fedora: 'Fedora',
+  'lightsaber-blue': 'Blått lyssverd', 'lightsaber-red': 'Rødt lyssverd', 'lightsaber-green': 'Grønt lyssverd',
 }
 
 export function formatOption(value) {
-  return optionTranslations[value] || value
-    .split('-')
-    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ')
+  return optionTranslations[value] || value.split('-').map(p => p[0].toUpperCase() + p.slice(1)).join(' ')
 }

@@ -1,16 +1,16 @@
 <template>
-  <div class="profile-view">
-    <StudentHeader title="Min profil" :show-back="true" :back-to="{ name: 'Home' }" />
+  <CorkBoardPage page-title="Min profil" :back-to="{ name: 'Home' }">
 
     <div class="profile-view__body">
 
       <!-- Avatar -->
       <section class="profile-avatar" aria-label="Avatar">
         <div class="profile-avatar__frame">
-          <img
-            :src="avatarImage"
+          <AvatarPreview
+            :selections="avatarStore.avatar ?? {}"
+            :size="160"
             class="profile-avatar__img"
-            :alt="`Avatar for ${displayName}`"
+            :aria-label="`Avatar for ${displayName}`"
           />
         </div>
         <RouterLink :to="{ name: 'Avatar' }" class="profile-avatar__edit-btn">
@@ -85,7 +85,7 @@
       </section>
 
     </div>
-  </div>
+  </CorkBoardPage>
 </template>
 
 <script setup>
@@ -94,10 +94,8 @@ import { useAvatarStore } from '@/stores/avatar'
 import { useGameStore } from '@/stores/game'
 import { useClassroomStore } from '@/stores/classroom'
 import { useAuthStore } from '@/stores/auth'
-import StudentHeader from '@/components/common/StudentHeader.vue'
-import neutralAvatar from '@/assets/avatar/presets/adventurer-neutral.svg'
-import lightAvatar from '@/assets/avatar/presets/adventurer-light.svg'
-import warmAvatar from '@/assets/avatar/presets/adventurer-warm.svg'
+import CorkBoardPage from '@/components/common/CorkBoardPage.vue'
+import AvatarPreview from '@/components/student/AvatarPreview.vue'
 
 const avatarStore = useAvatarStore()
 const gameStore = useGameStore()
@@ -113,13 +111,6 @@ const username = computed(() => {
   const email = authStore.email
   if (!email) return null
   return email.endsWith('@student.local') ? email.replace('@student.local', '') : email.split('@')[0]
-})
-
-const avatarImage = computed(() => {
-  const skin = avatarStore.avatar?.skinColor
-  if (skin === 'light') return lightAvatar
-  if (skin === 'dark') return warmAvatar
-  return neutralAvatar
 })
 
 // Editable display name
@@ -171,7 +162,6 @@ onMounted(async () => {
 <style scoped>
 .profile-view {
   min-height: 100vh;
-  background: var(--color-bg);
 }
 
 .profile-view__body {
@@ -200,17 +190,13 @@ onMounted(async () => {
   border-radius: var(--radius-full);
   background: var(--color-primary-soft);
   border: 3px solid var(--color-primary);
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 11px;
   overflow: hidden;
   box-shadow: var(--shadow-lg);
   flex-shrink: 0;
-}
-
-.profile-avatar__img {
-  width: 85%;
-  height: 85%;
-  object-fit: contain;
 }
 
 .profile-avatar__edit-btn {

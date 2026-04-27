@@ -31,4 +31,7 @@ public class Stop {
 
     @Column(columnDefinition = "TEXT")
     private String autoTip;
+
+    @Column(columnDefinition = "TEXT")
+    private String clueText;
 }

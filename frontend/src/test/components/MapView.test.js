@@ -10,17 +10,26 @@ vi.mock('@/stores/game', () => ({
       { id: 1, name: 'Nyhetskvartalet', locked: false, completed: false, taskCount: 3 },
       { id: 2, name: 'Postkontoret',    locked: true,  completed: false, taskCount: 3 },
     ],
-    fetchStops: vi.fn().mockResolvedValue(undefined)
+    fetchStops: vi.fn().mockResolvedValue(undefined),
+    fetchProfile: vi.fn().mockResolvedValue(undefined),
+    xp: 0,
+    starBalance: 0
   })
 }))
 
 vi.mock('@/stores/classroom', () => ({
-  useClassroomStore: () => ({ currentClassroomId: 1 })
+  useClassroomStore: () => ({ currentClassroomId: 1, displayName: 'Testbruker' })
+}))
+
+vi.mock('@/stores/auth', () => ({
+  useAuthStore: () => ({ email: 'test@student.local' })
 }))
 
 const router = createRouter({ history: createMemoryHistory(), routes: [
+  { path: '/', name: 'Home', component: { template: '<div/>' } },
   { path: '/map', component: MapView },
   { path: '/task', name: 'Task', component: { template: '<div/>' } },
+  { path: '/world-map', name: 'WorldMap', component: { template: '<div/>' } },
 ]})
 
 describe('MapView', () => {

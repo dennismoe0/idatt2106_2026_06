@@ -172,8 +172,12 @@ class ClassroomServiceTest {
         List<SchoolLeaderboardEntryDto> result = classroomService.getSchoolLeaderboard(2L, 10L);
 
         assertThat(result).hasSize(2);
+        assertThat(result.get(0).studentId()).isEqualTo(10L);
         assertThat(result.get(0).displayName()).isEqualTo("Alice");
         assertThat(result.get(0).classroomName()).isEqualTo("Klasse A");
+        assertThat(result.get(0).schoolName()).isEqualTo("Testskole");
+        assertThat(result.get(0).avatar()).isNotNull();
+        assertThat(result.get(0).avatar().hairStyle()).isEqualTo("short");
         assertThat(result.get(1).classroomName()).isEqualTo("Klasse B");
     }
 
@@ -196,6 +200,34 @@ class ClassroomServiceTest {
     }
 
     @Test
+    void getSchoolLeaderboard_backfillsClassroomSchoolFromTeacherMembership() {
+        School school = school(5L);
+        Classroom c10 = classroom(10L, "Klasse A");
+        Classroom c20 = classroom(20L, "Klasse B");
+        c10.setSchool(null);
+        c20.setSchool(school);
+        ClassroomStudent membership = classroomStudent(c10, user(2L, User.Role.STUDENT), ClassroomStudentStatus.APPROVED);
+
+        when(classroomRepository.findById(10L)).thenReturn(Optional.of(c10));
+        when(classroomStudentRepository.findByClassroom_IdAndStudent_UserId(10L, 2L))
+            .thenReturn(Optional.of(membership));
+        when(classroomTeacherRepository.findSchoolByClassroomId(10L)).thenReturn(Optional.of(school));
+        when(classroomRepository.findBySchool_Id(5L)).thenReturn(List.of(c10, c20));
+        when(taskRepository.count()).thenReturn(7L);
+
+        SchoolLeaderboardRow row1 = mockSchoolRow("Alice", 10L, "Klasse A", 5L);
+        SchoolLeaderboardRow row2 = mockSchoolRow("Bob", 20L, "Klasse B", 3L);
+        when(classroomStudentRepository.getSchoolLeaderboard(List.of(10L, 20L)))
+            .thenReturn(List.of(row1, row2));
+
+        List<SchoolLeaderboardEntryDto> result = classroomService.getSchoolLeaderboard(2L, 10L);
+
+        assertThat(result).hasSize(2);
+        assertThat(c10.getSchool()).isEqualTo(school);
+        verify(classroomRepository).save(c10);
+    }
+
+    @Test
     void getSchoolLeaderboard_throwsIfUserIsNotTeacherOrApprovedMember() {
         Classroom c10 = classroom(10L, "Klasse A");
         when(classroomRepository.findById(10L)).thenReturn(Optional.of(c10));
@@ -206,6 +238,30 @@ class ClassroomServiceTest {
         assertThatThrownBy(() -> classroomService.getSchoolLeaderboard(99L, 10L))
             .isInstanceOf(ResourceNotFoundException.class)
             .hasMessage("Classroom not found");
+    }
+
+    @Test
+    void getGlobalLeaderboard_returnsAllStudentsAcrossActiveClassrooms() {
+        Classroom c10 = classroom(10L, "Klasse A");
+        Classroom c20 = classroom(20L, "Klasse B");
+        Classroom c30 = classroom(30L, "Klasse C");
+
+        when(classroomRepository.existsById(10L)).thenReturn(true);
+        when(classroomStudentRepository.findByClassroom_IdAndStudent_UserId(10L, 2L))
+            .thenReturn(Optional.of(classroomStudent(c10, user(2L, User.Role.STUDENT), ClassroomStudentStatus.APPROVED)));
+        when(classroomRepository.findByIsActiveTrue()).thenReturn(List.of(c10, c20, c30));
+        when(taskRepository.count()).thenReturn(7L);
+        when(classroomStudentRepository.getSchoolLeaderboard(List.of(10L, 20L, 30L)))
+            .thenReturn(List.of(
+                mockSchoolRow("Alice", 10L, "Klasse A", "Testskole", 5L),
+                mockSchoolRow("Bob", 20L, "Klasse B", "Annen skole", 3L)
+            ));
+
+        List<SchoolLeaderboardEntryDto> result = classroomService.getGlobalLeaderboard(2L, 10L);
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).schoolName()).isEqualTo("Testskole");
+        assertThat(result.get(1).schoolName()).isEqualTo("Annen skole");
     }
 
     @Test
@@ -382,12 +438,39 @@ class ClassroomServiceTest {
         return classroomStudent;
     }
 
-    private SchoolLeaderboardRow mockSchoolRow(String name, Long classroomId, String classroomName, Long completed) {
+    private SchoolLeaderboardRow mockSchoolRow(
+        String name,
+        Long classroomId,
+        String classroomName,
+        Long completed
+    ) {
+        return mockSchoolRow(name, classroomId, classroomName, "Testskole", completed);
+    }
+
+    private SchoolLeaderboardRow mockSchoolRow(
+        String name,
+        Long classroomId,
+        String classroomName,
+        String schoolName,
+        Long completed
+    ) {
         return new SchoolLeaderboardRow() {
+            public Long getStudentId() { return classroomId; }
             public String getDisplayName()   { return name; }
             public Long getClassroomId()     { return classroomId; }
             public String getClassroomName() { return classroomName; }
+            public String getSchoolName() { return schoolName; }
             public Long getCompletedTasks()  { return completed; }
+            public String getAvatarGender() { return "neutral"; }
+            public String getAvatarEyeColor() { return "#4a3000"; }
+            public String getAvatarEyeStyle() { return "round"; }
+            public String getAvatarSkinColor() { return "#D08B5B"; }
+            public String getAvatarHairColor() { return "#8B4513"; }
+            public String getAvatarHairStyle() { return "short"; }
+            public String getAvatarOutfit() { return "detective-coat"; }
+            public String getAvatarOutfitColor() { return "#2563eb"; }
+            public String getAvatarHatColor() { return "none"; }
+            public String getAvatarAccessory() { return "badge"; }
         };
     }
 }

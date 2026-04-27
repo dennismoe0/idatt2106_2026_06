@@ -24,6 +24,8 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
 
     boolean existsByClassroom_IdAndStudent_Id(Long classroomId, Long studentId);
 
+    boolean existsByClassroom_IdAndStudent_IdAndStatus(Long classroomId, Long studentId, ClassroomStudentStatus status);
+
     @Query("select cs from ClassroomStudent cs where cs.student.id = :studentId and cs.status = :status")
     Optional<ClassroomStudent> findByStudentIdAndStatus(
         @Param("studentId") Long studentId,
@@ -51,18 +53,35 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
     List<LeaderboardRow> getLeaderboard(@Param("classroomId") Long classroomId);
 
     @Query(value = """
-        SELECT cs.display_name       AS displayName,
+        SELECT cs.student_id         AS studentId,
+               cs.display_name       AS displayName,
                c.id                  AS classroomId,
                c.name                AS classroomName,
-               COUNT(sp.id)          AS completedTasks
+               s.name                AS schoolName,
+               COUNT(sp.id)          AS completedTasks,
+               a.gender              AS avatarGender,
+               a.eye_color           AS avatarEyeColor,
+               a.eye_style           AS avatarEyeStyle,
+               a.skin_color          AS avatarSkinColor,
+               a.hair_color          AS avatarHairColor,
+               a.hair_style          AS avatarHairStyle,
+               a.outfit              AS avatarOutfit,
+               a.outfit_color        AS avatarOutfitColor,
+               a.hat_color           AS avatarHatColor,
+               a.accessory           AS avatarAccessory
         FROM classroom_students cs
         JOIN classrooms c ON c.id = cs.classroom_id
+        LEFT JOIN schools s ON s.id = c.school_id
+        LEFT JOIN avatars a ON a.student_id = cs.student_id
         LEFT JOIN student_progress sp
             ON sp.student_id = cs.student_id
             AND sp.completed = true
         WHERE cs.classroom_id IN :classroomIds
           AND cs.status = 'APPROVED'
-        GROUP BY cs.student_id, cs.display_name, c.id, c.name
+        GROUP BY cs.student_id, cs.display_name, c.id, c.name, s.name,
+                 a.gender, a.eye_color, a.eye_style, a.skin_color,
+                 a.hair_color, a.hair_style, a.outfit, a.outfit_color,
+                 a.hat_color, a.accessory
         ORDER BY completedTasks DESC, cs.display_name ASC
         """, nativeQuery = true)
     List<SchoolLeaderboardRow> getSchoolLeaderboard(@Param("classroomIds") List<Long> classroomIds);

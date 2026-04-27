@@ -7,6 +7,12 @@ export const avatarService = {
   updateAvatar: (data) =>
     api.put('/api/avatars/me', data),
 
-  getOptions: () =>
+  getMyOptions: () =>
     api.get('/api/avatars/options'),
+
+  getShop: () =>
+    api.get('/api/avatars/shop'),
+
+  purchaseItem: (optionType, optionValue) =>
+    api.post('/api/avatars/shop/purchase', { optionType, optionValue }),
 }

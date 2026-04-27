@@ -29,7 +29,7 @@
       <nav class="home__grid" aria-label="Studentmeny">
 
         <!-- Hero: Map -->
-        <RouterLink :to="{ name: 'Map' }" class="home__note home__note--hero">
+        <RouterLink :to="{ name: preferredMap }" class="home__note home__note--hero">
           <span class="home__pin home__pin--gold" aria-hidden="true"></span>
           <span class="home__note-badge" aria-hidden="true">AKTIV SAK</span>
           <span class="home__note-icon" aria-hidden="true">🗺️</span>
@@ -67,6 +67,7 @@
         </div>
 
       </nav>
+
     </div>
 
   </div>
@@ -82,20 +83,24 @@ const authStore = useAuthStore()
 const classroomStore = useClassroomStore()
 const router = useRouter()
 
+const preferredMap = localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap'
+
 const studentName = computed(() =>
   classroomStore.displayName || formatDisplayName(authStore.email)
 )
 
 const activeCards = [
-  { title: 'Medaljer',    icon: '🏅', route: { name: 'Medals' },      color: '#B45309' },
-  { title: 'Notatblokk', icon: '📝', route: { name: 'Notebook' },     color: '#0E7490' },
-  { title: 'Profil',     icon: '🕵️', route: { name: 'Profile' },      color: '#6D28D9' },
-  { title: 'Ledertavle', icon: '📊', route: { name: 'Leaderboard' },  color: '#1D4ED8' },
+  { title: 'Medaljer',           icon: '🏅', route: { name: 'Medals' },         color: '#B45309' },
+  { title: 'Notatblokk',        icon: '📝', route: { name: 'Notebook' },          color: '#0E7490' },
+  { title: 'Profil',            icon: '🕵️', route: { name: 'Profile' },           color: '#6D28D9' },
+  { title: 'Ledertavle',        icon: '📊', route: { name: 'Leaderboard' },       color: '#1D4ED8' },
+  { title: 'Butikk',            icon: '🏪', route: { name: 'Shop' },              color: '#065F46' },
+  { title: 'Ukas Mysterium',    icon: '🧩', route: { name: 'UkasMysterium' },     color: '#7C3AED' },
+  { title: 'Send inn mysterium', icon: '🔍', route: { name: 'SendInn' },          color: '#0F766E' },
 ]
 
 const lockedCards = [
-  { title: 'Ukens Mysterium', icon: '🧩' },
-  { title: 'Hjelp',           icon: '💡' },
+  { title: 'Hjelp', icon: '💡' },
 ]
 
 function formatDisplayName(email) {
@@ -114,7 +119,7 @@ function formatDisplayName(email) {
 
 function handleLogout() {
   console.log('[HomeView] Student logout')
-  authStore.clearAuthState()
+  authStore.logout()
   router.push({ name: 'StudentLogin' })
 }
 
@@ -283,6 +288,7 @@ onMounted(() => {
 .home__note:nth-child(5) { transform: rotate(-1.5deg); }
 .home__note:nth-child(6) { transform: rotate(0.8deg);  }
 .home__note:nth-child(7) { transform: rotate(-1.2deg); }
+.home__note:nth-child(8) { transform: rotate(0.7deg);  }
 
 .home__note[href]:hover,
 .home__note[href]:focus-visible {
@@ -314,7 +320,7 @@ onMounted(() => {
 
 @media (max-width: 900px) {
   .home__note--hero {
-    grid-column: span 2; /* still full width on 2-col grid */
+    grid-column: span 2;
   }
 }
 

@@ -58,7 +58,8 @@ public class NotebookService {
 
     @Transactional
     public void createAutoTipIfNotExists(Long studentId, Stop stop) {
-        if (stop.getAutoTip() == null) return;
+        String content = stop.getAutoTip();
+        if (content == null || content.isBlank()) return;
         if (notebookRepository.existsByStudent_IdAndStop_IdAndEntryType(
                 studentId, stop.getId(), NotebookEntry.EntryType.AUTO_TIP)) return;
 
@@ -66,9 +67,28 @@ public class NotebookService {
         entry.setStudent(userRepository.getReferenceById(studentId));
         entry.setStop(stop);
         entry.setEntryType(NotebookEntry.EntryType.AUTO_TIP);
-        entry.setContent(stop.getAutoTip());
+        entry.setContent(content);
         notebookRepository.save(entry);
         log.info("[NotebookService] auto-tip created studentId={} stopId={}", studentId, stop.getId());
+    }
+
+    @Transactional
+    public void createAutoClueIfNotExists(Long studentId, Stop stop) {
+        String content = stop.getClueText();
+        if (content == null || content.isBlank()) {
+            createAutoTipIfNotExists(studentId, stop);
+            return;
+        }
+        if (notebookRepository.existsByStudent_IdAndStop_IdAndEntryType(
+                studentId, stop.getId(), NotebookEntry.EntryType.AUTO_TIP)) return;
+
+        NotebookEntry entry = new NotebookEntry();
+        entry.setStudent(userRepository.getReferenceById(studentId));
+        entry.setStop(stop);
+        entry.setEntryType(NotebookEntry.EntryType.AUTO_TIP);
+        entry.setContent(content);
+        notebookRepository.save(entry);
+        log.info("[NotebookService] auto-clue created studentId={} stopId={}", studentId, stop.getId());
     }
 
     @Transactional

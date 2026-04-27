@@ -5,7 +5,9 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 ARG VITE_API_URL=""
+ARG VITE_SHOW_DEV_TOOLS="false"
 ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_SHOW_DEV_TOOLS=$VITE_SHOW_DEV_TOOLS
 RUN npm run build
 
 # Stage 2: Serve
