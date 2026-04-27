@@ -84,7 +84,6 @@
 
 <script setup>
 import CorkBoardPage from '@/components/common/CorkBoardPage.vue'
-import { RouterLink } from 'vue-router'
 
 const stops = [
   {
@@ -214,7 +213,7 @@ const stops = [
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: linear-gradient(180deg, #fff6d0 0%, #ffd776 100%);
+  background: var(--color-medals-stat-icon-bg);
   box-shadow: 0 8px 18px rgba(186, 124, 20, 0.22);
   font-size: 1.75rem;
 }
@@ -255,7 +254,6 @@ const stops = [
   display: flex;
   gap: var(--space-4);
   align-items: flex-start;
-  min-height: 100%;
   padding: var(--space-4);
   border: 1px dashed rgba(122, 78, 26, 0.28);
   border-radius: var(--radius-md);
@@ -291,7 +289,7 @@ const stops = [
   padding: clamp(var(--space-8), 4vw, var(--space-10));
   min-height: 12rem;
   border-radius: 2px;
-  background: #7c3aed;
+  background: var(--color-primary);
   color: var(--color-text-on-dark);
   transform: rotate(-0.8deg);
 }
@@ -305,11 +303,11 @@ const stops = [
 }
 
 .help-note--gold {
-  background: #b45309;
+  background: var(--color-medal-bronze-border);
 }
 
 .help-note--teal {
-  background: #0f766e;
+  background: var(--color-clue-correct-text);
 }
 
 .help-note__pin {
@@ -349,7 +347,7 @@ const stops = [
   justify-content: center;
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-6);
-  background: linear-gradient(180deg, #ffd76a 0%, var(--color-gold) 100%);
+  background: var(--color-medals-button-bg);
   color: var(--color-wood);
   font-weight: var(--font-bold);
   text-decoration: none;
