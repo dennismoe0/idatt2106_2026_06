@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Order(1)
@@ -33,6 +34,7 @@ public class DataLoader implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
         if (stopRepository.count() > 0) {
+            syncExistingMysteryContent();
             return;
         }
 
@@ -43,23 +45,23 @@ public class DataLoader implements ApplicationRunner {
                  "Falske nyheter bruker gjerne skremmende overskrifter og anonyme kilder. Sjekk alltid hvem som har skrevet saken: er nettadressen til et kjent mediehus? Søk opp saken på andre seriøse nettsteder for å se om historien stemmer. Overdrevne påstander uten dokumentasjon er et varseltegn."),
             stop("Postkontoret",
                  "Undersøk e-poster og lær hvordan svindelforsøk kan se ut.",
-                 "PHISHING_EMAIL", 2, false,
+                 "PHISHING_EMAIL", 3, false,
                  "Phishing-e-poster later som de er fra banker, skoler eller kjente selskaper for å lure deg til å gi fra deg passord eller penger. Se etter skrivefeil, ukjente avsenderadresser og lenker der nettadressen ikke stemmer med avsenderen. En ekte avsender ber aldri om passord eller betalingsinformasjon via e-post."),
             stop("Fotografen",
                  "Se etter spor i bilder og lær å kjenne igjen manipulasjon.",
-                 "AI_PHOTO", 3, false,
+                 "AI_PHOTO", 2, false,
                  "Bilder kan manipuleres og AI kan lage realistiske falske bilder. Se etter unaturlige detaljer: rare fingre, jevne bakgrunner og uskarp tekst er vanlige feil. Du kan bruke omvendt bildesøk til å sjekke om et bilde er tatt ut av en helt annen sammenheng enn det påstår."),
             stop("Passordbanken",
                  "Bygg sterke passord og beskytt kontoene dine.",
-                 "PASSWORD", 4, false,
+                 "PASSWORD", 6, false,
                  "Et sterkt passord er langt, tilfeldig og unikt for hver konto du bruker. En rekke tilfeldige ord er lettere å huske og vanskeligere å knekke enn korte passord med spesialtegn. Del aldri passordet ditt med andre, og bruk aldri samme passord på flere nettsteder."),
             stop("Markedsplassen",
                  "Vurder annonser, betalinger og trygg handel på nett.",
-                 "MARKETPLACE", 5, false,
+                 "MARKETPLACE", 4, false,
                  "Svindel på nett bruker priser som er for gode til å være sanne, krever betaling på forhånd og har vage eller kopierte produktbeskrivelser. Sjekk alltid selgerprofilen og les tilbakemeldinger fra andre kjøpere. Betal aldri med gavekort eller kryptovaluta - det er nesten umulig å spore."),
             stop("Den sosiale møteplassen",
                  "Ta gode valg i meldinger, kommentarer og deling.",
-                 "SOCIAL_MEDIA", 6, false,
+                 "SOCIAL_MEDIA", 5, false,
                  "Sosiale medier viser deg mest det du allerede er enig i, noe som kan gjøre det vanskelig å se helhetsbildet. Fremmede som tar kontakt og raskt ber om personlig informasjon kan ha skjulte hensikter. Del aldri telefonnummer, adresse, passord eller bilder du ikke vil at alle skal se."),
             stop("Datasenteret",
                  "Bruk alt du har lært i den siste digitale saken.",
@@ -73,6 +75,7 @@ public class DataLoader implements ApplicationRunner {
         Stop passwordStop = stops.get(3);
         Stop marketStop = stops.get(4);
         Stop socialStop = stops.get(5);
+        Stop finalBossStop = stops.get(6);
 
         taskRepository.saveAll(List.of(
             fakeNewsTask(
@@ -150,6 +153,24 @@ public class DataLoader implements ApplicationRunner {
                     }
                     """
             ),
+            clueRiddleTask(
+                newsStop,
+                4,
+                "Gåtespor: Hva skal vi ikke overse?",
+                "Etter nyhetsoppgavene bruker du kildekritikk til å finne et spor til Datasenteret.",
+                "Hvorfor løser du denne? Fordi falske nyheter ofte får oss til å se på det mest dramatiske først. Detektiver må se etter den lille detaljen som faktisk kan sjekkes.",
+                "Et vitne så tyven ved Bytorget: mørk jakke, noe rødt på hodet, lyse sko og en stor bærepose med bibliotekslogo.",
+                "Hvilken detalj er det viktigste sporet videre?",
+                """
+                    [
+                      { "id": "red_hat", "label": "Noe rødt på hodet" },
+                      { "id": "library_bag", "label": "Bæreposen med bibliotekslogo" },
+                      { "id": "light_shoes", "label": "Lyse sko" }
+                    ]
+                    """,
+                "library_bag",
+                "Riktig. Klær kan ligne på mange personer, men bibliotekslogoen peker mot noen med kobling til biblioteket."
+            ),
             phishingTask(
                 mailStop,
                 1,
@@ -185,6 +206,24 @@ public class DataLoader implements ApplicationRunner {
                 "Logg inn med skolebrukeren din på lenken under for å beholde tilgang til Teams og e-post.",
                 List.of("fromEmail", "loginRequest", "link"),
                 "E-posten ber om innlogging via et ukjent domene. IT-meldinger bør sjekkes mot skolens offisielle kanaler."
+            ),
+            clueRiddleTask(
+                mailStop,
+                4,
+                "Gåtespor: Hvem kjente lånehistorikken?",
+                "Etter e-postoppgavene undersøker du hvilken privat informasjon svindleren brukte.",
+                "Hvorfor løser du denne? Fordi phishing ofte bruker ekte detaljer for å virke troverdig. Spørsmålet er hvem som kunne vite detaljen.",
+                "Svindel-e-posten nevnte en bok ordføreren lånte for 3 år siden.",
+                "Hvor bør du lete etter hvem som kunne vite dette?",
+                """
+                    [
+                      { "id": "stream_chat", "label": "I chatten til en streamer" },
+                      { "id": "library_registry", "label": "I bibliotekets låneregister" },
+                      { "id": "market_reviews", "label": "I anmeldelser av nettbutikker" }
+                    ]
+                    """,
+                "library_registry",
+                "Riktig. Lånehistorikk finnes i bibliotekets systemer, så sporet peker mot noen med tilgang der."
             ),
             aiPhotoTask(
                 photoStop,
@@ -530,7 +569,8 @@ public class DataLoader implements ApplicationRunner {
                 """
                     { "selected": "post_1" }
                     """
-            )
+            ),
+            finalBossTask(finalBossStop)
         ));
 
         medalRepository.saveAll(List.of(
@@ -542,6 +582,37 @@ public class DataLoader implements ApplicationRunner {
             medal("Sosial speider", "Fullfør Den sosiale møteplassen.", stops.get(5)),
             medal("Datasenterhelt", "Fullfør Datasenteret.", stops.get(6))
         ));
+    }
+
+    private void syncExistingMysteryContent() {
+        List<Stop> existingStops = stopRepository.findAllByOrderByOrderIndexAsc();
+        Map<String, Integer> originalOrder = Map.of(
+            "Nyhetskvartalet", 1,
+            "Fotografen", 2,
+            "Postkontoret", 3,
+            "Markedsplassen", 4,
+            "Den sosiale møteplassen", 5,
+            "Passordbanken", 6,
+            "Datasenteret", 7
+        );
+
+        boolean changedOrder = false;
+        for (Stop stop : existingStops) {
+            Integer expectedOrder = originalOrder.get(stop.getName());
+            if (expectedOrder != null && !expectedOrder.equals(stop.getOrderIndex())) {
+                stop.setOrderIndex(expectedOrder);
+                changedOrder = true;
+            }
+        }
+        if (changedOrder) {
+            stopRepository.saveAll(existingStops);
+        }
+
+        existingStops.stream()
+            .filter(stop -> "Datasenteret".equals(stop.getName()))
+            .findFirst()
+            .filter(stop -> taskRepository.countByStop_Id(stop.getId()) == 0)
+            .ifPresent(stop -> taskRepository.save(finalBossTask(stop)));
     }
 
     private Stop stop(String name, String description, String theme, int orderIndex, boolean finalBoss, String autoTip) {
@@ -655,6 +726,62 @@ public class DataLoader implements ApplicationRunner {
         task.setContentJson(contentJson);
         task.setCorrectAnswerJson(correctAnswerJson);
         task.setGuidanceText("Tenk på lengde, variasjon og om passordet inneholder personlig informasjon.");
+        return task;
+    }
+
+    private Task finalBossTask(Stop stop) {
+        Task task = baseTask(
+            stop,
+            1,
+            "Hvem tok pengene?",
+            "Bruk det du har lært til å lese spor, sjekke vitner og velge riktig mistenkt.",
+            TaskType.FINAL_BOSS
+        );
+        task.setContentJson("""
+            {
+              "intro": "Ordførerens idrettspark-penger er stjålet. Les sporene og vitneutsagnene. Hvem passer med alle bevisene?",
+              "clues": [
+                {
+                  "stop": "Nyhetskvartalet",
+                  "lesson": "Ikke heng deg opp i det mest synlige.",
+                  "clue": "Tyven ble sett nær Bytorget med mørk jakke, noe rødt på hodet, lyse sko og en stor bærepose med bibliotekslogo."
+                },
+                {
+                  "stop": "Fotografen",
+                  "lesson": "Bilder kan gi tidslinje.",
+                  "clue": "Overvåkningsbildet viser en person som går inn i Internettbyens Bibliotek kl. 20:47, etter stengetid."
+                },
+                {
+                  "stop": "Postkontoret",
+                  "lesson": "Phishing bruker personlig informasjon.",
+                  "clue": "E-posten inneholdt info om en bok ordføreren lånte for 3 år siden. Den historikken ligger i bibliotekets låneregister."
+                },
+                {
+                  "stop": "Markedsplassen",
+                  "lesson": "Nettbutikker legger igjen tekniske spor.",
+                  "clue": "Den falske nettbutikken ble registrert fra bibliotekets IP kl. 21:14, fra ansatt-PC-en."
+                },
+                {
+                  "stop": "Den sosiale møteplassen",
+                  "lesson": "Falske kontoer kan røpe vaner.",
+                  "clue": "Kontoen bokelskeren_99 fulgte bare biblioteks-sider og ble opprettet med bibliotekets abonnements-epost."
+                },
+                {
+                  "stop": "Passordbanken",
+                  "lesson": "Passord kan peke på hvem som lagde kontoen.",
+                  "clue": "Tyvekontoen brukte passordet BibliotekAdmin2019, satt av den ansatte som var med på IT-oppgraderingen i 2019."
+                }
+              ],
+              "motive": "Idrettsparkens budsjett ville stenge biblioteket. Millie ville flytte pengene anonymt til bibliotekets fond. Hun trodde hun reddet kunnskap, men valgte en ulovlig vei.",
+              "explanation": "Millie Mus er den eneste som passer med alle sporene: bibliotekspose, adgang etter stengetid, låneregister, ansatt-PC, bibliotek-epost og passordet fra IT-oppgraderingen."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            {
+              "culprit": "millie-mus"
+            }
+            """);
+        task.setGuidanceText("Les ett spor om gangen. Kryss ut mistenkte som ikke passer med bevisene.");
         return task;
     }
 
