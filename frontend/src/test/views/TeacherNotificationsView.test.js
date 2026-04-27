@@ -52,6 +52,19 @@ vi.mock('@/stores/classroom', () => ({
   useClassroomStore: () => ({ updateStudentStatus })
 }))
 
+vi.mock('@/stores/auth', () => ({
+  useAuthStore: () => ({
+    email: 'teacher@test.no',
+    logout: vi.fn()
+  })
+}))
+
+vi.mock('@/stores/school', () => ({
+  useSchoolStore: () => ({
+    school: { name: 'Testskole' }
+  })
+}))
+
 async function mountView() {
   setActivePinia(createPinia())
   const { default: TeacherNotificationsView } = await import('@/views/teacher/TeacherNotificationsView.vue')
@@ -79,6 +92,13 @@ describe('TeacherNotificationsView', () => {
     expect(fetchUnreadCount).toHaveBeenCalled()
     expect(wrapper.text()).toContain('Elev vil bli med')
     expect(wrapper.find('.notification-card.unread').exists()).toBe(true)
+  })
+
+  it('keeps the teacher sidebar visible', async () => {
+    const wrapper = await mountView()
+
+    expect(wrapper.find('.sidebar').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="notifications-link"]').exists()).toBe(true)
   })
 
   it('approves join requests before marking the notification read', async () => {
