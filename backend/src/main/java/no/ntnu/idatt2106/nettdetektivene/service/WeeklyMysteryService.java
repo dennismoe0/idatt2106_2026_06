@@ -318,7 +318,7 @@ public class WeeklyMysteryService {
     }
 
     private void notifyTeachersAboutMysterySubmission(WeeklyMystery mystery) {
-        String message = "New weekly mystery submitted: " + mystery.getTitle();
+        String message = "Nytt ukens mysterium sendt inn: " + mystery.getTitle();
         classroomTeacherRepo.findTeachersByClassroomId(mystery.getClassroom().getId())
             .forEach(teacher -> notificationService.createNotification(
                 teacher.getId(),
