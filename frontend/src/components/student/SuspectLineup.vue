@@ -87,7 +87,9 @@ const revealed = ref(false)
 
 function reveal() {
   revealed.value = true
-  console.log('[SuspectLineup] Student chose suspect:', selected.value, '— revealing Malte Skygge')
+  if (import.meta.env.DEV) {
+    console.log('[SuspectLineup] Student chose suspect:', selected.value, '— thief is:', THIEF.name)
+  }
 }
 </script>
 

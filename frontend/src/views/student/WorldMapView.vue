@@ -109,8 +109,8 @@ const showLineup     = ref(false)
 const accusedOnce    = ref(localStorage.getItem('suspect_accused') === 'true')
 
 const allStopsCompleted = computed(() => {
-  const s = gameStore.stops
-  return s.length >= 6 && s.filter(x => !x.locked).every(x => x.completed)
+  const completedCount = gameStore.stops.filter(x => x.completed).length
+  return completedCount >= 6
 })
 
 const loading = ref(false)
@@ -230,7 +230,9 @@ function onLineupChosen() {
   showLineup.value  = false
   accusedOnce.value = true
   localStorage.setItem('suspect_accused', 'true')
-  console.log('[WorldMapView] Suspect accused. Directing to Datasenteret.')
+  if (import.meta.env.DEV) {
+    console.log('[WorldMapView] Suspect accused. Directing to Datasenteret.')
+  }
 }
 </script>
 
