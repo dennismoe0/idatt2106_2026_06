@@ -46,21 +46,26 @@
         <p v-else-if="!currentTask" class="task-view__state">Ingen oppgaver funnet for dette stoppet.</p>
 
         <section v-else class="task-view__section">
-          <!-- Progress dots (LEARN tasks excluded — they don't earn stars) -->
-          <div class="task-dots" role="list">
-            <template v-for="(t, i) in tasks" :key="t.id">
-              <span
-                v-if="t.taskType !== 'LEARN'"
-                class="dot"
-                role="listitem"
-                :class="{
-                  'dot--current': i === currentTaskIndex && !taskResults[t.id],
-                  'dot--correct': taskResults[t.id]?.correct === true,
-                  'dot--wrong':   taskResults[t.id] && !taskResults[t.id].correct
-                }"
-                :aria-label="`Oppgave ${i + 1}${taskResults[t.id] ? (taskResults[t.id].correct ? ': riktig' : ': feil') : ''}`"
-              />
-            </template>
+          <!-- Progress dots + replay button -->
+          <div class="task-view__meta">
+            <div class="task-dots" role="list">
+              <template v-for="(t, i) in tasks" :key="t.id">
+                <span
+                  v-if="t.taskType !== 'LEARN'"
+                  class="dot"
+                  role="listitem"
+                  :class="{
+                    'dot--current': i === currentTaskIndex && !taskResults[t.id],
+                    'dot--correct': taskResults[t.id]?.correct === true,
+                    'dot--wrong':   taskResults[t.id] && !taskResults[t.id].correct
+                  }"
+                  :aria-label="`Oppgave ${i + 1}${taskResults[t.id] ? (taskResults[t.id].correct ? ': riktig' : ': feil') : ''}`"
+                />
+              </template>
+            </div>
+            <button class="task-view__replay-btn" @click="replayIntro" :title="mysteryScenario ? 'Se historien på nytt' : 'Se oppgaveteksten på nytt'">
+              ↩ Intro
+            </button>
           </div>
 
           <!-- Avatar: shown above task for non-LEARN tasks -->
@@ -404,6 +409,15 @@ function startTasks() {
   localStorage.setItem(key, '1')
   showTutorial.value = false
   console.log('[TaskView] Tutorial dismissed for stop', stopId.value)
+}
+
+function replayIntro() {
+  if (mysteryScenario.value) {
+    showMystery.value = true
+  } else {
+    showTutorial.value = true
+  }
+  console.log('[TaskView] Replaying intro for stop', stopId.value)
 }
 
 async function handleSubmit(answer) {
@@ -856,12 +870,37 @@ function goToMap() {
   margin: 0 auto var(--space-4);
 }
 
+/* Progress meta row: dots + replay button */
+.task-view__meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-2) 0 var(--space-4);
+}
+
+.task-view__replay-btn {
+  background: none;
+  border: 1px solid rgba(30, 41, 59, 0.18);
+  border-radius: var(--radius-full);
+  padding: 2px var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+  white-space: nowrap;
+}
+.task-view__replay-btn:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
 /* Progress dots */
 .task-dots {
   display: flex;
   gap: var(--space-2);
   justify-content: center;
-  padding: var(--space-2) 0 var(--space-4);
 }
 .dot {
   width: 12px;
