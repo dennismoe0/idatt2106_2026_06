@@ -164,7 +164,14 @@
     />
 
     <!-- Layer 4: Avatar -->
-    <div class="world-canvas__avatar" :style="avatarStyle">
+    <div
+      class="world-canvas__avatar"
+      :class="{
+        'world-canvas__avatar--walking': props.isWalking,
+        'world-canvas__avatar--idle':    !props.isWalking,
+      }"
+      :style="avatarStyle"
+    >
       <AvatarPreview :selections="avatarStore.avatar ?? {}" :size="80" />
     </div>
 
@@ -178,9 +185,10 @@ import WorldMapNode from '@/components/student/WorldMapNode.vue'
 import AvatarPreview from '@/components/student/AvatarPreview.vue'
 
 const props = defineProps({
-  stops:            { type: Array,  required: true },
-  currentNodeIndex: { type: Number, required: true },
-  shakingNodeIndex: { type: Number, default: null },
+  stops:            { type: Array,   required: true },
+  currentNodeIndex: { type: Number,  required: true },
+  shakingNodeIndex: { type: Number,  default: null },
+  isWalking:        { type: Boolean, default: false },
 })
 
 defineEmits(['node-click'])
@@ -254,5 +262,24 @@ const avatarStyle = computed(() => {
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
   z-index: 10;
   transform: translateX(-50%);
+}
+
+@keyframes avatar-walk {
+  0%   { transform: translateX(-50%) rotate(-5deg); }
+  50%  { transform: translateX(-50%) rotate(5deg); }
+  100% { transform: translateX(-50%) rotate(-5deg); }
+}
+
+@keyframes avatar-idle {
+  0%, 100% { transform: translateX(-50%) translateY(0px); }
+  50%       { transform: translateX(-50%) translateY(-4px); }
+}
+
+.world-canvas__avatar--walking {
+  animation: avatar-walk 0.45s ease-in-out infinite;
+}
+
+.world-canvas__avatar--idle {
+  animation: avatar-idle 2.2s ease-in-out infinite;
 }
 </style>

@@ -17,6 +17,7 @@
           :stops="stops"
           :current-node-index="currentNodeIndex"
           :shaking-node-index="shakingNodeIndex"
+          :is-walking="isWalking"
           class="world-map-view__canvas"
           :style="canvasTransform"
           @node-click="handleNodeClick"
