@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -54,7 +56,6 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
     }
 
     private boolean checkBuilderAnswer(JsonNode content, JsonNode correctAnswer, Map<String, Object> answer) {
-        String requiredStrength = correctAnswer.path("minStrength").asText("STRONG");
         Object submittedPassword = answer.get("password");
         if (submittedPassword == null) {
             log.warn("[PasswordTaskAnswerChecker] PASSWORD BUILDER answer missing 'password' key");
@@ -62,21 +63,113 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
         }
 
         String password = String.valueOf(submittedPassword);
+        int maxLength = configuredLimit(content, correctAnswer, "maxLength");
+        if (maxLength > 0 && password.length() > maxLength) {
+            log.info("[PasswordTaskAnswerChecker] PASSWORD BUILDER rejected due to maxLength");
+            return false;
+        }
+
+        int maxParts = configuredLimit(content, correctAnswer, "maxParts");
+        if (maxParts > 0 && submittedPartCount(content, answer, password) > maxParts) {
+            log.info("[PasswordTaskAnswerChecker] PASSWORD BUILDER rejected due to maxParts");
+            return false;
+        }
+
         if (containsPitfall(content.path("pitfalls"), password)) {
             log.info("[PasswordTaskAnswerChecker] PASSWORD BUILDER rejected due to configured pitfall");
             return false;
         }
 
         String strength = passwordStrengthEvaluator.evaluate(password);
-        log.info(
-            "[PasswordTaskAnswerChecker] PASSWORD BUILDER submitted strength={} required={}",
-            strength,
-            requiredStrength
-        );
+        log.info("[PasswordTaskAnswerChecker] PASSWORD BUILDER submitted strength={}", strength);
 
-        int submitted = passwordStrengthEvaluator.strengthLevel(strength);
-        int required = passwordStrengthEvaluator.strengthLevel(requiredStrength);
-        return submitted >= required;
+        return "STRONG".equals(strength);
+    }
+
+    private int configuredLimit(JsonNode content, JsonNode correctAnswer, String fieldName) {
+        int contentLimit = content.path(fieldName).asInt(0);
+        int answerLimit = correctAnswer.path(fieldName).asInt(0);
+        if (contentLimit > 0 && answerLimit > 0) {
+            return Math.min(contentLimit, answerLimit);
+        }
+        return Math.max(contentLimit, answerLimit);
+    }
+
+    private int submittedPartCount(JsonNode content, Map<String, Object> answer, String password) {
+        List<String> tokens = configuredTokens(content);
+        Object submittedParts = answer.get("parts");
+        if (submittedParts instanceof Iterable<?> parts) {
+            return validatedSubmittedPartCount(parts, tokens, password);
+        }
+        if (submittedParts instanceof Object[] parts) {
+            return validatedSubmittedPartCount(List.of(parts), tokens, password);
+        }
+
+        return inferredPartCount(tokens, password);
+    }
+
+    private int validatedSubmittedPartCount(Iterable<?> parts, List<String> tokens, String password) {
+        if (tokens.isEmpty()) {
+            return Integer.MAX_VALUE;
+        }
+
+        int count = 0;
+        StringBuilder rebuiltPassword = new StringBuilder();
+        for (Object part : parts) {
+            String value = String.valueOf(part);
+            if (!tokens.contains(value)) {
+                return Integer.MAX_VALUE;
+            }
+            rebuiltPassword.append(value);
+            count++;
+        }
+
+        return rebuiltPassword.toString().equals(password) ? count : Integer.MAX_VALUE;
+    }
+
+    private List<String> configuredTokens(JsonNode content) {
+        List<String> tokens = new ArrayList<>();
+        addTokens(tokens, content.path("words"));
+        addTokens(tokens, content.path("symbols"));
+        addTokens(tokens, content.path("numbers"));
+        return tokens;
+    }
+
+    private int inferredPartCount(List<String> tokens, String password) {
+        if (tokens.isEmpty()) {
+            return Integer.MAX_VALUE;
+        }
+
+        int[] minParts = new int[password.length() + 1];
+        for (int i = 1; i < minParts.length; i++) {
+            minParts[i] = Integer.MAX_VALUE;
+        }
+
+        for (int i = 0; i < password.length(); i++) {
+            if (minParts[i] == Integer.MAX_VALUE) {
+                continue;
+            }
+            for (String token : tokens) {
+                if (password.startsWith(token, i)) {
+                    int next = i + token.length();
+                    minParts[next] = Math.min(minParts[next], minParts[i] + 1);
+                }
+            }
+        }
+
+        return minParts[password.length()];
+    }
+
+    private void addTokens(List<String> tokens, JsonNode node) {
+        if (!node.isArray()) {
+            return;
+        }
+        for (JsonNode token : node) {
+            String value = token.asText("");
+            if (!value.isBlank()) {
+                tokens.add(value);
+            }
+        }
     }
 
     private boolean containsPitfall(JsonNode pitfalls, String password) {

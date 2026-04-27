@@ -150,6 +150,34 @@ class DataLoaderTest {
             .containsExactly("OlaErBest", "2005", "hund");
     }
 
+    @Test
+    void run_seedsPasswordChoiceTasksWithUpdatedAnswersAndExplanations() throws Exception {
+        List<Task> tasks = seededTasks();
+
+        List<Task> passwordChoices = tasks.stream()
+            .filter(task -> "PASSWORD".equals(task.getTaskType().name()))
+            .filter(task -> parseJson(task.getContentJson()).path("type").asText().equals("CHOICE"))
+            .toList();
+
+        assertThat(passwordChoices).hasSize(2);
+
+        JsonNode safestPassword = parseJson(passwordChoices.get(0).getContentJson());
+        assertThat(safestPassword.path("question").asText()).isEqualTo("Hvilket passord er tryggest?");
+        assertThat(parseJson(passwordChoices.get(0).getCorrectAnswerJson()).path("selected").asText()).isEqualTo("d");
+        assertThat(safestPassword.path("options").get(3).path("value").asText()).isEqualTo("Måne!Fjord#72Tango");
+        assertThat(safestPassword.path("explanation").asText())
+            .contains("lengst")
+            .contains("ikke inneholder navn eller årstall");
+
+        JsonNode improvedPassword = parseJson(passwordChoices.get(1).getContentJson());
+        assertThat(parseJson(passwordChoices.get(1).getCorrectAnswerJson()).path("selected").asText()).isEqualTo("c");
+        assertThat(improvedPassword.path("options").get(2).path("value").asText()).isEqualTo("S@nder_2O15#");
+        assertThat(improvedPassword.path("explanation").asText())
+            .contains("S@nder_2O15# er den best forbedrede versjonen")
+            .contains("fortsatt ikke perfekt")
+            .doesNotContain("SolKatt!Fjord#22 er sterkest");
+    }
+
     private List<Task> seededTasks() throws Exception {
         StopRepository stopRepository = mock(StopRepository.class);
         TaskRepository taskRepository = mock(TaskRepository.class);

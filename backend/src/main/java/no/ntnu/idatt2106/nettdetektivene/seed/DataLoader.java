@@ -670,12 +670,12 @@ public class DataLoader implements ApplicationRunner {
                   "type": "CHOICE",
                   "question": "Hvilket passord er tryggest?",
                   "options": [
-                    { "id": "a", "value": "Ola123" },
-                    { "id": "b", "value": "Emma2014" },
-                    { "id": "c", "value": "Katt" },
-                    { "id": "d", "value": "F!sk3Taco#92" }
+                    { "id": "a", "value": "Sander!Fjord#22" },
+                    { "id": "b", "value": "Kakao#Måne77" },
+                    { "id": "c", "value": "Trondheim_2015!" },
+                    { "id": "d", "value": "Måne!Fjord#72Tango" }
                   ],
-                  "explanation": "F!sk3Taco#92 er sterkest fordi det er langt og blander store og små bokstaver, tall og spesialtegn. Navn og årstall er svake."
+                  "explanation": "Måne!Fjord#72Tango er tryggest fordi det er lengst, blander store og små bokstaver, tall og spesialtegn, og ikke inneholder navn eller årstall."
                 }
                 """,
                 "{\"selected\": \"d\"}"),
@@ -690,10 +690,10 @@ public class DataLoader implements ApplicationRunner {
                     { "id": "c", "value": "S@nder_2O15#" },
                     { "id": "d", "value": "SolKatt!Fjord#22" }
                   ],
-                  "explanation": "SolKatt!Fjord#22 er sterkest fordi det ikke inneholder personlig informasjon, er langt og blander tegn godt."
+                  "explanation": "S@nder_2O15# er den best forbedrede versjonen av Sander2015, men er fortsatt ikke perfekt fordi det bygger på et navn og et årstall."
                 }
                 """,
-                "{\"selected\": \"d\"}"),
+                "{\"selected\": \"c\"}"),
             passwordTask(pwdStop, 4, "Bygg et sterkt passord", "Bruk brikkene til å lage et passord som er sterkt nok.",
                 """
                 {
@@ -703,11 +703,13 @@ public class DataLoader implements ApplicationRunner {
                   "symbols": ["!", "#", "@", "?", "&", "*"],
                   "numbers": ["7", "42", "99", "3", "2026"],
                   "pitfalls": ["OlaErBest", "2005", "hund"],
+                  "maxParts": 4,
+                  "maxLength": 16,
                   "minStrength": "STRONG",
                   "explanation": "Et sterkt passord er langt, bruker store og små bokstaver, tall og spesialtegn, og inneholder ikke personlig informasjon."
                 }
                 """,
-                "{\"minStrength\": \"STRONG\"}"),
+                "{\"minStrength\": \"STRONG\", \"maxParts\": 4, \"maxLength\": 16}"),
             marketplaceTask(marketStop, 2, "Falsk sportsbutikk", "Klikk på de delene av nettstedet som virker mistenkelige.",
                 """
                 {

@@ -70,10 +70,10 @@ class PasswordTaskAnswerCheckerTest {
     }
 
     @Test
-    void builder_passwordMeetingRequiredStrength_passes() throws Exception {
+    void builder_fullyGreenPassword_passes() throws Exception {
         var correct = mapper.readTree("{\"minStrength\": \"STRONG\"}");
 
-        assertThat(checker.isCorrect(task(7L, "{\"type\": \"BUILDER\"}"), correct, Map.of("password", "Tiger42!"))).isTrue();
+        assertThat(checker.isCorrect(task(7L, "{\"type\": \"BUILDER\"}"), correct, Map.of("password", "Tiger!Mane#42"))).isTrue();
     }
 
     @Test
@@ -84,10 +84,10 @@ class PasswordTaskAnswerCheckerTest {
     }
 
     @Test
-    void builder_strongerPasswordPassesLowerThreshold() throws Exception {
+    void builder_requiresFullyGreenEvenWithLowerThreshold() throws Exception {
         var correct = mapper.readTree("{\"minStrength\": \"MEDIUM\"}");
 
-        assertThat(checker.isCorrect(task(9L, "{\"type\": \"BUILDER\"}"), correct, Map.of("password", "Tiger42!"))).isTrue();
+        assertThat(checker.isCorrect(task(9L, "{\"type\": \"BUILDER\"}"), correct, Map.of("password", "Tiger42"))).isFalse();
     }
 
     @Test
@@ -102,7 +102,7 @@ class PasswordTaskAnswerCheckerTest {
         var correct = mapper.readTree("{}");
 
         assertThat(checker.isCorrect(task(11L, "{\"type\": \"BUILDER\"}"), correct, Map.of("password", "abc123"))).isFalse();
-        assertThat(checker.isCorrect(task(11L, "{\"type\": \"BUILDER\"}"), correct, Map.of("password", "Tiger42!"))).isTrue();
+        assertThat(checker.isCorrect(task(11L, "{\"type\": \"BUILDER\"}"), correct, Map.of("password", "Tiger!Mane#42"))).isTrue();
     }
 
     @Test
@@ -124,6 +124,107 @@ class PasswordTaskAnswerCheckerTest {
             task(13L, "{\"type\": \"BUILDER\", \"pitfalls\": [\"OlaErBest\", \"2005\", \"hund\"]}"),
             correct,
             Map.of("password", "TRYGG!hund#42")
+        )).isFalse();
+    }
+
+    @Test
+    void builder_passwordAboveMaxLength_fails() throws Exception {
+        var correct = mapper.readTree("{}");
+
+        assertThat(checker.isCorrect(
+            task(15L, "{\"type\": \"BUILDER\", \"maxLength\": 12}"),
+            correct,
+            Map.of("password", "Tiger!Mane#42")
+        )).isFalse();
+    }
+
+    @Test
+    void builder_passwordAboveCorrectAnswerMaxLength_fails() throws Exception {
+        var correct = mapper.readTree("{\"maxLength\": 12}");
+
+        assertThat(checker.isCorrect(
+            task(16L, "{\"type\": \"BUILDER\"}"),
+            correct,
+            Map.of("password", "Tiger!Mane#42")
+        )).isFalse();
+    }
+
+    @Test
+    void builder_answerWithTooManyParts_fails() throws Exception {
+        var correct = mapper.readTree("{}");
+
+        assertThat(checker.isCorrect(
+            task(17L, "{\"type\": \"BUILDER\", \"maxParts\": 3}"),
+            correct,
+            Map.of("password", "Tiger!Mane#42", "parts", java.util.List.of("Tiger", "!", "Mane", "#", "42"))
+        )).isFalse();
+    }
+
+    @Test
+    void builder_passwordWithTooManyConfiguredTileParts_fails() throws Exception {
+        var correct = mapper.readTree("{}");
+
+        assertThat(checker.isCorrect(
+            task(18L, """
+                {
+                  "type": "BUILDER",
+                  "words": ["Tiger", "Mane"],
+                  "symbols": ["!", "#"],
+                  "numbers": ["42"],
+                  "maxParts": 3
+                }
+                """),
+            correct,
+            Map.of("password", "Tiger!Mane#42")
+        )).isFalse();
+    }
+
+    @Test
+    void builder_submittedPartsMustMatchPasswordAndConfiguredTiles() throws Exception {
+        var correct = mapper.readTree("{}");
+
+        assertThat(checker.isCorrect(
+            task(20L, """
+                {
+                  "type": "BUILDER",
+                  "words": ["Tiger", "Mane"],
+                  "symbols": ["!"],
+                  "numbers": ["42"],
+                  "maxParts": 4
+                }
+                """),
+            correct,
+            Map.of("password", "TigerMane42!", "parts", java.util.List.of("TigerMane42!"))
+        )).isFalse();
+    }
+
+    @Test
+    void builder_unsegmentablePasswordCannotBypassMaxParts() throws Exception {
+        var correct = mapper.readTree("{}");
+
+        assertThat(checker.isCorrect(
+            task(21L, """
+                {
+                  "type": "BUILDER",
+                  "words": ["Tiger", "Mane"],
+                  "symbols": ["!"],
+                  "numbers": ["42"],
+                  "maxParts": 4
+                }
+                """),
+            correct,
+            Map.of("password", "Random!Safe42")
+        )).isFalse();
+    }
+
+    @Test
+    void builder_passwordBelowFullyGreenByCharacterRule_fails() throws Exception {
+        var correct = mapper.readTree("{}");
+
+        assertThat(checker.isCorrect(
+            task(19L, "{\"type\": \"BUILDER\"}"),
+            correct,
+            Map.of("password", "TigerManePizza")
         )).isFalse();
     }
 

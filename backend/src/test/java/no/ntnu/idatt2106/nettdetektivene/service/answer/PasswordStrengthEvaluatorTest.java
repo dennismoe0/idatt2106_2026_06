@@ -24,6 +24,11 @@ class PasswordStrengthEvaluatorTest {
     }
 
     @Test
+    void missingCharacterVariation_isMediumNotFullyGreen() {
+        assertThat(evaluator.evaluate("TigerManePizza")).isEqualTo("MEDIUM");
+    }
+
+    @Test
     void twelveCharFull_isStrong() {
         assertThat(evaluator.evaluate("Tiger!Måne#42")).isEqualTo("STRONG");
     }

@@ -16,7 +16,11 @@
           :aria-pressed="selected === opt.id"
           @click="selected = opt.id"
         >
-          <code class="option-code">{{ opt.value }}</code>
+          <span class="option-btn__marker" aria-hidden="true"></span>
+          <span class="option-btn__body">
+            <span class="option-btn__label">Passord {{ String(opt.id).toUpperCase() }}</span>
+            <code class="option-code">{{ opt.value }}</code>
+          </span>
         </button>
       </div>
     </template>
@@ -26,11 +30,11 @@
       <p class="question">{{ content.question }}</p>
 
       <div class="builder__display" aria-live="polite">
+        <span class="builder__kicker">Hvelvkonsoll</span>
         <span class="builder__password" :aria-label="`Bygget passord: ${builtPassword || 'tomt'}`">
           {{ builtPassword || '—' }}
         </span>
         <div
-          v-if="result"
           class="builder__strength"
           :class="`builder__strength--${strengthKey}`"
           aria-label="Passordstyrke"
@@ -40,27 +44,46 @@
           </span>
           <span class="builder__strength-label">{{ strengthLabel }}</span>
         </div>
+        <div class="builder__limits" aria-live="polite">
+          <span>{{ parts.length }} / {{ maxPartsLabel }} brikker</span>
+          <span>{{ builtPassword.length }} / {{ maxLengthLabel }} tegn</span>
+        </div>
       </div>
 
-      <div class="builder__tiles">
-        <button
-          v-for="w in content.words" :key="'w_' + w"
-          class="tile tile--word"
-          :disabled="!!result"
-          @click="addPart(w)"
-        >{{ w }}</button>
-        <button
-          v-for="n in content.numbers" :key="'n_' + n"
-          class="tile tile--number"
-          :disabled="!!result"
-          @click="addPart(n)"
-        >{{ n }}</button>
-        <button
-          v-for="s in content.symbols" :key="'s_' + s"
-          class="tile tile--symbol"
-          :disabled="!!result"
-          @click="addPart(s)"
-        >{{ s }}</button>
+      <div class="builder__tile-bank">
+        <div class="builder__tile-section">
+          <span class="builder__tile-heading">Ord</span>
+          <div class="builder__tiles">
+            <button
+              v-for="w in content.words" :key="'w_' + w"
+              class="tile tile--word"
+              :disabled="isTileDisabled(w)"
+              @click="addPart(w)"
+            >{{ w }}</button>
+          </div>
+        </div>
+        <div class="builder__tile-section">
+          <span class="builder__tile-heading">Tall</span>
+          <div class="builder__tiles">
+            <button
+              v-for="n in content.numbers" :key="'n_' + n"
+              class="tile tile--number"
+              :disabled="isTileDisabled(n)"
+              @click="addPart(n)"
+            >{{ n }}</button>
+          </div>
+        </div>
+        <div class="builder__tile-section">
+          <span class="builder__tile-heading">Symbol</span>
+          <div class="builder__tiles">
+            <button
+              v-for="s in content.symbols" :key="'s_' + s"
+              class="tile tile--symbol"
+              :disabled="isTileDisabled(s)"
+              @click="addPart(s)"
+            >{{ s }}</button>
+          </div>
+        </div>
       </div>
 
       <button class="clear-btn" :disabled="!!result || parts.length === 0" @click="parts = []">
@@ -113,6 +136,10 @@ const parts    = ref([])
 
 const content = computed(() => props.task?.contentJson ?? {})
 const type    = computed(() => content.value.type ?? 'CHOICE')
+const maxParts = computed(() => Number.isFinite(Number(content.value.maxParts)) ? Number(content.value.maxParts) : Infinity)
+const maxLength = computed(() => Number.isFinite(Number(content.value.maxLength)) ? Number(content.value.maxLength) : Infinity)
+const maxPartsLabel = computed(() => Number.isFinite(maxParts.value) ? maxParts.value : '∞')
+const maxLengthLabel = computed(() => Number.isFinite(maxLength.value) ? maxLength.value : '∞')
 
 watch(() => props.task?.id, () => {
   selected.value = null
@@ -121,8 +148,16 @@ watch(() => props.task?.id, () => {
 
 const builtPassword = computed(() => parts.value.join(''))
 
+function containsPitfall(pw) {
+  const normalizedPassword = String(pw).toLowerCase()
+  return (content.value.pitfalls ?? []).some(pitfall => {
+    const normalizedPitfall = String(pitfall).toLowerCase()
+    return normalizedPitfall && normalizedPassword.includes(normalizedPitfall)
+  })
+}
+
 function evaluateStrength(pw) {
-  if (!pw) return 'WEAK'
+  if (!pw || containsPitfall(pw)) return 'WEAK'
   let score = 0
   if (pw.length >= 12)     score += 3
   else if (pw.length >= 8) score += 2
@@ -137,22 +172,32 @@ function evaluateStrength(pw) {
 }
 
 const strengthKey   = computed(() => evaluateStrength(builtPassword.value).toLowerCase())
-const strengthLabel = computed(() => ({ weak: 'Svakt', medium: 'Middels', strong: 'Sterkt' }[strengthKey.value]))
+const strengthLabel = computed(() => ({ weak: 'Svakt', medium: 'Middels', strong: 'Klar - sterkt' }[strengthKey.value]))
 const strengthWidth = computed(() => ({ weak: '33%', medium: '66%', strong: '100%' }[strengthKey.value]))
 
 const isReady = computed(() => {
-  if (type.value === 'BUILDER') return builtPassword.value.length >= 1
+  if (type.value === 'BUILDER') return strengthKey.value === 'strong'
   return !!selected.value
 })
 
-function addPart(p) { parts.value = [...parts.value, p] }
+function canAddPart(p) {
+  return !props.result
+    && parts.value.length < maxParts.value
+    && builtPassword.value.length + String(p).length <= maxLength.value
+}
+
+function isTileDisabled(p) { return !canAddPart(p) }
+
+function addPart(p) {
+  if (!canAddPart(p)) return
+  parts.value = [...parts.value, p]
+}
 
 function submit() {
   if (!isReady.value) return
   const answer = type.value === 'BUILDER'
-    ? { password: builtPassword.value }
+    ? { password: builtPassword.value, parts: [...parts.value], strength: evaluateStrength(builtPassword.value) }
     : { selected: selected.value }
-  console.log('[PasswordTask] Submitting:', answer)
   emit('submitted', answer)
 }
 </script>
@@ -177,48 +222,99 @@ function submit() {
 /* ── CHOICE options ── */
 .options {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .option-btn {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--space-3);
   text-align: left;
   border: 2px solid var(--color-border);
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(180deg, var(--color-surface), var(--color-bg));
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
   cursor: pointer;
-  transition: border-color var(--transition-fast), background var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
   font-size: var(--text-sm);
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 .option-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .option-btn--selected {
   border-color: var(--color-primary);
   background: var(--color-primary-light);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+.option-btn__marker {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 4px var(--color-surface);
+}
+.option-btn--selected .option-btn__marker {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+.option-btn__body {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.option-btn__label {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
 }
 
 .option-code {
   font-family: monospace;
-  font-size: var(--text-base);
+  font-size: var(--text-lg);
   letter-spacing: 0.05em;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
 }
 
 /* ── BUILDER ── */
 .builder__display {
-  border: 2px solid var(--color-border);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
   border-radius: var(--radius-lg);
   padding: var(--space-4);
-  background: var(--color-surface);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 8%, var(--color-surface)), var(--color-surface));
   display: grid;
   gap: var(--space-3);
+  box-shadow: var(--shadow-md);
+}
+
+.builder__kicker,
+.builder__tile-heading {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .builder__password {
   font-family: monospace;
-  font-size: var(--text-lg);
+  font-size: 1.6rem;
+  font-weight: var(--font-bold);
   letter-spacing: 0.08em;
   word-break: break-all;
   color: var(--color-text);
   min-height: 1.6em;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
 }
 
 .builder__strength { display: flex; align-items: center; gap: var(--space-2); }
@@ -247,6 +343,29 @@ function submit() {
 .builder__strength--medium .builder__strength-label { color: var(--color-warning); }
 .builder__strength--strong .builder__strength-label { color: var(--color-success); }
 
+.builder__limits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+}
+
+.builder__tile-bank {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.builder__tile-section {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
 .builder__tiles {
   display: flex;
   flex-wrap: wrap;
@@ -263,7 +382,7 @@ function submit() {
   transition: background var(--transition-fast), transform var(--transition-fast);
 }
 .tile:hover:not(:disabled) { transform: translateY(-2px); }
-.tile:disabled { opacity: 0.5; cursor: not-allowed; }
+.tile:disabled { opacity: 0.35; cursor: not-allowed; filter: grayscale(0.4); }
 .tile--word   { background: var(--color-primary-light); border-color: var(--color-primary); color: var(--color-primary-dark); }
 .tile--number { background: var(--color-success-light); border-color: var(--color-success); color: var(--color-success); }
 .tile--symbol { background: var(--color-warning-light); border-color: var(--color-warning); color: var(--color-warning); }
