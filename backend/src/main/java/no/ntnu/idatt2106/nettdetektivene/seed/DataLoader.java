@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Order(1)
@@ -491,6 +492,24 @@ public class DataLoader implements ApplicationRunner {
                     { "selected": "b" }
                     """
             ),
+            clueRiddleTask(
+                marketStop,
+                4,
+                "Gåtespor: Hvor ble nettbutikken laget?",
+                "Etter nettbutikkoppgavene bruker du tekniske spor fra en falsk butikk.",
+                "Hvorfor løser du denne? Falske nettbutikker kan se ekte ut, men de legger igjen spor som domene, betaling og hvor siden ble opprettet fra.",
+                "Den falske nettbutikken ble registrert fra bibliotekets IP kl. 21:14, fra ansatt-PC-en.",
+                "Hva er viktigst å notere?",
+                """
+                    [
+                      { "id": "cheap_price", "label": "At butikken hadde lave priser" },
+                      { "id": "staff_computer", "label": "At den ble laget fra bibliotekets ansatt-PC" },
+                      { "id": "nice_logo", "label": "At logoen så profesjonell ut" }
+                    ]
+                    """,
+                "staff_computer",
+                "Riktig. Ansatt-PC-en peker mot noen med aktiv ansatt-tilgang på biblioteket."
+            ),
             socialMediaTask(
                 socialStop,
                 1,
@@ -606,6 +625,24 @@ public class DataLoader implements ApplicationRunner {
                     { "selected": "post_1" }
                     """
             ),
+            clueRiddleTask(
+                socialStop,
+                4,
+                "Gåtespor: Hva røper den falske kontoen?",
+                "Etter sosiale medier-oppgavene ser du etter vaner og spor i en falsk konto.",
+                "Hvorfor løser du denne? Falske kontoer kan avsløre hvem som lagde dem gjennom navn, følgere og e-post.",
+                "Den falske kontoen het bokelskeren_99, fulgte bare biblioteks-sider og ble opprettet med bibliotekets abonnements-epost.",
+                "Hva peker dette mot?",
+                """
+                    [
+                      { "id": "sports_club", "label": "En idrettsklubb" },
+                      { "id": "library_identity", "label": "En tydelig bibliotek-kobling" },
+                      { "id": "random_meme", "label": "En tilfeldig memekonto" }
+                    ]
+                    """,
+                "library_identity",
+                "Riktig. Brukernavn, følgere og e-post peker alle mot biblioteket."
+            ),
             finalBossTask(finalBossStop)
         ));
 
@@ -643,6 +680,13 @@ public class DataLoader implements ApplicationRunner {
         if (changedOrder) {
             stopRepository.saveAll(existingStops);
         }
+
+        existingStops.stream()
+            .map(this::clueRiddleTaskForStop)
+            .flatMap(Optional::stream)
+            .filter(task -> taskRepository.findByStop_IdOrderByIdAsc(task.getStop().getId()).stream()
+                .noneMatch(existingTask -> existingTask.getTaskType() == TaskType.CLUE_RIDDLE))
+            .forEach(taskRepository::save);
 
         existingStops.stream()
             .filter(stop -> "Datasenteret".equals(stop.getName()))
@@ -765,6 +809,145 @@ public class DataLoader implements ApplicationRunner {
         return task;
     }
 
+    private Optional<Task> clueRiddleTaskForStop(Stop stop) {
+        return switch (stop.getName()) {
+            case "Nyhetskvartalet" -> Optional.of(clueRiddleTask(
+                stop, 4, "Gåtespor: Hva skal vi ikke overse?",
+                "Etter nyhetsoppgavene bruker du kildekritikk til å finne et spor til Datasenteret.",
+                "Hvorfor løser du denne? Fordi falske nyheter ofte får oss til å se på det mest dramatiske først. Detektiver må se etter den lille detaljen som faktisk kan sjekkes.",
+                "Et vitne så tyven ved Bytorget: mørk jakke, noe rødt på hodet, lyse sko og en stor bærepose med bibliotekslogo.",
+                "Hvilken detalj er det viktigste sporet videre?",
+                """
+                    [
+                      { "id": "red_hat", "label": "Noe rødt på hodet" },
+                      { "id": "library_bag", "label": "Bæreposen med bibliotekslogo" },
+                      { "id": "light_shoes", "label": "Lyse sko" }
+                    ]
+                    """,
+                "library_bag",
+                "Riktig. Klær kan ligne på mange personer, men bibliotekslogoen peker mot noen med kobling til biblioteket."
+            ));
+            case "Fotografen" -> Optional.of(clueRiddleTask(
+                stop, 4, "Gåtespor: Når ble bildet tatt?",
+                "Etter bildeoppgavene bruker du bevisbildet til å forstå tidslinjen.",
+                "Hvorfor løser du denne? Bilder kan lure oss, men ekte overvåkningsbilder kan vise tid og sted. Det hjelper oss å sjekke forklaringer.",
+                "Et ekte overvåkningsbilde viser en person som går inn i Internettbyens Bibliotek kl. 20:47, etter stengetid.",
+                "Hva betyr dette for etterforskningen?",
+                """
+                    [
+                      { "id": "anyone", "label": "Hvem som helst kunne gått inn" },
+                      { "id": "after_hours_access", "label": "Tyven trengte tilgang etter stengetid" },
+                      { "id": "photo_fake", "label": "Bildet kan ikke brukes" }
+                    ]
+                    """,
+                "after_hours_access",
+                "Riktig. Etter stengetid peker mot noen med nøkkel, kode eller ansatt-tilgang."
+            ));
+            case "Postkontoret" -> Optional.of(clueRiddleTask(
+                stop, 4, "Gåtespor: Hvem kjente lånehistorikken?",
+                "Etter e-postoppgavene undersøker du hvilken privat informasjon svindleren brukte.",
+                "Hvorfor løser du denne? Fordi phishing ofte bruker ekte detaljer for å virke troverdig. Spørsmålet er hvem som kunne vite detaljen.",
+                "Svindel-e-posten nevnte en bok ordføreren lånte for 3 år siden.",
+                "Hvor bør du lete etter hvem som kunne vite dette?",
+                """
+                    [
+                      { "id": "stream_chat", "label": "I chatten til en streamer" },
+                      { "id": "library_registry", "label": "I bibliotekets låneregister" },
+                      { "id": "market_reviews", "label": "I anmeldelser av nettbutikker" }
+                    ]
+                    """,
+                "library_registry",
+                "Riktig. Lånehistorikk finnes i bibliotekets systemer, så sporet peker mot noen med tilgang der."
+            ));
+            case "Markedsplassen" -> Optional.of(clueRiddleTask(
+                stop, 4, "Gåtespor: Hvor ble nettbutikken laget?",
+                "Etter nettbutikkoppgavene bruker du tekniske spor fra en falsk butikk.",
+                "Hvorfor løser du denne? Falske nettbutikker kan se ekte ut, men de legger igjen spor som domene, betaling og hvor siden ble opprettet fra.",
+                "Den falske nettbutikken ble registrert fra bibliotekets IP kl. 21:14, fra ansatt-PC-en.",
+                "Hva er viktigst å notere?",
+                """
+                    [
+                      { "id": "cheap_price", "label": "At butikken hadde lave priser" },
+                      { "id": "staff_computer", "label": "At den ble laget fra bibliotekets ansatt-PC" },
+                      { "id": "nice_logo", "label": "At logoen så profesjonell ut" }
+                    ]
+                    """,
+                "staff_computer",
+                "Riktig. Ansatt-PC-en peker mot noen med aktiv ansatt-tilgang på biblioteket."
+            ));
+            case "Den sosiale møteplassen" -> Optional.of(clueRiddleTask(
+                stop, 4, "Gåtespor: Hva røper den falske kontoen?",
+                "Etter sosiale medier-oppgavene ser du etter vaner og spor i en falsk konto.",
+                "Hvorfor løser du denne? Falske kontoer kan avsløre hvem som lagde dem gjennom navn, følgere og e-post.",
+                "Den falske kontoen het bokelskeren_99, fulgte bare biblioteks-sider og ble opprettet med bibliotekets abonnements-epost.",
+                "Hva peker dette mot?",
+                """
+                    [
+                      { "id": "sports_club", "label": "En idrettsklubb" },
+                      { "id": "library_identity", "label": "En tydelig bibliotek-kobling" },
+                      { "id": "random_meme", "label": "En tilfeldig memekonto" }
+                    ]
+                    """,
+                "library_identity",
+                "Riktig. Brukernavn, følgere og e-post peker alle mot biblioteket."
+            ));
+            case "Passordbanken" -> Optional.of(clueRiddleTask(
+                stop, 4, "Gåtespor: Hvem lagde passordet?",
+                "Etter passordoppgavene bruker du passordspor til å finne hvem som hadde kontroll.",
+                "Hvorfor løser du denne? Passord kan avsløre vaner, roller og gamle systemer. Et passord er ikke bare en nøkkel - det kan også være et spor.",
+                "Tyvekontoen brukte passordet BibliotekAdmin2019. Det ble satt under en IT-oppgradering i 2019.",
+                "Hvem peker dette sterkest mot?",
+                """
+                    [
+                      { "id": "random_customer", "label": "En tilfeldig kunde" },
+                      { "id": "active_2019_staff", "label": "En ansatt som var med på IT-oppgraderingen i 2019" },
+                      { "id": "gaming_friend", "label": "En gaming-venn" }
+                    ]
+                    """,
+                "active_2019_staff",
+                "Riktig. Passordet peker mot noen som jobbet med bibliotekets IT-oppgradering i 2019."
+            ));
+            default -> Optional.empty();
+        };
+    }
+
+    private Task clueRiddleTask(
+        Stop stop,
+        int orderIndex,
+        String title,
+        String description,
+        String purpose,
+        String evidence,
+        String question,
+        String optionsJson,
+        String correctOptionId,
+        String explanation
+    ) {
+        Task task = baseTask(stop, orderIndex, title, description, TaskType.CLUE_RIDDLE);
+        task.setContentJson("""
+            {
+              "purpose": %s,
+              "evidence": %s,
+              "question": %s,
+              "options": %s,
+              "explanation": %s
+            }
+            """.formatted(
+                toJsonString(purpose),
+                toJsonString(evidence),
+                toJsonString(question),
+                optionsJson,
+                toJsonString(explanation)
+            ));
+        task.setCorrectAnswerJson("""
+            {
+              "selected": %s
+            }
+            """.formatted(toJsonString(correctOptionId)));
+        task.setGuidanceText("Nå kommer en liten gåte. Løs den for å finne et spor du trenger i Datasenteret.");
+        return task;
+    }
+
     private Task finalBossTask(Stop stop) {
         Task task = baseTask(
             stop,
@@ -845,6 +1028,14 @@ public class DataLoader implements ApplicationRunner {
             return objectMapper.writeValueAsString(root);
         } catch (JsonProcessingException exception) {
             throw new IllegalStateException("Failed to build phishing task seed content", exception);
+        }
+    }
+
+    private String toJsonString(String value) {
+        try {
+            return objectMapper.writeValueAsString(value);
+        } catch (JsonProcessingException exception) {
+            throw new IllegalStateException("Failed to build task seed content", exception);
         }
     }
 
