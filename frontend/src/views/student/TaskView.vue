@@ -54,6 +54,17 @@
         @back-to-map="goToMap"
       />
 
+      <FinalBossTask
+        v-else-if="currentTask.taskType === 'FINAL_BOSS'"
+        :task="currentTask"
+        :result="result"
+        :is-last-task="currentTaskIndex === tasks.length - 1"
+        @submitted="handleSubmit"
+        @next="goNext"
+        @try-again="result = null"
+        @back-to-map="goToMap"
+      />
+
       <p v-else class="error">
         Ukjent taskType: {{ currentTask.taskType }}
       </p>
@@ -73,6 +84,7 @@ import { useClassroomStore } from '@/stores/classroom'
 import StudentHeader from '@/components/common/StudentHeader.vue'
 import FakeNewsTask from '@/components/student/FakeNewsTask.vue'
 import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
+import FinalBossTask from '@/components/student/FinalBossTask.vue'
 import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
 import MedalToast from '@/components/common/MedalToast.vue'
 import StopSummary from '@/components/student/StopSummary.vue'
@@ -335,4 +347,3 @@ function goToMap() {
   color: var(--color-danger);
 }
 </style>
-
