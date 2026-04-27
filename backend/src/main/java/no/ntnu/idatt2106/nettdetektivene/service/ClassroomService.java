@@ -319,7 +319,7 @@ public class ClassroomService {
     }
 
     private void notifyTeachersAboutJoinRequest(Classroom classroom, Long studentId, String displayName) {
-        String message = displayName + " wants to join " + classroom.getName();
+        String message = displayName + " vil bli med i " + classroom.getName();
         classroomTeacherRepository.findTeachersByClassroomId(classroom.getId())
             .forEach(teacher -> notificationService.createNotification(
                 teacher.getId(),
