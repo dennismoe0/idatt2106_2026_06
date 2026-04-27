@@ -82,9 +82,9 @@ class NotificationServiceTest {
         when(notificationRepository.findByIdAndTeacher_Id(100L, 1L)).thenReturn(Optional.of(notification));
         when(notificationRepository.save(notification)).thenReturn(notification);
 
-        var response = notificationService.markRead(1L, 100L);
+        notificationService.markRead(1L, 100L);
 
-        assertThat(response.isRead()).isTrue();
+        assertThat(notification.isRead()).isTrue();
         verify(notificationRepository).save(notification);
     }
 
