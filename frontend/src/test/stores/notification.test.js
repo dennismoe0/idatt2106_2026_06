@@ -32,12 +32,21 @@ describe('notification store', () => {
   })
 
   it('fetchUnreadCount stores unread count', async () => {
-    notificationService.getUnreadCount.mockResolvedValue({ data: { unreadCount: 3 } })
+    notificationService.getUnreadCount.mockResolvedValue({ data: { count: 3 } })
 
     const store = useNotificationStore()
     await store.fetchUnreadCount()
 
     expect(store.unreadCount).toBe(3)
+  })
+
+  it('fetchUnreadCount stores an error when count loading fails', async () => {
+    notificationService.getUnreadCount.mockRejectedValue(new Error('network'))
+
+    const store = useNotificationStore()
+
+    await expect(store.fetchUnreadCount()).rejects.toThrow('network')
+    expect(store.error).toBe('Kunne ikke laste antall varsler.')
   })
 
   it('markAsRead marks a notification locally and decrements count once', async () => {

@@ -16,7 +16,7 @@ vi.mock('@/components/common/BaseModal.vue', () => ({
 vi.mock('@/services/notificationService', () => ({
   notificationService: {
     getNotifications: vi.fn().mockResolvedValue({ data: [] }),
-    getUnreadCount: vi.fn().mockResolvedValue({ data: { unreadCount: 4 } }),
+    getUnreadCount: vi.fn().mockResolvedValue({ data: { count: 4 } }),
     markAsRead: vi.fn(),
     markAllAsRead: vi.fn()
   }
