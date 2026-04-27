@@ -54,6 +54,17 @@
         @back-to-map="goToMap"
       />
 
+      <ClueRiddleTask
+        v-else-if="currentTask.taskType === 'CLUE_RIDDLE'"
+        :task="currentTask"
+        :result="result"
+        :is-last-task="currentTaskIndex === tasks.length - 1"
+        @submitted="handleSubmit"
+        @next="goNext"
+        @try-again="result = null"
+        @back-to-map="goToMap"
+      />
+
       <FinalBossTask
         v-else-if="currentTask.taskType === 'FINAL_BOSS'"
         :task="currentTask"
@@ -84,6 +95,7 @@ import { useClassroomStore } from '@/stores/classroom'
 import StudentHeader from '@/components/common/StudentHeader.vue'
 import FakeNewsTask from '@/components/student/FakeNewsTask.vue'
 import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
+import ClueRiddleTask from '@/components/student/ClueRiddleTask.vue'
 import FinalBossTask from '@/components/student/FinalBossTask.vue'
 import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
 import MedalToast from '@/components/common/MedalToast.vue'
