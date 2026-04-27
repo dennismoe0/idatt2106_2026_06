@@ -37,6 +37,30 @@
       <!-- HUD floats in top-right, outside scaled canvas -->
       <PlayerHud class="world-map-view__hud" />
 
+      <!-- Case File button -->
+      <button
+        class="world-map-view__casefile-btn"
+        @click="showCaseFile = true"
+        aria-label="Åpne saksmappen"
+      >
+        📁 Saksmappe
+      </button>
+
+      <!-- Case File Modal -->
+      <CaseFileModal
+        v-if="showCaseFile"
+        :all-stops-completed="allStopsCompleted"
+        :already-accused="accusedOnce"
+        @close="showCaseFile = false"
+        @accuse="onAccuse"
+      />
+
+      <!-- Suspect Lineup -->
+      <SuspectLineup
+        v-if="showLineup"
+        @chosen="onLineupChosen"
+      />
+
       <!-- Enter area: bottom-right, fixed, outside scaled canvas -->
       <div class="world-map-view__enter-area" aria-live="polite">
         <p v-if="lockedMessage" class="world-map-view__locked-msg" role="status">
@@ -67,6 +91,9 @@ import { useAvatarWalk } from '@/composables/useAvatarWalk'
 import WorldMapCanvas from '@/components/student/WorldMapCanvas.vue'
 import PlayerHud from '@/components/common/PlayerHud.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import CaseFileModal from '@/components/student/CaseFileModal.vue'
+import SuspectLineup from '@/components/student/SuspectLineup.vue'
+import { useNotebookStore } from '@/stores/notebook'
 
 const router = useRouter()
 const gameStore = useGameStore()
@@ -75,6 +102,16 @@ const avatarStore = useAvatarStore()
 
 const { containerRef, scale } = useWorldMapScale()
 const { currentNodeIndex, isWalking, walkTo, initAutoWalk } = useAvatarWalk()
+
+const notebookStore  = useNotebookStore()
+const showCaseFile   = ref(false)
+const showLineup     = ref(false)
+const accusedOnce    = ref(localStorage.getItem('suspect_accused') === 'true')
+
+const allStopsCompleted = computed(() => {
+  const s = gameStore.stops
+  return s.length >= 6 && s.filter(x => !x.locked).every(x => x.completed)
+})
 
 const loading = ref(false)
 const error = ref(null)
@@ -154,6 +191,9 @@ onMounted(async () => {
   loading.value = true
   try {
     await gameStore.fetchStops(classroomStore.currentClassroomId)
+    notebookStore.fetchEntries().catch(err =>
+      console.warn('[WorldMapView] Notebook fetch failed (non-fatal):', err)
+    )
     // Ensure avatar is present (may already be prefetched at login)
     if (!avatarStore.avatar) {
       await avatarStore.fetchAvatar().catch(err =>
@@ -180,6 +220,18 @@ onUnmounted(() => {
   window.removeEventListener('resize', checkOrientation)
   clearTimeout(lockedTimer)
 })
+
+function onAccuse() {
+  showCaseFile.value = false
+  showLineup.value   = true
+}
+
+function onLineupChosen() {
+  showLineup.value  = false
+  accusedOnce.value = true
+  localStorage.setItem('suspect_accused', 'true')
+  console.log('[WorldMapView] Suspect accused. Directing to Datasenteret.')
+}
 </script>
 
 <style scoped>
@@ -362,4 +414,22 @@ onUnmounted(() => {
   outline: 3px solid #fff;
   outline-offset: 4px;
 }
+
+.world-map-view__casefile-btn {
+  position: fixed;
+  bottom: var(--space-6);
+  left: var(--space-6);
+  z-index: 100;
+  background: var(--color-wood);
+  color: var(--color-medal-gold-bg);
+  border: 2px solid var(--color-wood-mid);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  cursor: pointer;
+  font-family: 'Special Elite', serif;
+  transition: background var(--transition-fast);
+}
+.world-map-view__casefile-btn:hover { background: var(--color-wood-mid); }
 </style>

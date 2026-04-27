@@ -16,7 +16,16 @@
               :class="{ 'suspect-card--selected': selected === suspect.id }"
               @click="selected = suspect.id"
             >
-              <span class="suspect-card__avatar">{{ suspect.avatar }}</span>
+              <div class="suspect-card__portrait">
+                <img
+                  v-if="suspect.image"
+                  :src="suspect.image"
+                  :alt="suspect.name"
+                  class="suspect-card__img"
+                  @error="e => e.target.style.display = 'none'"
+                />
+                <span class="suspect-card__emoji">{{ suspect.emoji }}</span>
+              </div>
               <strong class="suspect-card__name">{{ suspect.name }}</strong>
               <span class="suspect-card__role">{{ suspect.role }}</span>
             </button>
@@ -34,7 +43,16 @@
         <template v-else>
           <div class="lineup__reveal">
             <p class="lineup__eyebrow lineup__eyebrow--arrested">🚨 ARRESTERT</p>
-            <span class="lineup__reveal-avatar">{{ THIEF.avatar }}</span>
+            <div class="lineup__reveal-portrait">
+              <img
+                v-if="THIEF.image"
+                :src="THIEF.image"
+                :alt="THIEF.name"
+                class="lineup__reveal-img"
+                @error="e => e.target.style.display = 'none'"
+              />
+              <span class="lineup__reveal-emoji">{{ THIEF.emoji }}</span>
+            </div>
             <h2 class="lineup__reveal-name">{{ THIEF.name }}</h2>
             <p class="lineup__reveal-role">{{ THIEF.role }}</p>
             <p class="lineup__reveal-story">
@@ -58,19 +76,11 @@
 
 <script setup>
 import { ref } from 'vue'
+import { SUSPECTS, THIEF_ID } from '@/data/suspects.js'
 
 defineEmits(['chosen'])
 
-const SUSPECTS = [
-  { id: 0, name: 'Birger Bakmann',  role: 'IT-konsulent',          avatar: '🧑‍💻' },
-  { id: 1, name: 'Sunniva Strand',  role: 'Reisende journalist',   avatar: '📸'  },
-  { id: 2, name: 'Malte Skygge',    role: 'Nettkafé-eier',         avatar: '☕'  },
-  { id: 3, name: 'Frida Frost',     role: 'Skolebibliotekar',      avatar: '📚'  },
-  { id: 4, name: 'Ronnie Raske',    role: 'Leveransebud',          avatar: '📦'  },
-  { id: 5, name: 'Tore Tunnel',     role: 'Anonym blogger',        avatar: '🕶️'  },
-  { id: 6, name: 'Kaja Klar',       role: 'Ordførerens assistent', avatar: '🗂️'  },
-]
-const THIEF = SUSPECTS[2]
+const THIEF = SUSPECTS[THIEF_ID]
 
 const selected = ref(null)
 const revealed = ref(false)
@@ -135,7 +145,20 @@ function reveal() {
 }
 .suspect-card:hover { border-color: var(--color-gold); background: var(--color-cork-dark); }
 .suspect-card--selected { border-color: var(--color-danger); background: var(--color-wood-mid); }
-.suspect-card__avatar { font-size: 2.2rem; }
+.suspect-card__portrait {
+  width: 80px; height: 80px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-cork-dark);
+  margin-bottom: var(--space-1);
+  position: relative;
+}
+.suspect-card__img {
+  width: 100%; height: 100%; object-fit: cover;
+  position: absolute; inset: 0;
+}
+.suspect-card__emoji { font-size: 2.2rem; }
 .suspect-card__name { font-size: var(--text-sm); font-weight: var(--font-bold); line-height: 1.2; }
 .suspect-card__role { font-size: var(--text-xs); opacity: 0.55; }
 
@@ -155,7 +178,17 @@ function reveal() {
 .lineup__confirm:not(:disabled):hover { background: var(--color-wood-mid); }
 
 .lineup__reveal { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
-.lineup__reveal-avatar { font-size: 5rem; }
+.lineup__reveal-portrait {
+  width: 140px; height: 140px; border-radius: 50%;
+  overflow: hidden; border: 3px solid var(--color-danger);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.lineup__reveal-img {
+  width: 100%; height: 100%; object-fit: cover;
+  position: absolute; inset: 0;
+}
+.lineup__reveal-emoji { font-size: 5rem; }
 .lineup__reveal-name { font-size: var(--text-3xl); font-weight: var(--font-bold); margin: 0; color: var(--color-danger); }
 .lineup__reveal-role { opacity: 0.65; margin: 0; }
 .lineup__reveal-story { max-width: 420px; line-height: 1.6; opacity: 0.85; }
