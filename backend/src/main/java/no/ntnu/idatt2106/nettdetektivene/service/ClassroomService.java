@@ -45,6 +45,7 @@ public class ClassroomService {
     private final UserRepository userRepository;
     private final ClassroomCodeGenerator classroomCodeGenerator;
     private final TaskRepository taskRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public ClassroomResponse createClassroom(Long teacherId, CreateClassroomRequest req) {
@@ -135,6 +136,7 @@ public class ClassroomService {
         classroomStudent.setDisplayName(req.displayName());
         classroomStudent.setStatus(ClassroomStudentStatus.PENDING);
         classroomStudent = classroomStudentRepository.save(classroomStudent);
+        notifyTeachersAboutJoinRequest(classroom, studentId, req.displayName());
 
         log.info("Student joined classroom: classroomId={} studentId={} status={}",
             classroom.getId(), studentId, classroomStudent.getStatus());
@@ -314,6 +316,18 @@ public class ClassroomService {
             log.warn("[ClassroomService] School leaderboard access denied: classroomId={} userId={}", classroomId, userId);
             throw new ResourceNotFoundException("Classroom not found");
         }
+    }
+
+    private void notifyTeachersAboutJoinRequest(Classroom classroom, Long studentId, String displayName) {
+        String message = displayName + " wants to join " + classroom.getName();
+        classroomTeacherRepository.findTeachersByClassroomId(classroom.getId())
+            .forEach(teacher -> notificationService.createNotification(
+                teacher.getId(),
+                classroom.getId(),
+                NotificationService.STUDENT_JOIN_REQUEST,
+                message,
+                studentId
+            ));
     }
 
     private School resolveSchoolForClassroom(Classroom classroom) {
