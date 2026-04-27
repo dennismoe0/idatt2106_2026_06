@@ -121,7 +121,7 @@ class WeeklyMysteryServiceTest {
             2L,
             10L,
             NotificationService.MYSTERY_SUBMITTED,
-            "New weekly mystery submitted: Mystery title",
+            "Nytt ukens mysterium sendt inn: Mystery title",
             55L
         );
     }
