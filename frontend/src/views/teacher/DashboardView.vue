@@ -36,9 +36,16 @@
             </a>
           </li>
           <li>
-            <a href="#" class="nav-link">
+            <router-link to="/teacher/notifications" class="nav-link" data-testid="notifications-link">
               <span class="nav-icon">🔔</span> Varsler
-            </a>
+              <span
+                v-if="notificationStore.unreadCount > 0"
+                class="notification-badge"
+                data-testid="notification-badge"
+              >
+                {{ notificationStore.unreadCount }}
+              </span>
+            </router-link>
           </li>
           <li>
             <a href="#" class="nav-link">
@@ -193,6 +200,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useClassroomStore } from '@/stores/classroom'
+import { useNotificationStore } from '@/stores/notification'
 import { useSchoolStore } from '@/stores/school'
 import BaseModal from '@/components/common/BaseModal.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
@@ -202,6 +210,7 @@ import SchoolOverview from '@/components/teacher/SchoolOverview.vue'
 const router = useRouter()
 const authStore = useAuthStore()
 const classroomStore = useClassroomStore()
+const notificationStore = useNotificationStore()
 const schoolStore = useSchoolStore()
 const showSchoolModal = ref(false)
 const schoolClassrooms = ref([])
@@ -228,6 +237,12 @@ onMounted(async () => {
     error.value = 'Kunne ikke laste klasserom. Prøv igjen.'
   } finally {
     loading.value = false
+  }
+
+  try {
+    await notificationStore.fetchUnreadCount()
+  } catch (notificationErr) {
+    console.warn('[Dashboard] Failed to load notification count:', notificationErr)
   }
 
   // Try to load school data (teacher may not have a school yet)
@@ -391,6 +406,20 @@ function formatDate(dateStr) {
   border-left-color: var(--color-accent);
 }
 .nav-icon { width: 20px; text-align: center; font-size: 16px; }
+.notification-badge {
+  margin-left: auto;
+  min-width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-text-on-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  font-size: var(--text-xs);
+  font-weight: 900;
+}
 
 .sidebar-footer {
   padding: var(--space-4);
