@@ -45,6 +45,7 @@ class ClassroomServiceTest {
     @Mock UserRepository userRepository;
     @Mock ClassroomCodeGenerator classroomCodeGenerator;
     @Mock TaskRepository taskRepository;
+    @Mock NotificationService notificationService;
     @InjectMocks ClassroomService classroomService;
 
     @Test
@@ -368,6 +369,7 @@ class ClassroomServiceTest {
     @Test
     void joinClassroom_success_returnsClassroomId() {
         Classroom classroom = classroom(10L);
+        User teacher = user(1L, User.Role.TEACHER);
         User student = user(2L, User.Role.STUDENT);
 
         when(classroomRepository.findByJoinCode("fjord-tiger")).thenReturn(Optional.of(classroom));
@@ -375,6 +377,7 @@ class ClassroomServiceTest {
         when(classroomStudentRepository.findByClassroom_IdAndStudent_UserId(10L, 2L))
             .thenReturn(Optional.empty());
         when(classroomStudentRepository.save(any(ClassroomStudent.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(classroomTeacherRepository.findTeachersByClassroomId(10L)).thenReturn(List.of(teacher));
 
         StudentInClassroomResponse response = classroomService.joinClassroom(
             2L,
@@ -385,6 +388,13 @@ class ClassroomServiceTest {
         assertThat(response.classroomId()).isEqualTo(10L);
         assertThat(response.displayName()).isEqualTo("Agent Nora");
         assertThat(response.status()).isEqualTo("PENDING");
+        verify(notificationService).createNotification(
+            1L,
+            10L,
+            NotificationService.STUDENT_JOIN_REQUEST,
+            "Agent Nora vil bli med i 5A",
+            2L
+        );
     }
 
     private School school(Long id) {

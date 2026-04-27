@@ -36,6 +36,7 @@ const routes = [
   { path: '/teacher/classrooms/:id',  name: 'ClassroomDetail', component: () => import('@/views/teacher/ClassroomDetailView.vue'), meta: { role: 'TEACHER' } },
   { path: '/teacher/students/:studentId/notebook', name: 'TeacherNotebook', component: () => import('@/views/teacher/TeacherNotebookView.vue'), meta: { role: 'TEACHER' } },
   { path: '/teacher/classroom/:classroomId/mysterium', name: 'WeeklyMysteryManage', component: () => import('@/views/teacher/WeeklyMysteryManageView.vue'), meta: { role: 'TEACHER' } },
+  { path: '/teacher/notifications', name: 'TeacherNotifications', component: () => import('@/views/teacher/TeacherNotificationsView.vue'), meta: { role: 'TEACHER' } },
 
   // Fallback
   { path: '/:pathMatch(.*)*', redirect: '/login' }

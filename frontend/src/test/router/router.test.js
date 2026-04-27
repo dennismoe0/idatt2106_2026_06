@@ -8,4 +8,12 @@ describe('router meta', () => {
     expect(worldMapRoute).toBeTruthy()
     expect(worldMapRoute.meta.hideNav).toBe(true)
   })
+
+  it('registers teacher notifications as a teacher route', () => {
+    const route = router.getRoutes().find((route) => route.name === 'TeacherNotifications')
+
+    expect(route).toBeTruthy()
+    expect(route.path).toBe('/teacher/notifications')
+    expect(route.meta.role).toBe('TEACHER')
+  })
 })
