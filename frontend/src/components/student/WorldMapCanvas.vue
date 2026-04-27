@@ -124,18 +124,24 @@
         style="transform: translate(3px, 5px)"
       />
 
-      <!-- Base stroke: solid grey for upcoming, dashed for locked -->
+      <!-- Enhanced base stroke: dark outer + lighter inner for cobblestone look -->
       <template v-for="(seg, i) in PATH_SEGMENTS" :key="`base-${i}`">
         <path
           v-if="segmentStates[i] !== 'completed'"
           :d="seg"
           fill="none"
-          :style="{ stroke: segmentStates[i] === 'locked'
-            ? 'var(--color-map-path-locked)'
-            : 'var(--color-map-path-upcoming)' }"
-          stroke-width="24"
+          stroke="#8B7355"
+          stroke-width="26"
           stroke-linecap="round"
           :stroke-dasharray="segmentStates[i] === 'locked' ? '14 16' : undefined"
+        />
+        <path
+          v-if="segmentStates[i] === 'upcoming'"
+          :d="seg"
+          fill="none"
+          stroke="#A8926A"
+          stroke-width="18"
+          stroke-linecap="round"
         />
       </template>
 
@@ -149,6 +155,19 @@
           stroke-width="24"
           stroke-linecap="round"
         />
+      </template>
+
+      <!-- Footprint stamps at midpoints of completed segments -->
+      <template v-for="(seg, i) in PATH_SEGMENTS" :key="`foot-${i}`">
+        <text
+          v-if="segmentStates[i] === 'completed'"
+          :x="SEGMENT_MIDPOINTS[i].x"
+          :y="SEGMENT_MIDPOINTS[i].y"
+          text-anchor="middle"
+          dominant-baseline="middle"
+          font-size="18"
+          style="opacity: 0.55; pointer-events: none; user-select: none;"
+        >👣</text>
       </template>
     </svg>
 
@@ -174,6 +193,29 @@
     >
       <AvatarPreview :selections="avatarStore.avatar ?? {}" :size="80" />
     </div>
+
+    <!-- Layer 4b: Stop name labels -->
+    <svg
+      class="world-canvas__layer"
+      viewBox="0 0 1600 900"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <text
+        v-for="(stop, i) in stops"
+        :key="`label-${stop.id}`"
+        :x="NODE_POSITIONS[i].x"
+        :y="NODE_POSITIONS[i].y + 62"
+        text-anchor="middle"
+        font-family="'Special Elite', serif"
+        font-size="13"
+        fill="#2D1B00"
+        stroke="#FFF8E7"
+        stroke-width="3"
+        paint-order="stroke"
+        style="pointer-events: none;"
+      >{{ stop.name }}</text>
+    </svg>
 
   </div>
 </template>
@@ -219,6 +261,15 @@ const FULL_PATH =
   'C 910,560 1050,320 1090,280 ' +
   'C 1130,240 1270,480 1310,520 ' +
   'C 1360,560 1450,300 1480,260'
+
+const SEGMENT_MIDPOINTS = [
+  { x: 260, y: 635 },
+  { x: 505, y: 400 },
+  { x: 750, y: 400 },
+  { x: 980, y: 400 },
+  { x: 1200, y: 400 },
+  { x: 1395, y: 390 },
+]
 
 const segmentStates = computed(() =>
   PATH_SEGMENTS.map((_, i) => {
