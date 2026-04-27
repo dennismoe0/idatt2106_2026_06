@@ -1046,7 +1046,7 @@ function scrollToLearningTop() {
 .nav-btn {
   border: none;
   border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-5);
+  padding: var(--space-3) var(--space-6);
   font-weight: 700;
   font-size: var(--text-base);
   cursor: pointer;
