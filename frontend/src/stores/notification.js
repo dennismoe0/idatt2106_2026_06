@@ -24,9 +24,15 @@ export const useNotificationStore = defineStore('notification', () => {
   }
 
   async function fetchUnreadCount() {
-    const { data } = await notificationService.getUnreadCount()
-    unreadCount.value = data.unreadCount ?? 0
-    return unreadCount.value
+    error.value = null
+    try {
+      const { data } = await notificationService.getUnreadCount()
+      unreadCount.value = data.count ?? 0
+      return unreadCount.value
+    } catch (err) {
+      error.value = 'Kunne ikke laste antall varsler.'
+      throw err
+    }
   }
 
   async function markAsRead(id) {
