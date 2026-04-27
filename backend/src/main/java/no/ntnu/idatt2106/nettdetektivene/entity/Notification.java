@@ -28,6 +28,9 @@ public class Notification {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
 
+    @Column(name = "reference_id")
+    private Long referenceId;
+
     @Column(nullable = false)
     private boolean isRead = false;
 
