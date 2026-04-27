@@ -7,26 +7,28 @@
     <template v-if="taskSubtype === 'CLICK_SUSPICIOUS'">
       <p class="question">{{ contentJson.question ?? 'Klikk på de delene av nettstedet som virker mistenkelige.' }}</p>
 
-      <FakeWebshop
-        :site-name="siteLabel"
-        :eyebrow="mockupContent.eyebrow"
-        :headline="mockupContent.headline"
-        :tagline="mockupContent.tagline"
-        :product-name="mockupContent.productName"
-        :price="mockupContent.price"
-        :original-price="mockupContent.originalPrice"
-        :badges="mockupContent.badges"
-        :payment-text="mockupContent.paymentText"
-        :contact-text="mockupContent.contactText"
-        :return-policy-text="mockupContent.returnPolicyText"
-        :notice="mockupContent.notice"
-        :cta-text="mockupContent.ctaText"
-        :clickable-elements="csElements"
-        :flagged-elements="flagged"
-        :feedback-states="feedbackStates"
-        :disabled="!!result"
-        @toggle="toggle"
-      />
+      <div data-peek-trigger>
+        <FakeWebshop
+          :site-name="siteLabel"
+          :eyebrow="mockupContent.eyebrow"
+          :headline="mockupContent.headline"
+          :tagline="mockupContent.tagline"
+          :product-name="mockupContent.productName"
+          :price="mockupContent.price"
+          :original-price="mockupContent.originalPrice"
+          :badges="mockupContent.badges"
+          :payment-text="mockupContent.paymentText"
+          :contact-text="mockupContent.contactText"
+          :return-policy-text="mockupContent.returnPolicyText"
+          :notice="mockupContent.notice"
+          :cta-text="mockupContent.ctaText"
+          :clickable-elements="csElements"
+          :flagged-elements="flagged"
+          :feedback-states="feedbackStates"
+          :disabled="!!result"
+          @toggle="toggle"
+        />
+      </div>
 
       <div v-if="flagged.size > 0 && !result" class="cs-chips" aria-live="polite">
         <span v-for="id in [...flagged]" :key="id" class="cs-chip">🚩 {{ elementLabel(id) }}</span>
@@ -46,7 +48,7 @@
     </template>
 
     <template v-else-if="taskSubtype === 'IDENTIFY'">
-      <div class="site-preview">
+      <div class="site-preview" data-peek-trigger>
         <div class="site-preview__url-bar">
           <span class="site-preview__lock" aria-hidden="true">🔓</span>
           <span class="site-preview__url">{{ siteLabel }}</span>
@@ -109,6 +111,7 @@
           :key="site.id"
           type="button"
           class="site-card"
+          data-peek-trigger
           :class="{ 'site-card--selected': selected === site.id }"
           :disabled="!!result"
           @click="selected = site.id"

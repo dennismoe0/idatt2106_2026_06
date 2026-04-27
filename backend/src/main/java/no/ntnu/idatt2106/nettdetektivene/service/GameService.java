@@ -223,7 +223,7 @@ public class GameService {
             student.setXp(student.getXp() + XP_PER_STOP);
             xpEarned += XP_PER_STOP;
             notebookService.createAutoClueIfNotExists(studentId, task.getStop());
-            int taskCount = Math.toIntExact(taskRepository.countByStop_Id(task.getStop().getId()));
+            int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNot(task.getStop().getId(), TaskType.LEARN));
             StudentXpLog xpLog = new StudentXpLog();
             xpLog.setStudent(student);
             xpLog.setStop(task.getStop());
@@ -232,7 +232,8 @@ public class GameService {
             studentXpLogRepository.save(xpLog);
         }
         userRepository.save(student);
-        log.info("[GameService] awarded starsEarned=1 xpEarned={} studentId={} taskId={}", xpEarned, studentId, taskId);
+        int starsEarned = task.getTaskType() != TaskType.LEARN ? 1 : 0;
+        log.info("[GameService] awarded starsEarned={} xpEarned={} studentId={} taskId={}", starsEarned, xpEarned, studentId, taskId);
 
         MedalDto medalEarned = stopCompleted
             ? checkAndAwardMedal(studentId, task.getStop().getId()).map(this::toMedalDto).orElse(null)
@@ -252,7 +253,7 @@ public class GameService {
             }
         }
 
-        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 1, xpEarned, correctClueIds, null, clueText, showSuspectReveal);
+        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, starsEarned, xpEarned, correctClueIds, null, clueText, showSuspectReveal);
     }
 
     @Transactional(readOnly = true)
@@ -482,7 +483,7 @@ public class GameService {
             Iterator<Map.Entry<String, JsonNode>> fields = correct.fields();
             while (fields.hasNext()) {
                 Map.Entry<String, JsonNode> entry = fields.next();
-                if (!entry.getValue().asBoolean()) {
+                if (entry.getValue().asBoolean()) {
                     return Integer.parseInt(entry.getKey().replace("article_", ""));
                 }
             }

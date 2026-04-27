@@ -14,6 +14,7 @@
           :class="{ 'option-btn--selected': selected === opt.id }"
           :disabled="!!result"
           :aria-pressed="selected === opt.id"
+          data-peek-trigger
           @click="selected = opt.id"
         >
           <code class="option-code">{{ opt.value }}</code>

@@ -4,12 +4,12 @@
       <div class="summary-icon" aria-hidden="true">{{ isPerfect ? '🏆' : '📋' }}</div>
       <h2 class="summary-title">{{ isPerfect ? 'Perfekt!' : 'Stopp fullført!' }}</h2>
       <p class="summary-score">
-        Du fikk <strong>{{ correctCount }}</strong> av <strong>{{ tasks.length }}</strong> riktige
+        Du fikk <strong>{{ correctCount }}</strong> av <strong>{{ gameTasks.length }}</strong> riktige
       </p>
 
       <div class="summary-stars-row" aria-label="Stjerneresultat">
         <span
-          v-for="(task, i) in tasks"
+          v-for="(task, i) in gameTasks"
           :key="task.id"
           ref="starRefs"
           class="summary-star"
@@ -65,11 +65,13 @@ const displayXp  = ref(0)
 const xpVisible  = ref(false)
 let xpRafId      = null
 
+const gameTasks = computed(() => props.tasks.filter(t => t.taskType !== 'LEARN'))
+
 const correctCount = computed(() =>
-  props.tasks.filter(t => props.taskResults[t.id]?.correct).length
+  gameTasks.value.filter(t => props.taskResults[t.id]?.correct).length
 )
 
-const isPerfect = computed(() => correctCount.value === props.tasks.length)
+const isPerfect = computed(() => correctCount.value === gameTasks.value.length)
 
 const newStarsEarned = computed(() =>
   Object.values(props.taskResults).reduce((sum, r) => sum + (r.starsEarned ?? 0), 0)
@@ -107,7 +109,7 @@ onMounted(async () => {
   }
 
   // Reveal stars sequentially
-  for (let i = 0; i < props.tasks.length; i++) {
+  for (let i = 0; i < gameTasks.value.length; i++) {
     await wait(i === 0 ? 350 : 180)
     visibleStars.value = new Set([...visibleStars.value, i])
   }
@@ -134,7 +136,7 @@ function flyGoldStars() {
   const targetRect = target.getBoundingClientRect()
 
   let flyIndex = 0
-  props.tasks.forEach((task, i) => {
+  gameTasks.value.forEach((task, i) => {
     const res = props.taskResults[task.id]
     if (!res?.correct || !(res.starsEarned > 0)) return
 

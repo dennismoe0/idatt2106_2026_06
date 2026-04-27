@@ -28,6 +28,8 @@
       v-else
       class="task-view__main"
       :class="currentTask?.taskType === 'LEARN' ? 'task-view__main--clean' : 'cork-board-bg'"
+      @mouseover="handlePeekHover"
+      @mouseout="handlePeekOut"
     >
 
       <StopSummary
@@ -68,8 +70,12 @@
             </button>
           </div>
 
-          <!-- Avatar: shown above task for non-LEARN tasks -->
-          <div v-if="currentTask?.taskType !== 'LEARN'" class="task-view__avatar-wrap">
+          <!-- Avatar: in-flow spacer, hidden during peek so cards don't shift -->
+          <div
+            v-if="currentTask?.taskType !== 'LEARN'"
+            class="task-view__avatar-wrap"
+            :class="{ 'task-view__avatar-wrap--peekmode': !!peekState }"
+          >
             <AvatarPreview
               :selections="avatarStore.avatar ?? {}"
               :size="160"
@@ -161,11 +167,21 @@
       </template>
     </div>
 
-    <ClueRevealModal
-      v-if="showClueModal"
-      :clue-text="result?.clueText"
-      @close="handleClueModalClosed"
-    />
+    <!-- Peek avatar: fixed overlay, teleported so it doesn't affect layout -->
+    <Teleport to="body">
+      <div
+        v-if="peekState && currentTask?.taskType !== 'LEARN'"
+        class="task-view__peek-avatar"
+        :style="avatarPeekStyle"
+      >
+        <AvatarPreview
+          :selections="avatarStore.avatar ?? {}"
+          :size="avatarPeekSize"
+          aria-hidden="true"
+        />
+      </div>
+    </Teleport>
+
     <SuspectLineup
       v-if="showSuspectLineup"
       @chosen="handleSuspectChosen"
@@ -197,7 +213,6 @@ import SocialMediaTask from '@/components/student/SocialMediaTask.vue'
 import MarketplaceTask from '@/components/student/MarketplaceTask.vue'
 import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
 import FinalBossTask from '@/components/student/FinalBossTask.vue'
-import ClueRevealModal from '@/components/student/ClueRevealModal.vue'
 import SuspectLineup from '@/components/student/SuspectLineup.vue'
 import ArrestScene from '@/components/student/ArrestScene.vue'
 import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
@@ -223,14 +238,15 @@ const error            = ref('')
 const isMockMode       = ref(false)
 const confettiMode     = ref(false)
 const medalToast       = ref(null)
-const showClueModal    = ref(false)
 const showSuspectLineup = ref(false)
 const showSummary      = ref(false)
 const showTutorial     = ref(false)
 const showMystery      = ref(false)
 const arrestSceneStep  = ref(-1)
+const peekState        = ref(null)
 let confettiTimer = null
 let medalTimer    = null
+let peekOutTimer  = null
 
 const preferredMap = localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap'
 
@@ -256,6 +272,26 @@ const arrestScenes = [
   },
 ]
 const arrestScene = computed(() => arrestScenes[arrestSceneStep.value] ?? null)
+
+const avatarPeekSize = computed(() => {
+  if (!peekState.value) return 160
+  return Math.round(160 * peekState.value.scale)
+})
+
+const avatarPeekStyle = computed(() => {
+  if (!peekState.value) return {}
+  const { centerX, targetTop } = peekState.value
+  const sz = avatarPeekSize.value
+  return {
+    position: 'fixed',
+    left: `${centerX - sz / 2}px`,
+    top: `${targetTop - sz * 0.73}px`,
+    width: `${sz}px`,
+    zIndex: 1,
+    pointerEvents: 'none',
+    transition: 'top 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.3s ease, width 0.25s ease',
+  }
+})
 
 const TUTORIAL_TEXTS = {
   LEARN: {
@@ -748,18 +784,11 @@ function handleCelebration(submitResult) {
     clearTimeout(medalTimer)
     medalTimer = setTimeout(() => { medalToast.value = null }, 4000)
   }
-  if (submitResult?.stopCompleted) {
-    if (submitResult.showSuspectReveal) {
-      setTimeout(() => { showSuspectLineup.value = true }, 1200)
-    } else if (submitResult.clueText) {
-      setTimeout(() => { showClueModal.value = true }, 1200)
-    }
+  if (submitResult?.stopCompleted && submitResult.showSuspectReveal) {
+    setTimeout(() => { showSuspectLineup.value = true }, 1200)
   }
 }
 
-function handleClueModalClosed() {
-  showClueModal.value = false
-}
 function handleSuspectChosen() {
   showSuspectLineup.value = false
 }
@@ -803,7 +832,24 @@ async function advanceArrestScene() {
 onBeforeUnmount(() => {
   clearTimeout(confettiTimer)
   clearTimeout(medalTimer)
+  clearTimeout(peekOutTimer)
 })
+
+function handlePeekHover(e) {
+  const trigger = e.target.closest('[data-peek-trigger]')
+  if (!trigger) return
+  clearTimeout(peekOutTimer)
+  const rect = trigger.getBoundingClientRect()
+  const scale = Math.min(Math.max(rect.width / 250, 0.5), 1.3)
+  peekState.value = { centerX: rect.left + rect.width / 2, targetTop: rect.top, scale }
+}
+
+function handlePeekOut(e) {
+  if (!e.relatedTarget?.closest?.('[data-peek-trigger]')) {
+    clearTimeout(peekOutTimer)
+    peekOutTimer = setTimeout(() => { peekState.value = null }, 80)
+  }
+}
 
 function goNext() {
   if (result.value && currentTask.value) {
@@ -920,6 +966,11 @@ function goToMap() {
   justify-content: center;
   padding-bottom: var(--space-2);
 }
+/* Keep layout space but hide the in-flow avatar while peek overlay is active */
+.task-view__avatar-wrap--peekmode { visibility: hidden; }
+
+/* Peek overlay: teleported to body, lives behind task cards via z-index */
+.task-view__peek-avatar { display: block; }
 
 .task-view__avatar {
   animation: avatar-drop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
@@ -931,5 +982,5 @@ function goToMap() {
   to   { transform: translateY(0);     opacity: 1; }
 }
 
-.task-view__content { width: 100%; }
+.task-view__content { width: 100%; position: relative; z-index: 2; }
 </style>

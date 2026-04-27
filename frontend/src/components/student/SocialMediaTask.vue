@@ -30,7 +30,7 @@
             </label>
           </div>
 
-          <div class="post-card" role="article" :aria-label="`Innlegg fra ${postItem.username ?? 'ukjent bruker'}`">
+          <div class="post-card" role="article" data-peek-trigger :aria-label="`Innlegg fra ${postItem.username ?? 'ukjent bruker'}`">
             <div class="post-card__stripe" aria-hidden="true" />
             <span class="post-avatar" aria-hidden="true">{{ postItem.avatar ?? '👤' }}</span>
             <div class="post-body">
@@ -62,7 +62,7 @@
     <template v-else>
       <div class="post-shell" :style="postThemeStyle">
         <div class="post-platform">{{ platformLabel }}</div>
-        <div class="post-card" role="article" :aria-label="`Innlegg fra ${post.username ?? 'ukjent bruker'}`">
+        <div class="post-card" role="article" data-peek-trigger :aria-label="`Innlegg fra ${post.username ?? 'ukjent bruker'}`">
           <div class="post-card__stripe" aria-hidden="true" />
           <span class="post-avatar" aria-hidden="true">{{ post.avatar ?? '👤' }}</span>
           <div class="post-body">

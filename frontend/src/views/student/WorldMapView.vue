@@ -32,24 +32,6 @@
         Enkel visning
       </button>
 
-      <!-- Case File button -->
-      <button
-        class="world-map-view__casefile-btn"
-        @click="showCaseFile = true"
-        aria-label="Åpne saksmappen"
-      >
-        📁 Saksmappe
-      </button>
-
-      <!-- Case File Modal -->
-      <CaseFileModal
-        v-if="showCaseFile"
-        :all-stops-completed="allStopsCompleted"
-        :already-accused="accusedOnce"
-        @close="showCaseFile = false"
-        @accuse="onAccuse"
-      />
-
       <!-- Suspect Lineup -->
       <SuspectLineup
         v-if="showLineup"
@@ -86,7 +68,6 @@ import { useAvatarWalk } from '@/composables/useAvatarWalk'
 import WorldMapCanvas from '@/components/student/WorldMapCanvas.vue'
 import DetectiveBar from '@/components/common/DetectiveBar.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import CaseFileModal from '@/components/student/CaseFileModal.vue'
 import SuspectLineup from '@/components/student/SuspectLineup.vue'
 import { useNotebookStore } from '@/stores/notebook'
 
@@ -99,14 +80,7 @@ const { containerRef, scale } = useWorldMapScale()
 const { currentNodeIndex, isWalking, walkTo, initAutoWalk } = useAvatarWalk()
 
 const notebookStore  = useNotebookStore()
-const showCaseFile   = ref(false)
 const showLineup     = ref(false)
-const accusedOnce    = ref(localStorage.getItem('suspect_accused') === 'true')
-
-const allStopsCompleted = computed(() => {
-  const completedCount = gameStore.stops.filter(x => x.completed).length
-  return completedCount >= 6
-})
 
 const loading = ref(false)
 const error = ref(null)
@@ -216,18 +190,8 @@ onUnmounted(() => {
   clearTimeout(lockedTimer)
 })
 
-function onAccuse() {
-  showCaseFile.value = false
-  showLineup.value   = true
-}
-
 function onLineupChosen() {
-  showLineup.value  = false
-  accusedOnce.value = true
-  localStorage.setItem('suspect_accused', 'true')
-  if (import.meta.env.DEV) {
-    console.log('[WorldMapView] Suspect accused. Directing to Datasenteret.')
-  }
+  showLineup.value = false
 }
 </script>
 
@@ -388,21 +352,4 @@ function onLineupChosen() {
   outline-offset: 4px;
 }
 
-.world-map-view__casefile-btn {
-  position: fixed;
-  bottom: var(--space-6);
-  left: var(--space-6);
-  z-index: 100;
-  background: var(--color-wood);
-  color: var(--color-medal-gold-bg);
-  border: 2px solid var(--color-wood-mid);
-  border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--text-sm);
-  font-weight: var(--font-bold);
-  cursor: pointer;
-  font-family: 'Special Elite', serif;
-  transition: background var(--transition-fast);
-}
-.world-map-view__casefile-btn:hover { background: var(--color-wood-mid); }
 </style>
