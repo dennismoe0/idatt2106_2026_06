@@ -403,6 +403,24 @@ public class DataLoader implements ApplicationRunner {
                     { "minStrength": "STRONG" }
                     """
             ),
+            clueRiddleTask(
+                passwordStop,
+                4,
+                "Gåtespor: Hvem lagde passordet?",
+                "Etter passordoppgavene bruker du passordspor til å finne hvem som hadde kontroll.",
+                "Hvorfor løser du denne? Passord kan avsløre vaner, roller og gamle systemer. Et passord er ikke bare en nøkkel - det kan også være et spor.",
+                "Tyvekontoen brukte passordet BibliotekAdmin2019. Det ble satt under en IT-oppgradering i 2019.",
+                "Hvem peker dette sterkest mot?",
+                """
+                    [
+                      { "id": "random_customer", "label": "En tilfeldig kunde" },
+                      { "id": "active_2019_staff", "label": "En ansatt som var med på IT-oppgraderingen i 2019" },
+                      { "id": "gaming_friend", "label": "En gaming-venn" }
+                    ]
+                    """,
+                "active_2019_staff",
+                "Riktig. Passordet peker mot noen som jobbet med bibliotekets IT-oppgradering i 2019."
+            ),
             marketplaceTask(
                 marketStop,
                 1,
