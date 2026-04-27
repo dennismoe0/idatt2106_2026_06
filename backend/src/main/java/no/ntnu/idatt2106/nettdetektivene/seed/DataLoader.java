@@ -321,6 +321,24 @@ public class DataLoader implements ApplicationRunner {
                     { "image_0": "MANIPULATED", "image_1": "AI_GENERATED", "image_2": "REAL" }
                     """
             ),
+            clueRiddleTask(
+                photoStop,
+                4,
+                "Gåtespor: Når ble bildet tatt?",
+                "Etter bildeoppgavene bruker du bevisbildet til å forstå tidslinjen.",
+                "Hvorfor løser du denne? Bilder kan lure oss, men ekte overvåkningsbilder kan vise tid og sted. Det hjelper oss å sjekke forklaringer.",
+                "Et ekte overvåkningsbilde viser en person som går inn i Internettbyens Bibliotek kl. 20:47, etter stengetid.",
+                "Hva betyr dette for etterforskningen?",
+                """
+                    [
+                      { "id": "anyone", "label": "Hvem som helst kunne gått inn" },
+                      { "id": "after_hours_access", "label": "Tyven trengte tilgang etter stengetid" },
+                      { "id": "photo_fake", "label": "Bildet kan ikke brukes" }
+                    ]
+                    """,
+                "after_hours_access",
+                "Riktig. Etter stengetid peker mot noen med nøkkel, kode eller ansatt-tilgang."
+            ),
             passwordTask(
                 passwordStop,
                 1,
