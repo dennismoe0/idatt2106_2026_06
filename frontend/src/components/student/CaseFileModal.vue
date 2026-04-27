@@ -102,6 +102,7 @@ const canAccuse = computed(() => props.allStopsCompleted)
   max-height: 90vh;
   overflow-y: auto;
   display: flex; flex-direction: column; gap: var(--space-4);
+  color: var(--color-wood);
 }
 .casefile__header {
   display: flex; justify-content: space-between; align-items: center;
@@ -130,7 +131,7 @@ const canAccuse = computed(() => props.allStopsCompleted)
   margin: 0 0 var(--space-3);
   color: var(--color-wood);
 }
-.casefile__empty { color: var(--color-text-muted); font-size: var(--text-sm); margin: 0; }
+.casefile__empty { color: rgba(255, 255, 255, 0.8); font-size: var(--text-sm); margin: 0; }
 .casefile__clue-card {
   display: flex; gap: var(--space-2); align-items: flex-start;
   background: var(--color-clue-bg); border: 1px dashed var(--color-medal-bronze-border);
@@ -141,7 +142,7 @@ const canAccuse = computed(() => props.allStopsCompleted)
   font-weight: var(--font-bold); color: var(--color-wood-mid);
   font-size: var(--text-xs); min-width: 16px;
 }
-.casefile__clue-text { margin: 0; font-size: var(--text-sm); line-height: 1.5; }
+.casefile__clue-text { margin: 0; font-size: var(--text-sm); line-height: 1.5; color: var(--color-wood); }
 .casefile__suspect-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: var(--space-2);
@@ -167,7 +168,7 @@ const canAccuse = computed(() => props.allStopsCompleted)
   padding-top: var(--space-4);
   text-align: center;
 }
-.casefile__accuse-hint { color: var(--color-text-muted); font-size: var(--text-sm); margin: 0; }
+.casefile__accuse-hint { color: rgba(255, 255, 255, 0.8); font-size: var(--text-sm); margin: 0; }
 .casefile__accuse-btn {
   background: var(--color-danger); color: var(--color-text-on-dark);
   border: none; border-radius: var(--radius-md);
