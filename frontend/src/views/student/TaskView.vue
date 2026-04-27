@@ -68,7 +68,7 @@
             <div class="task-view__avatar-wrap">
               <AvatarPreview
                 :selections="avatarStore.avatar ?? {}"
-                :size="100"
+                :size="160"
                 class="task-view__avatar"
                 aria-hidden="true"
               />
@@ -883,26 +883,31 @@ function goToMap() {
 }
 
 .task-view__avatar-wrap {
+  position: relative;
   flex-shrink: 0;
-  animation: avatar-drop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  transform-origin: top center;
-}
-@keyframes avatar-drop-in {
-  from { transform: scale(0.3) translateY(-60px); opacity: 0; }
-  to   { transform: scale(1) translateY(0);       opacity: 1; }
+  align-self: flex-end;
+  overflow: hidden;
+  height: 200px;
+  width: 160px;
 }
 
 .task-view__avatar {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  object-fit: cover;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: avatar-drop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes avatar-drop-in {
+  from { transform: translateX(-50%) translateY(60px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
 }
 
 .task-view__content { flex: 1; min-width: 0; }
 
 @media (max-width: 640px) {
   .task-view__layout { flex-direction: column; align-items: center; }
-  .task-view__avatar { width: 72px; height: 72px; }
+  .task-view__avatar-wrap { height: 140px; width: 120px; }
 }
 </style>
