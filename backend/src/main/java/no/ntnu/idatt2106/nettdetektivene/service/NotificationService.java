@@ -61,10 +61,10 @@ public class NotificationService {
     }
 
     @Transactional
-    public NotificationDto markRead(Long teacherId, Long notificationId) {
+    public void markRead(Long teacherId, Long notificationId) {
         Notification notification = getTeacherNotification(teacherId, notificationId);
         notification.setRead(true);
-        return toDto(notificationRepository.save(notification));
+        notificationRepository.save(notification);
     }
 
     @Transactional
