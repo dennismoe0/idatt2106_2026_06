@@ -12,6 +12,7 @@ import no.ntnu.idatt2106.nettdetektivene.entity.WeeklyMystery;
 import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomStudentRepository;
+import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomTeacherRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.MedalRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentMedalRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentMysteryCompletionRepository;
@@ -40,6 +41,8 @@ public class WeeklyMysteryService {
     private final UserRepository userRepo;
     private final ClassroomRepository classroomRepo;
     private final ClassroomStudentRepository classroomStudentRepo;
+    private final ClassroomTeacherRepository classroomTeacherRepo;
+    private final NotificationService notificationService;
 
     public WeeklyMysteryService(
             WeeklyMysteryRepository mysteryRepo,
@@ -48,7 +51,9 @@ public class WeeklyMysteryService {
             StudentMedalRepository studentMedalRepo,
             UserRepository userRepo,
             ClassroomRepository classroomRepo,
-            ClassroomStudentRepository classroomStudentRepo) {
+            ClassroomStudentRepository classroomStudentRepo,
+            ClassroomTeacherRepository classroomTeacherRepo,
+            NotificationService notificationService) {
         this.mysteryRepo = mysteryRepo;
         this.completionRepo = completionRepo;
         this.medalRepo = medalRepo;
@@ -56,6 +61,8 @@ public class WeeklyMysteryService {
         this.userRepo = userRepo;
         this.classroomRepo = classroomRepo;
         this.classroomStudentRepo = classroomStudentRepo;
+        this.classroomTeacherRepo = classroomTeacherRepo;
+        this.notificationService = notificationService;
     }
 
     // -------------------------------------------------------------------------
@@ -81,6 +88,7 @@ public class WeeklyMysteryService {
         mystery.setStatus(WeeklyMystery.Status.PENDING);
 
         WeeklyMystery saved = mysteryRepo.save(mystery);
+        notifyTeachersAboutMysterySubmission(saved);
         log.info("[WeeklyMysteryService] mystery submitted mysteryId={}", saved.getId());
         return saved;
     }
@@ -307,5 +315,17 @@ public class WeeklyMysteryService {
 
         log.info("[WeeklyMysteryService] awarded medal '{}' to studentId={}", medalName, student.getId());
         return medalName;
+    }
+
+    private void notifyTeachersAboutMysterySubmission(WeeklyMystery mystery) {
+        String message = "New weekly mystery submitted: " + mystery.getTitle();
+        classroomTeacherRepo.findTeachersByClassroomId(mystery.getClassroom().getId())
+            .forEach(teacher -> notificationService.createNotification(
+                teacher.getId(),
+                mystery.getClassroom().getId(),
+                NotificationService.MYSTERY_SUBMITTED,
+                message,
+                mystery.getId()
+            ));
     }
 }
