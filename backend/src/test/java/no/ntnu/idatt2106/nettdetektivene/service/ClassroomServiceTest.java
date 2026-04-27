@@ -392,7 +392,7 @@ class ClassroomServiceTest {
             1L,
             10L,
             NotificationService.STUDENT_JOIN_REQUEST,
-            "Agent Nora wants to join 5A",
+            "Agent Nora vil bli med i 5A",
             2L
         );
     }
