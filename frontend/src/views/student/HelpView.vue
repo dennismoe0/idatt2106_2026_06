@@ -5,42 +5,42 @@
         <p class="help-view__eyebrow">Nettdetektivene · Feltmanual</p>
         <h1 id="help-title" class="help-view__title">Slik spiller du</h1>
         <p class="help-view__lead">
-          Du er detektiv i Internettbyen. Penger som skulle gå til den nye
-          idrettsparken har forsvunnet, og du må samle spor gjennom oppdragene
-          for å finne ut hvem som står bak.
+          Penger som skulle gå til den nye idrettsparken i Internettbyen er
+          borte. Som nettdetektiv skal du undersøke kilder, bilder, e-poster,
+          nettsider og kontoer for å finne ut hva som skjedde.
         </p>
       </section>
 
       <section class="help-card" aria-labelledby="map-title">
-        <div class="help-card__icon" aria-hidden="true">🗺️</div>
-        <div>
+        <div class="help-card__header">
+          <div class="help-card__icon" aria-hidden="true">🗺️</div>
           <h2 id="map-title" class="help-card__title">Bruk kartet</h2>
-          <ol class="help-list">
-            <li>Klikk på et åpent stopp på kartet for å flytte detektiven dit.</li>
-            <li>Trykk på <strong>Start bane</strong> for å begynne oppdraget.</li>
-            <li>Fullfør ett stopp for å låse opp neste del av etterforskningen.</li>
-            <li>Gå tilbake til hjemmesiden når du vil sjekke notater, medaljer eller profil.</li>
-          </ol>
         </div>
+        <ol class="help-list">
+          <li>Start med første åpne stopp. Nye steder låses opp når du fullfører saken der du er.</li>
+          <li>Les oppdragsteksten før du svarer. Den forteller hva du skal undersøke.</li>
+          <li>Se etter detaljer som kilde, dato, avsender, lenker, bilder, kontoer og passordvalg.</li>
+          <li>Bruk tilbakemeldingene etter svar for å forstå hva som var trygt eller mistenkelig.</li>
+        </ol>
       </section>
 
       <section class="help-card" aria-labelledby="missions-title">
-        <div class="help-card__icon" aria-hidden="true">🎯</div>
-        <div>
+        <div class="help-card__header">
+          <div class="help-card__icon" aria-hidden="true">🎯</div>
           <h2 id="missions-title" class="help-card__title">Oppdragene</h2>
-          <div class="help-stops">
-            <article
-              v-for="stop in stops"
-              :key="stop.name"
-              class="help-stop"
-            >
-              <span class="help-stop__icon" aria-hidden="true">{{ stop.icon }}</span>
-              <div>
-                <h3 class="help-stop__name">{{ stop.name }}</h3>
-                <p class="help-stop__description">{{ stop.description }}</p>
-              </div>
-            </article>
-          </div>
+        </div>
+        <div class="help-stops">
+          <article
+            v-for="stop in stops"
+            :key="stop.name"
+            class="help-stop"
+          >
+            <span class="help-stop__icon" aria-hidden="true">{{ stop.icon }}</span>
+            <div>
+              <h3 class="help-stop__name">{{ stop.name }}</h3>
+              <p class="help-stop__description">{{ stop.description }}</p>
+            </div>
+          </article>
         </div>
       </section>
 
@@ -49,8 +49,8 @@
           <span class="help-note__pin" aria-hidden="true"></span>
           <h2 class="help-note__title">Spor og saksmappe</h2>
           <p>
-            Hvert stopp gir deg ny kunnskap og spor. Bruk notatblokken til å se
-            tipsene du har samlet og skrive egne refleksjoner underveis.
+            Etter hvert stopp får du et nytt spor i saken. Notatblokken hjelper
+            deg å huske hva du har lært, og hvilke ledetråder som peker videre.
           </p>
         </article>
 
@@ -58,8 +58,8 @@
           <span class="help-note__pin" aria-hidden="true"></span>
           <h2 class="help-note__title">Stjerner og medaljer</h2>
           <p>
-            Riktige svar gir XP og stjerner. Når du fullfører et stopp får du en
-            medalje som viser at du har løst en del av saken.
+            Du får belønning når du løser ekte oppdrag. Medaljene viser hvilke
+            deler av etterforskningen du har klart å fullføre.
           </p>
         </article>
 
@@ -67,8 +67,8 @@
           <span class="help-note__pin" aria-hidden="true"></span>
           <h2 class="help-note__title">Ukens mysterium</h2>
           <p>
-            Læreren kan aktivere ekstra mysterier fra klassen. Sjekk Ukas
-            Mysterium på hjemmesiden for flere saker å løse.
+            Her kan klassen få ekstra saker å undersøke. Bruk samme metode som
+            i hovedspillet: stopp opp, sjekk kilden og velg trygg handling.
           </p>
         </article>
       </section>
@@ -90,37 +90,37 @@ const stops = [
   {
     name: 'Nyhetskvartalet',
     icon: '📰',
-    description: 'Finn ut hvilke nyheter som er troverdige, og hvilke som prøver å lure deg.',
+    description: 'Sammenlign artikler og se etter kilde, dato, forfatter og overskrifter som prøver å skremme eller lure deg.',
   },
   {
     name: 'Fotografen',
     icon: '📷',
-    description: 'Se etter tegn på ekte bilder, KI-bilder og manipulerte bilder.',
+    description: 'Undersøk bilder nøye. Se etter rare detaljer, unaturlige skygger, uleselig tekst eller andre tegn på KI og manipulering.',
   },
   {
     name: 'Postkontoret',
     icon: '📧',
-    description: 'Avslør mistenkelige e-poster, rare lenker og falske avsendere.',
+    description: 'Les e-poster som en detektiv. Sjekk avsender, lenker, hastverk, trusler og hva meldingen prøver å få deg til å gjøre.',
   },
   {
     name: 'Markedsplassen',
     icon: '🛒',
-    description: 'Undersøk nettbutikker og finn røde flagg før noen blir svindlet.',
+    description: 'Vurder om en nettbutikk virker trygg. Se på nettadresse, kontaktinfo, pris, anmeldelser og betalingsmåter før du stoler på den.',
   },
   {
     name: 'Den sosiale møteplassen',
     icon: '💬',
-    description: 'Vurder innlegg og meldinger før du deler dem videre.',
+    description: 'Se om innlegg bruker sinne, frykt eller gruppepress. Velg trygge svar som å vente, sjekke kilder eller spørre en voksen.',
   },
   {
     name: 'Passordbanken',
     icon: '🔐',
-    description: 'Lær hva som gjør et passord sterkt, trygt og vanskelig å gjette.',
+    description: 'Lag og vurder passord. Unngå navn, brukernavn, fødselsår, enkle mønstre og passord du bruker flere steder.',
   },
   {
     name: 'Datasenteret',
     icon: '🏆',
-    description: 'Bruk alt du har lært i sluttoppdraget for å stoppe datatyven.',
+    description: 'Sluttoppdraget tester alt du har lært. Du må bruke metodene fra de andre stoppene for å sikre saken helt til slutt.',
   },
 ]
 </script>
@@ -129,9 +129,10 @@ const stops = [
 .help-view {
   max-width: 1080px;
   margin: 0 auto;
+  padding: clamp(var(--space-3), 3vw, var(--space-6));
   display: flex;
   flex-direction: column;
-  gap: clamp(var(--space-4), 2vw, var(--space-7));
+  gap: clamp(var(--space-4), 3vw, var(--space-8));
   color: var(--color-ink);
 }
 
@@ -148,7 +149,7 @@ const stops = [
 .help-view__hero {
   overflow: hidden;
   border-radius: var(--radius-lg);
-  padding: clamp(var(--space-5), 5vw, var(--space-8));
+  padding: clamp(var(--space-6), 6vw, var(--space-10));
   background:
     radial-gradient(circle at 86% 24%, rgba(239, 180, 92, 0.28), transparent 30%),
     linear-gradient(135deg, var(--color-wood) 0%, var(--color-wood-mid) 52%, var(--color-cork-dark) 100%);
@@ -184,20 +185,26 @@ const stops = [
 
 .help-view__lead {
   max-width: 42rem;
-  margin: var(--space-3) 0 0;
+  margin: var(--space-4) 0 0;
   color: rgba(255, 251, 235, 0.82);
   font-size: var(--text-lg);
   line-height: 1.7;
 }
 
 .help-card {
-  display: grid;
-  grid-template-columns: auto 1fr;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
   border-radius: var(--radius-lg);
-  padding: clamp(var(--space-4), 4vw, var(--space-6));
+  padding: clamp(var(--space-6), 5vw, var(--space-8));
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--color-note-bg) 96%, white) 0%, var(--color-note-chosen-bg) 100%);
+}
+
+.help-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
 }
 
 .help-card__icon {
@@ -214,17 +221,26 @@ const stops = [
 
 .help-card__title,
 .help-note__title {
-  margin: 0 0 var(--space-3);
+  margin: 0;
   font-family: 'Special Elite', serif;
   color: var(--color-wood);
 }
 
+.help-card__title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  letter-spacing: 0.02em;
+}
+
+.help-note__title {
+  margin-bottom: var(--space-4);
+}
+
 .help-list {
   margin: 0;
-  padding-left: var(--space-5);
+  padding-left: var(--space-6);
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
   color: var(--color-ink-body);
   line-height: 1.65;
 }
@@ -232,15 +248,15 @@ const stops = [
 .help-stops {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
+  gap: clamp(var(--space-4), 2.5vw, var(--space-6));
 }
 
 .help-stop {
   display: flex;
-  gap: var(--space-3);
+  gap: var(--space-4);
   align-items: flex-start;
   min-height: 100%;
-  padding: var(--space-3);
+  padding: var(--space-4);
   border: 1px dashed rgba(122, 78, 26, 0.28);
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.34);
@@ -252,7 +268,7 @@ const stops = [
 }
 
 .help-stop__name {
-  margin: 0 0 var(--space-1);
+  margin: 0 0 var(--space-2);
   font-size: var(--text-base);
   font-weight: var(--font-bold);
   color: var(--color-wood);
@@ -262,17 +278,18 @@ const stops = [
   margin: 0;
   color: var(--color-ink-subtle);
   font-size: var(--text-sm);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .help-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
+  gap: clamp(var(--space-6), 3vw, var(--space-8));
 }
 
 .help-note {
-  padding: var(--space-5);
+  padding: clamp(var(--space-8), 4vw, var(--space-10));
+  min-height: 12rem;
   border-radius: 2px;
   background: #7c3aed;
   color: var(--color-text-on-dark);
@@ -316,13 +333,13 @@ const stops = [
 .help-note p {
   margin: 0;
   color: rgba(255, 255, 255, 0.82);
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .help-view__actions {
   display: flex;
   justify-content: center;
-  padding-top: var(--space-2);
+  padding: var(--space-3) 0 var(--space-6);
 }
 
 .help-view__home-link {
@@ -361,8 +378,8 @@ const stops = [
 }
 
 @media (max-width: 560px) {
-  .help-card {
-    grid-template-columns: 1fr;
+  .help-card__header {
+    align-items: flex-start;
   }
 
   .help-card__icon {
