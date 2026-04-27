@@ -10,6 +10,7 @@ const routes = [
   { path: '/register',      name: 'Register',     component: () => import('@/views/auth/RegisterView.vue'),           meta: { public: true } },
   { path: '/unauthorized',  name: 'Unauthorized', component: () => import('@/views/UnauthorizedView.vue'),            meta: { public: true } },
   { path: '/student-login', name: 'StudentLogin', component: () => import('@/views/auth/StudentLoginView.vue'),       meta: { public: true } },
+  { path: '/help',          name: 'Help',         component: () => import('@/views/student/HelpView.vue'),             meta: { public: true } },
 
   // Student
   { path: '/',              name: 'Home',           component: () => import('@/views/student/HomeView.vue'),          meta: { role: 'STUDENT' } },
