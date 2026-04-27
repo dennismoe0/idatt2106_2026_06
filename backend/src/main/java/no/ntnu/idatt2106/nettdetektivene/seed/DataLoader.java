@@ -525,7 +525,10 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("sender", "sender", "kundevarsling@dnb-kundeservice.com", true, "Avsenderen ser ekte ut ved første blikk, men domenet er ikke dnb.no."),
                     new Clue("link1", "link", "dnb-kontroll.com/bekreft", true, "Lenken peker til et annet domene enn banken sin offisielle nettside."),
                     new Clue("urgency", "text", "innen 30 minutter", true, "Svindlere bruker tidspress for å få deg til å klikke før du rekker å sjekke."),
-                    new Clue("logo", "branding", "DNB Kundeservice", false, "Logo og avsendernavn alene er ikke nok. Svindlere kopierer ofte kjente merkevarer for å se troverdige ut.")
+                    new Clue("greeting", "text", "Hei Oliver,", false, "En personlig hilsen kan virke troverdig, men er ikke nok alene. Sjekk alltid avsenderadresse og lenke."),
+                    new Clue("amount", "text", "4 890 kr", false, "Beløpet alene beviser ikke at e-posten er falsk. Det er kombinasjonen av feil domene, lenke og tidspress som avslører svindelen."),
+                    new Clue("merchant", "text", "Steam Market", false, "Navnet på en kjent tjeneste kan brukes i både ekte og falske varsler. Ikke vurder tjenesten alene."),
+                    new Clue("signature", "text", "DNB Kundeservice", false, "Navn og signatur kan kopieres. De blir først nyttige når domenet og lenken også stemmer.")
                 ),
                 "E-posten ser profesjonell ut, men avsenderen og lenken er falske. Tidspresset er laget for å stresse deg til å gi fra deg BankID-opplysninger."
             ),
@@ -549,7 +552,10 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("sender", "sender", "varsling@posten-levering.net", true, "Adressen ligner på Posten, men bruker ikke det offisielle domenet posten.no."),
                     new Clue("link1", "link", "posten-oppdatering.net/betaling", true, "Betalingslenken går til en side som ikke tilhører Posten."),
                     new Clue("urgency", "text", "Betal i dag", true, "Kunstig hastverk er et vanlig grep i phishing."),
-                    new Clue("sender_name", "sender_name", "Posten", false, "Avsendernavnet kan se riktig ut selv når selve e-postadressen er falsk.")
+                    new Clue("delivery_place", "text", "utleveringsstedet", false, "Et vanlig leveringsord er ikke mistenkelig i seg selv. Det viktige er hvor lenken peker."),
+                    new Clue("fee", "text", "19 kr", false, "Et lite beløp er ikke farlig i seg selv. Svindlere bruker det fordi det får betalingen til å virke ufarlig."),
+                    new Clue("return_sender", "text", "sendt i retur til avsender", false, "Retur til avsender kan skje i ekte pakkemeldinger også. Se etter feil domene og betalingslenke."),
+                    new Clue("signature", "text", "Hilsen Posten", false, "En vanlig signatur kan kopieres og er ikke nok til å bevise at e-posten er ekte.")
                 ),
                 "Dette ligner på en ekte pakkemelding, men både avsender og lenke er feil. Det lille gebyret og tidspresset er klassiske phishing-grep."
             ),
@@ -574,7 +580,10 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("sender", "sender", "it-support@skole-login.com", true, "Skolen ville brukt sitt eget domene, ikke skole-login.com."),
                     new Clue("link1", "link", "skole-login.com/verify", true, "Lenken leder til et ukjent domene som kan stjele skoleinnloggingen din."),
                     new Clue("urgency", "text", "før kl. 14.00 i dag", true, "Tidspress gjør det lettere å lure elever til å handle raskt."),
-                    new Clue("greeting", "text", "Hei,", false, "En vanlig hilsen er ikke i seg selv et tegn på svindel. Du må se på domenet og lenken også.")
+                    new Clue("greeting", "text", "Hei,", false, "En vanlig hilsen er ikke i seg selv et tegn på svindel. Du må se på domenet og lenken også."),
+                    new Clue("failed_attempts", "text", "flere feilforsøk", false, "Feilforsøk kan være en ekte grunn til et varsel. Her er problemet at e-posten sender deg til et ukjent domene."),
+                    new Clue("school_tools", "text", "Teams, Canvas og skolemail", false, "Kjente skoletjenester kan nevnes i ekte meldinger også. Det er lenken og avsenderdomenet som avgjør her."),
+                    new Clue("signature", "text", "IT-support", false, "Signaturen alene forteller ikke om meldingen er ekte. Svindlere kan skrive samme signatur som skolen.")
                 ),
                 "Meldingen ser ut som en vanlig IT-beskjed, men domenet er feil og haster unødvendig. Slike e-poster bør alltid sjekkes i skolens offisielle kanaler før du klikker."
             ),
