@@ -904,29 +904,8 @@ async function advanceArrestScene() {
     arrestSceneStep.value += 1
     return
   }
-
-  let nextStopId = gameStore.stops.find((stop) => stop.orderIndex === 7 || stop.theme === 'FINAL_BOSS')?.id
-  if (!nextStopId && classroomId.value) {
-    try {
-      const stops = await gameStore.fetchStops(classroomId.value)
-      nextStopId = stops.find((stop) => stop.orderIndex === 7 || stop.theme === 'FINAL_BOSS')?.id
-    } catch (fetchError) {
-      console.error('[TaskView] Failed to resolve Datasenteret stop id.', fetchError)
-    }
-  }
-
   arrestSceneStep.value = -1
-  if (!nextStopId) {
-    router.push({ name: preferredMap.value })
-    return
-  }
-  router.push({
-    name: 'Task',
-    query: {
-      stopId: String(nextStopId),
-      classroomId: String(classroomId.value),
-    },
-  })
+  router.push({ name: preferredMap.value })
 }
 
 onBeforeUnmount(() => {
