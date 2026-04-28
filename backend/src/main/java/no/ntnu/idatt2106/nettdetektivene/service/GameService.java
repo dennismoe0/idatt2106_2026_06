@@ -313,6 +313,10 @@ public class GameService {
             stopId,
             COMPLETION_EXCLUDED_TASK_TYPES
         ));
+    int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNotIn(
+        stopId,
+        COMPLETION_EXCLUDED_TASK_TYPES
+    ));
         int xpEarned = XP_PER_TASK * taskCount + XP_PER_STOP;
 
         User student = userRepository.findById(studentId)
