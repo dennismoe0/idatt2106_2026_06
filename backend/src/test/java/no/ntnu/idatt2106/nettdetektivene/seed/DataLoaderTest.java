@@ -181,6 +181,29 @@ class DataLoaderTest {
         assertThat(content.path("maxLength").asInt()).isEqualTo(24);
     }
 
+    @Test
+    void run_seedsPasswordBankWithThreePasswordTasksAndFinalClueRiddle() throws Exception {
+        List<Task> tasks = seededTasks();
+
+        List<Task> passwordBankTasks = tasks.stream()
+            .filter(task -> task.getStop().getName().equals("Passordbanken"))
+            .toList();
+
+        assertThat(passwordBankTasks)
+            .filteredOn(task -> !"LEARN".equals(task.getTaskType().name()))
+            .hasSize(4);
+        assertThat(passwordBankTasks)
+            .filteredOn(task -> "PASSWORD".equals(task.getTaskType().name()))
+            .hasSize(3);
+        assertThat(passwordBankTasks)
+            .filteredOn(task -> "CLUE_RIDDLE".equals(task.getTaskType().name()))
+            .singleElement()
+            .satisfies(task -> {
+                assertThat(task.getOrderIndex()).isEqualTo(5);
+                assertThat(task.getTitle()).isEqualTo("Gåtespor: Passordet i loggen");
+            });
+    }
+
     private List<Task> seededTasks() throws Exception {
         StopRepository stopRepository = mock(StopRepository.class);
         TaskRepository taskRepository = mock(TaskRepository.class);
