@@ -214,20 +214,20 @@ public class DataLoader implements ApplicationRunner {
                     ),
                     new Slide(
                         "",
-                        "Hva er forskjellen på KI og manipulering?",
-                        "Et manipulert bilde starter ofte som et ekte bilde som noen har endret etterpå. Et KI-bilde er vanligvis laget helt fra bunnen av, og da kan mange ting i hele bildet se litt rare ut samtidig.",
+                        "Hva er forskjellen på ekte og manipulert?",
+                        "Et ekte bilde viser scenen slik kameraet fanget den. Et manipulert bilde kan starte som et ekte foto, men noen har endret innholdet etterpå, for eksempel ved å legge til personer, fjerne ting eller flytte detaljer.",
                         new String[]{
-                            "Manipulert: Et ekte klassebilde der noen har byttet ansiktet til en elev.",
-                            "KI-generert: Et helt nytt bilde av en hendelse som aldri skjedde."
+                            "Ekte: Bildet viser bare personene som faktisk var i scenen da bildet ble tatt.",
+                            "Manipulert: Flere personer er lagt inn i samme scene etterpå, slik at bildet forteller en annen historie."
                         },
                         new String[]{
-                            "Begge deler kan brukes for å lure deg.",
-                            "Spør alltid om bildet kan sjekkes andre steder."
+                            "Se etter om nye elementer passer med lys, skygger og skarphet.",
+                            "Spør om bildet finnes i en original versjon."
                         }
                     ),
                     new Quiz("q1", "Hva er vanlige feil i KI-genererte bilder?", new String[]{"For mange farger", "Merkelige hender og urealistisk glatt hud", "For lav bildekvalitet"}, "Merkelige hender og urealistisk glatt hud"),
                     new Quiz("q2", "Hva skiller et KI-generert bilde fra et manipulert bilde?", new String[]{"KI-bilder er alltid svart-hvitt", "KI-bilder er laget av AI, manipulerte er ekte bilder som er endret", "Manipulerte bilder har alltid bedre kvalitet"}, "KI-bilder er laget av AI, manipulerte er ekte bilder som er endret"),
-                    new Quiz("q3", "Hva bør du gjøre om du er usikker på et bilde?", new String[]{"Dele det for å få andres mening", "Bruke omvendt bildesøk for å sjekke opprinnelsen", "Ignorere det"}, "Bruke omvendt bildesøk for å sjekke opprinnelsen")
+                    new Quiz("q3", "Hva kan avsløre at et ekte bilde er manipulert etterpå?", new String[]{"Nye ting passer ikke med lys, skygger eller skarphet", "Bildet har farger", "Bildet er tatt ute"}, "Nye ting passer ikke med lys, skygger eller skarphet")
                 )
             ),
             learnTask(pwdStop, 1, "Lær om passord", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
