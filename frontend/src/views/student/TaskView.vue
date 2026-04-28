@@ -2,6 +2,14 @@
   <div class="task-view">
     <DetectiveBar :back-to="{ name: preferredMap }" :page-title="stopName" />
 
+    <RouterLink
+      class="task-view__dossier-link"
+      :to="{ name: 'SuspectDossier' }"
+      aria-label="Åpne mistenktmappe"
+    >
+      🗂 Mistenktmappe
+    </RouterLink>
+
     <!-- Mystery scenario screen -->
     <StopMysteryScreen
       v-if="showMystery && mysteryScenario"
@@ -151,6 +159,16 @@
                 @next="goNext"
               />
 
+              <ClueRiddleTask
+                v-else-if="currentTask.taskType === 'CLUE_RIDDLE'"
+                :task="currentTask"
+                :result="result"
+                :is-last-task="currentTaskIndex === tasks.length - 1"
+                @submitted="handleSubmit"
+                @next="goNext"
+                @try-again="result = null"
+              />
+
               <FinalBossTask
                 v-else-if="currentTask.taskType === 'FINAL_BOSS'"
                 :task="currentTask"
@@ -181,16 +199,44 @@
         />
       </div>
     </Teleport>
-
-    <SuspectLineup
-      v-if="showSuspectLineup"
-      @chosen="handleSuspectChosen"
-    />
     <ArrestScene
       v-if="arrestScene"
       :scene="arrestScene"
       @continue="advanceArrestScene"
     />
+
+    <Transition name="stored-clue">
+      <div v-if="storedClueModal" class="stored-clue-backdrop" role="presentation">
+        <section
+          class="stored-clue-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="stored-clue-title"
+        >
+          <p class="stored-clue-modal__eyebrow">Spor lagret</p>
+          <h2 id="stored-clue-title">Gåten er løst!</h2>
+          <p class="stored-clue-modal__intro">
+            Bra jobbet. Dette sporet er nå lagt inn i
+            <strong>Mistenktmappe → Sporbrett</strong>, så du kan bruke det når du sammenligner mistenkte.
+          </p>
+
+          <article class="stored-clue-modal__card">
+            <span>{{ storedClueModal.stopName }}</span>
+            <p>{{ storedClueModal.clue }}</p>
+          </article>
+
+          <div class="stored-clue-modal__actions">
+            <button type="button" class="stored-clue-modal__primary" @click="continueAfterStoredClue">
+              Fortsett
+            </button>
+            <button type="button" class="stored-clue-modal__secondary" @click="openClueBoard">
+              Åpne sporbrett
+            </button>
+          </div>
+        </section>
+      </div>
+    </Transition>
+
     <ConfettiOverlay :active="confettiMode" />
     <MedalToast :medal="medalToast" />
   </div>
@@ -212,8 +258,8 @@ import PasswordTask from '@/components/student/PasswordTask.vue'
 import SocialMediaTask from '@/components/student/SocialMediaTask.vue'
 import MarketplaceTask from '@/components/student/MarketplaceTask.vue'
 import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
+import ClueRiddleTask from '@/components/student/ClueRiddleTask.vue'
 import FinalBossTask from '@/components/student/FinalBossTask.vue'
-import SuspectLineup from '@/components/student/SuspectLineup.vue'
 import ArrestScene from '@/components/student/ArrestScene.vue'
 import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
 import MedalToast from '@/components/common/MedalToast.vue'
@@ -238,17 +284,17 @@ const error            = ref('')
 const isMockMode       = ref(false)
 const confettiMode     = ref(false)
 const medalToast       = ref(null)
-const showSuspectLineup = ref(false)
 const showSummary      = ref(false)
 const showTutorial     = ref(false)
 const showMystery      = ref(false)
 const arrestSceneStep  = ref(-1)
 const peekState        = ref(null)
+const storedClueModal  = ref(null)
 let confettiTimer = null
 let medalTimer    = null
 let peekOutTimer  = null
 
-const preferredMap = localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap'
+const preferredMap = computed(() => localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap')
 
 const stopId = computed(() => Number(route.query.stopId ?? 0) || null)
 const classroomId = computed(() => {
@@ -321,6 +367,10 @@ const TUTORIAL_TEXTS = {
   SOCIAL_MEDIA: {
     title: 'Tenk før du deler',
     instructions: 'Du vil se innlegg fra sosiale medier. Tenk på kilden, språket og hasteoppfordringer. Sjekk alltid fakta før du deler videre.'
+  },
+  CLUE_RIDDLE: {
+    title: 'Løs gåtesporet',
+    instructions: 'Nå bruker du det du nettopp lærte i en liten etterforskningsoppgave. Les hvorfor oppgaven er viktig, sjekk beviset og velg svaret som gir best digitalt spor.'
   }
 }
 
@@ -331,6 +381,7 @@ const THEME_EMOJI = {
   PASSWORD:      '🔐',
   MARKETPLACE:   '🛒',
   SOCIAL_MEDIA:  '📱',
+  CLUE_RIDDLE:   '🕵️',
   FINAL_BOSS:    '💻',
 }
 
@@ -458,21 +509,42 @@ function replayIntro() {
 
 async function handleSubmit(answer) {
   if (!currentTask.value) return
-  console.log('[TaskView] Submitting answer for task:', currentTask.value.id, 'type:', currentTask.value.taskType)
+  const submittedTask = currentTask.value
+  console.log('[TaskView] Submitting answer for task:', submittedTask.id, 'type:', submittedTask.taskType)
   try {
-    result.value = await gameStore.submitAnswer(currentTask.value.id, answer, classroomId.value)
+    result.value = await gameStore.submitAnswer(submittedTask.id, answer, classroomId.value)
     console.log('[TaskView] Submit result — correct:', result.value.correct, 'stopCompleted:', result.value.stopCompleted)
     handleCelebration(result.value)
+    maybeShowStoredClueModal(submittedTask, result.value)
     isMockMode.value = false
   } catch (apiError) {
     console.error('[TaskView] Failed to submit answer.', apiError)
     if (import.meta.env.DEV) {
-      result.value = buildMockResult(currentTask.value, answer)
+      result.value = buildMockResult(submittedTask, answer)
       handleCelebration(result.value)
+      maybeShowStoredClueModal(submittedTask, result.value)
       isMockMode.value = true
     } else {
       error.value = 'Kunne ikke sende svar. Prøv igjen.'
     }
+  }
+}
+
+function maybeShowStoredClueModal(task, submitResult) {
+  if (
+    task?.taskType !== 'CLUE_RIDDLE'
+    || !submitResult?.correct
+    || !submitResult?.stopCompleted
+  ) {
+    return
+  }
+
+  storedClueModal.value = {
+    stopName: task.stopName ?? 'Nytt spor',
+    clue: submitResult.clueText
+      || submitResult.explanation
+      || task.contentJson?.evidence
+      || 'Et nytt spor er lagret i sporbrettet.',
   }
 }
 
@@ -784,13 +856,6 @@ function handleCelebration(submitResult) {
     clearTimeout(medalTimer)
     medalTimer = setTimeout(() => { medalToast.value = null }, 4000)
   }
-  if (submitResult?.stopCompleted && submitResult.showSuspectReveal) {
-    setTimeout(() => { showSuspectLineup.value = true }, 1200)
-  }
-}
-
-function handleSuspectChosen() {
-  showSuspectLineup.value = false
 }
 
 function shouldShowArrestScene() {
@@ -817,7 +882,7 @@ async function advanceArrestScene() {
 
   arrestSceneStep.value = -1
   if (!nextStopId) {
-    router.push({ name: preferredMap })
+    router.push({ name: preferredMap.value })
     return
   }
   router.push({
@@ -869,6 +934,16 @@ function goNext() {
   showSummary.value = true
 }
 
+function continueAfterStoredClue() {
+  storedClueModal.value = null
+  goNext()
+}
+
+function openClueBoard() {
+  storedClueModal.value = null
+  router.push({ name: 'SuspectDossier', query: { panel: 'clues' } })
+}
+
 function handleRetry() {
   showSummary.value = false
   currentTaskIndex.value = 0
@@ -889,6 +964,28 @@ function goToMap() {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+.task-view__dossier-link {
+  position: fixed;
+  right: 1rem;
+  top: 4rem;
+  z-index: 90;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.65rem 0.9rem;
+  border: 2px solid rgba(47, 26, 8, 0.32);
+  border-radius: 8px;
+  background: #fff8df;
+  color: #3b1f08;
+  box-shadow: 0 6px 0 rgba(47, 26, 8, 0.28);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.task-view__dossier-link:hover {
+  transform: translateY(-1px);
 }
 
 .task-view__tutorial-wrap,
@@ -980,6 +1077,141 @@ function goToMap() {
 @keyframes avatar-drop-in {
   from { transform: translateY(-30px); opacity: 0; }
   to   { transform: translateY(0);     opacity: 1; }
+}
+
+.task-view__content { flex: 1; min-width: 0; }
+
+.stored-clue-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgba(26, 14, 4, 0.78);
+}
+
+.stored-clue-modal {
+  width: min(34rem, 100%);
+  padding: clamp(1rem, 4vw, 1.5rem);
+  border: 4px solid #2f1a08;
+  border-radius: 10px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.42) 1px, transparent 1px),
+    linear-gradient(#fff4d0, #fff9e8);
+  background-size: 24px 24px, auto;
+  box-shadow: 0 18px 0 rgba(0, 0, 0, 0.28);
+  color: #2b1808;
+}
+
+.stored-clue-modal__eyebrow {
+  width: fit-content;
+  margin: 0 0 var(--space-2);
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: #0f766e;
+  color: #fff;
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.stored-clue-modal h2 {
+  margin: 0 0 var(--space-2);
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  line-height: 1;
+}
+
+.stored-clue-modal__intro {
+  margin: 0;
+  color: #4b341b;
+  font-size: var(--text-lg);
+  line-height: 1.45;
+}
+
+.stored-clue-modal__card {
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  border: 3px dashed #b45309;
+  border-radius: 8px;
+  background: #fffbeb;
+}
+
+.stored-clue-modal__card span {
+  display: inline-block;
+  margin-bottom: var(--space-2);
+  color: #92400e;
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+}
+
+.stored-clue-modal__card p {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  line-height: 1.45;
+}
+
+.stored-clue-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.stored-clue-modal__actions button {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-5);
+  border-radius: 8px;
+  font: inherit;
+  font-weight: var(--font-bold);
+  cursor: pointer;
+}
+
+.stored-clue-modal__primary {
+  border: 0;
+  background: #0f766e;
+  color: #fff;
+}
+
+.stored-clue-modal__secondary {
+  border: 2px solid #2f1a08;
+  background: #fff8df;
+  color: #2f1a08;
+}
+
+.stored-clue-enter-active,
+.stored-clue-leave-active {
+  transition: opacity 0.18s ease;
+}
+
+.stored-clue-enter-active .stored-clue-modal,
+.stored-clue-leave-active .stored-clue-modal {
+  transition: transform 0.22s ease, opacity 0.18s ease;
+}
+
+.stored-clue-enter-from,
+.stored-clue-leave-to {
+  opacity: 0;
+}
+
+.stored-clue-enter-from .stored-clue-modal,
+.stored-clue-leave-to .stored-clue-modal {
+  opacity: 0;
+  transform: translateY(18px) scale(0.96);
+}
+
+@media (max-width: 640px) {
+  .task-view__dossier-link {
+    position: static;
+    align-self: flex-end;
+    margin: 0.75rem 1rem 0;
+  }
+
+  .task-view__layout { flex-direction: column; align-items: center; }
+  .task-view__avatar { width: 72px; height: 72px; }
+  .stored-clue-modal__actions { display: grid; }
 }
 
 .task-view__content { width: 100%; position: relative; z-index: 2; }

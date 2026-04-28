@@ -8,5 +8,6 @@ public enum TaskType {
     PASSWORD,
     MARKETPLACE,
     SOCIAL_MEDIA,
+    CLUE_RIDDLE,
     FINAL_BOSS
 }

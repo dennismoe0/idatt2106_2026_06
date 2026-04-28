@@ -42,10 +42,12 @@ import no.ntnu.idatt2106.nettdetektivene.service.AvatarService;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.TaskAnswerChecker;
 
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -56,6 +58,7 @@ public class GameService {
     private static final int CORRECT_SCORE = 100;
     private static final int XP_PER_TASK = 10;
     private static final int XP_PER_STOP = 30;
+    private static final Set<TaskType> COMPLETION_EXCLUDED_TASK_TYPES = EnumSet.of(TaskType.LEARN);
 
     private final StopRepository stopRepository;
     private final TaskRepository taskRepository;
@@ -173,18 +176,21 @@ public class GameService {
             .findByStudent_IdAndTask_Id(studentId, taskId);
 
         if (existingProgress.map(StudentProgress::isCompleted).orElse(false)) {
+            boolean stopCompleted = isStopComplete(studentId, task.getStop().getId());
+            String clueText = stopCompleted ? task.getStop().getClueText() : null;
+            boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
             return new SubmitAnswerResponse(
                 true,
                 existingProgress.get().getScore(),
                 explanation,
-                isStopComplete(studentId, task.getStop().getId()),
+                stopCompleted,
                 null,
                 0,
                 0,
                 List.of(),
                 null,
-                null,
-                false
+                clueText,
+                showSuspectReveal
             );
         }
 
@@ -217,6 +223,8 @@ public class GameService {
 
         boolean stopCompleted = isStopComplete(studentId, task.getStop().getId());
         int xpEarned = XP_PER_TASK;
+        String clueText = stopCompleted ? task.getStop().getClueText() : null;
+        boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
 
         if (stopCompleted) {
             log.info("[GameService] stop completed studentId={} stopId={}", studentId, task.getStop().getId());
@@ -242,18 +250,19 @@ public class GameService {
         List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
             ? correctClueIdsFor(task) : List.of();
 
-        String clueText = null;
-        boolean showSuspectReveal = false;
-        if (stopCompleted) {
-            Stop completedStop = task.getStop();
-            if (completedStop.getOrderIndex() == 4) {
-                showSuspectReveal = true;
-            } else {
-                clueText = completedStop.getClueText();
-            }
-        }
-
-        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, starsEarned, xpEarned, correctClueIds, null, clueText, showSuspectReveal);
+        return new SubmitAnswerResponse(
+            true,
+            CORRECT_SCORE,
+            explanation,
+            stopCompleted,
+            medalEarned,
+            1,
+            xpEarned,
+            correctClueIds,
+            null,
+            clueText,
+            showSuspectReveal
+        );
     }
 
     @Transactional(readOnly = true)
@@ -331,8 +340,8 @@ public class GameService {
     }
 
     private boolean isStopComplete(Long studentId, Long stopId) {
-        long gameTaskCount = taskRepository.countByStop_IdAndTaskTypeNot(stopId, TaskType.LEARN);
-        return gameTaskCount > 0 && completedGameTaskCount(studentId, stopId) == gameTaskCount;
+        long taskCount = requiredTaskCount(stopId);
+        return taskCount > 0 && completedTaskCount(studentId, stopId) == taskCount;
     }
 
     private Optional<Medal> checkAndAwardMedal(Long studentId, Long stopId) {
@@ -519,8 +528,8 @@ public class GameService {
     }
 
     private StopResponse toStopResponse(Long studentId, Long classroomId, Stop stop) {
-        int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNot(stop.getId(), TaskType.LEARN));
-        int correctCount = Math.toIntExact(completedGameTaskCount(studentId, stop.getId()));
+        int taskCount = Math.toIntExact(requiredTaskCount(stop.getId()));
+        int correctCount = Math.toIntExact(completedTaskCount(studentId, stop.getId()));
         boolean unlocked = isStopUnlocked(studentId, classroomId, stop);
         boolean completed = isStopComplete(studentId, stop.getId());
         boolean xpClaimable = completed && isXpClaimable(studentId, stop.getId());
@@ -590,16 +599,25 @@ public class GameService {
     }
 
     private boolean allTasksCompleted(Long studentId, Long stopId) {
-        long gameTaskCount = taskRepository.countByStop_IdAndTaskTypeNot(stopId, TaskType.LEARN);
-        return gameTaskCount > 0 && completedGameTaskCount(studentId, stopId) == gameTaskCount;
+        long taskCount = requiredTaskCount(stopId);
+        return taskCount > 0 && completedTaskCount(studentId, stopId) == taskCount;
     }
 
     private long completedTaskCount(Long studentId, Long stopId) {
-        return studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(studentId, stopId);
+        return studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(
+            studentId,
+            stopId,
+            COMPLETION_EXCLUDED_TASK_TYPES
+        );
     }
 
-    private long completedGameTaskCount(Long studentId, Long stopId) {
-        return studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(studentId, stopId, TaskType.LEARN);
+    private long requiredTaskCount(Long stopId) {
+        // CLUE_RIDDLE intentionally remains required: solving it unlocks the dossier clue.
+        return taskRepository.countByStop_IdAndTaskTypeNotIn(stopId, COMPLETION_EXCLUDED_TASK_TYPES);
+    }
+
+    private boolean shouldShowSuspectReveal(Stop stop) {
+        return Integer.valueOf(4).equals(stop.getOrderIndex());
     }
 
     private String extractExplanation(Task task) {

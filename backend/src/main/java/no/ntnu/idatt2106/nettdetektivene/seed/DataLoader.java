@@ -44,32 +44,32 @@ public class DataLoader implements ApplicationRunner {
                  "Noen prøver å spre kaos etter at penger som skulle gå til den nye idrettsparken plutselig forsvant fra ordførerens prosjektkonto. Nå dukker det opp dramatiske artikler som peker i alle retninger, og folk i byen begynner å skylde på feil personer.\n\nHvis vi skal finne ut hva som faktisk skjedde med ordføreren og pengene, må vi først lære å skille ekte nyheter fra falske. Klarer du å stoppe løgnene før de blir til \"sannheten\" alle tror på?",
                  "FAKE_NEWS", 1, false,
                  "Falske nyheter bruker gjerne skremmende overskrifter og anonyme kilder. Sjekk alltid hvem som har skrevet saken: er nettadressen til et kjent mediehus? Søk opp saken på andre seriøse nettsteder for å se om historien stemmer. Overdrevne påstander uten dokumentasjon er et varseltegn.",
-                 "Tyven hadde på seg en mørk jakke, rød hette og lyse sko."),
+                 "Spor: Tyven la ut en falsk nyhet som prøvde å peke mot Xoo Inn Cafe. Artikkelen brukte sjokkord, ukjent kilde og hastedeling."),
             stop("Fotografen",
                  "Nå hevder flere at de har funnet \"bevisbildet\" som viser hvem som sto ved rådhuset den kvelden pengene forsvant. Problemet er at bildet som deles kan være manipulert, eller til og med laget av KI.\n\nHvis vi skal komme nærmere tyven, må vi vite om bildet er ekte eller bare et nytt forsøk på å villede etterforskningen. Dette oppdraget handler om å lære å se forskjell på ekte spor og falske bevis.",
                  "AI_PHOTO", 2, false,
                  "Bilder kan manipuleres og AI kan lage realistiske falske bilder. Se etter unaturlige detaljer: rare fingre, jevne bakgrunner og uskarp tekst er vanlige feil. Du kan bruke omvendt bildesøk til å sjekke om et bilde er tatt ut av en helt annen sammenheng enn det påstår.",
-                 "Et ekte bilde viser tyven med en konvolutt utenfor en nettkafé i Bytorget."),
+                 "Spor: Det troverdige bildet viser at en innlogging skjedde fra en PC ved disken på Xoo Inn Cafe."),
             stop("Postkontoret",
                  "Et nytt spor har dukket opp: noen i kommunen fikk en e-post som så helt ekte ut, klikket på lenken og mistet kontroll over kontoen sin. Det kan være akkurat slik tyven kom seg inn i systemene rundt ordførerens prosjekt.\n\nFor å komme videre i saken må vi forstå hvordan phishing faktisk fungerer. Hvis du lærer å avsløre falske e-poster, kan du finne ut hvordan tyven åpnet døren innenfra.",
                  "PHISHING_EMAIL", 3, false,
                  "Phishing-e-poster later som de er fra banker, skoler eller kjente selskaper for å lure deg til å gi fra deg passord eller penger. Se etter skrivefeil, ukjente avsenderadresser og lenker der nettadressen ikke stemmer med avsenderen. En ekte avsender ber aldri om passord eller betalingsinformasjon via e-post.",
-                 "Ordføreren mottok en farlig e-post fra adressen hjelp@by-service.net."),
+                 "Spor: Phishing-lenken brukte feil domene, og loggene viser at den ble åpnet fra nettverket til Xoo Inn Cafe."),
             stop("Markedsplassen",
                  "Et nytt spor peker mot en falsk nettbutikk og et domene registrert nær Bytorget. Det ser ut som tyven brukte svindelsider for å samle inn penger og informasjon, kanskje som en del av planen rundt pengene som forsvant.\n\nFor å koble svindelen til hovedsaken må du lære hvordan falske nettbutikker avsløres. Hvis du finner hva som er galt med sidene, kan vi koble sporene nærmere personen bak hele planen.",
                  "MARKETPLACE", 4, false,
                  "Svindel på nett bruker priser som er for gode til å være sanne, krever betaling på forhånd og har vage eller kopierte produktbeskrivelser. Sjekk alltid selgerprofilen og les tilbakemeldinger fra andre kjøpere. Betal aldri med gavekort eller kryptovaluta — det er nesten umulig å spore.",
-                 "Svindelbutikken «best-deals-city.xyz» var registrert på en adresse ved Bytorget."),
+                 "Spor: Den falske nettbutikken ble registrert fra IP-adressen til Xoo Inn Cafe kl. 21:14."),
             stop("Den sosiale møteplassen",
                  "Nå vet vi at noen også har brukt falske kontoer for å kontakte elever og spre rykter om saken. Målet virker å være å få folk til å dele feil informasjon, peke mot feil mistenkte og holde den ekte tyven skjult litt lenger.\n\nDerfor må du lære hvordan manipulasjon i sosiale medier ser ut. Hvis du avslører de falske kontoene og ryktene, får vi det siste sporet vi trenger før konfrontasjonen med tyven.",
                  "SOCIAL_MEDIA", 5, false,
                  "Sosiale medier viser deg mest det du allerede er enig i, noe som kan gjøre det vanskelig å se helhetsbildet. Fremmede som tar kontakt og raskt ber om personlig informasjon kan ha skjulte hensikter. Del aldri telefonnummer, adresse, passord eller bilder du ikke vil at alle skal se.",
-                 "En falsk konto på Fjesbok.no ble opprettet fra nettkafeen på Bytorget."),
+                 "Spor: Den falske kontoen ble opprettet med engangs-epost fra Xoo Inn Cafe sitt gjestenett."),
             stop("Passordbanken",
                  "Etterforskerne tror nå at tyven ikke bare lurte folk, men også brukte stjålne innlogginger for å bevege seg videre i systemene. Noen brukte svake passord, og det ga tyven en enklere vei mot ordførerens prosjektkonto.\n\nSkal vi forstå hvordan innbruddet skjedde, må vi lære hva som gjør et passord lett å knekke og hva som faktisk beskytter en konto. Jo bedre du blir her, jo nærmere kommer vi hvordan tyven jobbet.",
                  "PASSWORD", 6, false,
                  "Et sterkt passord er langt, tilfeldig og unikt for hver konto du bruker. En rekke tilfeldige ord er lettere å huske og vanskeligere å knekke enn korte passord med spesialtegn. Del aldri passordet ditt med andre, og bruk aldri samme passord på flere nettsteder.",
-                 null),
+                 "Spor: Reservekontoen brukte passordet XooInnAdmin2019, som peker mot noen med admin-kobling til Xoo Inn Cafe."),
             stop("Datasenteret",
                  "Nå har vi nesten hele bildet: pengene for idrettsparken ble stjålet, byen ble forvirret med falske nyheter, kontoer ble kompromittert med phishing og svake passord, og falske spor ble spredd med bilder, nettbutikker og sosiale medier.\n\nTyven har aktivert en reserveplan fra datasenteret for å slette sporene sine en gang for alle. Nå må du bruke alt du har lært for å stanse systemene før sannheten forsvinner.",
                  "FINAL_BOSS", 7, true,
@@ -854,6 +854,189 @@ public class DataLoader implements ApplicationRunner {
                 """,
                 "{\"selected\": \"post_1\"}")
         ));
+
+        tasks.addAll(List.of(
+            clueRiddleTask(
+                newsStop,
+                5,
+                "Gåtespor: Falsk nyhet fra tyven",
+                "Tyven prøver å forvirre byen med en falsk artikkel. Finn artikkelen som ikke tåler kildekritikk.",
+                "Du bruker det du lærte om falske nyheter: sjekk kilde, språk og om påstanden kan bekreftes andre steder. Riktig valg gir første spor til Datasenteret.",
+                "Politiet fant tre artikler som ble delt like etter tyveriet. Én av dem ble laget av tyven for å peke mot feil sted.",
+                "Hvilken artikkel er falsk?",
+                """
+                [
+                  {
+                    "id": "official_update",
+                    "label": "Kommunen bekrefter: idrettspark-konto sperret etter mistenkelig overføring",
+                    "detail": "Publisert på kommunens nettside med dato, kontaktperson og rolig språk."
+                  },
+                  {
+                    "id": "fake_cafe_article",
+                    "label": "SJOKK: Tyven skjulte pengene på Xoo Inn Cafe - DEL NÅ!",
+                    "detail": "Ukjent side, ingen forfatter, bare anonyme kilder og store bokstaver."
+                  },
+                  {
+                    "id": "police_brief",
+                    "label": "Politiet undersøker digitale spor etter overføringen",
+                    "detail": "Kort pressemelding med saksnummer og lenke til politiets kanal."
+                  }
+                ]
+                """,
+                "fake_cafe_article",
+                "Riktig. Den falske saken bruker sjokkord, ukjent kilde og hastedeling. Men den nevner Xoo Inn Cafe, og det stedet blir et spor å undersøke videre."
+            ),
+            clueRiddleTask(
+                photoStop,
+                5,
+                "Gåtespor: Hvilket bilde kan brukes?",
+                "Noen har sendt inn tre bilder fra Xoo Inn Cafe. Finn bildet som faktisk kan brukes som bevis.",
+                "Du bruker det du lærte om KI og manipulering: se etter rare hender, uleselig tekst, gjentatte mønstre og skygger som ikke stemmer.",
+                "Overvåkingssystemet ved Xoo Inn Cafe tok bilder samme kveld som den falske nyheten ble delt.",
+                "Hvilket bilde er mest troverdig som ekte bevis?",
+                """
+                [
+                  {
+                    "id": "ai_window",
+                    "label": "Bilde A: personen ved vinduet har seks fingre og skiltet bak er uleselig",
+                    "detail": "Flere små detaljer ser KI-genererte ut."
+                  },
+                  {
+                    "id": "real_counter",
+                    "label": "Bilde B: mobilbilde ved disken med leselig klokke, naturlige skygger og vanlig kamerastøy",
+                    "detail": "Detaljene henger sammen på tvers av bildet."
+                  },
+                  {
+                    "id": "edited_jacket",
+                    "label": "Bilde C: jakken er skarpere enn resten og skyggen peker feil vei",
+                    "detail": "Ser ut som noe er redigert inn."
+                  }
+                ]
+                """,
+                "real_counter",
+                "Riktig. Bilde B er mest troverdig. Det viser at en innlogging skjedde fra en PC ved disken på Xoo Inn Cafe."
+            ),
+            clueRiddleTask(
+                mailStop,
+                5,
+                "Gåtespor: Phishing-e-posten",
+                "En ansatt i kommunen fikk en e-post før pengene forsvant. Finn tegnet som avslører at den er phishing.",
+                "Du bruker det du lærte om phishing: sjekk avsender, lenke og kunstig hastverk. Riktig valg viser hvordan tyven kom inn i systemet.",
+                "E-posten ba mottakeren bekrefte kontoen sin etter en påstått sikkerhetsfeil.",
+                "Hva er det sterkeste phishing-sporet?",
+                """
+                [
+                  {
+                    "id": "wrong_domain",
+                    "label": "Lenken går til kommune-sikkerhet.net i stedet for kommunens ekte domene",
+                    "detail": "Lenken ser offisiell ut, men domenet er feil."
+                  },
+                  {
+                    "id": "normal_logo",
+                    "label": "E-posten har kommunens logo øverst",
+                    "detail": "Logoer kan kopieres og er ikke nok alene."
+                  },
+                  {
+                    "id": "polite_greeting",
+                    "label": "E-posten starter med Hei",
+                    "detail": "En vanlig hilsen er ikke et faresignal."
+                  }
+                ]
+                """,
+                "wrong_domain",
+                "Riktig. Feil domene er et tydelig phishing-spor. Loggene viser at lenken ble åpnet fra nettverket til Xoo Inn Cafe."
+            ),
+            clueRiddleTask(
+                marketStop,
+                5,
+                "Gåtespor: Falsk nettbutikk",
+                "Tyven brukte en falsk nettbutikk som lokkemiddel. Finn sporene som avslører hvor siden ble laget.",
+                "Du bruker det du lærte om nettsvindel: sjekk domene, kontaktinfo og betaling. Riktig valg kobler svindelsiden til etterforskningen.",
+                "Den falske butikken solgte idrettspark-effekter med enorm rabatt og ba folk betale før varen fantes.",
+                "Hva er det viktigste tekniske sporet?",
+                """
+                [
+                  {
+                    "id": "ip_cafe",
+                    "label": "Registreringsloggen viser IP-adressen til Xoo Inn Cafe kl. 21:14",
+                    "detail": "IP-sporet viser hvor siden ble opprettet fra."
+                  },
+                  {
+                    "id": "green_button",
+                    "label": "Kjøp-knappen er grønn",
+                    "detail": "Fargen på en knapp sier lite alene."
+                  },
+                  {
+                    "id": "product_photo",
+                    "label": "Produktbildet viser en fotball",
+                    "detail": "Bildet kan være relevant for varen, men avslører ikke tyven."
+                  }
+                ]
+                """,
+                "ip_cafe",
+                "Riktig. IP-adressen peker til Xoo Inn Cafe, samme sted som dukket opp i nyhetssporet og phishing-loggen."
+            ),
+            clueRiddleTask(
+                socialStop,
+                5,
+                "Gåtespor: Falsk konto",
+                "En falsk konto prøvde å få elever til å dele rykter. Finn detaljen som avslører hvor kontoen ble laget.",
+                "Du bruker det du lærte om sosiale medier: sjekk profil, språk, hastverk og hva kontoen prøver å få deg til å gjøre.",
+                "Kontoen skrev: 'Jeg vet hvem tyven er, del før politiet sletter bevisene!'",
+                "Hva er det viktigste sporet fra kontoen?",
+                """
+                [
+                  {
+                    "id": "many_emojis",
+                    "label": "Innlegget bruker mange emojis",
+                    "detail": "Det kan være manipulerende, men peker ikke til et sted."
+                  },
+                  {
+                    "id": "cafe_wifi_signup",
+                    "label": "Kontoen ble opprettet med engangs-epost fra Xoo Inn Cafe sitt gjestenett",
+                    "detail": "Opprettelsesloggen kobler kontoen til samme sted som de andre sporene."
+                  },
+                  {
+                    "id": "short_username",
+                    "label": "Brukernavnet er kort",
+                    "detail": "Et kort navn er ikke nok til å avsløre en konto."
+                  }
+                ]
+                """,
+                "cafe_wifi_signup",
+                "Riktig. Kontoen ble laget via Xoo Inn Cafe sitt gjestenett. Nå peker nyhet, bilde, phishing, nettbutikk og sosial konto samme vei."
+            ),
+            clueRiddleTask(
+                pwdStop,
+                5,
+                "Gåtespor: Passordet i loggen",
+                "Det siste sporet handler om passordet tyven brukte på en reservekonto.",
+                "Du bruker det du lærte om passord: svake passord inneholder ofte sted, rolle eller årstall. Det kan avsløre hvem som lagde kontoen.",
+                "Reservekontoen brukte passordet XooInnAdmin2019.",
+                "Hva forteller passordet oss?",
+                """
+                [
+                  {
+                    "id": "random_strong",
+                    "label": "Det er et sterkt tilfeldig passord",
+                    "detail": "Det er ikke tilfeldig: det inneholder sted, rolle og årstall."
+                  },
+                  {
+                    "id": "cafe_admin",
+                    "label": "Noen med admin-tilgang på Xoo Inn Cafe laget eller kjente kontoen",
+                    "detail": "Passordet peker mot stedet og en administratorrolle."
+                  },
+                  {
+                    "id": "no_clue",
+                    "label": "Passord gir aldri etterforskningsspor",
+                    "detail": "Passord kan ofte avsløre vaner og koblinger."
+                  }
+                ]
+                """,
+                "cafe_admin",
+                "Riktig. Passordet peker mot noen med admin-kobling til Xoo Inn Cafe. Dette er det siste sporet før Datasenteret."
+            )
+        ));
         taskRepository.saveAll(tasks);
 
         medalRepository.saveAll(List.of(
@@ -1103,6 +1286,51 @@ public class DataLoader implements ApplicationRunner {
         task.setCorrectAnswerJson(correctAnswerJson);
         task.setGuidanceText("Les innlegget nøye og velg den tryggeste handlingen.");
         return task;
+    }
+
+    private Task clueRiddleTask(
+        Stop stop,
+        int orderIndex,
+        String title,
+        String description,
+        String purpose,
+        String evidence,
+        String question,
+        String optionsJson,
+        String correctOptionId,
+        String explanation
+    ) {
+        Task task = baseTask(stop, orderIndex, title, description, TaskType.CLUE_RIDDLE);
+        task.setContentJson("""
+            {
+              "purpose": %s,
+              "evidence": %s,
+              "question": %s,
+              "options": %s,
+              "explanation": %s
+            }
+            """.formatted(
+                toJsonString(purpose),
+                toJsonString(evidence),
+                toJsonString(question),
+                optionsJson,
+                toJsonString(explanation)
+            ));
+        task.setCorrectAnswerJson("""
+            {
+              "selected": %s
+            }
+            """.formatted(toJsonString(correctOptionId)));
+        task.setGuidanceText("Bruk det du nettopp lærte til å løse en liten sak. Svaret gir et spor du trenger i Datasenteret.");
+        return task;
+    }
+
+    private String toJsonString(String value) {
+        try {
+            return objectMapper.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Failed to encode task seed text", e);
+        }
     }
 
     private static final String FINAL_BOSS_CONTENT_JSON = """

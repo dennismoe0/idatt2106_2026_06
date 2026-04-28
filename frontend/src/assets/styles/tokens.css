@@ -69,6 +69,50 @@
   --color-gold:      #EFB45C;
   --color-red-pin:   #9B2226;
 
+  /* Suspect dossier */
+  --color-dossier-bg-start: #40230d;
+  --color-dossier-bg-mid: #7a4e1a;
+  --color-dossier-bg-end: #3b1f08;
+  --color-dossier-ink: #231509;
+  --color-dossier-ink-strong: #2b1808;
+  --color-dossier-ink-deep: #3b1f08;
+  --color-dossier-ink-warm: #3b220d;
+  --color-dossier-ink-body: #4b341b;
+  --color-dossier-ink-muted: #6b4b25;
+  --color-dossier-ink-soft: #5f421f;
+  --color-dossier-locked: #7a5a30;
+  --color-dossier-text-on-dark: #fff7dc;
+  --color-dossier-text-on-dark-muted: rgba(255, 247, 220, 0.82);
+  --color-dossier-panel-tint: rgba(255, 247, 220, 0.15);
+  --color-dossier-panel-border: rgba(255, 247, 220, 0.25);
+  --color-dossier-link-border: rgba(255, 247, 220, 0.35);
+  --color-dossier-glow: rgba(245, 158, 11, 0.20);
+  --color-dossier-gold: #facc15;
+  --color-dossier-paper: #fff8df;
+  --color-dossier-paper-soft: #fef3c7;
+  --color-dossier-paper-top: #fff4d0;
+  --color-dossier-paper-bottom: #fff9e8;
+  --color-dossier-card: #fffdf1;
+  --color-dossier-alert-bg: #fee2e2;
+  --color-dossier-danger: #7f1d1d;
+  --color-dossier-teal: #0f766e;
+  --color-dossier-frame: #2f1a08;
+  --color-dossier-meter: #e7d3a9;
+  --color-dossier-meter-border: #b88b4a;
+  --color-dossier-suspect-default: #7c3aed;
+  --color-dossier-white: #ffffff;
+  --color-dossier-shadow: rgba(44, 24, 8, 0.34);
+  --color-dossier-shadow-strong: rgba(44, 24, 8, 0.36);
+  --color-dossier-shadow-soft: rgba(44, 24, 8, 0.20);
+  --color-dossier-shadow-photo: rgba(44, 24, 8, 0.16);
+  --color-dossier-shadow-black: rgba(0, 0, 0, 0.22);
+  --color-dossier-shadow-black-soft: rgba(0, 0, 0, 0.25);
+  --color-dossier-photo-border: rgba(44, 24, 8, 0.2);
+  --color-dossier-photo-border-soft: rgba(44, 24, 8, 0.18);
+  --color-dossier-section-border: rgba(44, 24, 8, 0.16);
+  --color-dossier-section-bg: rgba(255, 255, 255, 0.68);
+  --color-dossier-file-rule: rgba(255, 255, 255, 0.48);
+
   /* Note / card surfaces */
   --color-note-bg:     #FEFCF0;
   --color-note-border: #D4A96A;
