@@ -646,17 +646,17 @@ public class DataLoader implements ApplicationRunner {
                     },
                     {
                       "id": "image_1",
-                      "src": "",
-                      "alt": "Et bilde med skilt og tekst i bakgrunnen der bokstavene er rare, skeive og delvis uleselige.",
+                      "src": "/story_pictures/photographer-task-3-ai-canal.png",
+                      "alt": "Et KI-generert bilde av Miraflores Locks ved Panamakanalen med skip, bygning, vann og åser.",
                       "label": "Bilde B",
-                      "explanation": "Tekst er noe KI ofte sliter med, og her blir bokstavene uklare og meningsløse når du ser nærmere. Det gjør bildet lite troverdig som bevis."
+                      "explanation": "Dette bildet er KI-generert. Det prøver å ligne et ekte foto fra samme sted, men hele scenen er kunstig laget."
                     },
                     {
                       "id": "image_2",
-                      "src": "",
-                      "alt": "Et klart mobilbilde fra samme sted med naturlige skygger, leselige skilt og vanlige detaljer i klær og ansikter.",
+                      "src": "/story_pictures/photographer-task-3-real-canal.jpg",
+                      "alt": "Et ekte foto av Miraflores Locks ved Panamakanalen med et cruiseskip og naturlige kameradetaljer.",
                       "label": "Bilde C",
-                      "explanation": "Her er både tekst, skygger og små detaljer konsistente gjennom hele bildet. Det er akkurat slike naturlige feil og variasjoner vi forventer i et ekte mobilfoto."
+                      "explanation": "Dette er det ekte bildet. Det har naturlig lys, kamerastøy og små uperfekte detaljer som passer sammen gjennom hele scenen."
                     }
                   ],
                   "question": "Hvilket bilde kan vi stole på som ekte bevis?"
