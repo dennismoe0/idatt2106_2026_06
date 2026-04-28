@@ -77,6 +77,7 @@ function makeStore(overrides = {}) {
     available: { hairStyle: ['short','long'], outfit: ['detective-coat','hoodie'], accessory: ['none'], hairColor: ['#1a1a1a'], eyeStyle: ['round','narrow'] },
     medalLocked: [],
     colorPickerUnlocked: false,
+    shopItems: [],
     getMedalLockedForField: vi.fn().mockReturnValue([]),
     fetchAvatar: vi.fn().mockResolvedValue({
       gender: 'neutral',
@@ -90,6 +91,7 @@ function makeStore(overrides = {}) {
       accessory: 'badge',
     }),
     fetchOptions: vi.fn().mockResolvedValue({}),
+    fetchShop: vi.fn().mockResolvedValue([]),
     updateAvatar: vi.fn().mockResolvedValue({
       gender: 'neutral',
       eyeColor: '#4a3000',

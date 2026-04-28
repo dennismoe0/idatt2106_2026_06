@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ShapeGrid from '../ShapeGrid.vue'
-import { defineComponent } from 'vue'
+import { defineComponent, markRaw } from 'vue'
 
-const FakePreview = defineComponent({
+const FakePreview = markRaw(defineComponent({
   props: { myVariant: String },
   template: '<div class="fake-preview">{{ myVariant }}</div>',
-})
+}))
 
 describe('ShapeGrid', () => {
   const baseProps = {
