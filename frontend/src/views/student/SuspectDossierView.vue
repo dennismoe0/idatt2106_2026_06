@@ -152,7 +152,7 @@ const activePanel = ref(route.query.panel === 'clues' ? 'clues' : 'suspects')
 const selectedSuspectId = ref(SUSPECTS[0].id)
 const loading = ref(false)
 const error = ref('')
-const preferredMap = localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap'
+const preferredMap = computed(() => localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap')
 
 const selectedSuspect = computed(() =>
   SUSPECTS.find(suspect => suspect.id === selectedSuspectId.value) ?? SUSPECTS[0]
@@ -199,9 +199,9 @@ onMounted(loadNotebookClues)
 .dossier-page {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 18% 12%, rgba(245, 158, 11, 0.20), transparent 28rem),
-    linear-gradient(135deg, #40230d 0%, #7a4e1a 48%, #3b1f08 100%);
-  color: #231509;
+    radial-gradient(circle at 18% 12%, var(--color-dossier-glow), transparent 28rem),
+    linear-gradient(135deg, var(--color-dossier-bg-start) 0%, var(--color-dossier-bg-mid) 48%, var(--color-dossier-bg-end) 100%);
+  color: var(--color-dossier-ink);
 }
 
 .dossier-shell {
@@ -216,7 +216,7 @@ onMounted(loadNotebookClues)
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1rem;
-  color: #fff7dc;
+  color: var(--color-dossier-text-on-dark);
 }
 
 .dossier-hero__eyebrow {
@@ -225,7 +225,7 @@ onMounted(loadNotebookClues)
   font-weight: 900;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #facc15;
+  color: var(--color-dossier-gold);
 }
 
 .dossier-hero h1 {
@@ -239,15 +239,15 @@ onMounted(loadNotebookClues)
   margin: 0.7rem 0 0;
   font-size: clamp(1rem, 2vw, 1.2rem);
   line-height: 1.5;
-  color: rgba(255, 247, 220, 0.82);
+  color: var(--color-dossier-text-on-dark-muted);
 }
 
 .dossier-tabs {
   display: flex;
   gap: 0.5rem;
   padding: 0.35rem;
-  background: rgba(255, 247, 220, 0.15);
-  border: 1px solid rgba(255, 247, 220, 0.25);
+  background: var(--color-dossier-panel-tint);
+  border: 1px solid var(--color-dossier-panel-border);
   border-radius: 8px;
   flex-shrink: 0;
 }
@@ -266,11 +266,11 @@ onMounted(loadNotebookClues)
   min-height: 44px;
   padding: 0.65rem 1rem;
   border-radius: 8px;
-  background: #fff8df;
-  color: #3b1f08;
-  border: 2px solid rgba(255, 247, 220, 0.35);
-  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.22);
-  font-weight: 1000;
+  background: var(--color-dossier-paper);
+  color: var(--color-dossier-ink-deep);
+  border: 2px solid var(--color-dossier-link-border);
+  box-shadow: 0 5px 0 var(--color-dossier-shadow-black);
+  font-weight: 900;
   text-decoration: none;
 }
 
@@ -290,21 +290,21 @@ onMounted(loadNotebookClues)
 }
 
 .dossier-tabs button {
-  color: #fff7dc;
+  color: var(--color-dossier-text-on-dark);
   background: transparent;
 }
 
 .dossier-tabs button.is-active {
-  color: #2b1808;
-  background: #facc15;
+  color: var(--color-dossier-ink-strong);
+  background: var(--color-dossier-gold);
 }
 
 .dossier-alert {
   padding: 0.8rem 1rem;
   margin: 0 0 1rem;
   border-radius: 8px;
-  background: #fee2e2;
-  color: #7f1d1d;
+  background: var(--color-dossier-alert-bg);
+  color: var(--color-dossier-danger);
   font-weight: 800;
 }
 
@@ -321,7 +321,7 @@ onMounted(loadNotebookClues)
 }
 
 .suspect-tile {
-  --suspect-color: #7c3aed;
+  --suspect-color: var(--color-dossier-suspect-default);
   position: relative;
   display: grid;
   grid-template-columns: 4.2rem 1fr;
@@ -331,10 +331,10 @@ onMounted(loadNotebookClues)
   min-height: 5.2rem;
   padding: 0.7rem;
   text-align: left;
-  background: #fff8df;
+  background: var(--color-dossier-paper);
   border: 3px solid transparent;
   border-radius: 8px;
-  box-shadow: 0 8px 0 rgba(44, 24, 8, 0.34);
+  box-shadow: 0 8px 0 var(--color-dossier-shadow);
   cursor: pointer;
 }
 
@@ -352,7 +352,7 @@ onMounted(loadNotebookClues)
   height: 0.75rem;
   border-radius: 50%;
   background: var(--suspect-color);
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 0 var(--color-dossier-shadow-black-soft);
 }
 
 .suspect-tile img {
@@ -362,44 +362,44 @@ onMounted(loadNotebookClues)
   object-fit: cover;
   object-position: top;
   border-radius: 8px;
-  border: 2px solid rgba(44, 24, 8, 0.2);
-  background: #fef3c7;
+  border: 2px solid var(--color-dossier-photo-border);
+  background: var(--color-dossier-paper-soft);
 }
 
 .suspect-tile__name {
-  font-weight: 1000;
-  color: #2b1808;
+  font-weight: 900;
+  color: var(--color-dossier-ink-strong);
   line-height: 1.1;
 }
 
 .suspect-tile__role {
-  color: #6b4b25;
+  color: var(--color-dossier-ink-muted);
   font-size: 0.9rem;
 }
 
 .case-file {
-  --suspect-color: #7c3aed;
+  --suspect-color: var(--color-dossier-suspect-default);
   display: grid;
   grid-template-columns: minmax(13rem, 19rem) 1fr;
   gap: clamp(1rem, 2vw, 1.5rem);
   padding: clamp(1rem, 2.5vw, 1.5rem);
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.48) 1px, transparent 1px),
-    linear-gradient(#fff4d0, #fff9e8);
+    linear-gradient(90deg, var(--color-dossier-file-rule) 1px, transparent 1px),
+    linear-gradient(var(--color-dossier-paper-top), var(--color-dossier-paper-bottom));
   background-size: 24px 24px, auto;
-  border: 4px solid #2f1a08;
+  border: 4px solid var(--color-dossier-frame);
   border-radius: 8px;
-  box-shadow: 0 14px 0 rgba(44, 24, 8, 0.36);
+  box-shadow: 0 14px 0 var(--color-dossier-shadow-strong);
 }
 
 .case-file__photo {
   align-self: start;
   padding: 0.65rem;
-  background: #fff;
-  border: 2px solid rgba(44, 24, 8, 0.18);
+  background: var(--color-dossier-white);
+  border: 2px solid var(--color-dossier-photo-border-soft);
   border-radius: 8px;
   transform: rotate(-1deg);
-  box-shadow: 0 10px 18px rgba(44, 24, 8, 0.16);
+  box-shadow: 0 10px 18px var(--color-dossier-shadow-photo);
 }
 
 .case-file__photo img {
@@ -409,7 +409,7 @@ onMounted(loadNotebookClues)
   object-fit: cover;
   object-position: top;
   border-radius: 5px;
-  background: #fef3c7;
+  background: var(--color-dossier-paper-soft);
 }
 
 .case-file__photo span {
@@ -418,9 +418,9 @@ onMounted(loadNotebookClues)
   padding: 0.45rem;
   border-radius: 6px;
   background: var(--suspect-color);
-  color: white;
+  color: var(--color-dossier-white);
   text-align: center;
-  font-weight: 1000;
+  font-weight: 900;
 }
 
 .case-file__topline {
@@ -436,19 +436,19 @@ onMounted(loadNotebookClues)
   text-transform: uppercase;
   letter-spacing: 0.16em;
   color: var(--suspect-color);
-  font-weight: 1000;
+  font-weight: 900;
 }
 
 .case-file h2 {
   margin: 0;
   font-size: clamp(1.8rem, 4vw, 3rem);
   line-height: 1;
-  color: #2b1808;
+  color: var(--color-dossier-ink-strong);
 }
 
 .case-file__topline p {
   margin: 0.35rem 0 0;
-  color: #6b4b25;
+  color: var(--color-dossier-ink-muted);
   font-weight: 800;
 }
 
@@ -463,13 +463,13 @@ onMounted(loadNotebookClues)
   width: 1.1rem;
   height: 1.1rem;
   border-radius: 50%;
-  background: #e7d3a9;
-  border: 2px solid #b88b4a;
+  background: var(--color-dossier-meter);
+  border: 2px solid var(--color-dossier-meter-border);
 }
 
 .suspicion-meter span.is-lit {
   background: var(--suspect-color);
-  border-color: #2b1808;
+  border-color: var(--color-dossier-ink-strong);
 }
 
 .witness-card,
@@ -477,8 +477,8 @@ onMounted(loadNotebookClues)
 .clue-card,
 .clue-board__intro {
   border-radius: 8px;
-  border: 2px solid rgba(44, 24, 8, 0.16);
-  background: rgba(255, 255, 255, 0.68);
+  border: 2px solid var(--color-dossier-section-border);
+  background: var(--color-dossier-section-bg);
 }
 
 .witness-card {
@@ -494,9 +494,9 @@ onMounted(loadNotebookClues)
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
   background: var(--suspect-color);
-  color: #fff;
+  color: var(--color-dossier-white);
   font-size: 0.8rem;
-  font-weight: 1000;
+  font-weight: 900;
 }
 
 .witness-card h3,
@@ -504,14 +504,14 @@ onMounted(loadNotebookClues)
 .clue-board__intro h2,
 .clue-card h3 {
   margin: 0 0 0.55rem;
-  color: #2b1808;
+  color: var(--color-dossier-ink-strong);
 }
 
 .witness-card blockquote {
   margin: 0 0 0.75rem;
   padding-left: 0.9rem;
   border-left: 6px solid var(--suspect-color);
-  color: #3b220d;
+  color: var(--color-dossier-ink-warm);
   font-size: 1.18rem;
   font-weight: 900;
   line-height: 1.45;
@@ -519,7 +519,7 @@ onMounted(loadNotebookClues)
 
 .witness-card p {
   margin: 0;
-  color: #4b341b;
+  color: var(--color-dossier-ink-body);
   line-height: 1.55;
 }
 
@@ -536,7 +536,7 @@ onMounted(loadNotebookClues)
 .evidence-columns ul {
   margin: 0;
   padding-left: 1.1rem;
-  color: #4b341b;
+  color: var(--color-dossier-ink-body);
   line-height: 1.55;
 }
 
@@ -555,21 +555,21 @@ onMounted(loadNotebookClues)
   gap: 0.75rem 1rem;
   align-items: center;
   padding: 1.1rem;
-  background: #fff8df;
+  background: var(--color-dossier-paper);
 }
 
 .clue-board__intro p {
   margin: 0;
   max-width: 48rem;
-  color: #5f421f;
+  color: var(--color-dossier-ink-soft);
   line-height: 1.5;
 }
 
 .clue-board__refresh {
   grid-row: 1 / 3;
   grid-column: 2;
-  color: #fff;
-  background: #0f766e;
+  color: var(--color-dossier-white);
+  background: var(--color-dossier-teal);
 }
 
 .clue-board__refresh:disabled {
@@ -586,8 +586,8 @@ onMounted(loadNotebookClues)
 .clue-card {
   min-height: 12rem;
   padding: 1rem;
-  background: #fffdf1;
-  box-shadow: 0 8px 0 rgba(44, 24, 8, 0.20);
+  background: var(--color-dossier-card);
+  box-shadow: 0 8px 0 var(--color-dossier-shadow-soft);
 }
 
 .clue-card.is-locked {
@@ -601,15 +601,15 @@ onMounted(loadNotebookClues)
   height: 3rem;
   margin-bottom: 0.75rem;
   border-radius: 8px;
-  background: #facc15;
+  background: var(--color-dossier-gold);
   font-size: 1.6rem;
 }
 
 .clue-card__skill {
   margin: 0 0 0.15rem;
-  color: #0f766e;
+  color: var(--color-dossier-teal);
   font-size: 0.78rem;
-  font-weight: 1000;
+  font-weight: 900;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -617,13 +617,13 @@ onMounted(loadNotebookClues)
 .clue-card__content,
 .clue-card__locked {
   margin: 0.65rem 0 0;
-  color: #4b341b;
+  color: var(--color-dossier-ink-body);
   line-height: 1.5;
   font-weight: 700;
 }
 
 .clue-card__locked {
-  color: #7a5a30;
+  color: var(--color-dossier-locked);
 }
 
 @media (max-width: 950px) {
