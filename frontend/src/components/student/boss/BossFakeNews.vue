@@ -9,7 +9,8 @@
         :class="{ 'mini-article--selected': picks[i] === true }"
       >
         <strong>{{ article.headline }}</strong>
-        <span class="mini-article__source">{{ article.source }}</span>
+        <p v-if="article.ingress" class="mini-article__ingress">{{ article.ingress }}</p>
+        <span class="mini-article__source">{{ article.source }}<template v-if="article.author"> · {{ article.author }}</template></span>
         <div class="mini-article__btns">
           <button :disabled="submitted" :class="{ selected: picks[i] === true }"  @click="set(i, true)">Ekte</button>
           <button :disabled="submitted" :class="{ selected: picks[i] === false }" @click="set(i, false)">Falsk</button>
@@ -38,6 +39,7 @@ function submit() {
 .mini-task__articles { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); }
 .mini-article { border: 2px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-3); display: grid; gap: var(--space-2); }
 .mini-article__source { font-size: var(--text-xs); color: var(--color-text-muted); }
+.mini-article__ingress { font-size: var(--text-xs); color: var(--color-text-muted); margin: 0; line-height: 1.4; }
 .mini-article__btns { display: flex; gap: var(--space-2); }
 .mini-article__btns button { border: 1px solid var(--color-border); background: var(--color-surface); border-radius: var(--radius-sm); padding: var(--space-1) var(--space-2); cursor: pointer; }
 .mini-article__btns button.selected { border-color: var(--color-primary); background: var(--color-primary-soft); color: var(--color-primary-dark); }

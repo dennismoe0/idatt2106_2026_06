@@ -1,12 +1,12 @@
 <template>
   <main class="classroom-detail">
     <header class="classroom-detail__header">
-      <button class="back-btn" @click="router.push({ name: 'Dashboard' })">← Tilbake</button>
+      <button class="btn btn-ghost btn-sm" @click="router.push({ name: 'Dashboard' })">← Tilbake</button>
       <div class="classroom-detail__title">
         <h1>{{ classroom?.name ?? 'Klasserom' }}</h1>
         <div v-if="classroom?.joinCode" class="join-code">
           Kode: <strong>{{ classroom.joinCode }}</strong>
-          <button class="copy-btn" @click="copyCode">{{ codeCopied ? 'Kopiert!' : 'Kopier' }}</button>
+          <button class="btn btn-secondary btn-sm" @click="copyCode">{{ codeCopied ? 'Kopiert!' : 'Kopier' }}</button>
         </div>
       </div>
       <button
@@ -19,7 +19,7 @@
       </button>
       <RouterLink
         :to="{ name: 'WeeklyMysteryManage', params: { classroomId } }"
-        class="mysterium-link"
+        class="btn btn-primary btn-sm"
       >
         Ukens Mysterium
       </RouterLink>
@@ -43,7 +43,7 @@
           <div class="student-actions">
             <RouterLink
               :to="{ name: 'TeacherNotebook', params: { studentId: student.userId }, query: { studentName: student.displayName, classroomId: classroomId } }"
-              class="notebook-link"
+              class="btn btn-secondary btn-sm"
             >
               Se Notatblokk
             </RouterLink>
@@ -56,15 +56,21 @@
                 —
               </template>
             </span>
+            <span v-if="currentStop(student)" class="stop-chip" :title="currentStop(student).name">
+              <span class="stop-chip__icon">{{ stopIcon(currentStop(student).theme) }}</span>
+              <span class="stop-chip__text">{{ currentStop(student).name }}</span>
+            </span>
             <BaseButton
               v-if="student.status === 'PENDING'"
               size="sm"
+              class="btn btn-primary btn-sm"
               @click="approve(student.userId)"
             >Godkjenn</BaseButton>
             <BaseButton
               v-if="student.status !== 'KICKED'"
               size="sm"
               variant="danger"
+              class="btn btn-danger btn-sm"
               @click="openKickModal(student)"
             >Kast ut</BaseButton>
           </div>
@@ -99,7 +105,7 @@
       <p>Er du sikker på at du vil kaste ut <strong>{{ kickTarget.displayName }}</strong>?</p>
       <p class="kick-warning">Eleven kan søke om å bli med igjen, men du må godkjenne dem på nytt.</p>
       <div class="modal-actions">
-        <button class="btn btn-outline" @click="kickTarget = null">Avbryt</button>
+        <button class="btn btn-secondary" @click="kickTarget = null">Avbryt</button>
         <button class="btn btn-danger" @click="kick(kickTarget.userId)">Ja, kast ut</button>
       </div>
     </BaseModal>
@@ -134,6 +140,10 @@ const leaderboard = ref([])
 const lbLoading = ref(false)
 const lbError = ref('')
 
+// Stops state (for mapping current stop name + icon)
+const stops = ref([])
+const stopsError = ref('')
+
 const students = computed(() => classroomStore.students)
 const classroom = computed(() =>
   classroomStore.classrooms.find(c => c.id === classroomId) ?? null
@@ -149,11 +159,11 @@ onMounted(async () => {
   if (classroomStore.classrooms.length === 0) {
     await classroomStore.fetchMyClassrooms()
   }
-  await Promise.all([loadStudents(), loadLeaderboard()])
+  await Promise.all([loadStudents(), loadLeaderboard(), loadStops()])
   pollInterval = setInterval(async () => {
     await Promise.allSettled([loadStudents(), loadLeaderboard()])
   }, 5000)
-  console.log('[ClassroomDetailView] Polling started every 5s (students + leaderboard)')
+  console.log('[ClassroomDetailView] Polling started every 5s (students + leaderboard); stops fetched once')
 })
 
 onUnmounted(() => {
@@ -187,6 +197,17 @@ async function loadLeaderboard() {
   }
 }
 
+async function loadStops() {
+  try {
+    const { data } = await gameService.getStops(classroomId)
+    // Ensure sorted by orderIndex ascending
+    stops.value = [...data].sort((a, b) => a.orderIndex - b.orderIndex)
+  } catch (err) {
+    console.error('[ClassroomDetailView] Failed to fetch stops:', err)
+    stopsError.value = 'Kunne ikke hente stoppene.'
+  }
+}
+
 function studentProgress(student) {
   // Match by displayName (as provided by leaderboard API)
   return leaderboard.value.find((e) => e.displayName === student.displayName) || null
@@ -196,8 +217,40 @@ function progressTitle(student) {
   const e = studentProgress(student)
   if (!e) return 'Fremdrift ukjent'
   if (e.totalTasks <= 0) return 'Ingen oppgaver'
-  const percent = Math.round((e.completedTasks / e.totalTasks) * 100)
-  return `Fremdrift: ${e.completedTasks} / ${e.totalTasks} oppgaver (${percent}%)`
+}
+
+function currentStopByEntry(entry) {
+  if (!stops.value || stops.value.length === 0) return null
+  let cumulative = 0
+  const total = stops.value.reduce((acc, s) => acc + (s.taskCount ?? 0), 0)
+  if (entry.completedTasks >= total) return null // all done
+  for (const stop of stops.value) {
+    const count = stop.taskCount ?? 0
+    if (entry.completedTasks < cumulative + count) {
+      return stop
+    }
+    cumulative += count
+  }
+  return stops.value[stops.value.length - 1] || null
+}
+
+function currentStop(student) {
+  const e = studentProgress(student)
+  if (!e) return null
+  return currentStopByEntry(e)
+}
+
+function stopIcon(theme) {
+  const map = {
+    FAKE_NEWS: '📰',
+    PHISHING_EMAIL: '✉️',
+    AI_PHOTO: '📷',
+    PASSWORD: '🔑',
+    MARKETPLACE: '🛒',
+    SOCIAL_MEDIA: '💬',
+    FINAL_BOSS: '🏆',
+  }
+  return map[theme] || '📍'
 }
 
 async function approve(studentId) {
@@ -285,31 +338,6 @@ async function copyCode() {
   border-color: var(--color-danger);
 }
 .mute-all-btn--active:hover { opacity: 0.85; }
-
-.mysterium-link {
-  align-self: center;
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-primary);
-  text-decoration: none;
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-md);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.mysterium-link:hover {
-  background: var(--color-primary-soft);
-}
-.back-btn {
-  background: none;
-  border: none;
-  color: var(--color-primary);
-  cursor: pointer;
-  font-size: var(--text-sm);
-  padding: 0;
-  margin-bottom: var(--space-3);
-}
 .classroom-detail__title {
   display: flex;
   align-items: baseline;
@@ -322,15 +350,6 @@ async function copyCode() {
   gap: var(--space-2);
   color: var(--color-text-muted);
   font-size: var(--text-sm);
-}
-.copy-btn {
-  background: none;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: var(--space-1) var(--space-2);
-  cursor: pointer;
-  font-size: var(--text-xs);
-  color: var(--color-text);
 }
 .student-count {
   color: var(--color-text-muted);
@@ -378,17 +397,38 @@ async function copyCode() {
   display: flex;
   gap: var(--space-2);
 }
-.notebook-link {
-  font-size: var(--text-sm);
-  color: var(--color-primary);
-  text-decoration: none;
-  padding: var(--space-1) var(--space-3);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-md);
+.progress-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
   white-space: nowrap;
 }
-.notebook-link:hover {
-  background: var(--color-primary-soft);
+.stop-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 2px 10px;
+  white-space: nowrap;
+}
+.stop-chip__icon {
+  font-size: 14px;
+  line-height: 1;
+}
+.stop-chip__text {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .student-empty {
   color: var(--color-text-muted);
@@ -408,25 +448,5 @@ async function copyCode() {
   gap: var(--space-3);
   justify-content: flex-end;
   margin-top: var(--space-4);
-}
-.btn {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: 800;
-  font-size: var(--text-sm);
-}
-.btn-outline {
-  background: var(--color-surface);
-  color: var(--color-primary);
-  border: 2px solid var(--color-primary);
-}
-.btn-danger {
-  background: var(--color-danger);
-  color: var(--color-text-on-dark);
 }
 </style>
