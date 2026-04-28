@@ -322,9 +322,9 @@ function submit() {
 .clear-btn {
   justify-self: start;
   min-height: 44px;
-  background: #fff1f2;
-  border: 2px solid #be123c;
-  color: #881337;
+  background: var(--color-danger-soft);
+  border: 2px solid var(--color-danger);
+  color: var(--color-dossier-danger);
   border-radius: var(--radius-md);
   padding: 0.7rem 1rem;
   cursor: pointer;
@@ -334,9 +334,9 @@ function submit() {
 }
 .clear-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .clear-btn:hover:not(:disabled) {
-  background: #ffe4e6;
-  border-color: #9f1239;
-  color: #6b102d;
+  background: var(--color-danger-light);
+  border-color: var(--color-dossier-danger);
+  color: var(--color-dossier-danger);
 }
 
 /* ── Submit ── */

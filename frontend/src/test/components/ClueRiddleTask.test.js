@@ -9,6 +9,7 @@ const TASK = {
   contentJson: {
     purpose: 'Du bruker det du lærte om passord for å lese et siste digitalt spor. Et lekket passord kan avsløre både vaner og hvem kontoen er knyttet til.',
     evidence: 'Reservekontoen brukte passordet XooInnAdmin2019.',
+    evidencePassword: 'XooInnAdmin2019',
     question: 'Hva forteller passordet oss?',
     options: [
       {
@@ -38,6 +39,7 @@ describe('ClueRiddleTask', () => {
     expect(wrapper.text()).toContain('Reservekonto logg')
     expect(wrapper.text()).toContain('Et lekket passord kan avsløre både vaner og hvem kontoen er knyttet til.')
     expect(wrapper.text()).toContain('De fant passordet til brukeren, og det kan være koblet til noe personlig')
+    expect(wrapper.text()).toContain('Reservekontoen brukte passordet XooInnAdmin2019.')
     expect(wrapper.find('.clue-riddle__question-head h3').text()).toBe('Hva forteller passordet oss?')
   })
 
