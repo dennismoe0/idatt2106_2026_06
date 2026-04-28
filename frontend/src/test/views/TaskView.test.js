@@ -271,4 +271,55 @@ describe('TaskView', () => {
     await flushPromises()
     expect(wrapper.find('.stored-clue-modal').exists()).toBe(true)
   })
+
+  it('rejects wrong clue-riddle answers in mock mode', async () => {
+    const gameStore = useGameStore()
+    gameStore.fetchTasks.mockRejectedValueOnce(new Error('offline'))
+    gameStore.submitAnswer.mockRejectedValue(new Error('offline'))
+
+    const wrapper = mount(TaskView, {
+      global: {
+        plugins: [router],
+        stubs: {
+          DetectiveBar: true,
+          StopMysteryScreen: true,
+          TutorialScreen: true,
+          PasswordTask: {
+            template: `
+              <div>
+                <button class="submit-password" @click="$emit('submitted', { selected: 'd' })">submit password</button>
+                <button class="next-password" @click="$emit('next')">next password</button>
+              </div>
+            `,
+          },
+          LearningTask: true,
+          FakeNewsTask: true,
+          AIPhotoTask: true,
+          SocialMediaTask: true,
+          MarketplaceTask: true,
+          PhishingEmailTask: true,
+          FinalBossTask: true,
+          ConfettiOverlay: true,
+          MedalToast: true,
+          StopSummary: true,
+          AvatarPreview: true,
+        },
+      },
+    })
+
+    await flushPromises()
+    expect(wrapper.text()).toContain('Mock mode aktiv')
+
+    await wrapper.get('.submit-password').trigger('click')
+    await flushPromises()
+    await wrapper.get('.next-password').trigger('click')
+    await flushPromises()
+    await wrapper.findAll('.clue-riddle__option')[0].trigger('click')
+    await wrapper.get('.clue-riddle__submit').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Ikke helt')
+    expect(wrapper.text()).toContain('det inneholder sted, rolle og årstall')
+    expect(wrapper.find('.stored-clue-modal').exists()).toBe(false)
+  })
 })
