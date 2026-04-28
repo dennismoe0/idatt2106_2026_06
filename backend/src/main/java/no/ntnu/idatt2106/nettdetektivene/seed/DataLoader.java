@@ -863,6 +863,7 @@ public class DataLoader implements ApplicationRunner {
                 "Tyven prøver å forvirre byen med en falsk artikkel. Finn artikkelen som ikke tåler kildekritikk.",
                 "Du bruker det du lærte om falske nyheter: sjekk kilde, språk og om påstanden kan bekreftes andre steder. Riktig valg gir første spor til Datasenteret.",
                 "Politiet fant tre artikler som ble delt like etter tyveriet. Én av dem ble laget av tyven for å peke mot feil sted.",
+                null,
                 "Hvilken artikkel er falsk?",
                 """
                 [
@@ -893,6 +894,7 @@ public class DataLoader implements ApplicationRunner {
                 "Noen har sendt inn tre bilder fra Xoo Inn Cafe. Finn bildet som faktisk kan brukes som bevis.",
                 "Du bruker det du lærte om KI og manipulering: se etter rare hender, uleselig tekst, gjentatte mønstre og skygger som ikke stemmer.",
                 "Overvåkingssystemet ved Xoo Inn Cafe tok bilder samme kveld som den falske nyheten ble delt.",
+                null,
                 "Hvilket bilde er mest troverdig som ekte bevis?",
                 """
                 [
@@ -923,6 +925,7 @@ public class DataLoader implements ApplicationRunner {
                 "En ansatt i kommunen fikk en e-post før pengene forsvant. Finn tegnet som avslører at den er phishing.",
                 "Du bruker det du lærte om phishing: sjekk avsender, lenke og kunstig hastverk. Riktig valg viser hvordan tyven kom inn i systemet.",
                 "E-posten ba mottakeren bekrefte kontoen sin etter en påstått sikkerhetsfeil.",
+                null,
                 "Hva er det sterkeste phishing-sporet?",
                 """
                 [
@@ -953,6 +956,7 @@ public class DataLoader implements ApplicationRunner {
                 "Tyven brukte en falsk nettbutikk som lokkemiddel. Finn sporene som avslører hvor siden ble laget.",
                 "Du bruker det du lærte om nettsvindel: sjekk domene, kontaktinfo og betaling. Riktig valg kobler svindelsiden til etterforskningen.",
                 "Den falske butikken solgte idrettspark-effekter med enorm rabatt og ba folk betale før varen fantes.",
+                null,
                 "Hva er det viktigste tekniske sporet?",
                 """
                 [
@@ -981,8 +985,9 @@ public class DataLoader implements ApplicationRunner {
                 5,
                 "Gåtespor: Falsk konto",
                 "En falsk konto prøvde å få elever til å dele rykter. Finn detaljen som avslører hvor kontoen ble laget.",
-                "Du løser denne oppgaven ved å bruke det du har lært fra denne seksjonen: sjekk profil, språk, hastverk og hva kontoen prøver å få deg til å gjøre.",
-                "",
+                "Du bruker det du lærte om sosiale medier: sjekk profil, språk, hastverk og hva kontoen prøver å få deg til å gjøre.",
+                "Kontoen skrev: 'Jeg vet hvem tyven er, del før politiet sletter bevisene!'",
+                null,
                 "Hva er det viktigste sporet fra kontoen?",
                 """
                 [
@@ -1031,6 +1036,7 @@ public class DataLoader implements ApplicationRunner {
                 "Det siste sporet handler om passordet tyven brukte på en reservekonto.",
                 "Du bruker det du lærte om passord for å lese et siste digitalt spor. Et lekket passord kan avsløre både vaner og hvem kontoen er knyttet til.",
                 "Reservekontoen brukte passordet XooInnAdmin2019.",
+                "XooInnAdmin2019",
                 "Hva forteller passordet oss?",
                 """
                 [
@@ -1313,6 +1319,7 @@ public class DataLoader implements ApplicationRunner {
         String description,
         String purpose,
         String evidence,
+        String evidencePassword,
         String question,
         String optionsJson,
         String correctOptionId,
@@ -1325,11 +1332,11 @@ public class DataLoader implements ApplicationRunner {
             description,
             purpose,
             evidence,
+            evidencePassword,
             question,
             optionsJson,
             correctOptionId,
-            explanation,
-            ""
+            explanation
         );
     }
 
@@ -1340,29 +1347,30 @@ public class DataLoader implements ApplicationRunner {
         String description,
         String purpose,
         String evidence,
+        String evidencePassword,
         String question,
         String optionsJson,
         String correctOptionId,
-        String explanation,
-        String extraFieldsJson
+        String explanation
     ) {
         Task task = baseTask(stop, orderIndex, title, description, TaskType.CLUE_RIDDLE);
-        ObjectNode content = objectMapper.createObjectNode();
-        content.put("purpose", purpose);
-        content.put("evidence", evidence);
-        content.put("question", question);
-        content.set("options", readJsonNode(optionsJson, "clue-riddle options"));
-        content.put("explanation", explanation);
-
-        if (extraFieldsJson != null && !extraFieldsJson.isBlank()) {
-            JsonNode extraFields = readJsonNode(extraFieldsJson, "clue-riddle extra fields");
-            if (!extraFields.isObject()) {
-                throw new IllegalStateException("Clue-riddle extra fields must be a JSON object");
+        task.setContentJson("""
+            {
+              "purpose": %s,
+              "evidence": %s,
+              "evidencePassword": %s,
+              "question": %s,
+              "options": %s,
+              "explanation": %s
             }
-            content.setAll((ObjectNode) extraFields);
-        }
-
-        task.setContentJson(writeJson(content, "Failed to encode clue-riddle task content"));
+            """.formatted(
+                toJsonString(purpose),
+                toJsonString(evidence),
+                toJsonString(evidencePassword),
+                toJsonString(question),
+                optionsJson,
+                toJsonString(explanation)
+            ));
         task.setCorrectAnswerJson("""
             {
               "selected": %s
