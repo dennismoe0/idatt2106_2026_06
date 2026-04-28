@@ -1,5 +1,10 @@
 # Dev profile — activate with: SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 # Wipes and re-seeds test data on every startup.
+spring:
+  flyway:
+    validate-on-migrate: false
+    out-of-order: true
+
 app:
   dev-seed: true
   bypass-stop-lock: true
