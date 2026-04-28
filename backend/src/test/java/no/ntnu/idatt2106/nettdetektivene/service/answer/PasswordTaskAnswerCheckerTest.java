@@ -117,6 +117,17 @@ class PasswordTaskAnswerCheckerTest {
     }
 
     @Test
+    void builder_passwordLongerThanMaxLengthFails() throws Exception {
+        var correct = mapper.readTree("{\"minStrength\": \"STRONG\"}");
+
+        assertThat(checker.isCorrect(
+            task(14L, "{\"type\": \"BUILDER\", \"maxLength\": 10}"),
+            correct,
+            Map.of("password", "TigerMåne42!")
+        )).isFalse();
+    }
+
+    @Test
     void malformedContentJson_fails() throws Exception {
         var correct = mapper.readTree("{\"selected\": \"d\"}");
 
