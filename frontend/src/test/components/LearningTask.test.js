@@ -190,4 +190,34 @@ describe('LearningTask', () => {
     expect(wrapper.find('img[src="/story_pictures/photographer-real-playground.jpg"]').exists()).toBe(true)
     expect(wrapper.find('img[src="/story_pictures/photographer-manipulated-playground.png"]').exists()).toBe(true)
   })
+
+  it('renders the AI photo example in the second AI photo learning part', async () => {
+    const wrapper = mount(LearningTask, {
+      props: {
+        task: {
+          ...TASK,
+          stopTheme: 'AI_PHOTO',
+          contentJson: {
+            slides: [
+              { heading: 'Del 1', body: 'Tekst', examples: [], checks: [] },
+              { heading: 'Del 2', body: 'Tekst', examples: ['KI-bilde'], checks: [] },
+              { heading: 'Del 3', body: 'Tekst', examples: [], checks: [] },
+            ],
+            quiz: [
+              { id: 'q1', question: 'Q1?', options: ['Ja'], correct: 'Ja' },
+              { id: 'q2', question: 'Q2?', options: ['Ja'], correct: 'Ja' },
+              { id: 'q3', question: 'Q3?', options: ['Ja'], correct: 'Ja' },
+            ],
+          },
+        },
+      },
+    })
+
+    await wrapper.findAll('.option-btn')[0].trigger('click')
+    await wrapper.find('.nav-btn--primary').trigger('click')
+
+    expect(wrapper.find('.photo-compare--single').exists()).toBe(true)
+    expect(wrapper.text()).toContain('KI-generert bilde')
+    expect(wrapper.find('img[src="/story_pictures/photographer-ai-paris-cafe.png"]').exists()).toBe(true)
+  })
 })

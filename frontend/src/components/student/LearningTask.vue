@@ -84,7 +84,11 @@
                   </li>
                 </ul>
               </div>
-              <div v-else-if="photoVisualFor(currentSlideIndex)" class="photo-compare">
+              <div
+                v-else-if="photoVisualFor(currentSlideIndex)"
+                class="photo-compare"
+                :class="{ 'photo-compare--single': photoVisualFor(currentSlideIndex).length === 1 }"
+              >
                 <article
                   v-for="image in photoVisualFor(currentSlideIndex)"
                   :key="image.key"
@@ -517,13 +521,23 @@ const SOCIAL_MEDIA_VISUAL_EXAMPLES = {
 }
 
 const PHOTO_VISUAL_EXAMPLES = {
+  1: [
+    {
+      key: 'ai-generated',
+      src: '/story_pictures/photographer-ai-paris-cafe.png',
+      eyebrow: 'KI-generert bilde',
+      title: 'Et bilde kan se ekte ut uten å være tatt med kamera',
+      body: 'KI kan lage realistiske scener med mennesker, steder og lys som virker troverdige ved første blikk. Derfor må du se nøye på detaljer før du bruker bildet som bevis. På dette bilde, om vi ser nøye etter. Ser vi at hånden hans holder rart på koppen. Vi kan og se at ansikter i bakgrunnen er VELDIG RARE',
+      alt: 'Et KI-generert bilde av en mann på en kafé i Paris med Eiffeltårnet i bakgrunnen.',
+    },
+  ],
   2: [
     {
       key: 'real',
       src: '/story_pictures/photographer-real-playground.jpg',
       eyebrow: 'Ekte bilde',
-      title: 'Samme scene uten nye personer lagt inn',
-      body: 'Dette er et vanlig foto fra stedet. Det kan være redigert i farger og utsnitt, men innholdet i scenen er ikke bygget om.',
+      title: 'Ekte bilder viser en virkelig hendelse',
+      body: 'Dette er et vanlig foto fra stedet. Det kan være redigert i farger, men innholdet i endret på',
       alt: 'Et ekte foto av to barn på en lekeplass der en person henger fra en metallstang.',
     },
     {
@@ -531,7 +545,7 @@ const PHOTO_VISUAL_EXAMPLES = {
       src: '/story_pictures/photographer-manipulated-playground.png',
       eyebrow: 'Manipulert bilde',
       title: 'Personer er lagt til i etterkant',
-      body: 'Bildet bygger på den samme scenen, men flere mennesker er lagt inn. Da kan bildet gi et annet inntrykk av hva som faktisk skjedde.',
+      body: 'Bildet bygger på den samme scenen, men flere mennesker er lagt inn. Da kan bildet gi et annet inntrykk av hva som faktisk skjedde. Ser vi nøye etter er ansikter til noen av personene VELDIG RARE',
       alt: 'Et manipulert foto fra samme lekeplass der flere personer er lagt til rundt personen som henger fra metallstangen.',
     },
   ],
@@ -925,6 +939,10 @@ function scrollToLearningTop() {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
+}
+
+.photo-compare--single {
+  grid-template-columns: 1fr;
 }
 
 .photo-compare__item {
