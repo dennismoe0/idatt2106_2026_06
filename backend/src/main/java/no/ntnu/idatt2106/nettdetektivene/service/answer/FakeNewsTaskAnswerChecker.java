@@ -5,7 +5,6 @@ import no.ntnu.idatt2106.nettdetektivene.entity.Task;
 import no.ntnu.idatt2106.nettdetektivene.entity.TaskType;
 import org.springframework.stereotype.Component;
 
-import java.util.Iterator;
 import java.util.Map;
 
 @Component
@@ -18,15 +17,17 @@ public class FakeNewsTaskAnswerChecker implements TaskAnswerChecker {
 
     @Override
     public boolean isCorrect(Task task, JsonNode correctAnswer, Map<String, Object> answer) {
-        Iterator<Map.Entry<String, JsonNode>> fields = correctAnswer.fields();
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            Boolean submitted = asBoolean(answer.get(field.getKey()));
-            if (submitted == null || submitted != field.getValue().asBoolean()) {
-                return false;
+        // Student picks exactly one article as fake (submitted false).
+        // Correct if that article is actually fake in the answer key — other
+        // articles are ignored so tasks with multiple fakes work correctly.
+        for (Map.Entry<String, Object> entry : answer.entrySet()) {
+            Boolean submitted = asBoolean(entry.getValue());
+            if (Boolean.FALSE.equals(submitted)) {
+                JsonNode correct = correctAnswer.get(entry.getKey());
+                return correct != null && !correct.asBoolean();
             }
         }
-        return true;
+        return false;
     }
 
     private Boolean asBoolean(Object value) {
