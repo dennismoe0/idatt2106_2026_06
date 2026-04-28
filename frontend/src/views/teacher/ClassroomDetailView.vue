@@ -47,6 +47,15 @@
             >
               Se Notatblokk
             </RouterLink>
+            <!-- Compact progress tracker next to the notepad link -->
+            <span class="progress-pill" :title="progressTitle(student)">
+              <template v-if="studentProgress(student)">
+                {{ studentProgress(student).completedTasks }} / {{ studentProgress(student).totalTasks }}
+              </template>
+              <template v-else>
+                —
+              </template>
+            </span>
             <BaseButton
               v-if="student.status === 'PENDING'"
               size="sm"
@@ -63,6 +72,21 @@
       </ul>
 
       <p v-if="students.length === 0" class="student-empty">Ingen elever har meldt seg på enda.</p>
+
+      <!-- Detailed leaderboard section inside the same view -->
+      <section class="leaderboard-section">
+        <h2 class="leaderboard-title">Ledertavle</h2>
+        <LoadingSpinner v-if="lbLoading" />
+        <template v-else>
+          <LeaderboardTable
+            :aria-label="'Ledertavle for klassen'"
+            :entries="leaderboard"
+            :current-student-id="null"
+            empty-label="Ingen elever å vise enda."
+          />
+        </template>
+        <p v-if="lbError" class="leaderboard-error">{{ lbError }}</p>
+      </section>
     </section>
 
     <!-- Kick confirmation modal -->
@@ -90,6 +114,8 @@ import { classroomService } from '@/services/classroomService'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import LeaderboardTable from '@/components/student/LeaderboardTable.vue'
+import { gameService } from '@/services/gameService'
 
 const route = useRoute()
 const router = useRouter()
@@ -102,6 +128,11 @@ const kickTarget = ref(null)
 const codeCopied = ref(false)
 const musicMuted = ref(false)
 let pollInterval = null
+
+// Leaderboard state
+const leaderboard = ref([])
+const lbLoading = ref(false)
+const lbError = ref('')
 
 const students = computed(() => classroomStore.students)
 const classroom = computed(() =>
@@ -118,9 +149,11 @@ onMounted(async () => {
   if (classroomStore.classrooms.length === 0) {
     await classroomStore.fetchMyClassrooms()
   }
-  await loadStudents()
-  pollInterval = setInterval(loadStudents, 5000)
-  console.log('[ClassroomDetailView] Polling started every 5s')
+  await Promise.all([loadStudents(), loadLeaderboard()])
+  pollInterval = setInterval(async () => {
+    await Promise.allSettled([loadStudents(), loadLeaderboard()])
+  }, 5000)
+  console.log('[ClassroomDetailView] Polling started every 5s (students + leaderboard)')
 })
 
 onUnmounted(() => {
@@ -138,6 +171,33 @@ async function loadStudents() {
   } finally {
     loading.value = false
   }
+}
+
+async function loadLeaderboard() {
+  if (leaderboard.value.length === 0) lbLoading.value = true
+  lbError.value = ''
+  try {
+    const { data } = await gameService.getLeaderboard(classroomId)
+    leaderboard.value = Array.isArray(data) ? data : []
+  } catch (err) {
+    console.error('[ClassroomDetailView] Failed to fetch leaderboard:', err)
+    lbError.value = 'Kunne ikke hente ledertavlen.'
+  } finally {
+    lbLoading.value = false
+  }
+}
+
+function studentProgress(student) {
+  // Match by displayName (as provided by leaderboard API)
+  return leaderboard.value.find((e) => e.displayName === student.displayName) || null
+}
+
+function progressTitle(student) {
+  const e = studentProgress(student)
+  if (!e) return 'Fremdrift ukjent'
+  if (e.totalTasks <= 0) return 'Ingen oppgaver'
+  const percent = Math.round((e.completedTasks / e.totalTasks) * 100)
+  return `Fremdrift: ${e.completedTasks} / ${e.totalTasks} oppgaver (${percent}%)`
 }
 
 async function approve(studentId) {
@@ -301,7 +361,7 @@ async function copyCode() {
 }
 .student-username {
   font-size: var(--text-xs);
-  font-weight: var(--font-normal);
+  font-weight: 400;
   color: var(--color-text-muted);
 }
 .badge {
