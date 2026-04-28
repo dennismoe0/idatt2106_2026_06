@@ -549,15 +549,17 @@ function maybeShowStoredClueModal(task, submitResult) {
 }
 
 function buildMockResult(task, answer) {
-  const expected = task.mockCorrectAnswer ?? {}
-  const keys = Object.keys(expected)
-  const correct = keys.every(key => answer[key] === expected[key])
+  const expected = task.mockCorrectAnswer ?? null
+  const keys = expected ? Object.keys(expected) : []
+  const correct = keys.length > 0 && keys.every(key => answer[key] === expected[key])
   return {
     correct,
     score: correct ? 100 : 40,
     starsEarned: correct ? 1 : 0,
     xpEarned: correct ? 20 : 0,
-    explanation: task.mockExplanation ?? 'Sammenlign svaret ditt med trygg kildekritikk.',
+    explanation: correct
+      ? (task.mockExplanation ?? 'Bra jobbet.')
+      : (task.mockWrongExplanation ?? 'Dette stemmer ikke med sporet. Prøv igjen og se nærmere på beviset.'),
     stopCompleted: currentTaskIndex.value === tasks.value.length - 1,
     medalEarned: currentTaskIndex.value === tasks.value.length - 1
       ? { id: 1, name: 'Nyhetsdetektiv', description: 'Du fullførte stoppet i mock-modus.' }
@@ -672,6 +674,37 @@ function buildMockTasks() {
       },
       mockCorrectAnswer: { selected: 'd' },
       mockExplanation: 'F!sk3Taco#92 er sterkest fordi det er langt og blander store og små bokstaver, tall og spesialtegn.'
+    },
+    {
+      id: 4002,
+      stopId: 6,
+      taskType: 'CLUE_RIDDLE',
+      guidanceText: 'Bruk passordsporet til å finne den beste forklaringen.',
+      contentJson: {
+        purpose: 'Svake passord kan avsløre både sted, rolle og vaner. Det hjelper deg å koble kontoen til riktig miljø.',
+        evidence: 'Reservekontoen brukte passordet XooInnAdmin2019.',
+        question: 'Hva forteller passordet oss?',
+        options: [
+          {
+            id: 'random_strong',
+            label: 'Det er et sterkt tilfeldig passord',
+            detail: 'Det er ikke tilfeldig: det inneholder sted, rolle og årstall.',
+          },
+          {
+            id: 'cafe_admin',
+            label: 'Noen med admin-tilgang på Xoo Inn Cafe laget eller kjente kontoen',
+            detail: 'Passordet peker mot stedet og en administratorrolle.',
+          },
+          {
+            id: 'no_clue',
+            label: 'Passord gir aldri etterforskningsspor',
+            detail: 'Passord kan ofte avsløre vaner og koblinger.',
+          },
+        ],
+      },
+      mockCorrectAnswer: { selected: 'cafe_admin' },
+      mockExplanation: 'Riktig. Passordet peker mot noen med admin-kobling til Xoo Inn Cafe.',
+      mockWrongExplanation: 'Se etter hva i passordet som peker direkte mot både stedet og rollen.',
     },
     {
       id: 6001,
