@@ -231,7 +231,10 @@ public class GameService {
             student.setXp(student.getXp() + XP_PER_STOP);
             xpEarned += XP_PER_STOP;
             notebookService.createAutoClueIfNotExists(studentId, task.getStop());
-            int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNot(task.getStop().getId(), TaskType.LEARN));
+            int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNotIn(
+                task.getStop().getId(),
+                COMPLETION_EXCLUDED_TASK_TYPES
+            ));
             StudentXpLog xpLog = new StudentXpLog();
             xpLog.setStudent(student);
             xpLog.setStop(task.getStop());
@@ -304,7 +307,10 @@ public class GameService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "XP already claimed for this stop within the last 7 days");
         }
 
-        int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNot(stopId, TaskType.LEARN));
+        int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNotIn(
+            stopId,
+            COMPLETION_EXCLUDED_TASK_TYPES
+        ));
         int xpEarned = XP_PER_TASK * taskCount + XP_PER_STOP;
 
         User student = userRepository.findById(studentId)
