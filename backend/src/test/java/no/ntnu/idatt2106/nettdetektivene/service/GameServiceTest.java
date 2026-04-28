@@ -21,6 +21,7 @@ import no.ntnu.idatt2106.nettdetektivene.repository.StudentXpLogRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.AiPhotoTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.ClueRiddleTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.FakeNewsTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.LearningTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.MarketplaceTaskAnswerChecker;
@@ -89,6 +90,7 @@ class GameServiceTest {
                 new LearningTaskAnswerChecker(),
                 new PhishingEmailTaskAnswerChecker(),
                 new AiPhotoTaskAnswerChecker(),
+                new ClueRiddleTaskAnswerChecker(),
                 new MarketplaceTaskAnswerChecker(),
                 new PasswordTaskAnswerChecker(new ObjectMapper(), new PasswordStrengthEvaluator()),
                 new SocialMediaTaskAnswerChecker()
@@ -603,6 +605,25 @@ class GameServiceTest {
     // ─── submitAnswer — new tests ─────────────────────────────────────────────
 
     @Test
+    void submitAnswer_clueRiddleWrongOptionFails() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task task = clueRiddleTask(26L, stop);
+
+        when(taskRepository.findById(26L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 26L)).thenReturn(Optional.empty());
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            26L,
+            new SubmitAnswerRequest(Map.of("selected", "random_strong"))
+        );
+
+        assertThat(response.correct()).isFalse();
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
+    }
+
+    @Test
     void submitAnswer_awardsOneStarOnFirstCorrectAnswer() {
         Stop stop = stop(1L, 1, "Postkontoret");
         Task task = phishingTask(10L, stop);
@@ -916,6 +937,34 @@ class GameServiceTest {
             """);
         task.setCorrectAnswerJson("""
             { "quizPassed": true }
+            """);
+        return task;
+    }
+
+    private Task clueRiddleTask(Long id, Stop stop) {
+        Task task = task(id, stop, TaskType.CLUE_RIDDLE);
+        task.setContentJson("""
+            {
+              "purpose": "Du bruker det du lærte om passord for å lese et siste digitalt spor.",
+              "evidence": "Reservekontoen brukte passordet XooInnAdmin2019.",
+              "question": "Hva forteller passordet oss?",
+              "options": [
+                {
+                  "id": "random_strong",
+                  "label": "Det er et sterkt tilfeldig passord",
+                  "detail": "Det er ikke tilfeldig: det inneholder sted, rolle og årstall."
+                },
+                {
+                  "id": "cafe_admin",
+                  "label": "Noen med admin-tilgang på Xoo Inn Cafe laget eller kjente kontoen",
+                  "detail": "Passordet peker mot stedet og en administratorrolle."
+                }
+              ],
+              "explanation": "Riktig. Passordet peker mot noen med admin-kobling til Xoo Inn Cafe."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            { "selected": "cafe_admin" }
             """);
         return task;
     }
