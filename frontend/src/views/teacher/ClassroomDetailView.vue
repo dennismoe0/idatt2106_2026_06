@@ -31,56 +31,75 @@
     <section v-else>
       <p class="student-count">{{ students.length }} elev{{ students.length !== 1 ? 'er' : '' }}</p>
 
-      <ul class="student-list">
-        <li v-for="student in students" :key="student.userId" class="student-row">
+      <div class="student-table">
+        <!-- Header row -->
+        <div class="student-table__header">
+          <span>Elev</span>
+          <span>Status</span>
+          <span>Nåværende stopp</span>
+          <span>Oppgaver fullført</span>
+          <span>Sist fullførte stopp</span>
+          <span>Handlinger</span>
+        </div>
+
+        <div v-for="student in students" :key="student.userId" class="student-table__row">
+          <!-- Name -->
           <span class="student-name">
             {{ student.displayName }}
             <span class="student-username">{{ student.username }}</span>
           </span>
+
+          <!-- Status -->
           <span class="badge" :class="`badge--${student.status.toLowerCase()}`">
             {{ statusLabel(student.status) }}
           </span>
+
+          <!-- Current stop -->
+          <span class="stop-cell">
+            <template v-if="currentStop(student)">
+              {{ stopIcon(currentStop(student).theme) }} {{ currentStop(student).name }}
+            </template>
+            <span v-else class="cell-empty">—</span>
+          </span>
+
+          <!-- Tasks progress -->
+          <span class="progress-cell">
+            <template v-if="studentProgress(student)">
+              <strong>{{ studentProgress(student).completedTasks }}</strong>
+              / {{ studentProgress(student).totalTasks }}
+            </template>
+            <span v-else class="cell-empty">—</span>
+          </span>
+
+          <!-- Last completed stop -->
+          <span class="stop-cell">
+            <template v-if="lastCompletedStop(student)">
+              {{ stopIcon(lastCompletedStop(student).theme) }} {{ lastCompletedStop(student).name }}
+            </template>
+            <span v-else class="cell-empty">—</span>
+          </span>
+
+          <!-- Actions -->
           <div class="student-actions">
             <RouterLink
               :to="{ name: 'TeacherNotebook', params: { studentId: student.userId }, query: { studentName: student.displayName, classroomId: classroomId } }"
-              class="btn btn-secondary btn-sm"
+              class="action-btn"
             >
-              Se Notatblokk
+              Notatblokk
             </RouterLink>
-            <!-- Last completed stop chip between notepad and progress -->
-            <span v-if="lastCompletedStop(student)" class="stop-chip" :title="lastCompletedStop(student).name">
-              <span class="stop-chip__icon">{{ stopIcon(lastCompletedStop(student).theme) }}</span>
-              <span class="stop-chip__text">{{ lastCompletedStop(student).name }}</span>
-            </span>
-            <!-- Compact progress tracker next to the notepad link -->
-            <span class="progress-pill" :title="progressTitle(student)">
-              <template v-if="studentProgress(student)">
-                {{ studentProgress(student).completedTasks }} / {{ studentProgress(student).totalTasks }}
-              </template>
-              <template v-else>
-                —
-              </template>
-            </span>
-            <span v-if="currentStop(student)" class="stop-chip" :title="currentStop(student).name">
-              <span class="stop-chip__icon">{{ stopIcon(currentStop(student).theme) }}</span>
-              <span class="stop-chip__text">{{ currentStop(student).name }}</span>
-            </span>
-            <BaseButton
+            <button
               v-if="student.status === 'PENDING'"
-              size="sm"
-              class="btn btn-primary btn-sm"
+              class="action-btn action-btn--approve"
               @click="approve(student.userId)"
-            >Godkjenn</BaseButton>
-            <BaseButton
+            >Godkjenn</button>
+            <button
               v-if="student.status !== 'KICKED'"
-              size="sm"
-              variant="danger"
-              class="btn btn-danger btn-sm"
+              class="action-btn action-btn--danger"
               @click="openKickModal(student)"
-            >Kast ut</BaseButton>
+            >Kast ut</button>
           </div>
-        </li>
-      </ul>
+        </div>
+      </div>
 
       <p v-if="students.length === 0" class="student-empty">Ingen elever har meldt seg på enda.</p>
 
@@ -387,35 +406,59 @@ async function copyCode() {
   font-size: var(--text-sm);
   margin-bottom: var(--space-3);
 }
-.student-list {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  gap: var(--space-2);
-}
-.student-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-surface);
+/* ---- Student table ---- */
+.student-table {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  overflow: hidden;
+  font-size: var(--text-sm);
 }
+
+.student-table__header,
+.student-table__row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr 1.2fr 2fr 1.8fr;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.student-table__header {
+  background: var(--color-surface-soft);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.student-table__row {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+.student-table__row:last-child {
+  border-bottom: none;
+}
+.student-table__row:hover {
+  background: var(--color-surface-soft);
+}
+
 .student-name {
-  flex: 1;
   font-weight: var(--font-medium);
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 2px;
 }
 .student-username {
   font-size: var(--text-xs);
   font-weight: 400;
   color: var(--color-text-muted);
 }
+
 .badge {
-  padding: var(--space-1) var(--space-2);
+  display: inline-block;
+  padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
@@ -424,43 +467,73 @@ async function copyCode() {
 .badge--pending  { background: var(--color-warning-light); color: var(--color-warning); }
 .badge--approved { background: var(--color-success-light); color: var(--color-success); }
 .badge--kicked   { background: var(--color-danger-light);  color: var(--color-danger); }
-.student-actions {
-  display: flex;
-  gap: var(--space-2);
-}
-.progress-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+
+.stop-cell {
   font-size: var(--text-xs);
   color: var(--color-text);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  padding: 2px 8px;
   white-space: nowrap;
-}
-.stop-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--text-xs);
-  color: var(--color-text);
-  background: var(--color-surface);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-full);
-  padding: 2px 10px;
-  white-space: nowrap;
-}
-.stop-chip__icon {
-  font-size: 14px;
-  line-height: 1;
-}
-.stop-chip__text {
-  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.progress-cell {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+.progress-cell strong {
+  color: var(--color-primary);
+}
+
+.cell-empty {
+  color: var(--color-text-muted);
+}
+
+.student-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+.action-btn:hover {
+  background: var(--color-surface-soft);
+  border-color: var(--color-border-strong);
+}
+.action-btn--approve {
+  background: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.action-btn--approve:hover {
+  background: var(--color-success);
+  color: #fff;
+}
+.action-btn--danger {
+  background: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+.action-btn--danger:hover {
+  background: var(--color-danger);
+  color: #fff;
+}
+
 .student-empty {
   color: var(--color-text-muted);
   padding: var(--space-6);
