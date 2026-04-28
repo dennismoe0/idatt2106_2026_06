@@ -224,6 +224,20 @@ class DataLoaderTest {
             .contains("fortsatt ikke et ideelt passord");
     }
 
+    @Test
+    void run_seedsPasswordClueRiddleWithExplicitEvidencePassword() throws Exception {
+        List<Task> tasks = seededTasks();
+
+        Task clueTask = tasks.stream()
+            .filter(task -> task.getStop().getName().equals("Passordbanken"))
+            .filter(task -> "CLUE_RIDDLE".equals(task.getTaskType().name()))
+            .findFirst()
+            .orElseThrow();
+
+        JsonNode content = parseJson(clueTask.getContentJson());
+        assertThat(content.path("evidencePassword").asText()).isEqualTo("XooInnAdmin2019");
+    }
+
     private List<Task> seededTasks() throws Exception {
         StopRepository stopRepository = mock(StopRepository.class);
         TaskRepository taskRepository = mock(TaskRepository.class);
