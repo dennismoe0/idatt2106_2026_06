@@ -32,6 +32,14 @@
         Enkel visning
       </button>
 
+      <RouterLink class="world-map-view__dossier-link" :to="{ name: 'SuspectDossier' }" aria-label="Åpne mistenktmappe">
+        🗂 Mistenktmappe
+      </RouterLink>
+
+      <!-- HUD floats in top-right, outside scaled canvas -->
+      <PlayerHud class="world-map-view__hud" />
+
+
       <!-- Enter area: bottom-right, fixed, outside scaled canvas -->
       <div class="world-map-view__enter-area" aria-live="polite">
         <p v-if="lockedMessage" class="world-map-view__locked-msg" role="status">
@@ -62,6 +70,7 @@ import { useAvatarWalk } from '@/composables/useAvatarWalk'
 import WorldMapCanvas from '@/components/student/WorldMapCanvas.vue'
 import DetectiveBar from '@/components/common/DetectiveBar.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import PlayerHud from '@/components/common/PlayerHud.vue'
 import { useNotebookStore } from '@/stores/notebook'
 
 const router = useRouter()
@@ -290,6 +299,43 @@ onUnmounted(() => {
   outline: 3px solid #fff;
   outline-offset: 4px;
 }
+
+.world-map-view__dossier-link {
+  position: fixed;
+  top: 6rem;
+  left: 1rem;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.55rem 0.95rem;
+  background: #fff8df;
+  color: #3b1f08;
+  border: 2px solid rgba(59, 31, 8, 0.35);
+  border-radius: 8px;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.28);
+  font-size: 0.875rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.world-map-view__dossier-link:hover {
+  transform: translateY(-1px);
+}
+
+.world-map-view__dossier-link:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
+/* ---- HUD overlay ---- */
+.world-map-view__hud {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+}
+
 
 /* ---- Enter area ---- */
 .world-map-view__enter-area {
