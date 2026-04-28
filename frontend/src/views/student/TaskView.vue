@@ -895,8 +895,6 @@ function shouldShowArrestScene() {
   return result.value?.correct
     && result.value?.stopCompleted
     && currentTask.value?.stopTheme === 'PASSWORD'
-    && currentTask.value?.taskType === 'CLUE_RIDDLE'
-    && currentTaskIndex.value === tasks.value.length - 1
 }
 
 async function advanceArrestScene() {
