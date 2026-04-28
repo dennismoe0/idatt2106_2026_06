@@ -576,6 +576,38 @@ class GameServiceTest {
         verify(medalRepository, never()).findByStop_Id(any());
     }
 
+    @Test
+    void submitAnswer_firstPasswordTaskDoesNotCompletePasswordStopWhenTasksRemain() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        stop.setTheme("PASSWORD");
+        stop.setClueText("Spor: Reservekontoen peker mot Xoo Inn Cafe.");
+        Task task = passwordChoiceTask(25L, stop);
+        User studentUser = student(STUDENT_ID);
+
+        when(taskRepository.findById(25L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(studentUser);
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
+        when(taskRepository.countByStop_IdAndTaskTypeNotIn(eq(4L), any())).thenReturn(4L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(eq(STUDENT_ID), eq(4L), any()))
+            .thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            25L,
+            new SubmitAnswerRequest(Map.of("selected", "d"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        assertThat(response.stopCompleted()).isFalse();
+        assertThat(response.clueText()).isNull();
+        assertThat(response.medalEarned()).isNull();
+        assertThat(response.showSuspectReveal()).isFalse();
+        verify(notebookService, never()).createAutoClueIfNotExists(any(), any());
+        verify(studentXpLogRepository, never()).save(any());
+    }
+
     // ─── submitAnswer — new tests ─────────────────────────────────────────────
 
     @Test

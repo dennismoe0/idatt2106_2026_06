@@ -47,6 +47,16 @@ describe('TaskView', () => {
     avatarStore.avatar = {}
     vi.spyOn(gameStore, 'fetchTasks').mockResolvedValue([
       {
+        id: 400,
+        taskType: 'LEARN',
+        stopId: 6,
+        stopName: 'Passordbanken',
+        stopTheme: 'PASSWORD',
+        stopOrderIndex: 6,
+        stopDescription: 'Tyven er nesten tatt.',
+        contentJson: { slides: [], quiz: [] },
+      },
+      {
         id: 401,
         taskType: 'PASSWORD',
         stopId: 6,
@@ -56,19 +66,48 @@ describe('TaskView', () => {
         stopDescription: 'Tyven er nesten tatt.',
         contentJson: { type: 'CHOICE', question: 'Velg det sterkeste passordet.', options: [] },
       },
+      {
+        id: 402,
+        taskType: 'PASSWORD',
+        stopId: 6,
+        stopName: 'Passordbanken',
+        stopTheme: 'PASSWORD',
+        stopOrderIndex: 6,
+        stopDescription: 'Tyven er nesten tatt.',
+        contentJson: { type: 'CHOICE', question: 'Gjør passordet bedre.', options: [] },
+      },
+      {
+        id: 403,
+        taskType: 'PASSWORD',
+        stopId: 6,
+        stopName: 'Passordbanken',
+        stopTheme: 'PASSWORD',
+        stopOrderIndex: 6,
+        stopDescription: 'Tyven er nesten tatt.',
+        contentJson: { type: 'BUILDER', question: 'Bygg et sterkt passord.' },
+      },
+      {
+        id: 404,
+        taskType: 'CLUE_RIDDLE',
+        stopId: 6,
+        stopName: 'Passordbanken',
+        stopTheme: 'PASSWORD',
+        stopOrderIndex: 6,
+        stopDescription: 'Tyven er nesten tatt.',
+        contentJson: { evidence: 'Reservekontoen brukte passordet XooInnAdmin2019.' },
+      },
     ])
     vi.spyOn(gameStore, 'fetchStops').mockResolvedValue([
       { id: 7, orderIndex: 7, theme: 'FINAL_BOSS' },
     ])
-    vi.spyOn(gameStore, 'submitAnswer').mockResolvedValue({
-      correct: true,
-      explanation: 'Bra jobbet.',
-      stopCompleted: true,
-      medalEarned: null,
-    })
+    vi.spyOn(gameStore, 'submitAnswer').mockImplementation((taskId) => Promise.resolve(
+      taskId === 404
+        ? { correct: true, explanation: 'Bra jobbet.', stopCompleted: true, clueText: 'Spor: Xoo Inn Cafe.', medalEarned: null }
+        : { correct: true, explanation: 'Bra jobbet.', stopCompleted: false, medalEarned: null }
+    ))
   })
 
-  it('shows the arrest cutscene after Passordbanken and redirects to Datasenteret', async () => {
+  it('shows the arrest cutscene only after the final Passordbanken clue task and redirects to Datasenteret', async () => {
     const wrapper = mount(TaskView, {
       global: {
         plugins: [router],
@@ -80,6 +119,14 @@ describe('TaskView', () => {
           TutorialScreen: {
             template: '<button class="tutorial-start" @click="$emit(\'start\')">start</button>',
           },
+          LearningTask: {
+            template: `
+              <div>
+                <button class="submit-learn" @click="$emit('submitted', { quizPassed: true })">submit learn</button>
+                <button class="next-learn" @click="$emit('next')">next learn</button>
+              </div>
+            `,
+          },
           PasswordTask: {
             template: `
               <div>
@@ -88,14 +135,20 @@ describe('TaskView', () => {
               </div>
             `,
           },
-          LearningTask: true,
+          ClueRiddleTask: {
+            template: `
+              <div>
+                <button class="submit-clue" @click="$emit('submitted', { selected: 'cafe_admin' })">submit clue</button>
+                <button class="next-clue" @click="$emit('next')">next clue</button>
+              </div>
+            `,
+          },
           FakeNewsTask: true,
           AIPhotoTask: true,
           SocialMediaTask: true,
           MarketplaceTask: true,
           PhishingEmailTask: true,
           FinalBossTask: true,
-          SuspectLineup: true,
           ConfettiOverlay: true,
           MedalToast: true,
           StopSummary: true,
@@ -107,9 +160,33 @@ describe('TaskView', () => {
     await flushPromises()
     await wrapper.get('.mystery-accept').trigger('click')
     await flushPromises()
+    await wrapper.get('.submit-learn').trigger('click')
+    await flushPromises()
+    await wrapper.get('.next-learn').trigger('click')
+    await flushPromises()
+    await wrapper.get('.submit-answer').trigger('click')
+    await flushPromises()
+    expect(wrapper.findComponent({ name: 'ArrestScene' }).exists()).toBe(false)
+    await wrapper.get('.next-task').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('.arrest-scene').exists()).toBe(false)
+
     await wrapper.get('.submit-answer').trigger('click')
     await flushPromises()
     await wrapper.get('.next-task').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('.arrest-scene').exists()).toBe(false)
+
+    await wrapper.get('.submit-answer').trigger('click')
+    await flushPromises()
+    await wrapper.get('.next-task').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('.arrest-scene').exists()).toBe(false)
+
+    await wrapper.get('.submit-clue').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('.arrest-scene').exists()).toBe(false)
+    await wrapper.get('.next-clue').trigger('click')
     await flushPromises()
 
     expect(wrapper.text()).toContain('Tyven er arrestert!')
