@@ -285,7 +285,7 @@ class GameServiceTest {
         assertThat(content.path("email").has("correctAction")).isFalse();
         assertThat(content.path("email").has("suspiciousElements")).isTrue();
         assertThat(content.path("email").path("clues").get(0).has("isClue")).isFalse();
-        assertThat(content.path("email").path("clues").get(0).path("explanation").asText()).isEqualTo("Avsenderadressen bruker feil domene.");
+        assertThat(content.path("email").path("clues").get(0).has("explanation")).isFalse();
     }
 
     @Test
@@ -367,6 +367,10 @@ class GameServiceTest {
         );
 
         assertThat(response.correct()).isTrue();
+        assertThat(response.phishingClues()).extracting("id")
+            .contains("sender", "urgency");
+        assertThat(response.phishingClues()).extracting("explanation")
+            .contains("Avsenderadressen bruker feil domene.", "Hastverk er et vanlig phishing-tegn.");
         verify(studentProgressRepository).save(any(StudentProgress.class));
     }
 

@@ -944,7 +944,7 @@ public class DataLoader implements ApplicationRunner {
                 5,
                 "Gåtespor: Phishing-e-posten",
                 "En ansatt i kommunen fikk en e-post før pengene forsvant. Finn tegnet som avslører at den er phishing.",
-                "bruk det du lærte om phishing: sjekk avsender, lenke og kunstig hastverk. Riktig valg viser hvordan tyven kom inn i systemet.",
+                "Bruk det du lærte om phishing: sjekk avsender, lenke og kunstig hastverk. Riktig valg viser hvordan tyven kom inn i systemet.",
                 "Her er meldingen som ble brukt for å lure en ansatt til å logge inn på en falsk side.",
                 "Hva er det sterkeste phishing-sporet?",
                 """

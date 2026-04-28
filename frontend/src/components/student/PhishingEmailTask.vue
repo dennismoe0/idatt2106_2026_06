@@ -112,6 +112,10 @@ const flagged = reactive(new Set())
 const email     = computed(() => props.task?.contentJson?.email ?? {})
 const allClues  = computed(() => email.value.clues ?? [])
 const senderClue = computed(() => allClues.value.find(c => c.type === 'sender') ?? null)
+const clueFeedbackById = computed(() => {
+  const entries = props.result?.phishingClues ?? []
+  return new Map(entries.map(clue => [clue.id, clue]))
+})
 
 watch(() => props.task?.id, () => { flagged.clear() }, { immediate: true })
 
@@ -159,7 +163,7 @@ const revealedClues = computed(() => {
         return {
           id: c.id,
           label: c.label,
-          explanation: c.explanation ?? '',
+          explanation: clueFeedbackById.value.get(c.id)?.explanation ?? '',
           icon: '✅',
           iconClass: 'phishing-task__clue-icon--ok'
         }
@@ -169,7 +173,7 @@ const revealedClues = computed(() => {
         return {
           id: c.id,
           label: c.label,
-          explanation: c.explanation ?? '',
+          explanation: clueFeedbackById.value.get(c.id)?.explanation ?? '',
           icon: '❌',
           iconClass: 'phishing-task__clue-icon--wrong'
         }
@@ -178,7 +182,7 @@ const revealedClues = computed(() => {
       return {
         id: c.id,
         label: c.label,
-        explanation: c.explanation ?? '',
+        explanation: clueFeedbackById.value.get(c.id)?.explanation ?? '',
         icon: '🔎',
         iconClass: 'phishing-task__clue-icon--missed'
       }

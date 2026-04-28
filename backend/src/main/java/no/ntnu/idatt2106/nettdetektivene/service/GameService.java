@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ClaimXpResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.MedalDto;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.PhishingClueFeedbackDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.PlayerProfileDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ProgressResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.StopResponse;
@@ -183,7 +184,11 @@ public class GameService {
             boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
             List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
                 ? correctClueIdsFor(task) : List.of();
-            boolean currentAnswerCorrect = checkAnswer(task, req == null ? null : req.answer());
+            List<PhishingClueFeedbackDto> phishingClues = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? phishingCluesFor(task) : List.of();
+            boolean currentAnswerCorrect = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? checkAnswer(task, req == null ? null : req.answer())
+                : true;
             return new SubmitAnswerResponse(
                 currentAnswerCorrect,
                 existingProgress.get().getScore(),
@@ -193,6 +198,7 @@ public class GameService {
                 0,
                 0,
                 correctClueIds,
+                phishingClues,
                 null,
                 clueText,
                 showSuspectReveal
@@ -203,9 +209,11 @@ public class GameService {
             log.info("[GameService] wrong answer studentId={} taskId={}", studentId, taskId);
             List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
                 ? correctClueIdsFor(task) : List.of();
+            List<PhishingClueFeedbackDto> phishingClues = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? phishingCluesFor(task) : List.of();
             Integer correctArticleIndex = task.getTaskType() == TaskType.FAKE_NEWS
                 ? fakeNewsCorrectIndex(task) : null;
-            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, correctArticleIndex, null, false);
+            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, phishingClues, correctArticleIndex, null, false);
         }
 
         StudentProgress progress = existingProgress.orElseGet(StudentProgress::new);
@@ -257,6 +265,8 @@ public class GameService {
 
         List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
             ? correctClueIdsFor(task) : List.of();
+        List<PhishingClueFeedbackDto> phishingClues = task.getTaskType() == TaskType.PHISHING_EMAIL
+            ? phishingCluesFor(task) : List.of();
 
         return new SubmitAnswerResponse(
             true,
@@ -267,6 +277,7 @@ public class GameService {
             1,
             xpEarned,
             correctClueIds,
+            phishingClues,
             null,
             clueText,
             showSuspectReveal
@@ -527,6 +538,29 @@ public class GameService {
         }
     }
 
+    private List<PhishingClueFeedbackDto> phishingCluesFor(Task task) {
+        try {
+            JsonNode clues = objectMapper.readTree(task.getContentJson()).path("email").path("clues");
+            if (!clues.isArray()) {
+                return List.of();
+            }
+
+            List<PhishingClueFeedbackDto> feedback = new ArrayList<>();
+            clues.forEach(clue -> {
+                if (!clue.isObject()) return;
+                feedback.add(new PhishingClueFeedbackDto(
+                    clue.path("id").asText(),
+                    clue.path("label").asText(),
+                    clue.path("explanation").asText("")
+                ));
+            });
+            return feedback;
+        } catch (Exception e) {
+            log.warn("[GameService] Failed to parse contentJson for phishing clue feedback taskId={}", task.getId());
+            return List.of();
+        }
+    }
+
     private Boolean asBoolean(Object value) {
         if (value instanceof Boolean booleanValue) {
             return booleanValue;
@@ -671,6 +705,7 @@ public class GameService {
                     clues.forEach(clue -> {
                         if (clue.isObject()) {
                             ((ObjectNode) clue).remove("isClue");
+                            ((ObjectNode) clue).remove("explanation");
                         }
                     });
                 }
