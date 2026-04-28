@@ -42,6 +42,8 @@ import no.ntnu.idatt2106.nettdetektivene.service.AvatarService;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.TaskAnswerChecker;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -409,19 +411,23 @@ public class GameService {
         Object selected = answer.get("selected");
         Object action = answer.get("action");
 
-        if (!correctAnswer.path("selected").isMissingNode() && selected == null && action != null) {
+        if ((hasSingleOrMultiple(correctAnswer, "selected", "acceptedSelected")) && selected == null && action != null) {
             Map<String, Object> normalized = new java.util.HashMap<>(answer);
             normalized.put("selected", action);
             return normalized;
         }
 
-        if (!correctAnswer.path("action").isMissingNode() && action == null && selected != null) {
+        if ((hasSingleOrMultiple(correctAnswer, "action", "acceptedActions")) && action == null && selected != null) {
             Map<String, Object> normalized = new java.util.HashMap<>(answer);
             normalized.put("action", selected);
             return normalized;
         }
 
         return answer;
+    }
+
+    private boolean hasSingleOrMultiple(JsonNode correctAnswer, String singleKey, String multipleKey) {
+        return !correctAnswer.path(singleKey).isMissingNode() || correctAnswer.path(multipleKey).isArray();
     }
 
     private boolean checkFakeNewsAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
@@ -575,7 +581,7 @@ public class GameService {
             stop.getOrderIndex(),
             stop.getTheme(),
             task.getTaskType().name(),
-            sanitizeContentForClient(task.getTaskType(), task.getContentJson()),
+            sanitizeContentForClient(task.getTaskType(), task.getContentJson(), task.getCorrectAnswerJson()),
             task.getGuidanceText(),
             alreadyCompleted
         );
@@ -635,7 +641,7 @@ public class GameService {
         }
     }
 
-    private JsonNode sanitizeContentForClient(TaskType type, String contentJson) {
+    private JsonNode sanitizeContentForClient(TaskType type, String contentJson, String correctAnswerJson) {
         try {
             JsonNode parsed = objectMapper.readTree(contentJson);
             if (!parsed.isObject()) {
@@ -670,6 +676,7 @@ public class GameService {
 
             if (type == TaskType.SOCIAL_MEDIA) {
                 root.remove("type");
+                shuffleSocialMediaOptions(root, correctAnswerJson);
             }
 
             return root;
@@ -677,5 +684,77 @@ public class GameService {
             log.error("[GameService] failed to sanitize content taskType={}", type, exception);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Task content invalid");
         }
+    }
+
+    private void shuffleSocialMediaOptions(ObjectNode root, String correctAnswerJson) throws JsonProcessingException {
+        if (!root.path("options").isArray()) {
+            return;
+        }
+
+        ArrayNode options = (ArrayNode) root.path("options");
+        List<JsonNode> shuffledOptions = new ArrayList<>();
+        options.forEach(option -> shuffledOptions.add(option.deepCopy()));
+        Collections.shuffle(shuffledOptions);
+
+        // Only singular-answer tasks can be biased away from the middle slot.
+        // Multi-answer tasks intentionally keep a fully random order.
+        moveCorrectOptionAwayFromMiddle(shuffledOptions, socialMediaCorrectOptionId(correctAnswerJson));
+
+        ArrayNode shuffledArray = objectMapper.createArrayNode();
+        shuffledOptions.forEach(shuffledArray::add);
+        root.set("options", shuffledArray);
+    }
+
+    private String socialMediaCorrectOptionId(String correctAnswerJson) throws JsonProcessingException {
+        JsonNode correctAnswer = objectMapper.readTree(correctAnswerJson);
+        if (!correctAnswer.path("selected").isMissingNode()) {
+            return correctAnswer.path("selected").asText();
+        }
+        if (!correctAnswer.path("action").isMissingNode()) {
+            return correctAnswer.path("action").asText();
+        }
+        return null;
+    }
+
+    private void moveCorrectOptionAwayFromMiddle(List<JsonNode> options, String correctOptionId) {
+        if (correctOptionId == null || options.size() < 3) {
+            return;
+        }
+
+        int correctIndex = -1;
+        for (int i = 0; i < options.size(); i++) {
+            if (correctOptionId.equalsIgnoreCase(options.get(i).path("id").asText())) {
+                correctIndex = i;
+                break;
+            }
+        }
+
+        if (correctIndex < 0 || !isMiddleIndex(correctIndex, options.size())) {
+            return;
+        }
+
+        List<Integer> edgeIndexes = new ArrayList<>();
+        for (int i = 0; i < options.size(); i++) {
+            if (i != correctIndex && !isMiddleIndex(i, options.size())) {
+                edgeIndexes.add(i);
+            }
+        }
+
+        if (edgeIndexes.isEmpty()) {
+            return;
+        }
+
+        Collections.shuffle(edgeIndexes);
+        Collections.swap(options, correctIndex, edgeIndexes.getFirst());
+    }
+
+    private boolean isMiddleIndex(int index, int size) {
+        if (size < 3) {
+            return false;
+        }
+        if (size % 2 == 1) {
+            return index == size / 2;
+        }
+        return index == (size / 2) - 1 || index == size / 2;
     }
 }

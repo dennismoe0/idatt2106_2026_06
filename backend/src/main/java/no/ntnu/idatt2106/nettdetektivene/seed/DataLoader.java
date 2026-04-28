@@ -812,7 +812,7 @@ public class DataLoader implements ApplicationRunner {
                   "explanation": "Innlegget spiller på stress og rykter fra skolemiljøet, men viser ikke til noen faktisk beskjed fra skolen. Slike ting bør sjekkes i Visma, på skolens nettside eller med en lærer før du deler videre."
                 }
                 """,
-                "{\"action\": \"CHECK_SOURCES\"}"),
+                "{\"acceptedActions\": [\"CHECK_SOURCES\", \"ASK_ADULT\", \"WAIT\"]}"),
             socialMediaTask(socialStop, 3, "Stopp ryktespredningen", "Velg den tryggeste handlingen når et innlegg prøver å få deg til å reagere raskt.",
                 """
                 {
@@ -822,7 +822,7 @@ public class DataLoader implements ApplicationRunner {
                     "content": "Helt sykt hvis dette stemmer: noen sier prøven i samfunnsfag allerede er lekket i en Snap-gruppe 😡 Del så alle får vite hvor urettferdig skolen er!!!",
                     "likes": 613, "comments": 128, "timestamp": "I dag kl. 10:27", "verified": false
                   },
-                  "question": "Hva er smartest å gjøre før du reagerer eller deler?",
+                  "question": "Hva er smart å gjøre før du reagerer eller deler?",
                   "options": [
                     { "id": "SHARE", "text": "Del med en gang - dette er viktig!" },
                     { "id": "CHECK_SOURCES", "text": "Sjekk om det er sant før du deler" },
@@ -832,12 +832,12 @@ public class DataLoader implements ApplicationRunner {
                   "explanation": "Innlegget prøver å gjøre deg sint og få deg til å reagere før du vet om det faktisk stemmer. Når skole-rykter kobles med sterk språkbruk og press om å dele, bør du alltid sjekke først."
                 }
                 """,
-                "{\"action\": \"CHECK_SOURCES\"}"),
+                "{\"acceptedActions\": [\"CHECK_SOURCES\", \"ASK_ADULT\", \"IGNORE\"]}"),
             socialMediaTask(socialStop, 4, "Finn det mest illegitime innlegget", "Velg innlegget med minst troverdighet.",
                 """
                 {
                   "type": "IDENTIFY_WORST",
-                  "question": "Hvilket innlegg er mest illegitimt?",
+                  "question": "Hvilket innlegg er mest mistenkelig?",
                   "posts": [
                     { "id": "post_0", "username": "Charlottenlund vgs", "handle": "@charl_vgs", "avatar": "🏫",
                       "content": "Vi undersøker ryktene om innbruddet i medielaben. Elever får informasjon i løpet av dagen via Teams og skolens offisielle kanaler.",
@@ -981,8 +981,8 @@ public class DataLoader implements ApplicationRunner {
                 5,
                 "Gåtespor: Falsk konto",
                 "En falsk konto prøvde å få elever til å dele rykter. Finn detaljen som avslører hvor kontoen ble laget.",
-                "Du bruker det du lærte om sosiale medier: sjekk profil, språk, hastverk og hva kontoen prøver å få deg til å gjøre.",
-                "Kontoen skrev: 'Jeg vet hvem tyven er, del før politiet sletter bevisene!'",
+                "Du løser denne oppgaven ved å bruke det du har lært fra denne seksjonen: sjekk profil, språk, hastverk og hva kontoen prøver å få deg til å gjøre.",
+                "",
                 "Hva er det viktigste sporet fra kontoen?",
                 """
                 [
@@ -994,7 +994,7 @@ public class DataLoader implements ApplicationRunner {
                   {
                     "id": "cafe_wifi_signup",
                     "label": "Kontoen ble opprettet med engangs-epost fra Xoo Inn Cafe sitt gjestenett",
-                    "detail": "Opprettelsesloggen kobler kontoen til samme sted som de andre sporene."
+                    "detail": "Opprettelsesloggen kobler kontoen til samme sted som de andre sporene, og innlegget prøver å få deg til å dele raskt og handle impulsivt."
                   },
                   {
                     "id": "short_username",
@@ -1004,7 +1004,25 @@ public class DataLoader implements ApplicationRunner {
                 ]
                 """,
                 "cafe_wifi_signup",
-                "Riktig. Kontoen ble laget via Xoo Inn Cafe sitt gjestenett. Nå peker nyhet, bilde, phishing, nettbutikk og sosial konto samme vei."
+                "Riktig. Kontoen ble laget via Xoo Inn Cafe sitt gjestenett, og innlegget prøver å presse deg til å dele før du tenker. Nå peker nyhet, bilde, phishing, nettbutikk og sosial konto samme vei.",
+                """
+                {
+                  "socialPost": {
+                    "platform": "Tweety.no",
+                    "username": "SannhetsJegeren99",
+                    "handle": "@sannhet99",
+                    "avatar": "👁️",
+                    "content": "Jeg vet hvem tyven er, del før politiet sletter bevisene!",
+                    "likes": 418,
+                    "comments": 73,
+                    "shares": 126,
+                    "timestamp": "I dag kl. 21:03",
+                    "verified": false,
+                    "clueTitle": "Spor i kontoopprettelsen",
+                    "clueText": "Kontoen ble opprettet med engangs-epost fra Xoo Inn Cafe sitt gjestenett."
+                  }
+                }
+                """
             ),
             clueRiddleTask(
                 pwdStop,
@@ -1300,22 +1318,51 @@ public class DataLoader implements ApplicationRunner {
         String correctOptionId,
         String explanation
     ) {
+        return clueRiddleTask(
+            stop,
+            orderIndex,
+            title,
+            description,
+            purpose,
+            evidence,
+            question,
+            optionsJson,
+            correctOptionId,
+            explanation,
+            ""
+        );
+    }
+
+    private Task clueRiddleTask(
+        Stop stop,
+        int orderIndex,
+        String title,
+        String description,
+        String purpose,
+        String evidence,
+        String question,
+        String optionsJson,
+        String correctOptionId,
+        String explanation,
+        String extraFieldsJson
+    ) {
         Task task = baseTask(stop, orderIndex, title, description, TaskType.CLUE_RIDDLE);
-        task.setContentJson("""
-            {
-              "purpose": %s,
-              "evidence": %s,
-              "question": %s,
-              "options": %s,
-              "explanation": %s
+        ObjectNode content = objectMapper.createObjectNode();
+        content.put("purpose", purpose);
+        content.put("evidence", evidence);
+        content.put("question", question);
+        content.set("options", readJsonNode(optionsJson, "clue-riddle options"));
+        content.put("explanation", explanation);
+
+        if (extraFieldsJson != null && !extraFieldsJson.isBlank()) {
+            JsonNode extraFields = readJsonNode(extraFieldsJson, "clue-riddle extra fields");
+            if (!extraFields.isObject()) {
+                throw new IllegalStateException("Clue-riddle extra fields must be a JSON object");
             }
-            """.formatted(
-                toJsonString(purpose),
-                toJsonString(evidence),
-                toJsonString(question),
-                optionsJson,
-                toJsonString(explanation)
-            ));
+            content.setAll((ObjectNode) extraFields);
+        }
+
+        task.setContentJson(writeJson(content, "Failed to encode clue-riddle task content"));
         task.setCorrectAnswerJson("""
             {
               "selected": %s
@@ -1330,6 +1377,22 @@ public class DataLoader implements ApplicationRunner {
             return objectMapper.writeValueAsString(value);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Failed to encode task seed text", e);
+        }
+    }
+
+    private JsonNode readJsonNode(String json, String context) {
+        try {
+            return objectMapper.readTree(json);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Failed to parse " + context, e);
+        }
+    }
+
+    private String writeJson(JsonNode node, String errorMessage) {
+        try {
+            return objectMapper.writeValueAsString(node);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(errorMessage, e);
         }
     }
 

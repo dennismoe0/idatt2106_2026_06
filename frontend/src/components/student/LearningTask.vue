@@ -193,7 +193,7 @@
             </div>
 
             <div
-              v-if="currentSlide.checks?.length"
+              v-if="currentSlide.checks?.length && !shouldHideChecks(currentSlideIndex)"
               class="slide__notes"
               :class="{ 'slide__notes--highlight': shouldHighlightSocialChecks(currentSlideIndex) }"
             >
@@ -245,7 +245,7 @@
               <div class="inline-question__footer">
                 <div class="question__options" role="group" :aria-label="currentQuestion.question">
                   <button
-                    v-for="opt in currentQuestion.options"
+                    v-for="opt in currentQuestionOptions"
                     :key="opt"
                     class="option-btn"
                     :class="optionClass(opt, currentSlideIndex)"
@@ -344,8 +344,10 @@ const primaryInstruction = computed(() => THEME_INSTRUCTIONS[props.task?.stopThe
 
 const questionStates = ref({})
 const selectedAnswers = ref({})
+const shuffledOptionsByQuestion = ref({})
 const currentSlide = computed(() => slides.value[currentSlideIndex.value] ?? null)
 const currentQuestion = computed(() => questionForSlide(currentSlideIndex.value))
+const currentQuestionOptions = computed(() => shuffledOptionsFor(currentSlideIndex.value))
 const isLastSlide = computed(() => currentSlideIndex.value === slides.value.length - 1)
 const canAdvanceFromCurrentSlide = computed(() => {
   if (!currentQuestion.value) return true
@@ -506,10 +508,15 @@ watch(() => props.task?.id, () => {
   currentSlideIndex.value = 0
   questionStates.value = {}
   selectedAnswers.value = {}
+  shuffledOptionsByQuestion.value = buildShuffledOptionsMap(quiz.value)
 }, { immediate: true })
 
 function questionForSlide(index) {
   return quiz.value[index] ?? null
+}
+
+function shuffledOptionsFor(index) {
+  return shuffledOptionsByQuestion.value[index] ?? questionForSlide(index)?.options ?? []
 }
 
 function questionStateFor(index) {
@@ -626,12 +633,86 @@ function shouldHighlightSocialChecks(index) {
   return props.task?.stopTheme === 'SOCIAL_MEDIA' && index === 2
 }
 
+function shouldHideChecks(index) {
+  return props.task?.stopTheme === 'SOCIAL_MEDIA' && index === 2
+}
+
 function completeIfAllCorrect() {
   if (allQuestionsCorrect.value && !submittedOnce.value) {
     submittedOnce.value = true
     console.log('[LearningTask] All quiz questions passed — submitting')
     emit('submitted', { quizPassed: true })
   }
+}
+
+function buildShuffledOptionsMap(questions) {
+  const shuffledEntries = []
+  let previousCorrectIndex = null
+
+  questions.forEach((question, index) => {
+    const { options, correctIndex } = shuffleQuestionOptions(question, previousCorrectIndex)
+    shuffledEntries.push([index, options])
+    previousCorrectIndex = correctIndex
+  })
+
+  return Object.fromEntries(shuffledEntries)
+}
+
+function shuffleQuestionOptions(question, previousCorrectIndex = null) {
+  const options = Array.isArray(question?.options) ? [...question.options] : []
+  const correctOption = question?.correct
+
+  if (!correctOption || options.length < 2) {
+    return {
+      options: shuffleList(options),
+      correctIndex: options.findIndex(option => option === correctOption),
+    }
+  }
+
+  const incorrectOptions = shuffleList(options.filter(option => option !== correctOption))
+  const candidateIndexes = options
+    .map((_, index) => index)
+    .filter(index => !isMiddleIndex(index, options.length))
+
+  if (!candidateIndexes.length) {
+    const shuffled = shuffleList(options)
+    return {
+      options: shuffled,
+      correctIndex: shuffled.findIndex(option => option === correctOption),
+    }
+  }
+
+  const preferredIndexes = candidateIndexes.filter(index => index !== previousCorrectIndex)
+  const usableIndexes = preferredIndexes.length ? preferredIndexes : candidateIndexes
+  const correctIndex = usableIndexes[Math.floor(Math.random() * usableIndexes.length)]
+
+  const arrangedOptions = Array(options.length).fill(null)
+  arrangedOptions[correctIndex] = correctOption
+
+  let incorrectIndex = 0
+  for (let i = 0; i < arrangedOptions.length; i += 1) {
+    if (arrangedOptions[i] === null) {
+      arrangedOptions[i] = incorrectOptions[incorrectIndex]
+      incorrectIndex += 1
+    }
+  }
+
+  return { options: arrangedOptions, correctIndex }
+}
+
+function shuffleList(items) {
+  const shuffled = [...items]
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const randomIndex = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[i]]
+  }
+  return shuffled
+}
+
+function isMiddleIndex(index, length) {
+  if (length < 3) return false
+  if (length % 2 === 1) return index === Math.floor(length / 2)
+  return index === (length / 2) - 1 || index === length / 2
 }
 
 function scrollToLearningTop() {

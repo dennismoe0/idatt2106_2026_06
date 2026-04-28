@@ -1,11 +1,19 @@
 <template>
-  <section class="task-card">
-    <h2>{{ task.stopName ?? 'Den sosiale møteplassen' }}</h2>
-    <p class="guidance">{{ task.guidanceText }}</p>
+  <section class="task-card" :class="{ 'task-card--social-stop': isSocialStop }">
+    <div v-if="isSocialStop" class="task-card__header-box">
+      <h2 class="task-card__title--social-stop">{{ task.stopName ?? 'Den sosiale møteplassen' }}</h2>
+      <p class="guidance guidance--social-stop">{{ task.guidanceText }}</p>
+    </div>
+    <template v-else>
+      <h2>{{ task.stopName ?? 'Den sosiale møteplassen' }}</h2>
+      <p class="guidance">{{ task.guidanceText }}</p>
+    </template>
 
     <template v-if="isIdentifyWorstTask">
-      <p class="question">{{ content.question }}</p>
-      <p class="ranking-hint">Ranger innleggene fra minst troverdig (1) til mest troverdig ({{ posts.length }}).</p>
+      <div class="prompt-panel">
+        <p class="question">{{ content.question }}</p>
+        <p class="ranking-hint">Ranger innleggene fra minst troverdig (1) til mest troverdig ({{ posts.length }}).</p>
+      </div>
 
       <div class="post-list">
         <div
@@ -171,29 +179,29 @@ const emit = defineEmits(['submitted', 'next'])
 
 const PLATFORM_THEMES = {
   instagram: {
-    accent: '#E1306C',
-    accentSoft: 'color-mix(in srgb, #E1306C 16%, white)',
-    stripe: 'linear-gradient(90deg, #F58529 0%, #DD2A7B 45%, #8134AF 72%, #515BD4 100%)',
+    accent: 'var(--color-social-instagram)',
+    accentSoft: 'color-mix(in srgb, var(--color-social-instagram) 16%, white)',
+    stripe: 'linear-gradient(90deg, var(--color-social-instagram-orange) 0%, var(--color-social-instagram) 45%, var(--color-social-instagram-purple) 72%, var(--color-social-instagram-blue) 100%)',
   },
   tiktok: {
-    accent: '#111111',
-    accentSoft: 'color-mix(in srgb, #25F4EE 22%, white)',
-    stripe: 'linear-gradient(90deg, #25F4EE 0%, #111111 48%, #FE2C55 100%)',
+    accent: 'var(--color-social-x)',
+    accentSoft: 'color-mix(in srgb, var(--color-social-tiktok-cyan) 22%, white)',
+    stripe: 'linear-gradient(90deg, var(--color-social-tiktok-cyan) 0%, var(--color-social-x) 48%, var(--color-social-tiktok-pink) 100%)',
   },
   facebook: {
-    accent: '#1877F2',
-    accentSoft: 'color-mix(in srgb, #1877F2 18%, white)',
-    stripe: 'linear-gradient(90deg, #1877F2 0%, #4F8DF8 100%)',
+    accent: 'var(--color-social-facebook)',
+    accentSoft: 'color-mix(in srgb, var(--color-social-facebook) 18%, white)',
+    stripe: 'linear-gradient(90deg, var(--color-social-facebook) 0%, var(--color-social-facebook-light) 100%)',
   },
   x: {
-    accent: '#111111',
-    accentSoft: 'color-mix(in srgb, #111111 10%, white)',
-    stripe: 'linear-gradient(90deg, #444444 0%, #111111 100%)',
+    accent: 'var(--color-social-x)',
+    accentSoft: 'color-mix(in srgb, var(--color-social-x) 10%, white)',
+    stripe: 'linear-gradient(90deg, var(--color-social-x-soft) 0%, var(--color-social-x) 100%)',
   },
   linkedin: {
-    accent: '#0A66C2',
-    accentSoft: 'color-mix(in srgb, #0A66C2 18%, white)',
-    stripe: 'linear-gradient(90deg, #0A66C2 0%, #378FE9 100%)',
+    accent: 'var(--color-social-linkedin)',
+    accentSoft: 'color-mix(in srgb, var(--color-social-linkedin) 18%, white)',
+    stripe: 'linear-gradient(90deg, var(--color-social-linkedin) 0%, var(--color-social-linkedin-light) 100%)',
   },
   youtube: {
     accent: '#FF0033',
@@ -215,6 +223,7 @@ const posts = computed(() => Array.isArray(content.value.posts) ? content.value.
 const isIdentifyWorstTask = computed(() => taskSubtype.value === 'IDENTIFY_WORST' || posts.value.length > 0)
 const post = computed(() => content.value.post ?? {})
 const platformLabel = computed(() => post.value.platform ?? 'Sosialt medium')
+const isSocialStop = computed(() => (props.task?.stopName ?? '') === 'Den sosiale møteplassen')
 const rankingOptions = computed(() => Array.from({ length: posts.value.length }, (_, index) => index + 1))
 const rankedWorstPostId = computed(() => {
   const entry = Object.entries(rankings.value).find(([, rank]) => Number(rank) === 1)
@@ -380,9 +389,44 @@ function submit() {
   gap: var(--space-4);
 }
 
+.task-card--social-stop {
+  gap: var(--space-3);
+}
+
+.task-card__header-box {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-xl);
+  border: 2px solid color-mix(in srgb, var(--color-primary) 28%, var(--color-border));
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--color-primary-light) 78%, white) 0%, color-mix(in srgb, var(--color-surface) 92%, white) 100%);
+  box-shadow:
+    0 18px 34px rgba(16, 37, 63, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
 .guidance {
   margin: 0;
   color: var(--color-text-muted);
+}
+
+.task-card__title--social-stop {
+  margin: 0;
+  font-size: clamp(1.8rem, 6vw, 2.5rem);
+  line-height: 1.1;
+  font-weight: var(--font-bold);
+  color: var(--color-heading);
+  text-shadow: 0 1px 8px color-mix(in srgb, var(--color-primary) 16%, transparent);
+}
+
+.guidance--social-stop {
+  margin: 0;
+  font-size: calc(var(--text-base) + 8px);
+  line-height: 1.5;
+  font-weight: var(--font-semibold);
+  color: var(--color-text);
+  text-shadow: 0 1px 8px color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 
 .post-shell {
@@ -545,10 +589,23 @@ function submit() {
   font-weight: var(--font-medium);
 }
 
+.prompt-panel {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 2px solid color-mix(in srgb, var(--color-primary) 22%, var(--color-border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-primary-light) 78%, white) 0%, white 100%);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
 .ranking-hint {
   margin: 0;
-  color: var(--color-text-muted);
+  color: color-mix(in srgb, var(--color-text) 82%, black);
   font-size: var(--text-sm);
+  line-height: 1.6;
+  font-weight: var(--font-medium);
 }
 
 .rank-picker {
@@ -582,8 +639,10 @@ function submit() {
 
 .question {
   margin: 0;
-  font-weight: var(--font-semibold);
-  color: var(--color-text);
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: color-mix(in srgb, var(--color-heading) 88%, black);
+  line-height: 1.3;
 }
 
 .options {

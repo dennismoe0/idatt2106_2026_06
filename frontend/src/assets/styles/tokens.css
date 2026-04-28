@@ -55,6 +55,20 @@
   --color-heading: #20304A;
   --color-map-bg: #3B1F08;
 
+  /* Social platform accents */
+  --color-social-instagram: #E1306C;
+  --color-social-instagram-orange: #F58529;
+  --color-social-instagram-purple: #8134AF;
+  --color-social-instagram-blue: #515BD4;
+  --color-social-tiktok-cyan: #25F4EE;
+  --color-social-tiktok-pink: #FE2C55;
+  --color-social-facebook: #1877F2;
+  --color-social-facebook-light: #4F8DF8;
+  --color-social-x: #111111;
+  --color-social-x-soft: #444444;
+  --color-social-linkedin: #0A66C2;
+  --color-social-linkedin-light: #378FE9;
+
   /* Newspaper (FakeNewsTask) */
   --color-newspaper-bg:   #f4efe2;
   --color-newspaper-ink:  #111111;
