@@ -26,6 +26,7 @@ const router = createRouter({
     { path: '/task', name: 'Task', component: TaskView },
     { path: '/world-map', name: 'WorldMap', component: { template: '<div>WorldMap</div>' } },
     { path: '/join', name: 'JoinClassroom', component: { template: '<div>Join</div>' } },
+    { path: '/suspects', name: 'SuspectDossier', component: { template: '<div>Suspects</div>' } },
   ],
 })
 
@@ -121,5 +122,76 @@ describe('TaskView', () => {
 
     expect(router.currentRoute.value.name).toBe('Task')
     expect(router.currentRoute.value.query.stopId).toBe('7')
+  })
+
+  it('does not show stored clue modal after learning task completion', async () => {
+    const gameStore = useGameStore()
+    gameStore.fetchTasks.mockResolvedValue([
+      {
+        id: 400,
+        taskType: 'LEARN',
+        stopId: 6,
+        stopName: 'Passordbanken',
+        stopTheme: 'PASSWORD',
+        stopOrderIndex: 6,
+        contentJson: { slides: [], quiz: [] },
+      },
+      {
+        id: 402,
+        taskType: 'CLUE_RIDDLE',
+        stopId: 6,
+        stopName: 'Passordbanken',
+        stopTheme: 'PASSWORD',
+        stopOrderIndex: 6,
+        contentJson: { evidence: 'Reservekontoen brukte passordet XooInnAdmin2019.' },
+      },
+    ])
+    gameStore.submitAnswer.mockImplementation((taskId) => Promise.resolve(taskId === 400
+      ? { correct: true, explanation: 'Intro ferdig.', stopCompleted: false, medalEarned: null }
+      : { correct: true, explanation: 'Spor lagret.', stopCompleted: true, clueText: 'Spor: Xoo Inn Cafe.', medalEarned: null }))
+
+    const wrapper = mount(TaskView, {
+      global: {
+        plugins: [router],
+        stubs: {
+          DetectiveBar: true,
+          StopMysteryScreen: true,
+          TutorialScreen: true,
+          LearningTask: {
+            template: `
+              <div>
+                <button class="submit-learn" @click="$emit('submitted', { quizPassed: true })">submit learn</button>
+                <button class="next-learn" @click="$emit('next')">next learn</button>
+              </div>
+            `,
+          },
+          ClueRiddleTask: {
+            template: '<button class="submit-clue" @click="$emit(\'submitted\', { selected: \'cafe_admin\' })">submit clue</button>',
+          },
+          PasswordTask: true,
+          FakeNewsTask: true,
+          AIPhotoTask: true,
+          SocialMediaTask: true,
+          MarketplaceTask: true,
+          PhishingEmailTask: true,
+          FinalBossTask: true,
+          ConfettiOverlay: true,
+          MedalToast: true,
+          StopSummary: true,
+          AvatarPreview: true,
+        },
+      },
+    })
+
+    await flushPromises()
+    await wrapper.get('.submit-learn').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('.stored-clue-modal').exists()).toBe(false)
+
+    await wrapper.get('.next-learn').trigger('click')
+    await flushPromises()
+    await wrapper.get('.submit-clue').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('.stored-clue-modal').exists()).toBe(true)
   })
 })

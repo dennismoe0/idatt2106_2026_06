@@ -150,6 +150,37 @@ class DataLoaderTest {
             .containsExactly("OlaErBest", "2005", "hund");
     }
 
+    @Test
+    void run_seedsPasswordLearningQuizWithVariedCorrectOptionPositions() throws Exception {
+        List<Task> tasks = seededTasks();
+
+        Task learnTask = tasks.stream()
+            .filter(task -> "LEARN".equals(task.getTaskType().name()))
+            .filter(task -> task.getStop().getName().equals("Passordbanken"))
+            .findFirst()
+            .orElseThrow();
+
+        ArrayNode quiz = (ArrayNode) parseJson(learnTask.getContentJson()).path("quiz");
+
+        assertThat(correctOptionIndex(quiz.get(0))).isEqualTo(2);
+        assertThat(correctOptionIndex(quiz.get(1))).isEqualTo(1);
+        assertThat(correctOptionIndex(quiz.get(2))).isEqualTo(0);
+    }
+
+    @Test
+    void run_seedsPasswordBuilderTaskWithMaxLength() throws Exception {
+        List<Task> tasks = seededTasks();
+
+        Task builderTask = tasks.stream()
+            .filter(task -> "PASSWORD".equals(task.getTaskType().name()))
+            .filter(task -> parseJson(task.getContentJson()).path("type").asText().equals("BUILDER"))
+            .findFirst()
+            .orElseThrow();
+
+        JsonNode content = parseJson(builderTask.getContentJson());
+        assertThat(content.path("maxLength").asInt()).isEqualTo(24);
+    }
+
     private List<Task> seededTasks() throws Exception {
         StopRepository stopRepository = mock(StopRepository.class);
         TaskRepository taskRepository = mock(TaskRepository.class);
@@ -175,5 +206,16 @@ class DataLoaderTest {
         } catch (Exception e) {
             throw new AssertionError("Failed to parse seeded JSON", e);
         }
+    }
+
+    private int correctOptionIndex(JsonNode question) {
+        String correct = question.path("correct").asText();
+        ArrayNode options = (ArrayNode) question.path("options");
+        for (int i = 0; i < options.size(); i++) {
+            if (options.get(i).asText().equals(correct)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
