@@ -234,16 +234,17 @@ public class GameService {
         progress.setCompletedAt(LocalDateTime.now());
         studentProgressRepository.save(progress);
 
-        // Award XP (and 1 star only for non-LEARN tasks)
-        User student = userRepository.findById(studentId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        if (task.getTaskType() != TaskType.LEARN) {
+        boolean earnsTaskReward = task.getTaskType() != TaskType.LEARN;
+        User student = earnsTaskReward
+            ? userRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException("User not found"))
+            : null;
+        if (earnsTaskReward) {
             student.setStarBalance(student.getStarBalance() + 1);
+            student.setXp(student.getXp() + XP_PER_TASK);
         }
-        student.setXp(student.getXp() + XP_PER_TASK);
 
         boolean stopCompleted = canCompleteStop(task) && isStopComplete(studentId, task.getStop().getId());
-        int xpEarned = XP_PER_TASK;
+        int xpEarned = earnsTaskReward ? XP_PER_TASK : 0;
         String clueText = stopCompleted ? task.getStop().getClueText() : null;
         boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
 
@@ -260,8 +261,10 @@ public class GameService {
             xpLog.setAwardedAt(LocalDateTime.now());
             studentXpLogRepository.save(xpLog);
         }
-        userRepository.save(student);
-        int starsEarned = task.getTaskType() != TaskType.LEARN ? 1 : 0;
+        if (student != null) {
+            userRepository.save(student);
+        }
+        int starsEarned = earnsTaskReward ? 1 : 0;
         log.info("[GameService] awarded starsEarned={} xpEarned={} studentId={} taskId={}", starsEarned, xpEarned, studentId, taskId);
 
         MedalDto medalEarned = stopCompleted

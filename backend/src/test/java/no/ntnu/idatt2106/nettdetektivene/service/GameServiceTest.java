@@ -631,7 +631,7 @@ class GameServiceTest {
     }
 
     @Test
-    void submitAnswer_learnTaskDoesNotCompleteStopOrReturnClue() {
+    void submitAnswer_learnTaskDoesNotCompleteStopReturnClueOrAwardXp() {
         Stop stop = stop(4L, 1, "Passordbanken");
         stop.setClueText("Spor: Reservekontoen peker mot Xoo Inn Cafe.");
         Task task = learnTask(24L, stop);
@@ -640,7 +640,6 @@ class GameServiceTest {
         when(taskRepository.findById(24L)).thenReturn(Optional.of(task));
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 24L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(studentUser);
-        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -654,10 +653,11 @@ class GameServiceTest {
         assertThat(response.clueText()).isNull();
         assertThat(response.medalEarned()).isNull();
         assertThat(response.starsEarned()).isEqualTo(0);
-        assertThat(response.xpEarned()).isEqualTo(10);
+        assertThat(response.xpEarned()).isEqualTo(0);
         verify(notebookService, never()).createAutoClueIfNotExists(any(), any());
         verify(studentXpLogRepository, never()).save(any());
         verify(medalRepository, never()).findByStop_Id(any());
+        verify(userRepository, never()).save(any());
     }
 
     @Test
