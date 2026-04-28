@@ -151,6 +151,7 @@ public class GameService {
                 return new ResourceNotFoundException("Task not found");
             });
         requireUnlocked(studentId, classroomId, task.getStop());
+        requireTutorialComplete(studentId, task);
         return toTaskResponse(studentId, classroomId, task);
     }
 
@@ -173,6 +174,7 @@ public class GameService {
                 return new ResourceNotFoundException("Task not found");
             });
         requireUnlocked(studentId, classroomId, task.getStop());
+        requireTutorialComplete(studentId, task);
 
         String explanation = extractExplanation(task);
         Optional<StudentProgress> existingProgress = studentProgressRepository
@@ -650,6 +652,23 @@ public class GameService {
                 stop.getId()
             );
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Stop is locked");
+        }
+    }
+
+    private void requireTutorialComplete(Long studentId, Task task) {
+        if (task.getTaskType() == TaskType.LEARN) {
+            return;
+        }
+
+        boolean tutorialComplete = taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(task.getStop().getId()).stream()
+            .filter(candidate -> candidate.getTaskType() == TaskType.LEARN)
+            .allMatch(candidate -> studentProgressRepository
+                .findByStudent_IdAndTask_Id(studentId, candidate.getId())
+                .map(StudentProgress::isCompleted)
+                .orElse(false));
+
+        if (!tutorialComplete) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tutorial must be completed first");
         }
     }
 
