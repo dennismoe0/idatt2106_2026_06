@@ -12,6 +12,7 @@ import no.ntnu.idatt2106.nettdetektivene.dto.classroom.MusicMutedRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.UpdateDisplayNameRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.UpdateStudentStatusRequest;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.StopResponse;
 import no.ntnu.idatt2106.nettdetektivene.service.ClassroomService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +93,16 @@ public class ClassroomController {
         @PathVariable Long id
     ) {
         return classroomService.getStudents(currentUserId(userDetails), id);
+    }
+
+    @GetMapping("/{id}/stops")
+    @PreAuthorize("hasRole('TEACHER')")
+    public List<StopResponse> getStopsForClassroom(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+        log.info("[ClassroomController] GET /api/classrooms/{}/stops teacherId={}", id, currentUserId(userDetails));
+        return classroomService.getStopsForClassroom(currentUserId(userDetails), id);
     }
 
     @PutMapping("/{id}/students/{sid}")

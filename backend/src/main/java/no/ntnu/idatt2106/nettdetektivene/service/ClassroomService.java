@@ -9,7 +9,9 @@ import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.SchoolLeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
-import no.ntnu.idatt2106.nettdetektivene.repository.LeaderboardRow;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.StopResponse;
+import no.ntnu.idatt2106.nettdetektivene.entity.Stop;
+import no.ntnu.idatt2106.nettdetektivene.repository.StopRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.SchoolLeaderboardRow;
 import no.ntnu.idatt2106.nettdetektivene.entity.Classroom;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
@@ -21,6 +23,7 @@ import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomStudentRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomTeacherRepository;
+import no.ntnu.idatt2106.nettdetektivene.repository.StopRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import no.ntnu.idatt2106.nettdetektivene.util.ClassroomCodeGenerator;
@@ -46,6 +49,7 @@ public class ClassroomService {
     private final ClassroomCodeGenerator classroomCodeGenerator;
     private final TaskRepository taskRepository;
     private final NotificationService notificationService;
+    private final StopRepository stopRepository;
 
     @Transactional
     public ClassroomResponse createClassroom(Long teacherId, CreateClassroomRequest req) {
@@ -149,6 +153,30 @@ public class ClassroomService {
         return classroomStudentRepository.findByClassroom_Id(classroomId).stream()
             .map(this::toStudentResponse)
             .toList();
+    }
+
+    public List<StopResponse> getStopsForClassroom(Long teacherId, Long classroomId) {
+        log.info("Fetching stops for classroomId={} teacherId={}", classroomId, teacherId);
+        verifyTeacherOwnsClassroom(teacherId, classroomId);
+        return stopRepository.findAllByOrderByOrderIndexAsc().stream()
+            .map(this::toStopResponse)
+            .toList();
+    }
+
+    private StopResponse toStopResponse(Stop stop) {
+        int taskCount = (int) taskRepository.countByStop_Id(stop.getId());
+        return new StopResponse(
+            stop.getId(),           // Long id
+            stop.getName(),         // String name
+            stop.getOrderIndex(),   // int orderIndex
+            stop.getDescription(),  // String description
+            false,                  // boolean locked  (no locking logic yet — adjust if needed)
+            false,                  // boolean completed (teacher view: not per-student, so false)
+            taskCount,              // int taskCount
+            0,                      // int correctCount (teacher view: no per-student data here)
+            false,                  // boolean xpClaimable
+            stop.getTheme()         // String theme
+        );
     }
 
     public StudentInClassroomResponse updateStudentStatus(

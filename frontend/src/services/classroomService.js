@@ -16,6 +16,9 @@ export const classroomService = {
   updateStudentStatus: (classroomId, studentId, status) =>
     api.put(`/api/classrooms/${classroomId}/students/${studentId}`, { status }),
 
+  getStops: (classroomId) =>
+    api.get(`/api/classrooms/${classroomId}/stops`),
+
   getMyStatus: (classroomId) =>
     api.get(`/api/classrooms/${classroomId}/my-status`),
 

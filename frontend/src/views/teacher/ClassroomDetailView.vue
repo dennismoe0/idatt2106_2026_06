@@ -47,6 +47,11 @@
             >
               Se Notatblokk
             </RouterLink>
+            <!-- Last completed stop chip between notepad and progress -->
+            <span v-if="lastCompletedStop(student)" class="stop-chip" :title="lastCompletedStop(student).name">
+              <span class="stop-chip__icon">{{ stopIcon(lastCompletedStop(student).theme) }}</span>
+              <span class="stop-chip__text">{{ lastCompletedStop(student).name }}</span>
+            </span>
             <!-- Compact progress tracker next to the notepad link -->
             <span class="progress-pill" :title="progressTitle(student)">
               <template v-if="studentProgress(student)">
@@ -238,6 +243,32 @@ function currentStop(student) {
   const e = studentProgress(student)
   if (!e) return null
   return currentStopByEntry(e)
+}
+
+// Compute the last fully completed stop for an entry (null if none completed yet)
+function lastCompletedStopByEntry(entry) {
+  if (!stops.value || stops.value.length === 0) return null
+  const completed = Number(entry?.completedTasks ?? 0)
+  if (completed <= 0) return null
+
+  let cumulative = 0
+  let last = null
+  for (const stop of stops.value) {
+    const count = stop.taskCount ?? 0
+    cumulative += count
+    if (completed >= cumulative) {
+      last = stop
+    } else {
+      break
+    }
+  }
+  return last
+}
+
+function lastCompletedStop(student) {
+  const e = studentProgress(student)
+  if (!e) return null
+  return lastCompletedStopByEntry(e)
 }
 
 function stopIcon(theme) {
