@@ -179,6 +179,14 @@ public class GameService {
             .findByStudent_IdAndTask_Id(studentId, taskId);
 
         if (existingProgress.map(StudentProgress::isCompleted).orElse(false)) {
+            if (!checkAnswer(task, req == null ? null : req.answer())) {
+                log.info("[GameService] wrong answer on already completed task studentId={} taskId={}", studentId, taskId);
+                List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
+                    ? correctClueIdsFor(task) : List.of();
+                Integer correctArticleIndex = task.getTaskType() == TaskType.FAKE_NEWS
+                    ? fakeNewsCorrectIndex(task) : null;
+                return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, correctArticleIndex, null, false);
+            }
             boolean stopCompleted = canCompleteStop(task) && isStopComplete(studentId, task.getStop().getId());
             String clueText = stopCompleted ? task.getStop().getClueText() : null;
             boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
