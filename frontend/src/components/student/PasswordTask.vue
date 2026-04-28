@@ -34,7 +34,6 @@
           {{ builtPassword.length }}/{{ maxLength }} tegn
         </p>
         <div
-          v-if="result"
           class="builder__strength"
           :class="`builder__strength--${strengthKey}`"
           aria-label="Passordstyrke"
@@ -124,6 +123,7 @@ const maxLength = computed(() => {
   const configured = Number(content.value.maxLength ?? 0)
   return Number.isFinite(configured) && configured > 0 ? configured : null
 })
+const requiredStrength = computed(() => String(content.value.minStrength ?? 'STRONG').toUpperCase())
 
 watch(() => props.task?.id, () => {
   selected.value = null
@@ -131,6 +131,7 @@ watch(() => props.task?.id, () => {
 }, { immediate: true })
 
 const builtPassword = computed(() => parts.value.join(''))
+const hasBuiltPassword = computed(() => builtPassword.value.length > 0)
 const remainingCharacters = computed(() => maxLength.value
   ? Math.max(maxLength.value - builtPassword.value.length, 0)
   : Infinity)
@@ -150,12 +151,27 @@ function evaluateStrength(pw) {
   return 'STRONG'
 }
 
-const strengthKey   = computed(() => evaluateStrength(builtPassword.value).toLowerCase())
-const strengthLabel = computed(() => ({ weak: 'Svakt', medium: 'Middels', strong: 'Sterkt' }[strengthKey.value]))
-const strengthWidth = computed(() => ({ weak: '33%', medium: '66%', strong: '100%' }[strengthKey.value]))
+function strengthLevel(level) {
+  switch (String(level).toUpperCase()) {
+    case 'STRONG':
+      return 3
+    case 'MEDIUM':
+      return 2
+    default:
+      return 1
+  }
+}
+
+const strengthKey   = computed(() => hasBuiltPassword.value ? evaluateStrength(builtPassword.value).toLowerCase() : 'idle')
+const strengthLabel = computed(() => ({ idle: 'Bygg passord', weak: 'Svakt', medium: 'Middels', strong: 'Sterkt' }[strengthKey.value]))
+const strengthWidth = computed(() => ({ idle: '0%', weak: '33%', medium: '66%', strong: '100%' }[strengthKey.value]))
+const builderMeetsRequirement = computed(() =>
+  hasBuiltPassword.value
+  && strengthLevel(strengthKey.value) >= strengthLevel(requiredStrength.value)
+)
 
 const isReady = computed(() => {
-  if (type.value === 'BUILDER') return builtPassword.value.length >= 1
+  if (type.value === 'BUILDER') return builderMeetsRequirement.value
   return !!selected.value
 })
 
@@ -271,6 +287,7 @@ function submit() {
 .builder__strength--weak   .builder__strength-fill { background: var(--color-danger); }
 .builder__strength--medium .builder__strength-fill { background: var(--color-warning); }
 .builder__strength--strong .builder__strength-fill { background: var(--color-success); }
+.builder__strength--idle .builder__strength-fill { background: transparent; }
 .builder__strength-label {
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
@@ -279,6 +296,7 @@ function submit() {
 .builder__strength--weak   .builder__strength-label { color: var(--color-danger); }
 .builder__strength--medium .builder__strength-label { color: var(--color-warning); }
 .builder__strength--strong .builder__strength-label { color: var(--color-success); }
+.builder__strength--idle .builder__strength-label { color: var(--color-text-muted); }
 
 .builder__tiles {
   display: flex;
