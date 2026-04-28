@@ -217,15 +217,14 @@ class DataLoaderTest {
         assertThat(passwordImprovementTask.getTitle()).isEqualTo("Gjør passordet bedre");
         assertThat(content.path("question").asText())
             .isEqualTo("Noen har prøvd å gjøre passordet 'Sander2015' sterkere. Hvilken versjon er best?");
-        assertThat(content.path("options").get(2).path("value").asText()).isEqualTo("S@nder_2015#");
-        assertThat(answer.path("selected").asText()).isEqualTo("c");
+        assertThat(content.path("options").get(3).path("value").asText()).isEqualTo("SolKatt!Fjord#22");
+        assertThat(answer.path("selected").asText()).isEqualTo("d");
         assertThat(content.path("explanation").asText())
-            .contains("S@nder_2015# er den beste forbedringen av alternativene")
+            .contains("SolKatt!Fjord#22 er det beste valget")
             .contains("små bokstaver")
-            .contains("årstallet")
-            .contains("være lette å gjette")
+            .contains("ikke bruker navnet eller årstallet")
             .doesNotContain("Ã")
-            .contains("fortsatt ikke et ideelt passord");
+            .contains("gjette");
     }
 
     @Test

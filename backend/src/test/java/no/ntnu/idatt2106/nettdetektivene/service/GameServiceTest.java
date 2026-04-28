@@ -657,6 +657,36 @@ class GameServiceTest {
     }
 
     @Test
+    void submitAnswer_clueRiddleRequiresPreviousPasswordTasks() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task learnTask = learnTask(24L, stop);
+        Task firstPasswordTask = passwordChoiceTask(25L, stop);
+        Task clueTask = clueRiddleTask(27L, stop);
+        learnTask.setOrderIndex(1);
+        firstPasswordTask.setOrderIndex(2);
+        clueTask.setOrderIndex(5);
+        when(taskRepository.findById(27L)).thenReturn(Optional.of(clueTask));
+        when(taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(4L))
+            .thenReturn(List.of(learnTask, firstPasswordTask, clueTask));
+        StudentProgress learnProgress = new StudentProgress();
+        learnProgress.setCompleted(true);
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 24L))
+            .thenReturn(Optional.of(learnProgress));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L))
+            .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            27L,
+            new SubmitAnswerRequest(Map.of("selected", "cafe_admin"))
+        ))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Previous tasks must be completed first");
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
+    }
+
+    @Test
     void submitAnswer_learnTaskDoesNotCompleteStopReturnClueOrAwardXp() {
         Stop stop = stop(4L, 1, "Passordbanken");
         stop.setClueText("Spor: Reservekontoen peker mot Xoo Inn Cafe.");

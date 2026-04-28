@@ -150,7 +150,7 @@ public class GameService {
                 return new ResourceNotFoundException("Task not found");
             });
         requireUnlocked(studentId, classroomId, task.getStop());
-        requireTutorialComplete(studentId, task);
+        requireTaskSequenceAvailable(studentId, task);
         return toTaskResponse(studentId, classroomId, task);
     }
 
@@ -173,7 +173,7 @@ public class GameService {
                 return new ResourceNotFoundException("Task not found");
             });
         requireUnlocked(studentId, classroomId, task.getStop());
-        requireTutorialComplete(studentId, task);
+        requireTaskSequenceAvailable(studentId, task);
 
         String explanation = extractExplanation(task);
         Optional<StudentProgress> existingProgress = studentProgressRepository
@@ -190,7 +190,6 @@ public class GameService {
             }
             boolean stopCompleted = canCompleteStop(task) && isStopComplete(studentId, task.getStop().getId());
             String clueText = stopCompleted ? task.getStop().getClueText() : null;
-            boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
             return new SubmitAnswerResponse(
                 true,
                 existingProgress.get().getScore(),
@@ -202,7 +201,7 @@ public class GameService {
                 List.of(),
                 null,
                 clueText,
-                showSuspectReveal
+                false
             );
         }
 
@@ -617,12 +616,13 @@ public class GameService {
         }
     }
 
-    private void requireTutorialComplete(Long studentId, Task task) {
+    private void requireTaskSequenceAvailable(Long studentId, Task task) {
         if (task.getTaskType() == TaskType.LEARN) {
             return;
         }
 
-        boolean tutorialComplete = taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(task.getStop().getId()).stream()
+        List<Task> stopTasks = taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(task.getStop().getId());
+        boolean tutorialComplete = stopTasks.stream()
             .filter(candidate -> candidate.getTaskType() == TaskType.LEARN)
             .allMatch(candidate -> studentProgressRepository
                 .findByStudent_IdAndTask_Id(studentId, candidate.getId())
@@ -631,6 +631,18 @@ public class GameService {
 
         if (!tutorialComplete) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tutorial must be completed first");
+        }
+
+        boolean previousRequiredTasksComplete = stopTasks.stream()
+            .filter(candidate -> !COMPLETION_EXCLUDED_TASK_TYPES.contains(candidate.getTaskType()))
+            .filter(candidate -> candidate.getOrderIndex() < task.getOrderIndex())
+            .allMatch(candidate -> studentProgressRepository
+                .findByStudent_IdAndTask_Id(studentId, candidate.getId())
+                .map(StudentProgress::isCompleted)
+                .orElse(false));
+
+        if (!previousRequiredTasksComplete) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Previous tasks must be completed first");
         }
     }
 
@@ -653,7 +665,7 @@ public class GameService {
     }
 
     private boolean shouldShowSuspectReveal(Stop stop) {
-        return Integer.valueOf(4).equals(stop.getOrderIndex());
+        return Integer.valueOf(6).equals(stop.getOrderIndex());
     }
 
     private boolean canCompleteStop(Task task) {
