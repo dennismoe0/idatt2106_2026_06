@@ -336,6 +336,20 @@ class GameServiceTest {
     }
 
     @Test
+    void getTask_regularTaskRequiresCompletedLearnTask() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task learnTask = learnTask(24L, stop);
+        Task regularTask = passwordChoiceTask(25L, stop);
+        when(taskRepository.findById(25L)).thenReturn(Optional.of(regularTask));
+        when(taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(4L)).thenReturn(List.of(learnTask, regularTask));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 24L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gameService.getTask(STUDENT_ID, CLASSROOM_ID, 25L))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Tutorial must be completed first");
+    }
+
+    @Test
     void getTask_phishingEmail_sanitizesAnswerFieldsFromContent() throws Exception {
         Stop stop = stop(2L, 1, "Postkontoret");
         Task task = phishingTask(21L, stop);
@@ -619,6 +633,26 @@ class GameServiceTest {
         );
 
         assertThat(response.correct()).isFalse();
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_regularTaskRequiresCompletedLearnTask() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task learnTask = learnTask(24L, stop);
+        Task regularTask = passwordChoiceTask(25L, stop);
+        when(taskRepository.findById(25L)).thenReturn(Optional.of(regularTask));
+        when(taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(4L)).thenReturn(List.of(learnTask, regularTask));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 24L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            25L,
+            new SubmitAnswerRequest(Map.of("selected", "strong_password"))
+        ))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Tutorial must be completed first");
         verify(studentProgressRepository, never()).save(any(StudentProgress.class));
     }
 
