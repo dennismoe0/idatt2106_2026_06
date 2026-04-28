@@ -256,6 +256,19 @@ function optionBadge(optionId) {
 .clue-riddle {
   display: grid;
   gap: var(--space-6);
+  --clue-riddle-intro-border: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  --clue-riddle-intro-glow: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  --clue-riddle-intro-spotlight: color-mix(in srgb, var(--color-primary) 18%, transparent);
+  --clue-riddle-panel-shadow: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  --clue-riddle-evidence-border: color-mix(in srgb, var(--color-accent) 64%, var(--color-warning));
+  --clue-riddle-evidence-shadow: color-mix(in srgb, var(--color-accent-dark) 12%, transparent);
+  --clue-riddle-evidence-chip: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  --clue-riddle-evidence-card: color-mix(in srgb, var(--color-dossier-frame) 92%, black);
+  --clue-riddle-evidence-note: color-mix(in srgb, var(--color-dossier-text-on-dark) 74%, transparent);
+  --clue-riddle-evidence-password-bg: color-mix(in srgb, var(--color-dossier-white) 10%, transparent);
+  --clue-riddle-option-shadow: color-mix(in srgb, var(--color-text) 5%, transparent);
+  --clue-riddle-option-hover-shadow: color-mix(in srgb, var(--color-text) 8%, transparent);
+  --clue-riddle-option-selected-shadow: color-mix(in srgb, var(--color-primary) 15%, transparent);
 }
 
 .clue-riddle__intro,
@@ -267,11 +280,11 @@ function optionBadge(optionId) {
 }
 
 .clue-riddle__intro {
-  border: 2px solid rgba(20, 73, 112, 0.2);
+  border: 2px solid var(--clue-riddle-intro-border);
   background:
-    linear-gradient(120deg, rgba(255, 255, 255, 0.9), rgba(228, 241, 255, 0.96)),
-    radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 35%);
-  box-shadow: 0 18px 32px rgba(20, 73, 112, 0.08);
+    linear-gradient(120deg, color-mix(in srgb, var(--color-surface) 90%, transparent), color-mix(in srgb, var(--color-primary-soft) 70%, var(--color-surface))),
+    radial-gradient(circle at top right, var(--clue-riddle-intro-spotlight), transparent 35%);
+  box-shadow: 0 18px 32px var(--clue-riddle-panel-shadow);
   padding-block: var(--space-3);
 }
 
@@ -281,7 +294,7 @@ function optionBadge(optionId) {
 
 .clue-riddle__label {
   margin: 0 0 var(--space-1);
-  color: #0f4c81;
+  color: var(--color-primary-dark);
   font-size: var(--text-sm);
   font-weight: var(--font-bold);
   text-transform: uppercase;
@@ -316,7 +329,7 @@ function optionBadge(optionId) {
 
 .clue-riddle__why {
   border: 1px solid var(--color-border);
-  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  background: linear-gradient(180deg, var(--color-surface), var(--color-surface-soft));
 }
 
 .clue-riddle__section-copy {
@@ -342,7 +355,7 @@ function optionBadge(optionId) {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 999px;
-  background: #dbeafe;
+  background: var(--color-primary-soft-strong);
   font-size: 1.1rem;
 }
 
@@ -366,7 +379,7 @@ function optionBadge(optionId) {
 }
 
 .clue-riddle__evidence-head strong {
-  color: #7c5300;
+  color: var(--color-dossier-ink-soft);
   font-size: var(--text-sm);
 }
 
@@ -375,15 +388,15 @@ function optionBadge(optionId) {
   gap: var(--space-3);
   padding: var(--space-4);
   border-radius: var(--radius-md);
-  background: rgba(58, 35, 5, 0.92);
-  color: #fff7d6;
+  background: var(--clue-riddle-evidence-card);
+  color: var(--color-dossier-text-on-dark);
 }
 
 .clue-riddle__evidence-note {
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(255, 247, 214, 0.74);
+  color: var(--clue-riddle-evidence-note);
 }
 
 .clue-riddle__evidence-password {
@@ -391,8 +404,8 @@ function optionBadge(optionId) {
   width: fit-content;
   padding: 0.45rem 0.65rem;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--clue-riddle-evidence-password-bg);
+  color: var(--color-dossier-white);
   font-size: clamp(1rem, 3vw, 1.3rem);
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -400,13 +413,13 @@ function optionBadge(optionId) {
 
 .clue-riddle__evidence-story {
   max-width: 34rem;
-  color: #fff;
+  color: var(--color-dossier-white);
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
 }
 
 .clue-riddle__evidence-body {
-  color: rgba(255, 247, 214, 0.92);
+  color: var(--color-dossier-text-on-dark);
   max-width: 34rem;
 }
 
@@ -573,7 +586,7 @@ function optionBadge(optionId) {
 
 .clue-riddle__question-label {
   margin: 0;
-  color: #0f4c81;
+  color: var(--color-primary-dark);
   font-size: var(--text-sm);
   font-weight: var(--font-bold);
   letter-spacing: 0.04em;
@@ -581,13 +594,13 @@ function optionBadge(optionId) {
 
 .clue-riddle__question-head h3 {
   margin-bottom: 0;
-  color: #10233c;
+  color: var(--color-heading);
   font-size: clamp(1.4rem, 3vw, 1.9rem);
   line-height: 1.2;
 }
 
 .clue-riddle__question-head p {
-  color: #334155;
+  color: var(--color-text);
   font-size: var(--text-base);
   line-height: 1.6;
 }
@@ -606,27 +619,27 @@ function optionBadge(optionId) {
   padding: var(--space-3);
   border: 2px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  background: linear-gradient(180deg, var(--color-surface), var(--color-bg));
   color: var(--color-text);
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 10px 18px var(--clue-riddle-option-shadow);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
 }
 
 .clue-riddle__option strong {
-  color: #0f172a;
+  color: var(--color-text);
   font-size: var(--text-base);
   line-height: 1.45;
 }
 
 .clue-riddle__option:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 16px 24px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 16px 24px var(--clue-riddle-option-hover-shadow);
 }
 
 .clue-riddle__option span {
-  color: #475569;
+  color: var(--color-text-muted);
   line-height: 1.4;
 }
 
@@ -636,21 +649,21 @@ function optionBadge(optionId) {
   width: 2rem;
   height: 2rem;
   border-radius: 999px;
-  background: #e2e8f0;
-  color: #334155;
+  background: var(--color-border);
+  color: var(--color-text);
   font-size: var(--text-sm);
   font-weight: var(--font-bold);
 }
 
 .clue-riddle__option--selected {
-  border-color: #2563eb;
-  background: linear-gradient(180deg, #eff6ff, #dbeafe);
-  box-shadow: 0 18px 30px rgba(37, 99, 235, 0.15);
+  border-color: var(--color-primary);
+  background: linear-gradient(180deg, var(--color-surface-soft), var(--color-primary-soft-strong));
+  box-shadow: 0 18px 30px var(--clue-riddle-option-selected-shadow);
 }
 
 .clue-riddle__option--selected .clue-riddle__option-badge {
-  background: #2563eb;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-on-dark);
 }
 
 .clue-riddle__submit,
@@ -663,7 +676,7 @@ function optionBadge(optionId) {
   padding: 0.85rem 1.35rem;
   border: none;
   border-radius: var(--radius-md);
-  background: #0f4c81;
+  background: var(--color-primary-dark);
   color: var(--color-text-on-dark);
   font-size: var(--text-base);
   font-weight: var(--font-bold);
