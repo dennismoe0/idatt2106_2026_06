@@ -178,8 +178,8 @@ function handleStopClick(stop) {
 }
 
 .map-view__dossier-btn {
-  color: #7f1d1d;
-  border-color: #9b2226;
+  color: var(--color-dossier-danger);
+  border-color: var(--color-red-pin);
   font-weight: var(--font-bold);
 }
 
