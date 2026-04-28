@@ -1,9 +1,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { weeklyMysteryService } from '@/services/weeklyMysteryService.js'
 
 const route = useRoute()
+const router = useRouter()
 const classroomId = Number(route.params.classroomId)
 
 const submissions = ref([])
@@ -89,6 +90,12 @@ async function reject(id) {
 
 <template>
   <div class="mystery-manage">
+    <header class="mystery-manage__header">
+      <button class="btn-secondary" @click="router.push({ name: 'ClassroomDetail', params: { id: classroomId } })">
+        ← Tilbake
+      </button>
+    </header>
+
     <h1 class="mystery-manage__heading">Ukens Mysterium</h1>
     <p class="mystery-manage__intro">
       Innsendte mysterier fra elevene dine. Rediger, godkjenn og aktiver ett som ukas mysterium.
@@ -260,6 +267,10 @@ async function reject(id) {
   font-weight: var(--font-bold, 700);
   padding: var(--space-1, 0.25rem) var(--space-3, 0.75rem);
   border-radius: var(--radius-full, 999px);
+}
+
+.mystery-manage__header {
+  margin-bottom: var(--space-4, 1rem);
 }
 
 .mystery-manage__status--pending {
