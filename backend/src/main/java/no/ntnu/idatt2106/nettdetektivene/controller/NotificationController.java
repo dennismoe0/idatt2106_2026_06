@@ -48,7 +48,7 @@ public class NotificationController {
         notificationService.markAllRead(currentUserId(userDetails));
         return ResponseEntity.noContent().build();
     }
-    
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotification(
         @AuthenticationPrincipal UserDetails userDetails,
