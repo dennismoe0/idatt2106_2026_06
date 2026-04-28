@@ -41,7 +41,8 @@ public class MarketplaceTaskAnswerChecker implements TaskAnswerChecker {
         Set<String> correct = new HashSet<>();
         correctAnswer.path("correctElementIds").forEach(n -> correct.add(n.asText()));
 
-        // Stale DB guard: if correctElementIds is empty, derive from contentJson elements
+        // Temporary compatibility guard for already-seeded tasks in older environments
+        // where correctElementIds may be empty in DB. Remove after data is backfilled.
         if (correct.isEmpty() && task != null && task.getContentJson() != null) {
             log.warn("[MarketplaceTaskAnswerChecker] correctElementIds empty — falling back to contentJson.elements");
             try {

@@ -239,7 +239,7 @@ const mockupContent = computed(() => {
     productImageUrl:
       mockup.productImageUrl ??
       contentJson.value.productImageUrl ??
-      '/marketplace/AIR+MAX+270.png',
+      '/marketplace/air-max-270.png',
     badges,
     notice:
       mockup.notice ??

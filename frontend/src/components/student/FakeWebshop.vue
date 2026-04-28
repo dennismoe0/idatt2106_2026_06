@@ -52,7 +52,7 @@
         <img
           v-if="productImageUrl"
           :src="productImageUrl"
-          alt="Produktbilde"
+          :alt="productName || ''"
           class="fake-shop__product-img"
         />
         <div v-else class="fake-shop__img-placeholder" aria-hidden="true">🛍️</div>

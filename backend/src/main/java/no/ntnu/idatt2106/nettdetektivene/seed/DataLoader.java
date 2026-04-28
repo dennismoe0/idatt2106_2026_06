@@ -744,7 +744,7 @@ public class DataLoader implements ApplicationRunner {
                   "siteName": "billig-elektronikk.cc",
                   "question": "Klikk på de delene du synes er mistenkelige.",
                   "mockup": {
-                    "productImageUrl": "/marketplace/Playstation5.png",
+                    "productImageUrl": "/marketplace/playstation-5.png",
                     "headline": "PlayStation 5 — PÅ LAGER NÅ!",
                     "tagline": "Rask levering, super pris!",
                     "productName": "PlayStation 5",
