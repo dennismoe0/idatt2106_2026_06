@@ -243,6 +243,29 @@ class GameServiceTest {
     }
 
     @Test
+    void submitAnswer_alreadyCompletedClueRiddleStillRejectsWrongAnswer() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task task = clueRiddleTask(27L, stop);
+        StudentProgress progress = new StudentProgress();
+        progress.setCompleted(true);
+        progress.setScore(100);
+
+        when(taskRepository.findById(27L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 27L)).thenReturn(Optional.of(progress));
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            27L,
+            new SubmitAnswerRequest(Map.of("selected", "random_strong"))
+        );
+
+        assertThat(response.correct()).isFalse();
+        assertThat(response.stopCompleted()).isFalse();
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
+    }
+
+    @Test
     void getTasks_lockedStop_throws() {
         Stop first = stop(1L, 1, "Nyhetskvartalet");
         Stop second = stop(2L, 2, "Postkontoret");
