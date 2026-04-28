@@ -294,7 +294,7 @@ let confettiTimer = null
 let medalTimer    = null
 let peekOutTimer  = null
 
-const preferredMap = localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap'
+const preferredMap = computed(() => localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap')
 
 const stopId = computed(() => Number(route.query.stopId ?? 0) || null)
 const classroomId = computed(() => {
@@ -541,7 +541,8 @@ function maybeShowStoredClueModal(task, submitResult) {
 
   storedClueModal.value = {
     stopName: task.stopName ?? 'Nytt spor',
-    clue: submitResult.explanation
+    clue: submitResult.clueText
+      || submitResult.explanation
       || task.contentJson?.evidence
       || 'Et nytt spor er lagret i sporbrettet.',
   }
@@ -881,7 +882,7 @@ async function advanceArrestScene() {
 
   arrestSceneStep.value = -1
   if (!nextStopId) {
-    router.push({ name: preferredMap })
+    router.push({ name: preferredMap.value })
     return
   }
   router.push({
