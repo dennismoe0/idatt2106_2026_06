@@ -1,16 +1,18 @@
 <template>
   <section class="clue-riddle">
     <header class="clue-riddle__intro">
-      <p class="clue-riddle__label">Gåteoppgave</p>
-      <h2>{{ task.title }}</h2>
-      <p>{{ task.description }}</p>
+      <div class="clue-riddle__intro-copy">
+        <p class="clue-riddle__label">Gåteoppgave</p>
+        <h2>{{ task.title }}</h2>
+        <p>{{ task.description }}</p>
+      </div>
     </header>
 
     <div class="clue-riddle__story-grid">
       <section class="clue-riddle__why" aria-label="Hvorfor oppgaven er viktig">
         <div class="clue-riddle__section-head">
           <span class="clue-riddle__section-icon" aria-hidden="true">🕵️</span>
-          <div>
+          <div class="clue-riddle__section-copy">
             <h3>Hvorfor løser du dette?</h3>
             <p>{{ content.purpose }}</p>
           </div>
@@ -25,6 +27,9 @@
         <div class="clue-riddle__evidence-card">
           <p class="clue-riddle__evidence-note">Siste registrerte passordspor</p>
           <code class="clue-riddle__evidence-password">{{ evidencePassword }}</code>
+          <p class="clue-riddle__evidence-story">
+            De fant passordet til brukeren, og det kan være koblet til noe personlig, som kafénavnet i saken.
+          </p>
           <p class="clue-riddle__evidence-body">{{ evidenceContext }}</p>
         </div>
       </article>
@@ -32,6 +37,7 @@
 
     <div class="clue-riddle__question">
       <div class="clue-riddle__question-head">
+        <p class="clue-riddle__question-label">Hva forklarer passordet oss?</p>
         <h3>{{ content.question }}</h3>
         <p>Velg forklaringen som best kobler passordet til det digitale sporet.</p>
       </div>
@@ -99,7 +105,7 @@ const evidencePassword = computed(() => {
 const evidenceContext = computed(() => {
   const evidence = String(content.value.evidence ?? '')
   if (evidence === evidencePassword.value) return 'Analyser passordet og finn hva det avslører om kontoen.'
-  return evidence.replace(evidencePassword.value, 'Dette passordet').trim()
+  return 'Passordet ble funnet i loggen til reservekontoen.'
 })
 const resultMessage = computed(() => {
   if (!props.result) return ''
@@ -131,7 +137,7 @@ function optionBadge(optionId) {
 <style scoped>
 .clue-riddle {
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-6);
 }
 
 .clue-riddle__intro,
@@ -148,6 +154,11 @@ function optionBadge(optionId) {
     linear-gradient(120deg, rgba(255, 255, 255, 0.9), rgba(228, 241, 255, 0.96)),
     radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 35%);
   box-shadow: 0 18px 32px rgba(20, 73, 112, 0.08);
+  padding-block: var(--space-3);
+}
+
+.clue-riddle__intro-copy {
+  max-width: 38rem;
 }
 
 .clue-riddle__label {
@@ -165,9 +176,15 @@ function optionBadge(optionId) {
   margin-top: 0;
 }
 
+.clue-riddle h2 {
+  margin-bottom: var(--space-2);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.15;
+}
+
 .clue-riddle__story-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
 }
 
@@ -182,6 +199,17 @@ function optionBadge(optionId) {
 .clue-riddle__why {
   border: 1px solid var(--color-border);
   background: linear-gradient(180deg, #ffffff, #f8fbff);
+}
+
+.clue-riddle__section-copy {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 42rem;
+}
+
+.clue-riddle__section-copy h3 {
+  margin-bottom: 0;
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
 }
 
 .clue-riddle__section-head {
@@ -234,8 +262,8 @@ function optionBadge(optionId) {
 
 .clue-riddle__evidence-card {
   display: grid;
-  gap: var(--space-2);
-  padding: var(--space-3);
+  gap: var(--space-3);
+  padding: var(--space-4);
   border-radius: var(--radius-md);
   background: rgba(58, 35, 5, 0.92);
   color: #fff7d6;
@@ -260,22 +288,48 @@ function optionBadge(optionId) {
   letter-spacing: 0.04em;
 }
 
+.clue-riddle__evidence-story {
+  max-width: 34rem;
+  color: #fff;
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+}
+
 .clue-riddle__evidence-body {
   color: rgba(255, 247, 214, 0.92);
+  max-width: 34rem;
 }
 
 .clue-riddle__question {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .clue-riddle__question-head {
   display: grid;
-  gap: var(--space-1);
+  gap: var(--space-2);
+  max-width: 42rem;
+}
+
+.clue-riddle__question-label {
+  margin: 0;
+  color: #0f4c81;
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  letter-spacing: 0.04em;
+}
+
+.clue-riddle__question-head h3 {
+  margin-bottom: 0;
+  color: #10233c;
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  line-height: 1.2;
 }
 
 .clue-riddle__question-head p {
-  color: var(--color-text-muted);
+  color: #334155;
+  font-size: var(--text-base);
+  line-height: 1.6;
 }
 
 .clue-riddle__options {
@@ -300,13 +354,19 @@ function optionBadge(optionId) {
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
 }
 
+.clue-riddle__option strong {
+  color: #0f172a;
+  font-size: var(--text-base);
+  line-height: 1.45;
+}
+
 .clue-riddle__option:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 16px 24px rgba(15, 23, 42, 0.08);
 }
 
 .clue-riddle__option span {
-  color: var(--color-text-muted);
+  color: #475569;
   line-height: 1.4;
 }
 
@@ -336,17 +396,14 @@ function optionBadge(optionId) {
 .clue-riddle__submit,
 .clue-riddle__actions button {
   justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: var(--space-2) var(--space-6);
-  border: none;
+  min-height: 48px;
+  padding: 0.85rem 1.35rem;
+  border: 0;
   border-radius: var(--radius-md);
-  background: var(--color-primary);
+  background: #0f4c81;
   color: var(--color-text-on-dark);
-  font-weight: var(--font-semibold);
   font-size: var(--text-base);
+  font-weight: var(--font-bold);
   cursor: pointer;
   transition: background var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
 }
@@ -393,8 +450,9 @@ function optionBadge(optionId) {
 .riddle-result-leave-to { opacity: 0; transform: translateY(-10px); }
 
 @media (max-width: 800px) {
-  .clue-riddle__story-grid {
-    grid-template-columns: 1fr;
+  .clue-riddle__submit,
+  .clue-riddle__actions button {
+    width: 100%;
   }
 }
 </style>
