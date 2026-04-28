@@ -107,7 +107,7 @@ describe('TaskView', () => {
     ))
   })
 
-  it('shows the arrest cutscene only after the final Passordbanken clue task and redirects to Datasenteret', async () => {
+  it('shows the arrest cutscene only after the final Passordbanken clue task and returns to the map', async () => {
     const wrapper = mount(TaskView, {
       global: {
         plugins: [router],
@@ -197,8 +197,7 @@ describe('TaskView', () => {
     await wrapper.get('.arrest-scene__continue').trigger('click')
     await flushPromises()
 
-    expect(router.currentRoute.value.name).toBe('Task')
-    expect(router.currentRoute.value.query.stopId).toBe('7')
+    expect(router.currentRoute.value.name).toBe('WorldMap')
   })
 
   it('does not show stored clue modal after learning task completion', async () => {

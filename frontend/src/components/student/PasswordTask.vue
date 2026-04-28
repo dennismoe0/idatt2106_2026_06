@@ -321,15 +321,23 @@ function submit() {
 
 .clear-btn {
   justify-self: start;
-  background: transparent;
-  border: 1px solid var(--color-danger);
-  color: var(--color-danger);
+  min-height: 44px;
+  background: #fff1f2;
+  border: 2px solid #be123c;
+  color: #881337;
   border-radius: var(--radius-md);
-  padding: var(--space-1) var(--space-3);
+  padding: 0.7rem 1rem;
   cursor: pointer;
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
+  font-weight: var(--font-bold);
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 .clear-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.clear-btn:hover:not(:disabled) {
+  background: #ffe4e6;
+  border-color: #9f1239;
+  color: #6b102d;
+}
 
 /* ── Submit ── */
 .submit-btn {
