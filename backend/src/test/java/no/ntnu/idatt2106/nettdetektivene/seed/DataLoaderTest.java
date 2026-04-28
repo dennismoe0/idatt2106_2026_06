@@ -221,6 +221,10 @@ class DataLoaderTest {
         assertThat(answer.path("selected").asText()).isEqualTo("c");
         assertThat(content.path("explanation").asText())
             .contains("S@nder_2015# er den beste forbedringen av alternativene")
+            .contains("små bokstaver")
+            .contains("årstallet")
+            .contains("være lette å gjette")
+            .doesNotContain("Ã")
             .contains("fortsatt ikke et ideelt passord");
     }
 
