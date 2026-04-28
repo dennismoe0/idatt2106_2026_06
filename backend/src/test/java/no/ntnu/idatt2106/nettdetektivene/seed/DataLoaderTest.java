@@ -204,6 +204,29 @@ class DataLoaderTest {
             });
     }
 
+    @Test
+    void run_seedsPasswordImprovementTaskWithUpdatedCorrectAnswerAndFeedback() throws Exception {
+        List<Task> tasks = seededTasks();
+
+        Task passwordImprovementTask = tasks.stream()
+            .filter(task -> task.getStop().getName().equals("Passordbanken"))
+            .filter(task -> task.getOrderIndex() == 3)
+            .findFirst()
+            .orElseThrow();
+
+        JsonNode content = parseJson(passwordImprovementTask.getContentJson());
+        JsonNode answer = parseJson(passwordImprovementTask.getCorrectAnswerJson());
+
+        assertThat(passwordImprovementTask.getTitle()).isEqualTo("Gjør passordet bedre");
+        assertThat(content.path("question").asText())
+            .isEqualTo("Noen har prøvd å gjøre passordet 'Sander2015' sterkere. Hvilken versjon er best?");
+        assertThat(content.path("options").get(2).path("value").asText()).isEqualTo("S@nder_2015#");
+        assertThat(answer.path("selected").asText()).isEqualTo("c");
+        assertThat(content.path("explanation").asText())
+            .contains("S@nder_2015# er den beste forbedringen av alternativene")
+            .contains("fortsatt ikke et ideelt passord");
+    }
+
     private List<Task> seededTasks() throws Exception {
         StopRepository stopRepository = mock(StopRepository.class);
         TaskRepository taskRepository = mock(TaskRepository.class);

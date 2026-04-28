@@ -7,7 +7,7 @@ const TASK = {
   title: 'Gåtespor: Passordet i loggen',
   description: 'Det siste sporet handler om passordet tyven brukte på en reservekonto.',
   contentJson: {
-    purpose: 'Du bruker det du lærte om passord for å lese et siste digitalt spor.',
+    purpose: 'Du bruker det du lærte om passord for å lese et siste digitalt spor. Et lekket passord kan avsløre både vaner og hvem kontoen er knyttet til.',
     evidence: 'Reservekontoen brukte passordet XooInnAdmin2019.',
     question: 'Hva forteller passordet oss?',
     options: [
@@ -36,6 +36,9 @@ describe('ClueRiddleTask', () => {
 
     expect(wrapper.find('.clue-riddle__evidence-password').text()).toBe('XooInnAdmin2019')
     expect(wrapper.text()).toContain('Reservekonto logg')
+    expect(wrapper.text()).toContain('Et lekket passord kan avsløre både vaner og hvem kontoen er knyttet til.')
+    expect(wrapper.text()).toContain('De fant passordet til brukeren, og det kan være koblet til noe personlig')
+    expect(wrapper.find('.clue-riddle__question-head h3').text()).toBe('Hva forteller passordet oss?')
   })
 
   it('emits the selected option id on submit', async () => {
