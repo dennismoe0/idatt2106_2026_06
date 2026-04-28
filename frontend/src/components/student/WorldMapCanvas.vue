@@ -1,9 +1,9 @@
 <template>
   <div class="world-canvas">
 
-    <!-- Layer 1: Background scenery (wireframe-derived SVG) -->
+    <!-- Layer 1: Background scenery (wireframe-derived SVG) — hidden when custom image is in use -->
     <svg
-      class="world-canvas__layer"
+      class="world-canvas__layer world-canvas__layer--scenery"
       viewBox="0 0 1600 900"
       xmlns="http://www.w3.org/2000/svg"
       preserveAspectRatio="xMidYMid slice"
@@ -47,8 +47,6 @@
         </symbol>
       </defs>
 
-      <!-- Grass base -->
-      <rect width="1600" height="900" fill="url(#wm-grass)"/>
       <!-- Ambient light spots -->
       <circle cx="350"  cy="400" r="340" fill="url(#wm-light)"/>
       <circle cx="1100" cy="500" r="380" fill="url(#wm-light)"/>
@@ -254,6 +252,11 @@ const avatarStyle = computed(() => {
   width: 1600px;
   height: 900px;
   overflow: hidden;
+  background: url('/map-bg.png') center / cover no-repeat, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3Crect fill='%236FC847'/%3E%3C/SVG%3E");
+}
+
+.world-canvas__layer--scenery {
+  display: none;
 }
 
 .world-canvas__layer {
