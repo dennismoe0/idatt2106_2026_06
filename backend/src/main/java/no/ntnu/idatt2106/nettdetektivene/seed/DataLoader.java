@@ -178,9 +178,9 @@ public class DataLoader implements ApplicationRunner {
                             "Sjekk i en kanal du vet er ekte."
                         }
                     ),
-                    new Quiz("q1", "Hva er phishing?", new String[]{"Å prøve mange passord automatisk", "E-poster som later som å komme fra pålitelige kilder for å stjele informasjon", "Spam-reklame"}, "E-poster som later som å komme fra pålitelige kilder for å stjele informasjon"),
-                    new Quiz("q2", "Hva er et varseltegn i en e-post?", new String[]{"Avsenderen er på norsk", "Hasteord og lenker til ukjente sider", "E-posten har et bilde"}, "Hasteord og lenker til ukjente sider"),
-                    new Quiz("q3", "Hva bør du gjøre med en mistenkelig e-post?", new String[]{"Svare og spørre om det er ekte", "Slette den og gå direkte til nettstedet selv", "Videresende til venner"}, "Slette den og gå direkte til nettstedet selv")
+                    new Quiz("q1", "Hva menes det med phishing når du får en e-post eller melding som ser viktig ut?", new String[]{"At noen prøver mange passord automatisk på en konto", "At en falsk melding later som den kommer fra noen du stoler på for å lure deg til å gi fra deg informasjon eller klikke", "At en nettbutikk er utsolgt for varer", "At du får vanlig reklame fra en ekte avsender"}, "At en falsk melding later som den kommer fra noen du stoler på for å lure deg til å gi fra deg informasjon eller klikke"),
+                    new Quiz("q2", "Hvilken kombinasjon av tegn gjør at en e-post bør føles ekstra mistenkelig før du gjør noe?", new String[]{"E-posten er kort og høflig, og du kjenner avsenderen", "Den bruker tidspress, ber deg klikke raskt og har en lenke eller adresse som ligner på noe ekte uten å være helt riktig", "Den har skolens farger og en logo", "Den kommer på dagtid når mange er på skolen"}, "Den bruker tidspress, ber deg klikke raskt og har en lenke eller adresse som ligner på noe ekte uten å være helt riktig"),
+                    new Quiz("q3", "Hvis du får en mistenkelig melding om banken, pakken eller skolekontoen din, hva er det tryggeste første steget?", new String[]{"Svare på meldingen og spørre om den er ekte", "Trykke på lenken raskt for å sjekke hva som har skjedd", "Slette meldingen eller rapportere den, og gå til den ekte nettsiden eller appen selv hvis du må sjekke noe", "Sende meldingen videre til venner så de også får se den"}, "Slette meldingen eller rapportere den, og gå til den ekte nettsiden eller appen selv hvis du må sjekke noe")
                 )
             ),
             learnTask(photoStop, 1, "Lær om KI-bilder", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
@@ -510,13 +510,15 @@ public class DataLoader implements ApplicationRunner {
                 "Bankvarsel",
                 "DNB",
                 "kundevarsling@dnb-kundeservice.com",
-                "Vi har satt betalingen din på pause",
+                "Viktig sikkerhetsvarsel: Vi har satt betalingen din på pause",
                 """
                 Hei Oliver,
 
                 Vi oppdaget et uvanlig forsøk på å gjennomføre en betaling fra kortet ditt på 4 890 kr til Steam Market. Dersom dette ikke ble gjort av deg, må du bekrefte kontoen din innen 30 minutter for å unngå midlertidig sperring av nettbanken.
 
-                Kontroller opplysningene dine her: dnb-kontroll.com/bekreft
+                For å stoppe betalingen må du logge inn med BankID og kontrollere opplysningene dine her: dnb-kontroll.com/bekreft
+
+                Hvis du ikke gjør dette i tide, kan kortet og kontoen din bli midlertidig låst av sikkerhetsavdelingen.
 
                 Med vennlig hilsen
                 DNB Kundeservice
@@ -525,6 +527,10 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("sender", "sender", "kundevarsling@dnb-kundeservice.com", true, "Avsenderen ser ekte ut ved første blikk, men domenet er ikke dnb.no."),
                     new Clue("link1", "link", "dnb-kontroll.com/bekreft", true, "Lenken peker til et annet domene enn banken sin offisielle nettside."),
                     new Clue("urgency", "text", "innen 30 minutter", true, "Svindlere bruker tidspress for å få deg til å klikke før du rekker å sjekke."),
+                    new Clue("bankid", "text", "logge inn med BankID", true, "Phishing prøver ofte å få deg til å oppgi innlogging eller BankID på en falsk side."),
+                    new Clue("threat", "text", "kortet og kontoen din bli midlertidig låst", true, "Trusler om sperring eller låsing brukes for å skape panikk."),
+                    new Clue("greeting", "text", "Hei Oliver,", false, "At meldingen bruker navnet ditt betyr ikke at den er ekte. Navn kan være lett å finne eller gjette."),
+                    new Clue("merchant", "text", "Steam Market", false, "Et kjent navn eller sted i meldingen er ikke i seg selv bevis på svindel. Det er avsender, lenke og presset som avslører mest her."),
                     new Clue("logo", "branding", "DNB Kundeservice", false, "Logo og avsendernavn alene er ikke nok. Svindlere kopierer ofte kjente merkevarer for å se troverdige ut.")
                 ),
                 "E-posten ser profesjonell ut, men avsenderen og lenken er falske. Tidspresset er laget for å stresse deg til å gi fra deg BankID-opplysninger."
@@ -535,13 +541,17 @@ public class DataLoader implements ApplicationRunner {
                 "Pakkemelding",
                 "Posten",
                 "varsling@posten-levering.net",
-                "Pakken din er forsinket i terminal",
+                "Pakken din er forsinket i terminal og trenger betaling",
                 """
-                Hei!
+                Hei kunde!
 
                 Vi forsøkte å sende pakken din videre til utleveringsstedet, men sendingen er stoppet fordi det mangler et lite toll- og behandlingsgebyr på 19 kr. Betal i dag for å unngå at pakken blir sendt i retur til avsender.
 
+                Pakken vil bli slettet fra systemet hvis betalingen ikke registreres innen kl. 23.00.
+
                 Betal gebyret her: posten-oppdatering.net/betaling
+
+                Ha bankkort klart når du åpner lenken, så går behandlingen raskere.
 
                 Hilsen Posten
                 """,
@@ -549,6 +559,10 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("sender", "sender", "varsling@posten-levering.net", true, "Adressen ligner på Posten, men bruker ikke det offisielle domenet posten.no."),
                     new Clue("link1", "link", "posten-oppdatering.net/betaling", true, "Betalingslenken går til en side som ikke tilhører Posten."),
                     new Clue("urgency", "text", "Betal i dag", true, "Kunstig hastverk er et vanlig grep i phishing."),
+                    new Clue("deadline", "text", "innen kl. 23.00", true, "En kort tidsfrist er laget for å få deg til å reagere før du tenker deg om."),
+                    new Clue("card", "text", "Ha bankkort klart", true, "Meldingen prøver å få deg klar til å oppgi betalingsinformasjon på en ukjent side."),
+                    new Clue("greeting", "text", "Hei kunde!", true, "En veldig generell hilsen kan være et tegn på at meldingen er sendt ut til mange uten å vite hvem du er."),
+                    new Clue("delivery", "text", "utleveringsstedet", false, "At meldingen nevner utleveringsstedet er ganske vanlig i ekte pakkemeldinger. Det er ikke det som avslører svindelen her."),
                     new Clue("sender_name", "sender_name", "Posten", false, "Avsendernavnet kan se riktig ut selv når selve e-postadressen er falsk.")
                 ),
                 "Dette ligner på en ekte pakkemelding, men både avsender og lenke er feil. Det lille gebyret og tidspresset er klassiske phishing-grep."
@@ -559,13 +573,17 @@ public class DataLoader implements ApplicationRunner {
                 "Skolekonto",
                 "IT-support VGS",
                 "it-support@skole-login.com",
-                "Kontoen din mister tilgang til Teams i dag",
+                "Kontoen din mister tilgang til Teams og Canvas i dag",
                 """
-                Hei,
+                Hei elev,
 
                 Vi oppdaterer innloggingen for elever etter flere feilforsøk mot skolekontoer denne uka. For å beholde tilgang til Teams, Canvas og skolemail må du logge inn og bekrefte brukeren din før kl. 14.00 i dag.
 
+                Bruk skolepassordet ditt på nytt i portalen for å unngå at kontoen blir deaktivert automatisk.
+
                 Gå til elevportalen her: skole-login.com/verify
+
+                Du kan ikke bruke vanlige skoleapper igjen før dette er gjort.
 
                 Mvh
                 IT-support
@@ -574,7 +592,12 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("sender", "sender", "it-support@skole-login.com", true, "Skolen ville brukt sitt eget domene, ikke skole-login.com."),
                     new Clue("link1", "link", "skole-login.com/verify", true, "Lenken leder til et ukjent domene som kan stjele skoleinnloggingen din."),
                     new Clue("urgency", "text", "før kl. 14.00 i dag", true, "Tidspress gjør det lettere å lure elever til å handle raskt."),
-                    new Clue("greeting", "text", "Hei,", false, "En vanlig hilsen er ikke i seg selv et tegn på svindel. Du må se på domenet og lenken også.")
+                    new Clue("password", "text", "Bruk skolepassordet ditt på nytt", true, "Det er mistenkelig når en e-post ber deg skrive inn passordet ditt via en lenke."),
+                    new Clue("deactivated", "text", "kontoen blir deaktivert automatisk", true, "Trussel om å miste tilgang brukes for å stresse deg til å handle raskt."),
+                    new Clue("apps", "text", "Du kan ikke bruke vanlige skoleapper igjen før dette er gjort.", true, "Meldingen prøver å skremme deg med konsekvenser for å få deg til å klikke."),
+                    new Clue("greeting", "text", "Hei elev,", true, "En generell hilsen i stedet for navnet ditt kan være et tegn på at meldingen er masseutsendt phishing."),
+                    new Clue("services", "text", "Teams, Canvas og skolemail", false, "At meldingen nevner ekte tjenester du bruker gjør den ikke automatisk farlig. Det avgjørende er det falske domenet og presset om å logge inn."),
+                    new Clue("signature", "text", "Mvh", false, "En vanlig avslutning gjør ikke meldingen trygg. Du må fortsatt sjekke avsender og lenke.")
                 ),
                 "Meldingen ser ut som en vanlig IT-beskjed, men domenet er feil og haster unødvendig. Slike e-poster bør alltid sjekkes i skolens offisielle kanaler før du klikker."
             ),
@@ -921,30 +944,41 @@ public class DataLoader implements ApplicationRunner {
                 5,
                 "Gåtespor: Phishing-e-posten",
                 "En ansatt i kommunen fikk en e-post før pengene forsvant. Finn tegnet som avslører at den er phishing.",
-                "Du bruker det du lærte om phishing: sjekk avsender, lenke og kunstig hastverk. Riktig valg viser hvordan tyven kom inn i systemet.",
-                "E-posten ba mottakeren bekrefte kontoen sin etter en påstått sikkerhetsfeil.",
+                "bruk det du lærte om phishing: sjekk avsender, lenke og kunstig hastverk. Riktig valg viser hvordan tyven kom inn i systemet.",
+                "Her er meldingen som ble brukt for å lure en ansatt til å logge inn på en falsk side.",
                 "Hva er det sterkeste phishing-sporet?",
                 """
                 [
                   {
                     "id": "wrong_domain",
-                    "label": "Lenken går til kommune-sikkerhet.net i stedet for kommunens ekte domene",
-                    "detail": "Lenken ser offisiell ut, men domenet er feil."
+                    "label": "Lenken går til kommune-sikkerhet.net i stedet for kommunens ekte domene, og det betyr at siden kan være laget for å stjele innloggingen din",
+                    "detail": "Et domene som bare ligner på det ekte er et av de tydeligste phishing-tegnene."
                   },
                   {
-                    "id": "normal_logo",
-                    "label": "E-posten har kommunens logo øverst",
-                    "detail": "Logoer kan kopieres og er ikke nok alene."
+                    "id": "no_emojis",
+                    "label": "E-posten inneholder ingen emojier",
+                    "detail": "Dette er phishing fordi e-posten ikke inneholder noen emojis, og ekte IT-avdelinger bruker alltid minst én emoji i viktige meldinger."
                   },
                   {
-                    "id": "polite_greeting",
-                    "label": "E-posten starter med Hei",
-                    "detail": "En vanlig hilsen er ikke et faresignal."
+                    "id": "knows_name",
+                    "label": "E-posten starter med Hei Kari",
+                    "detail": "Avsenderen vet hva bruker heter"
                   }
                 ]
                 """,
                 "wrong_domain",
-                "Riktig. Feil domene er et tydelig phishing-spor. Loggene viser at lenken ble åpnet fra nettverket til Xoo Inn Cafe."
+                "Riktig. Feil domene er et tydelig phishing-spor, fordi svindlere ofte lager nettsider som ligner på ekte innlogginger. Loggene viser at lenken ble åpnet fra nettverket til Xoo Inn Cafe."
+                ,
+                """
+                {
+                  "email": {
+                    "fromName": "Trondheim kommune IT",
+                    "fromEmail": "varsling@kommune-sikkerhet.net",
+                    "subject": "Viktig: kontoen din må sikres i dag",
+                    "body": "Hei Kari,\\n\\nVi har registrert en sikkerhetsfeil på kontoen din etter uvanlig aktivitet i natt. For å beholde tilgang til e-post og lønnssystem må du bekrefte brukeren din før kl. 13.00 i dag.\\n\\nLogg inn her: kommune-sikkerhet.net/bekreft\\n\\nHilsen IT-avdelingen"
+                  }
+                }
+                """
             ),
             clueRiddleTask(
                 marketStop,

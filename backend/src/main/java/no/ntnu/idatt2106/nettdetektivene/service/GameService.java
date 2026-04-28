@@ -181,15 +181,18 @@ public class GameService {
             boolean stopCompleted = isStopComplete(studentId, task.getStop().getId());
             String clueText = stopCompleted ? task.getStop().getClueText() : null;
             boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
+            List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? correctClueIdsFor(task) : List.of();
+            boolean currentAnswerCorrect = checkAnswer(task, req == null ? null : req.answer());
             return new SubmitAnswerResponse(
-                true,
+                currentAnswerCorrect,
                 existingProgress.get().getScore(),
                 explanation,
                 stopCompleted,
                 null,
                 0,
                 0,
-                List.of(),
+                correctClueIds,
                 null,
                 clueText,
                 showSuspectReveal
@@ -668,7 +671,6 @@ public class GameService {
                     clues.forEach(clue -> {
                         if (clue.isObject()) {
                             ((ObjectNode) clue).remove("isClue");
-                            ((ObjectNode) clue).remove("explanation");
                         }
                     });
                 }

@@ -284,6 +284,8 @@ class GameServiceTest {
         assertThat(content.has("explanation")).isFalse();
         assertThat(content.path("email").has("correctAction")).isFalse();
         assertThat(content.path("email").has("suspiciousElements")).isTrue();
+        assertThat(content.path("email").path("clues").get(0).has("isClue")).isFalse();
+        assertThat(content.path("email").path("clues").get(0).path("explanation").asText()).isEqualTo("Avsenderadressen bruker feil domene.");
     }
 
     @Test
@@ -748,7 +750,23 @@ class GameServiceTest {
                 "fromName": "DNB Kundeservice",
                 "fromEmail": "support@dnb-kundeservice.com",
                 "subject": "Viktig",
-                "body": "Klikk her",
+                "body": "Klikk her med en gang",
+                "clues": [
+                  {
+                    "id": "sender",
+                    "type": "sender",
+                    "label": "support@dnb-kundeservice.com",
+                    "isClue": true,
+                    "explanation": "Avsenderadressen bruker feil domene."
+                  },
+                  {
+                    "id": "urgency",
+                    "type": "text",
+                    "label": "med en gang",
+                    "isClue": true,
+                    "explanation": "Hastverk er et vanlig phishing-tegn."
+                  }
+                ],
                 "suspiciousElements": ["fromEmail"],
                 "correctAction": "REPORT"
               },

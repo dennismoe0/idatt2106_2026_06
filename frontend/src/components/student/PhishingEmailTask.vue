@@ -80,8 +80,8 @@
         <!-- Per-clue explanations -->
         <ul v-if="revealedClues.length" class="phishing-task__clue-list">
           <li v-for="clue in revealedClues" :key="clue.id" class="phishing-task__clue-item">
-            <span :class="clue.wasCorrect ? 'phishing-task__clue-icon--ok' : 'phishing-task__clue-icon--missed'">
-              {{ clue.wasCorrect ? '✅' : '🔍' }}
+            <span :class="clue.iconClass">
+              {{ clue.icon }}
             </span>
             <strong>{{ clue.label }}</strong>: {{ clue.explanation }}
           </li>
@@ -150,13 +150,39 @@ function isFeedbackMissed(id) {
 const revealedClues = computed(() => {
   if (!props.result) return []
   return allClues.value
-    .filter(c => c.isClue !== false && (correctClueIds.value.has(c.id) || flagged.has(c.id)))
-    .map(c => ({
-      id: c.id,
-      label: c.label,
-      explanation: c.explanation ?? '',
-      wasCorrect: flagged.has(c.id) && correctClueIds.value.has(c.id)
-    }))
+    .filter(c => correctClueIds.value.has(c.id) || flagged.has(c.id))
+    .map(c => {
+      const isCorrectClue = correctClueIds.value.has(c.id)
+      const wasFlagged = flagged.has(c.id)
+
+      if (isCorrectClue && wasFlagged) {
+        return {
+          id: c.id,
+          label: c.label,
+          explanation: c.explanation ?? '',
+          icon: '✅',
+          iconClass: 'phishing-task__clue-icon--ok'
+        }
+      }
+
+      if (wasFlagged) {
+        return {
+          id: c.id,
+          label: c.label,
+          explanation: c.explanation ?? '',
+          icon: '❌',
+          iconClass: 'phishing-task__clue-icon--wrong'
+        }
+      }
+
+      return {
+        id: c.id,
+        label: c.label,
+        explanation: c.explanation ?? '',
+        icon: '🔎',
+        iconClass: 'phishing-task__clue-icon--missed'
+      }
+    })
 })
 
 function toggleClue(id) {
@@ -345,6 +371,7 @@ function submit() {
   line-height: 1.4;
 }
 .phishing-task__clue-icon--ok     { flex-shrink: 0; }
+.phishing-task__clue-icon--wrong  { flex-shrink: 0; }
 .phishing-task__clue-icon--missed { flex-shrink: 0; }
 
 .next-btn {

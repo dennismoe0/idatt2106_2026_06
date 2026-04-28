@@ -14,6 +14,21 @@
       <span>Bevis</span>
       <p v-if="content.evidence">{{ content.evidence }}</p>
 
+      <article v-if="emailEvidence" class="clue-riddle__email" aria-label="Mistenkelig e-post">
+        <div class="clue-riddle__email-row">
+          <span class="clue-riddle__email-label">Fra:</span>
+          <span class="clue-riddle__email-value">
+            {{ emailEvidence.fromName }}
+            <span v-if="emailEvidence.fromEmail">&lt;{{ emailEvidence.fromEmail }}&gt;</span>
+          </span>
+        </div>
+        <div class="clue-riddle__email-row">
+          <span class="clue-riddle__email-label">Emne:</span>
+          <span class="clue-riddle__email-value">{{ emailEvidence.subject }}</span>
+        </div>
+        <p class="clue-riddle__email-body">{{ emailEvidence.body }}</p>
+      </article>
+
       <div v-if="socialPost" class="clue-riddle__social-shell" :style="postThemeStyle">
         <div class="clue-riddle__social-platform">
           <span class="clue-riddle__social-platform-dot" aria-hidden="true" />
@@ -121,6 +136,7 @@ const selected = ref('')
 const content = computed(() => props.task?.contentJson ?? {})
 const options = computed(() => content.value.options ?? [])
 const socialPost = computed(() => content.value.socialPost ?? null)
+const emailEvidence = computed(() => content.value.email ?? null)
 const postThemeStyle = computed(() => getPostThemeStyle(socialPost.value?.platform))
 
 watch(() => props.task?.id, () => {
@@ -291,6 +307,44 @@ function getAvatarStyle(username, platform) {
 .clue-riddle__question {
   display: grid;
   gap: var(--space-3);
+}
+
+.clue-riddle__email {
+  display: grid;
+  gap: var(--space-2);
+  border: 2px solid color-mix(in srgb, var(--color-primary) 20%, var(--color-border));
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: var(--space-4);
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+
+.clue-riddle__email-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.clue-riddle__email-label {
+  font-weight: var(--font-bold);
+  color: var(--color-primary-dark);
+}
+
+.clue-riddle__email-value {
+  color: var(--color-text);
+  font-weight: var(--font-semibold);
+}
+
+.clue-riddle__email-value span {
+  color: var(--color-text-muted);
+  font-family: monospace;
+}
+
+.clue-riddle__email-body {
+  white-space: pre-line;
+  color: var(--color-text);
+  line-height: 1.65;
 }
 
 .clue-riddle__social-shell {
