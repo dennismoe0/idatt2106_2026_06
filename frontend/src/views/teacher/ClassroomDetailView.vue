@@ -223,11 +223,11 @@ async function loadLeaderboard() {
 
 async function loadStops() {
   try {
-    const { data } = await gameService.getStops(classroomId)
-    // Ensure sorted by orderIndex ascending
+    const { data } = await gameService.getStopsMeta()
     stops.value = [...data].sort((a, b) => a.orderIndex - b.orderIndex)
+    console.log('[ClassroomDetailView] Stops meta loaded:', stops.value.length)
   } catch (err) {
-    console.error('[ClassroomDetailView] Failed to fetch stops:', err)
+    console.error('[ClassroomDetailView] Failed to fetch stops meta:', err)
     stopsError.value = 'Kunne ikke hente stoppene.'
   }
 }

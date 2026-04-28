@@ -10,6 +10,7 @@ import no.ntnu.idatt2106.nettdetektivene.dto.game.MedalDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.PhishingClueFeedbackDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.PlayerProfileDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ProgressResponse;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.StopMetaResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.StopResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.SubmitAnswerRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.SubmitAnswerResponse;
@@ -110,6 +111,20 @@ public class GameService {
         this.avatarService = avatarService;
         this.answerCheckers = answerCheckers.stream()
             .collect(Collectors.toUnmodifiableMap(TaskAnswerChecker::supportedTaskType, Function.identity()));
+    }
+
+    @Transactional(readOnly = true)
+    public List<StopMetaResponse> getStopsMeta() {
+        log.info("[GameService] getStopsMeta");
+        return stopRepository.findAllByOrderByOrderIndexAsc().stream()
+            .map(s -> new StopMetaResponse(
+                s.getId(),
+                s.getName(),
+                s.getOrderIndex(),
+                s.getTheme(),
+                Math.toIntExact(requiredTaskCount(s.getId()))
+            ))
+            .toList();
     }
 
     @Transactional(readOnly = true)
