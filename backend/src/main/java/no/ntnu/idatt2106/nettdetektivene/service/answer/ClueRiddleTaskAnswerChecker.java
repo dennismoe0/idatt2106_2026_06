@@ -21,6 +21,6 @@ public class ClueRiddleTaskAnswerChecker implements TaskAnswerChecker {
         if (submitted == null || correctAnswer.path("selected").isMissingNode()) {
             return false;
         }
-        return correctAnswer.path("selected").asText().equalsIgnoreCase(String.valueOf(submitted));
+        return correctAnswer.path("selected").asText().equals(String.valueOf(submitted));
     }
 }
