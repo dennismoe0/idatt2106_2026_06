@@ -242,18 +242,7 @@ public class GameService {
         List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
             ? correctClueIdsFor(task) : List.of();
 
-        String clueText = null;
-        boolean showSuspectReveal = false;
-        if (stopCompleted) {
-            Stop completedStop = task.getStop();
-            if (completedStop.getOrderIndex() == 4) {
-                showSuspectReveal = true;
-            } else {
-                clueText = completedStop.getClueText();
-            }
-        }
-
-        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, starsEarned, xpEarned, correctClueIds, null, clueText, showSuspectReveal);
+        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 1, xpEarned, correctClueIds, null, null, false);
     }
 
     @Transactional(readOnly = true)
