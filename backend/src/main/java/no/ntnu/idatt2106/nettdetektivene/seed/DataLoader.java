@@ -224,9 +224,9 @@ public class DataLoader implements ApplicationRunner {
                             "Spør om bildet finnes i en original versjon."
                         }
                     ),
-                    new Quiz("q1", "Hva er vanlige feil i KI-genererte bilder?", new String[]{"For mange farger", "Merkelige hender og urealistisk glatt hud", "For lav bildekvalitet"}, "Merkelige hender og urealistisk glatt hud"),
-                    new Quiz("q2", "Hva skiller et KI-generert bilde fra et manipulert bilde?", new String[]{"KI-bilder er alltid svart-hvitt", "KI-bilder er laget av AI, manipulerte er ekte bilder som er endret", "Manipulerte bilder har alltid bedre kvalitet"}, "KI-bilder er laget av AI, manipulerte er ekte bilder som er endret"),
-                    new Quiz("q3", "Hva kan avsløre at et ekte bilde er manipulert etterpå?", new String[]{"Nye ting passer ikke med lys, skygger eller skarphet", "Bildet har farger", "Bildet er tatt ute"}, "Nye ting passer ikke med lys, skygger eller skarphet")
+                    new Quiz("q1", "Hva er et KI-bilde?", new String[]{"Et bilde med for mange farger", "Et bilde laget av et dataprogram", "Bilde redigert på PC-en"}, "Et bilde laget av et dataprogram"),
+                    new Quiz("q2", "Hva er vanlige feil i KI og manipulerte bilder?", new String[]{"For mange farger", "Merkelige hender og urealistisk glatt hud", "For lav bildekvalitet"}, "Merkelige hender og urealistisk glatt hud"),
+                    new Quiz("q3", "Hva kan avsløre at et ekte bilde er manipulert etterpå?", new String[]{"Nye ting passer ikke med lys og skygger", "Bildet har farger", "Bildet er tatt ute"}, "Nye ting passer ikke med lys og skygger")
                 )
             ),
             learnTask(pwdStop, 1, "Lær om passord", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
@@ -586,63 +586,63 @@ public class DataLoader implements ApplicationRunner {
                   "images": [
                     {
                       "id": "image_0",
-                      "src": "",
-                      "alt": "En person sitter på en benk i en park. Hånden som holder mobilen har unaturlige fingre, og kanten på jakken flyter litt inn i bakgrunnen.",
+                      "src": "/story_pictures/photographer-task-1-manipulated-beach.png",
+                      "alt": "Barn leker på en strand med flere personer og hus i bakgrunnen. Bildet er manipulert med KI.",
                       "label": "Bilde A",
-                      "explanation": "Legg merke til hånden rundt mobilen: fingrene flyter sammen og får en form som ikke ser menneskelig ut. Jakken og benken glir også litt inn i hverandre ved kanten, noe som er typisk for KI-genererte bilder."
+                      "explanation": "Dette bildet er manipulert med KI. Det kan se ut som et vanlig strandfoto, men innholdet er endret slik at scenen ikke er et pålitelig bevis på hva som faktisk skjedde."
                     },
                     {
                       "id": "image_1",
-                      "src": "",
-                      "alt": "Utsikt over en by tatt fra et vindu. Bildet har naturlige refleksjoner, vanlig støy og realistiske linjer i bygningene.",
+                      "src": "/story_pictures/photographer-task-1-ai-beach.png",
+                      "alt": "En strandpromenade med palmer, vei, strand og mennesker. Bildet er KI-generert.",
                       "label": "Bilde B",
-                      "explanation": "Dette bildet har vanlige mobilkamerategn som litt støy i himmelen og naturlige refleksjoner i glasset. Linjene i bygningene og detaljene i bakgrunnen holder seg konsistente hele veien."
+                      "explanation": "Dette bildet er KI-generert. Hele scenen er laget kunstig, selv om lys, strand og bygninger kan virke realistiske ved første blikk."
                     }
                   ],
                   "question": "Sorter hvert bilde: er det ekte, KI-generert eller manipulert?"
                 }
                 """,
-                "{\"image_0\": \"AI_GENERATED\", \"image_1\": \"REAL\"}"),
+                "{\"image_0\": \"MANIPULATED\", \"image_1\": \"AI_GENERATED\"}"),
             aiPhotoTask(photoStop, 3, "Bytorget", "Finn hvilket bilde som er ekte og kan brukes som bevis.",
                 """
                 {
                   "images": [
                     {
                       "id": "image_0",
-                      "src": "",
-                      "alt": "En person står på et bytorg. Flere vinduer og personer i bakgrunnen ser nesten identiske ut.",
+                      "src": "/story_pictures/photographer-task-2-real-taj.jpg",
+                      "alt": "Et ekte foto av Taj Mahal med hage, vannløp, besøkende og blå himmel.",
                       "label": "Bilde A",
-                      "explanation": "Bakgrunnen gjentar de samme mønstrene flere steder, særlig i vinduene og menneskene bak personen. Slike kopierte detaljer er et vanlig tegn på at bildet er generert av KI."
+                      "explanation": "Dette er det ekte bildet. Det har naturlige kameradetaljer, vanlige variasjoner i mennesker og omgivelser, og scenen virker konsistent uten ekstra elementer som er lagt inn."
                     },
                     {
                       "id": "image_1",
-                      "src": "",
-                      "alt": "Et mobilbilde av samme torg med naturlig lys, vanlige skygger og litt uskarphet i bevegelse.",
+                      "src": "/story_pictures/photographer-task-2-manipulated-taj.png",
+                      "alt": "Taj Mahal med ekstra elementer som luftballong, helikopter, fugler, kamel og elefant lagt inn i scenen.",
                       "label": "Bilde B",
-                      "explanation": "Her oppfører lyset seg naturlig, og små ting som bevegelsesuskarphet og skjeve skygger ser ekte ut. Ingenting i ansikter, klær eller bygninger bryter mønsteret vi forventer fra et vanlig mobilbilde."
+                      "explanation": "Dette bildet er manipulert. Det bygger på den samme scenen, men flere elementer er lagt til etterpå, som luftballong, helikopter, dyr og ekstra personer."
                     },
                     {
                       "id": "image_2",
-                      "src": "",
-                      "alt": "Et portrett på torget der huden er veldig glatt, og ansiktet virker retusjert sammenlignet med resten av bildet.",
+                      "src": "/story_pictures/photographer-task-2-ai-taj.png",
+                      "alt": "Et KI-generert bilde av Taj Mahal med et glattere og mer kunstig uttrykk.",
                       "label": "Bilde C",
-                      "explanation": "Ansiktet er unaturlig glatt og nesten uten hudtekstur, mens resten av bildet fortsatt har støy og detaljer. Det tyder på at bildet er ekte i bunn, men at personen er manipulert etterpå."
+                      "explanation": "Dette bildet er KI-generert. Det ligner på et fotografi, men hele scenen er laget kunstig og har et glattere, mer konstruert preg enn originalfotoet."
                     }
                   ],
                   "question": "Sorter hvert bilde: ekte, KI-generert eller manipulert?"
                 }
                 """,
-                "{\"image_0\": \"AI_GENERATED\", \"image_1\": \"REAL\", \"image_2\": \"MANIPULATED\"}"),
+                "{\"image_0\": \"REAL\", \"image_1\": \"MANIPULATED\", \"image_2\": \"AI_GENERATED\"}"),
             aiPhotoTask(photoStop, 4, "Bevisbildet", "Kun ett bilde kan brukes som ekte bevis. Finn det.",
                 """
                 {
                   "images": [
                     {
                       "id": "image_0",
-                      "src": "",
-                      "alt": "Et bilde fra en gangvei der skyggen til personen faller i én retning, mens lyset på bakken tilsier en annen.",
+                      "src": "/story_pictures/photographer-task-3-manipulated-canal.png",
+                      "alt": "Panamakanalen med Miraflores Locks, cruiseskip, vann og mange mennesker. Bildet er manipulert.",
                       "label": "Bilde A",
-                      "explanation": "Skyggene peker i forskjellige retninger selv om scenen bare ser ut til å ha én lyskilde. Når lys og skygge ikke henger sammen, er bildet ofte manipulert."
+                      "explanation": "Dette bildet er manipulert. Det bygger på en realistisk scene, men innholdet er endret slik at bildet ikke kan brukes som et sikkert bevis alene."
                     },
                     {
                       "id": "image_1",
