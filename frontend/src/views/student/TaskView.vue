@@ -611,13 +611,17 @@ function buildMockTasks() {
         articles: [
           {
             headline: 'Trondheim kommune deler ut gratis nettbrett til alle elever',
+            ingress: 'Kommunen tester en begrenset digital satsing i noen bydeler.',
             body: 'Kommunen tester ny digital satsing i fire bydeler.',
-            source: 'Adresseavisen'
+            source: 'Adresseavisen',
+            date: '2026-01-14'
           },
           {
             headline: 'Forskere fant usynlig energi i skolemelk',
+            ingress: 'Artikkelen lover superkrefter, men viser ikke til seriøs forskning.',
             body: 'Artikkelen påstår at melk gir superkrefter etter klokken 19.',
-            source: 'nyheter24-ekte.no'
+            source: 'nyheter24-ekte.no',
+            date: '2026-01-14'
           }
         ]
       },
