@@ -36,9 +36,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -285,6 +287,29 @@ class GameServiceTest {
     }
 
     @Test
+    void getTask_socialMedia_shufflesOptionsAndKeepsCorrectAnswerOutOfMiddle() {
+        Stop stop = stop(6L, 1, "Den sosiale møteplassen");
+        Task task = socialMediaActionTask(25L, stop);
+        when(taskRepository.findById(25L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L)).thenReturn(Optional.empty());
+
+        Set<String> seenOrders = new HashSet<>();
+
+        for (int i = 0; i < 10; i++) {
+            var response = gameService.getTask(STUDENT_ID, CLASSROOM_ID, 25L);
+            var options = response.contentJson().path("options");
+
+            seenOrders.add(joinIds(options));
+            assertThat(response.contentJson().has("explanation")).isFalse();
+            assertThat(joinIds(options).split(","))
+                .containsExactlyInAnyOrder("reply", "ignore", "report", "ask");
+            assertThat(indexOfOption(options, "report")).isNotIn(1, 2);
+        }
+
+        assertThat(seenOrders).hasSizeGreaterThan(1);
+    }
+
+    @Test
     void submitAnswer_wrongAnswer_doesNotRecordCompletedProgress() {
         Stop stop = stop(1L, 1, "Nyhetskvartalet");
         Task task = fakeNewsTask(20L, stop);
@@ -388,6 +413,28 @@ class GameServiceTest {
     }
 
     @Test
+    void submitAnswer_socialMedia_acceptsAlternativeSafeSelectedOption() {
+        Stop stop = stop(6L, 1, "Den sosiale møteplassen");
+        Task task = socialMediaActionTask(25L, stop);
+        when(taskRepository.findById(25L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
+        when(taskRepository.countByStop_IdAndTaskTypeNotIn(6L, any())).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(STUDENT_ID, 6L, any())).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            25L,
+            new SubmitAnswerRequest(Map.of("selected", "ask"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
+    @Test
     void submitAnswer_socialMedia_acceptsLegacyActionPayloadForSelectedAnswer() {
         Stop stop = stop(6L, 1, "Den sosiale møteplassen");
         Task task = socialMediaActionTask(25L, stop);
@@ -403,6 +450,28 @@ class GameServiceTest {
             CLASSROOM_ID,
             25L,
             new SubmitAnswerRequest(Map.of("action", "report"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_socialMedia_acceptsAlternativeSafeLegacyActionPayload() {
+        Stop stop = stop(6L, 1, "Den sosiale møteplassen");
+        Task task = socialMediaActionTask(25L, stop);
+        when(taskRepository.findById(25L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
+        when(taskRepository.countByStop_IdAndTaskTypeNotIn(6L, any())).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(STUDENT_ID, 6L, any())).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            25L,
+            new SubmitAnswerRequest(Map.of("action", "wait"))
         );
 
         assertThat(response.correct()).isTrue();
@@ -731,8 +800,7 @@ class GameServiceTest {
             }
             """);
         task.setCorrectAnswerJson("""
-            { "selected": "report" }
-            }
+            { "acceptedSelected": ["report", "ask", "ignore"] }
             """);
         return task;
     }
@@ -786,6 +854,26 @@ class GameServiceTest {
         task.setCorrectAnswerJson("{}");
         task.setGuidanceText("Guidance");
         return task;
+    }
+
+    private String joinIds(com.fasterxml.jackson.databind.JsonNode array) {
+        StringBuilder ids = new StringBuilder();
+        array.forEach(item -> {
+            if (!ids.isEmpty()) {
+                ids.append(",");
+            }
+            ids.append(item.path("id").asText());
+        });
+        return ids.toString();
+    }
+
+    private int indexOfOption(com.fasterxml.jackson.databind.JsonNode array, String id) {
+        for (int i = 0; i < array.size(); i++) {
+            if (id.equals(array.get(i).path("id").asText())) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private Medal medal(Long id, Stop stop) {

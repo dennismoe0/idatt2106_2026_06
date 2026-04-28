@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Iterator;
 import java.util.Map;
 
 @Component
@@ -29,6 +30,14 @@ public class SocialMediaTaskAnswerChecker implements TaskAnswerChecker {
             return correctAnswer.path("action").asText().equalsIgnoreCase(String.valueOf(submitted));
         }
 
+        if (correctAnswer.path("acceptedActions").isArray()) {
+            Object submitted = answer.get("action");
+            if (submitted == null) {
+                return false;
+            }
+            return matchesAny(correctAnswer.path("acceptedActions"), submitted);
+        }
+
         if (!correctAnswer.path("selected").isMissingNode()) {
             Object submitted = answer.get("selected");
             if (submitted == null) {
@@ -37,7 +46,25 @@ public class SocialMediaTaskAnswerChecker implements TaskAnswerChecker {
             return correctAnswer.path("selected").asText().equalsIgnoreCase(String.valueOf(submitted));
         }
 
-        log.warn("[SocialMediaTaskAnswerChecker] SOCIAL_MEDIA correctAnswer has neither 'action' nor 'selected' key");
+        if (correctAnswer.path("acceptedSelected").isArray()) {
+            Object submitted = answer.get("selected");
+            if (submitted == null) {
+                return false;
+            }
+            return matchesAny(correctAnswer.path("acceptedSelected"), submitted);
+        }
+
+        log.warn("[SocialMediaTaskAnswerChecker] SOCIAL_MEDIA correctAnswer has no supported answer key");
+        return false;
+    }
+
+    private boolean matchesAny(JsonNode acceptedValues, Object submitted) {
+        Iterator<JsonNode> iterator = acceptedValues.elements();
+        while (iterator.hasNext()) {
+            if (iterator.next().asText().equalsIgnoreCase(String.valueOf(submitted))) {
+                return true;
+            }
+        }
         return false;
     }
 }

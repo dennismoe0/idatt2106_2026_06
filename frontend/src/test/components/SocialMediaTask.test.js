@@ -29,7 +29,7 @@ const IDENTIFY_WORST_TASK = {
   guidanceText: 'Finn innlegget med minst troverdighet.',
   contentJson: {
     type: 'IDENTIFY_WORST',
-    question: 'Hvilket innlegg er mest illegitimt?',
+    question: 'Hvilket innlegg er mest mistenkelig?',
     posts: [
       {
         id: 'post_0',
@@ -129,6 +129,6 @@ describe('SocialMediaTask', () => {
 
     expect(wrapper.findAll('.post-card')).toHaveLength(3)
     expect(wrapper.findAll('.rank-picker__select')).toHaveLength(3)
-    expect(wrapper.text()).toContain('Hvilket innlegg er mest illegitimt?')
+    expect(wrapper.text()).toContain('Hvilket innlegg er mest mistenkelig?')
   })
 })
