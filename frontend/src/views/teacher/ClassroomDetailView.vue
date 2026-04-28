@@ -70,8 +70,13 @@
             <span v-else class="cell-empty">—</span>
           </span>
 
-          <!-- Last completed stop (not available from API — hidden) -->
-          <span class="stop-cell cell-empty">—</span>
+          <!-- Last completed stop -->
+          <span class="stop-cell">
+            <template v-if="lastCompletedStop(student)">
+              {{ lastCompletedStop(student) }}
+            </template>
+            <span v-else class="cell-empty">—</span>
+          </span>
 
           <!-- Actions -->
           <div class="student-actions">
@@ -239,8 +244,8 @@ function currentStop(student) {
 }
 
 function lastCompletedStop(student) {
-  // Not available from the new endpoint; hide this column gracefully
-  return null
+  const p = studentProgress(student)
+  return p?.lastCompletedStopName || null
 }
 
 

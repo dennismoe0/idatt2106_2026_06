@@ -197,7 +197,12 @@ public class ClassroomService {
 
             String currentStopName = current != null ? current.getName() : "Fullført";
             int currentStopOrder = current != null ? current.getOrderIndex() : stops.size() + 1;
-            return new StudentProgressSummaryDto(studentId, member.getDisplayName(), totalCompleted, currentStopName, currentStopOrder);
+
+            // Last completed stop = the stop just before the current one
+            int currentIdx = current != null ? stops.indexOf(current) : stops.size();
+            String lastCompletedStopName = currentIdx > 0 ? stops.get(currentIdx - 1).getName() : null;
+
+            return new StudentProgressSummaryDto(studentId, member.getDisplayName(), totalCompleted, currentStopName, currentStopOrder, lastCompletedStopName);
         }).toList();
     }
 

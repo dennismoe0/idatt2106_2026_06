@@ -5,5 +5,6 @@ public record StudentProgressSummaryDto(
     String displayName,
     int completedTasks,
     String currentStopName,
-    int currentStopOrder
+    int currentStopOrder,
+    String lastCompletedStopName
 ) {}
