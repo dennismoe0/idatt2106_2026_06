@@ -295,7 +295,7 @@ public class GameService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "XP already claimed for this stop within the last 7 days");
         }
 
-        int taskCount = Math.toIntExact(taskRepository.countByStop_Id(stopId));
+        int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNot(stopId, TaskType.LEARN));
         int xpEarned = XP_PER_TASK * taskCount + XP_PER_STOP;
 
         User student = userRepository.findById(studentId)

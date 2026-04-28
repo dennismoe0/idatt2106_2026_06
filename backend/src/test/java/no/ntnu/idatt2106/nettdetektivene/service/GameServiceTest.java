@@ -98,10 +98,10 @@ class GameServiceTest {
         Stop first = stop(1L, 1, "Nyhetskvartalet");
         when(classroomRepository.existsById(CLASSROOM_ID)).thenReturn(true);
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first));
-        when(taskRepository.countByStop_Id(1L)).thenReturn(3L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(1L, TaskType.LEARN)).thenReturn(3L);
         // 0 of 3 completed → stop not complete → isXpClaimable never called
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
-            STUDENT_ID, 1L
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(
+            STUDENT_ID, 1L, TaskType.LEARN
         )).thenReturn(0L);
 
         var response = gameService.getStops(STUDENT_ID, CLASSROOM_ID);
@@ -117,15 +117,15 @@ class GameServiceTest {
         Stop second = stop(2L, 2, "Postkontoret");
         when(classroomRepository.existsById(CLASSROOM_ID)).thenReturn(true);
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first, second));
-        when(taskRepository.countByStop_Id(1L)).thenReturn(2L);
-        when(taskRepository.countByStop_Id(2L)).thenReturn(3L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(1L, TaskType.LEARN)).thenReturn(2L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(2L, TaskType.LEARN)).thenReturn(3L);
         // 1 of 2 completed → stop 1 not complete → isXpClaimable never called
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
-            STUDENT_ID, 1L
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(
+            STUDENT_ID, 1L, TaskType.LEARN
         )).thenReturn(1L);
         // 0 of 3 completed → stop 2 not complete
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
-            STUDENT_ID, 2L
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(
+            STUDENT_ID, 2L, TaskType.LEARN
         )).thenReturn(0L);
 
         var response = gameService.getStops(STUDENT_ID, CLASSROOM_ID);
@@ -141,14 +141,14 @@ class GameServiceTest {
         when(classroomRepository.existsById(CLASSROOM_ID)).thenReturn(true);
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first, second));
         // stop 1 has 0 tasks → isStopComplete returns false → isXpClaimable never called
-        when(taskRepository.countByStop_Id(1L)).thenReturn(0L);
-        when(taskRepository.countByStop_Id(2L)).thenReturn(1L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
-            STUDENT_ID, 1L
+        when(taskRepository.countByStop_IdAndTaskTypeNot(1L, TaskType.LEARN)).thenReturn(0L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(2L, TaskType.LEARN)).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(
+            STUDENT_ID, 1L, TaskType.LEARN
         )).thenReturn(0L);
         // 0 of 1 completed → stop 2 not complete
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(
-            STUDENT_ID, 2L
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(
+            STUDENT_ID, 2L, TaskType.LEARN
         )).thenReturn(0L);
 
         var response = gameService.getStops(STUDENT_ID, CLASSROOM_ID);
@@ -166,8 +166,8 @@ class GameServiceTest {
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 20L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
-        when(taskRepository.countByStop_Id(1L)).thenReturn(3L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(1L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(1L, TaskType.LEARN)).thenReturn(3L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 1L, TaskType.LEARN)).thenReturn(1L);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -196,8 +196,8 @@ class GameServiceTest {
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 20L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
-        when(taskRepository.countByStop_Id(1L)).thenReturn(1L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(1L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(1L, TaskType.LEARN)).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 1L, TaskType.LEARN)).thenReturn(1L);
         when(medalRepository.findByStop_Id(1L)).thenReturn(Optional.of(medal));
         when(studentMedalRepository.existsByStudent_IdAndMedal_Id(STUDENT_ID, 30L)).thenReturn(false);
 
@@ -224,8 +224,8 @@ class GameServiceTest {
 
         when(taskRepository.findById(20L)).thenReturn(Optional.of(task));
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 20L)).thenReturn(Optional.of(progress));
-        when(taskRepository.countByStop_Id(1L)).thenReturn(1L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(1L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(1L, TaskType.LEARN)).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 1L, TaskType.LEARN)).thenReturn(1L);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -246,8 +246,8 @@ class GameServiceTest {
         Stop second = stop(2L, 2, "Postkontoret");
         when(stopRepository.findById(2L)).thenReturn(Optional.of(second));
         when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first, second));
-        when(taskRepository.countByStop_Id(1L)).thenReturn(1L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(0L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(1L, TaskType.LEARN)).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 1L, TaskType.LEARN)).thenReturn(0L);
 
         assertThatThrownBy(() -> gameService.getTasks(STUDENT_ID, CLASSROOM_ID, 2L))
             .isInstanceOf(ResponseStatusException.class)
@@ -329,8 +329,8 @@ class GameServiceTest {
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 21L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
-        when(taskRepository.countByStop_Id(2L)).thenReturn(2L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 2L)).thenReturn(1L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(2L, TaskType.LEARN)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 2L, TaskType.LEARN)).thenReturn(1L);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -351,8 +351,8 @@ class GameServiceTest {
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 24L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
-        when(taskRepository.countByStop_Id(3L)).thenReturn(2L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 3L)).thenReturn(1L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(3L, TaskType.LEARN)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 3L, TaskType.LEARN)).thenReturn(1L);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -373,8 +373,8 @@ class GameServiceTest {
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
-        when(taskRepository.countByStop_Id(6L)).thenReturn(2L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 6L)).thenReturn(1L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(6L, TaskType.LEARN)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 6L, TaskType.LEARN)).thenReturn(1L);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -395,8 +395,8 @@ class GameServiceTest {
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
-        when(taskRepository.countByStop_Id(6L)).thenReturn(2L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 6L)).thenReturn(1L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(6L, TaskType.LEARN)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 6L, TaskType.LEARN)).thenReturn(1L);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -417,8 +417,8 @@ class GameServiceTest {
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 22L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
-        when(taskRepository.countByStop_Id(4L)).thenReturn(2L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 4L)).thenReturn(1L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(4L, TaskType.LEARN)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 4L, TaskType.LEARN)).thenReturn(1L);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -457,8 +457,8 @@ class GameServiceTest {
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 23L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
-        when(taskRepository.countByStop_Id(4L)).thenReturn(3L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 4L)).thenReturn(1L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(4L, TaskType.LEARN)).thenReturn(3L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 4L, TaskType.LEARN)).thenReturn(1L);
 
         var strongResponse = gameService.submitAnswer(
             STUDENT_ID,
@@ -481,9 +481,9 @@ class GameServiceTest {
 
         when(taskRepository.findById(10L)).thenReturn(Optional.of(task));
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 10L)).thenReturn(Optional.empty());
-        when(taskRepository.countByStop_Id(1L)).thenReturn(3L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(1L, TaskType.LEARN)).thenReturn(3L);
         // Not all tasks done — stop NOT complete
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(0L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 1L, TaskType.LEARN)).thenReturn(0L);
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(studentUser);
 
@@ -507,9 +507,9 @@ class GameServiceTest {
 
         when(taskRepository.findById(10L)).thenReturn(Optional.of(task));
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 10L)).thenReturn(Optional.empty());
-        when(taskRepository.countByStop_Id(1L)).thenReturn(1L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(1L, TaskType.LEARN)).thenReturn(1L);
         // 1 of 1 tasks complete — stop IS completed
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 1L, TaskType.LEARN)).thenReturn(1L);
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(studentUser);
         when(medalRepository.findByStop_Id(1L)).thenReturn(Optional.empty());
@@ -538,8 +538,8 @@ class GameServiceTest {
 
         when(taskRepository.findById(10L)).thenReturn(Optional.of(task));
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 10L)).thenReturn(Optional.empty());
-        when(taskRepository.countByStop_Id(1L)).thenReturn(1L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(1L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(1L, TaskType.LEARN)).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 1L, TaskType.LEARN)).thenReturn(1L);
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(studentUser);
         when(medalRepository.findByStop_Id(1L)).thenReturn(Optional.empty());
@@ -576,8 +576,8 @@ class GameServiceTest {
         oldLog.setAwardedAt(LocalDateTime.now().minusDays(8));
 
         when(stopRepository.findById(1L)).thenReturn(Optional.of(stop));
-        when(taskRepository.countByStop_Id(1L)).thenReturn(2L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(2L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(1L, TaskType.LEARN)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 1L, TaskType.LEARN)).thenReturn(2L);
         when(studentXpLogRepository.findTopByStudent_IdAndStop_IdOrderByAwardedAtDesc(STUDENT_ID, 1L))
             .thenReturn(Optional.of(oldLog));
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
@@ -601,8 +601,8 @@ class GameServiceTest {
         recentLog.setAwardedAt(LocalDateTime.now().minusDays(1));
 
         when(stopRepository.findById(1L)).thenReturn(Optional.of(stop));
-        when(taskRepository.countByStop_Id(1L)).thenReturn(2L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(2L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(1L, TaskType.LEARN)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 1L, TaskType.LEARN)).thenReturn(2L);
         when(studentXpLogRepository.findTopByStudent_IdAndStop_IdOrderByAwardedAtDesc(STUDENT_ID, 1L))
             .thenReturn(Optional.of(recentLog));
 
@@ -616,8 +616,8 @@ class GameServiceTest {
         Stop stop = stop(1L, 1, "Postkontoret");
 
         when(stopRepository.findById(1L)).thenReturn(Optional.of(stop));
-        when(taskRepository.countByStop_Id(1L)).thenReturn(2L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(STUDENT_ID, 1L)).thenReturn(0L);
+        when(taskRepository.countByStop_IdAndTaskTypeNot(1L, TaskType.LEARN)).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(STUDENT_ID, 1L, TaskType.LEARN)).thenReturn(0L);
 
         assertThatThrownBy(() -> gameService.claimWeeklyXp(STUDENT_ID, 1L))
             .isInstanceOf(ResponseStatusException.class)
