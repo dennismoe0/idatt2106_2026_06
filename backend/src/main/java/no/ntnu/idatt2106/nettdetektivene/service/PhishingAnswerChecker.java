@@ -11,10 +11,10 @@ public class PhishingAnswerChecker {
     private PhishingAnswerChecker() {}
 
     /**
-     * Returns true when the submitted answer correctly identifies all required clues.
+     * Returns true when the submitted answer identifies every required clue and no extra clues.
      * Supports two correctAnswer formats:
-     *  - New:  { "clues": ["id1", "id2"] } — checked against submitted flaggedClueIds
-     *  - Old:  { "action": "REPORT" }      — checked against submitted action (backward compat)
+     *  - New:  { "correctClueIds": ["id1", "id2"] } — checked against submitted flaggedClueIds
+     *  - Old:  { "action": "REPORT" }                — checked against submitted action (backward compat)
      */
     public static boolean check(JsonNode correctAnswer, Map<String, Object> answer) {
         if (correctAnswer == null || answer == null) return false;
@@ -25,8 +25,11 @@ public class PhishingAnswerChecker {
             if (required.isEmpty()) return false;
             Object raw = answer.get("flaggedClueIds");
             if (!(raw instanceof List<?> list)) return false;
-            List<String> flagged = list.stream().map(Object::toString).toList();
-            return new HashSet<>(flagged).containsAll(required);
+            HashSet<String> requiredSet = new HashSet<>(required);
+            HashSet<String> flaggedSet = list.stream()
+                .map(Object::toString)
+                .collect(java.util.stream.Collectors.toCollection(HashSet::new));
+            return flaggedSet.equals(requiredSet);
         }
 
         // Old format: action string
