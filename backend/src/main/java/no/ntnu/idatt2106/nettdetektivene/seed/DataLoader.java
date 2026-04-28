@@ -235,7 +235,7 @@ public class DataLoader implements ApplicationRunner {
                     new Slide(
                         "",
                         "Hva gjør et passord sterkt?",
-                        "Et sterkt passord er langt og vanskelig å gjette. Det skal helst være noe som ikke handler om deg, så andre ikke kan finne det ut bare ved å kjenne navnet ditt, laget du spiller på eller fødselsåret ditt.",
+                        "Et sterkt passord er langt, unikt og vanskelig å gjette. Lengde betyr mye fordi hvert ekstra tegn gir angripere flere muligheter å prøve. Det bør også være laget av en blanding av store og små bokstaver, tall og tegn, eller av flere tilfeldige ord som ikke handler om deg. Det viktigste er at passordet ikke inneholder navn, brukernavn, lag, skole, kjæledyr eller årstall andre kan finne ut.",
                         new String[]{
                             "Innlogging: Oliver2014 er svakt fordi det ligner på navn + årstall.",
                             "Innlogging: Fotball123 er svakt fordi mange kunne ha gjettet det.",
@@ -249,7 +249,7 @@ public class DataLoader implements ApplicationRunner {
                     new Slide(
                         "",
                         "Hvorfor er enkle passord farlige?",
-                        "Hackere bruker programmer som prøver masse vanlige passord veldig fort. Hvis passordet ditt ligner på noe mange andre også bruker, kan det knekkes mye raskere enn du tror.",
+                        "Svake passord er farlige fordi angripere ikke trenger å gjette som mennesker. De bruker programmer som prøver tusenvis av vanlige passord, navn, årstall og mønstre på kort tid. Hvis du bruker samme passord flere steder, kan ett datainnbrudd også gi tilgang til andre kontoer. Et svakt passord kan derfor åpne døren videre, selv om bare én konto blir avslørt.",
                         new String[]{
                             "Vanlige dårlige passord: passord123, 123456, qwerty",
                             "Også dårlige: Emma2013 eller Liverpool10, fordi de er lette å gjette"
@@ -262,7 +262,7 @@ public class DataLoader implements ApplicationRunner {
                     new Slide(
                         "",
                         "Hva er en passordfrase?",
-                        "En passordfrase er flere ord satt sammen med tall eller tegn. Den kan være lettere å huske enn en rotete kode, men samtidig mye tryggere hvis du velger ord som ikke handler om deg.",
+                        "En passordfrase er et langt passord laget av flere ord, ofte med tall eller tegn mellom eller rundt ordene. Den kan være lettere å huske enn en kort og rotete kode, men fortsatt sterk fordi den blir lang. Gode passordfraser bruker tilfeldige ord som ikke forteller noe om deg, for eksempel ord som ikke hører naturlig sammen. Ikke bruk en kjent sangtekst, et sitat eller en setning andre kan gjette.",
                         new String[]{
                             "Eksempel: Hest!Maanelys42Fjord",
                             "Ikke så bra: Oliver!Trondheim2014 fordi det handler om deg"
@@ -272,9 +272,9 @@ public class DataLoader implements ApplicationRunner {
                             "Bruk forskjellig passord på forskjellige kontoer."
                         }
                     ),
-                    new Quiz("q1", "Hva gjør et passord sterkest?", new String[]{"Det er enkelt å huske", "Det er langt og bruker ulike tegn uten personlig info", "Det inneholder navn og fødselsdato"}, "Det er langt og bruker ulike tegn uten personlig info"),
+                    new Quiz("q1", "Hva gjør et passord sterkest?", new String[]{"Det er enkelt å huske", "Det inneholder navn og fødselsdato", "Det er langt og bruker ulike tegn uten personlig info"}, "Det er langt og bruker ulike tegn uten personlig info"),
                     new Quiz("q2", "Hvilket av disse er et svakt passord?", new String[]{"Sol!Fjord#42Hest", "Ola2010", "hX9!wP$3mQ"}, "Ola2010"),
-                    new Quiz("q3", "Hva er en passordfrase?", new String[]{"Et langt ord", "En rekke tilfeldige ord som danner et langt passord", "Passordet til telefonen"}, "En rekke tilfeldige ord som danner et langt passord")
+                    new Quiz("q3", "Hva er en passordfrase?", new String[]{"En rekke tilfeldige ord som danner et langt passord", "Et langt ord", "Passordet til telefonen"}, "En rekke tilfeldige ord som danner et langt passord")
                 )
             ),
             learnTask(marketStop, 1, "Lær om nettsvindel", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
@@ -727,6 +727,7 @@ public class DataLoader implements ApplicationRunner {
                   "symbols": ["!", "#", "@", "?", "&", "*"],
                   "numbers": ["7", "42", "99", "3", "2026"],
                   "pitfalls": ["OlaErBest", "2005", "hund"],
+                  "maxLength": 24,
                   "minStrength": "STRONG",
                   "explanation": "Et sterkt passord er langt, bruker store og små bokstaver, tall og spesialtegn, og inneholder ikke personlig informasjon."
                 }

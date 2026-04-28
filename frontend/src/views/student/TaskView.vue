@@ -1087,13 +1087,16 @@ function goToMap() {
   z-index: 210;
   display: grid;
   place-items: center;
-  padding: var(--space-4);
+  padding: clamp(1rem, 4vw, 2rem);
   background: rgba(26, 14, 4, 0.78);
+  overflow-y: auto;
 }
 
 .stored-clue-modal {
-  width: min(34rem, 100%);
-  padding: clamp(1rem, 4vw, 1.5rem);
+  width: min(32rem, 100%);
+  max-height: min(100%, 42rem);
+  overflow-y: auto;
+  padding: clamp(1.25rem, 4vw, 2rem);
   border: 4px solid #2f1a08;
   border-radius: 10px;
   background:
@@ -1126,13 +1129,13 @@ function goToMap() {
 .stored-clue-modal__intro {
   margin: 0;
   color: #4b341b;
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   line-height: 1.45;
 }
 
 .stored-clue-modal__card {
-  margin: var(--space-4) 0;
-  padding: var(--space-4);
+  margin: var(--space-5) 0;
+  padding: clamp(1rem, 3vw, 1.25rem);
   border: 3px dashed #b45309;
   border-radius: 8px;
   background: #fffbeb;
@@ -1157,10 +1160,11 @@ function goToMap() {
 .stored-clue-modal__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .stored-clue-modal__actions button {
+  flex: 1 1 12rem;
   min-height: 44px;
   padding: var(--space-2) var(--space-5);
   border-radius: 8px;
@@ -1211,6 +1215,10 @@ function goToMap() {
 
   .task-view__layout { flex-direction: column; align-items: center; }
   .task-view__avatar { width: 72px; height: 72px; }
+  .stored-clue-modal {
+    box-shadow: 0 10px 0 rgba(0, 0, 0, 0.24);
+  }
+
   .stored-clue-modal__actions { display: grid; }
 }
 

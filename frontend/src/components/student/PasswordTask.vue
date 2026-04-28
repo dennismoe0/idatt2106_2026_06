@@ -30,6 +30,9 @@
         <span class="builder__password" :aria-label="`Bygget passord: ${builtPassword || 'tomt'}`">
           {{ builtPassword || '—' }}
         </span>
+        <p v-if="maxLength" class="builder__limit" aria-live="polite">
+          {{ builtPassword.length }}/{{ maxLength }} tegn
+        </p>
         <div
           v-if="result"
           class="builder__strength"
@@ -47,19 +50,22 @@
         <button
           v-for="w in content.words" :key="'w_' + w"
           class="tile tile--word"
-          :disabled="!!result"
+          :disabled="!!result || !canAddPart(w)"
+          :aria-label="tileAriaLabel(w)"
           @click="addPart(w)"
         >{{ w }}</button>
         <button
           v-for="n in content.numbers" :key="'n_' + n"
           class="tile tile--number"
-          :disabled="!!result"
+          :disabled="!!result || !canAddPart(n)"
+          :aria-label="tileAriaLabel(n)"
           @click="addPart(n)"
         >{{ n }}</button>
         <button
           v-for="s in content.symbols" :key="'s_' + s"
           class="tile tile--symbol"
-          :disabled="!!result"
+          :disabled="!!result || !canAddPart(s)"
+          :aria-label="tileAriaLabel(s)"
           @click="addPart(s)"
         >{{ s }}</button>
       </div>
@@ -114,6 +120,10 @@ const parts    = ref([])
 
 const content = computed(() => props.task?.contentJson ?? {})
 const type    = computed(() => content.value.type ?? 'CHOICE')
+const maxLength = computed(() => {
+  const configured = Number(content.value.maxLength ?? 0)
+  return Number.isFinite(configured) && configured > 0 ? configured : null
+})
 
 watch(() => props.task?.id, () => {
   selected.value = null
@@ -121,6 +131,9 @@ watch(() => props.task?.id, () => {
 }, { immediate: true })
 
 const builtPassword = computed(() => parts.value.join(''))
+const remainingCharacters = computed(() => maxLength.value
+  ? Math.max(maxLength.value - builtPassword.value.length, 0)
+  : Infinity)
 
 function evaluateStrength(pw) {
   if (!pw) return 'WEAK'
@@ -146,7 +159,19 @@ const isReady = computed(() => {
   return !!selected.value
 })
 
-function addPart(p) { parts.value = [...parts.value, p] }
+function canAddPart(p) {
+  return !maxLength.value || builtPassword.value.length + String(p).length <= maxLength.value
+}
+
+function tileAriaLabel(p) {
+  if (canAddPart(p)) return `Legg til ${p}`
+  return `Kan ikke legge til ${p}. Maks ${maxLength.value} tegn, ${remainingCharacters.value} tegn igjen.`
+}
+
+function addPart(p) {
+  if (!canAddPart(p)) return
+  parts.value = [...parts.value, p]
+}
 
 function submit() {
   if (!isReady.value) return
@@ -220,6 +245,13 @@ function submit() {
   word-break: break-all;
   color: var(--color-text);
   min-height: 1.6em;
+}
+
+.builder__limit {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
 }
 
 .builder__strength { display: flex; align-items: center; gap: var(--space-2); }
