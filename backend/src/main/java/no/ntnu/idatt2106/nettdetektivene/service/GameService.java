@@ -178,6 +178,7 @@ public class GameService {
         if (existingProgress.map(StudentProgress::isCompleted).orElse(false)) {
             boolean stopCompleted = isStopComplete(studentId, task.getStop().getId());
             String clueText = stopCompleted ? task.getStop().getClueText() : null;
+            boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
             return new SubmitAnswerResponse(
                 true,
                 existingProgress.get().getScore(),
@@ -189,7 +190,7 @@ public class GameService {
                 List.of(),
                 null,
                 clueText,
-                clueText != null && !clueText.isBlank()
+                showSuspectReveal
             );
         }
 
@@ -223,7 +224,7 @@ public class GameService {
         boolean stopCompleted = isStopComplete(studentId, task.getStop().getId());
         int xpEarned = XP_PER_TASK;
         String clueText = stopCompleted ? task.getStop().getClueText() : null;
-        boolean showSuspectReveal = clueText != null && !clueText.isBlank();
+        boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
 
         if (stopCompleted) {
             log.info("[GameService] stop completed studentId={} stopId={}", studentId, task.getStop().getId());
@@ -615,8 +616,8 @@ public class GameService {
         return taskRepository.countByStop_IdAndTaskTypeNotIn(stopId, COMPLETION_EXCLUDED_TASK_TYPES);
     }
 
-    private long completedGameTaskCount(Long studentId, Long stopId) {
-        return studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(studentId, stopId, TaskType.LEARN);
+    private boolean shouldShowSuspectReveal(Stop stop) {
+        return Integer.valueOf(4).equals(stop.getOrderIndex());
     }
 
     private String extractExplanation(Task task) {
