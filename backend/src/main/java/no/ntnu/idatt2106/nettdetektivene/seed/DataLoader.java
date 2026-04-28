@@ -687,13 +687,13 @@ public class DataLoader implements ApplicationRunner {
                   "options": [
                     { "id": "a", "value": "sander2015" },
                     { "id": "b", "value": "Sander2015!" },
-                    { "id": "c", "value": "S@nder_2O15#" },
+                    { "id": "c", "value": "S@nder_2015#" },
                     { "id": "d", "value": "SolKatt!Fjord#22" }
                   ],
-                  "explanation": "SolKatt!Fjord#22 er sterkest fordi det ikke inneholder personlig informasjon, er langt og blander tegn godt."
+                  "explanation": "S@nder_2015# er den beste forbedringen av alternativene fordi det blander store og smÃ¥ bokstaver og legger til et spesialtegn. Det er fortsatt ikke et ideelt passord, siden navnet og Ã¥rstallet fortsatt kan vÃ¦re lette Ã¥ gjette."
                 }
                 """,
-                "{\"selected\": \"d\"}"),
+                "{\"selected\": \"c\"}"),
             passwordTask(pwdStop, 4, "Bygg et sterkt passord", "Bruk brikkene til å lage et passord som er sterkt nok.",
                 """
                 {
@@ -1030,7 +1030,7 @@ public class DataLoader implements ApplicationRunner {
                 5,
                 "Gåtespor: Passordet i loggen",
                 "Det siste sporet handler om passordet tyven brukte på en reservekonto.",
-                "Du bruker det du lærte om passord: svake passord inneholder ofte sted, rolle eller årstall. Det kan avsløre hvem som lagde kontoen.",
+                "Du bruker det du lærte om passord for å lese et siste digitalt spor. Et lekket passord kan avsløre både vaner og hvem kontoen er knyttet til.",
                 "Reservekontoen brukte passordet XooInnAdmin2019.",
                 "Hva forteller passordet oss?",
                 """
