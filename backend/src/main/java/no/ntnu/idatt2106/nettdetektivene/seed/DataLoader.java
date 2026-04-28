@@ -728,7 +728,6 @@ public class DataLoader implements ApplicationRunner {
                   "words": ["Tiger", "Måne", "Pizza", "Hund", "Sol", "Isbjørn", "Fjord"],
                   "symbols": ["!", "#", "@", "?", "&", "*"],
                   "numbers": ["7", "42", "99", "3", "2026"],
-                  "pitfalls": ["OlaErBest", "2005", "hund"],
                   "maxLength": 24,
                   "minStrength": "STRONG",
                   "explanation": "Et sterkt passord er langt, bruker store og små bokstaver, tall og spesialtegn, og inneholder ikke personlig informasjon."
