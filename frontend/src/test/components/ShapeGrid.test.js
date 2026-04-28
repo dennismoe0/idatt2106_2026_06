@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect } from 'vitest'
 import ShapeGrid from '@/components/student/avatar/controls/ShapeGrid.vue'
-import { defineComponent } from 'vue'
+import { defineComponent, markRaw } from 'vue'
 
-const StubLayer = defineComponent({ template: '<div class="stub-layer" />', props: ['hairStyle', 'hairColor'] })
+const StubLayer = markRaw(defineComponent({ template: '<div class="stub-layer" />', props: ['hairStyle', 'hairColor'] }))
 const VARIANTS = ['short', 'long', 'curly']
 
 describe('ShapeGrid', () => {

@@ -2,7 +2,7 @@
   <section class="fake-news-task">
     <p class="fake-news-task__guidance">{{ task.guidanceText }}</p>
 
-    <p class="fake-news-task__instruction">🔍 Klikk på den artikkelen du tror er ekte</p>
+    <p class="fake-news-task__instruction">🔍 Klikk på den artikkelen du tror er FALSK</p>
 
     <div class="fake-news-task__articles">
       <article
@@ -21,9 +21,9 @@
         @keydown.enter.space.prevent="pickCard(index)"
       >
         <header class="newspaper__masthead" aria-hidden="true">
-          <span class="newspaper__brand">{{ mastheadBrand(article) }}</span>
+          <span class="newspaper__brand">{{ mastheadBrand(article).toUpperCase() }}</span>
         </header>
-        <h3 class="newspaper__headline">{{ article.headline }}</h3>
+        <h3 class="newspaper__headline">{{ article.headline.toUpperCase() }}</h3>
         <p class="newspaper__byline">Kilde: {{ article.source }}</p>
         <div class="newspaper__body">
           <p class="newspaper__lede">{{ article.body }}</p>
@@ -86,15 +86,16 @@ watch(() => props.result, (r) => {
     setTimeout(() => { bouncingIndex.value = null }, 600)
   } else {
     shakingIndex.value = chosenIndex.value
-    setTimeout(() => { shakingIndex.value = null; revealCorrect.value = getCorrectIndex(r) }, 400)
+    revealCorrect.value = getCorrectIndex(r)
+    setTimeout(() => { shakingIndex.value = null }, 400)
   }
 })
 
 function getCorrectIndex(r) {
   // Prefer an explicit index from the server (future-proof)
   if (typeof r?.correctArticleIndex === 'number') return r.correctArticleIndex
-  // Fallback: the correct article (real) has value true in the answer map
-  return articles.value.findIndex((_, index) => r?.[`article_${index}`] === true)
+  // Fallback: the fake article has value false in the answer map
+  return articles.value.findIndex((_, index) => r?.[`article_${index}`] === false)
 }
 
 function articleClass(index) {
@@ -119,7 +120,7 @@ function pickCard(index) {
   chosenIndex.value = index
   const answer = {}
   articles.value.forEach((_, i) => {
-    answer[`article_${i}`] = i === index  // chosen card = true (real), others = false (fake)
+    answer[`article_${i}`] = i !== index  // chosen card = false (fake), others = true (real)
   })
   console.log('[FakeNewsTask] Card picked index:', index, 'answer:', answer)
   emit('submitted', answer)

@@ -40,8 +40,10 @@ const SAMPLE_ITEMS = [
 
 function makeAvatarStore(overrides = {}) {
   return {
+    avatar: null,
     shopItems: SAMPLE_ITEMS,
     fetchShop:    vi.fn().mockResolvedValue(),
+    fetchAvatar:  vi.fn().mockResolvedValue(null),
     purchaseItem: vi.fn().mockResolvedValue(),
     ...overrides,
   }

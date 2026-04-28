@@ -19,7 +19,7 @@
       >
         <div class="shape-tile__preview">
           <component
-            :is="previewComponent"
+            :is="safePreviewComponent"
             v-bind="{ ...previewProps, [variantProp]: variant }"
             style="width:100%;height:100%"
           />
@@ -42,7 +42,7 @@
       >
         <div class="shape-tile__preview">
           <component
-            :is="previewComponent"
+            :is="safePreviewComponent"
             v-bind="{ ...previewProps, [variantProp]: value }"
             style="width:100%;height:100%"
           />
@@ -65,7 +65,7 @@
       >
         <div class="shape-tile__preview">
           <component
-            :is="previewComponent"
+            :is="safePreviewComponent"
             v-bind="{ ...previewProps, [variantProp]: item.value }"
             style="width:100%;height:100%;filter:grayscale(70%);opacity:0.5"
           />
@@ -89,9 +89,9 @@
 </template>
 
 <script setup>
-import { ref, onUnmounted } from 'vue'
+import { ref, onUnmounted, computed, markRaw } from 'vue'
 
-defineProps({
+const props = defineProps({
   modelValue:       { type: String,  required: true },
   variants:         { type: Array,   required: true },
   previewComponent: { type: Object,  required: true },
@@ -103,6 +103,10 @@ defineProps({
   previewValue:     { type: String,  default: '' },
 })
 defineEmits(['update:modelValue', 'preview'])
+
+const safePreviewComponent = computed(() =>
+  props.previewComponent ? markRaw(props.previewComponent) : null
+)
 
 const shakingValue = ref(null)
 const bubbleValue = ref(null)
