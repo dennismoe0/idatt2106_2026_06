@@ -179,29 +179,29 @@ const emit = defineEmits(['submitted', 'next'])
 
 const PLATFORM_THEMES = {
   instagram: {
-    accent: '#E1306C',
-    accentSoft: 'color-mix(in srgb, #E1306C 16%, white)',
-    stripe: 'linear-gradient(90deg, #F58529 0%, #DD2A7B 45%, #8134AF 72%, #515BD4 100%)',
+    accent: 'var(--color-social-instagram)',
+    accentSoft: 'color-mix(in srgb, var(--color-social-instagram) 16%, white)',
+    stripe: 'linear-gradient(90deg, var(--color-social-instagram-orange) 0%, var(--color-social-instagram) 45%, var(--color-social-instagram-purple) 72%, var(--color-social-instagram-blue) 100%)',
   },
   tiktok: {
-    accent: '#111111',
-    accentSoft: 'color-mix(in srgb, #25F4EE 22%, white)',
-    stripe: 'linear-gradient(90deg, #25F4EE 0%, #111111 48%, #FE2C55 100%)',
+    accent: 'var(--color-social-x)',
+    accentSoft: 'color-mix(in srgb, var(--color-social-tiktok-cyan) 22%, white)',
+    stripe: 'linear-gradient(90deg, var(--color-social-tiktok-cyan) 0%, var(--color-social-x) 48%, var(--color-social-tiktok-pink) 100%)',
   },
   facebook: {
-    accent: '#1877F2',
-    accentSoft: 'color-mix(in srgb, #1877F2 18%, white)',
-    stripe: 'linear-gradient(90deg, #1877F2 0%, #4F8DF8 100%)',
+    accent: 'var(--color-social-facebook)',
+    accentSoft: 'color-mix(in srgb, var(--color-social-facebook) 18%, white)',
+    stripe: 'linear-gradient(90deg, var(--color-social-facebook) 0%, var(--color-social-facebook-light) 100%)',
   },
   x: {
-    accent: '#111111',
-    accentSoft: 'color-mix(in srgb, #111111 10%, white)',
-    stripe: 'linear-gradient(90deg, #444444 0%, #111111 100%)',
+    accent: 'var(--color-social-x)',
+    accentSoft: 'color-mix(in srgb, var(--color-social-x) 10%, white)',
+    stripe: 'linear-gradient(90deg, var(--color-social-x-soft) 0%, var(--color-social-x) 100%)',
   },
   linkedin: {
-    accent: '#0A66C2',
-    accentSoft: 'color-mix(in srgb, #0A66C2 18%, white)',
-    stripe: 'linear-gradient(90deg, #0A66C2 0%, #378FE9 100%)',
+    accent: 'var(--color-social-linkedin)',
+    accentSoft: 'color-mix(in srgb, var(--color-social-linkedin) 18%, white)',
+    stripe: 'linear-gradient(90deg, var(--color-social-linkedin) 0%, var(--color-social-linkedin-light) 100%)',
   },
   youtube: {
     accent: '#FF0033',
@@ -413,7 +413,7 @@ function submit() {
 
 .task-card__title--social-stop {
   margin: 0;
-  font-size: 40px;
+  font-size: clamp(1.8rem, 6vw, 2.5rem);
   line-height: 1.1;
   font-weight: var(--font-bold);
   color: var(--color-heading);

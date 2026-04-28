@@ -800,7 +800,7 @@ class GameServiceTest {
             }
             """);
         task.setCorrectAnswerJson("""
-            { "acceptedSelected": ["report", "ask", "ignore"] }
+            { "acceptedActions": ["report", "ask", "wait"] }
             """);
         return task;
     }

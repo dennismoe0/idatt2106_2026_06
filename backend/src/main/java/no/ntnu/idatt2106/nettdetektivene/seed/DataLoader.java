@@ -1006,7 +1006,7 @@ public class DataLoader implements ApplicationRunner {
                 "cafe_wifi_signup",
                 "Riktig. Kontoen ble laget via Xoo Inn Cafe sitt gjestenett, og innlegget prøver å presse deg til å dele før du tenker. Nå peker nyhet, bilde, phishing, nettbutikk og sosial konto samme vei.",
                 """
-                ,
+                {
                   "socialPost": {
                     "platform": "Tweety.no",
                     "username": "SannhetsJegeren99",
@@ -1021,6 +1021,7 @@ public class DataLoader implements ApplicationRunner {
                     "clueTitle": "Spor i kontoopprettelsen",
                     "clueText": "Kontoen ble opprettet med engangs-epost fra Xoo Inn Cafe sitt gjestenett."
                   }
+                }
                 """
             ),
             clueRiddleTask(
@@ -1346,23 +1347,22 @@ public class DataLoader implements ApplicationRunner {
         String extraFieldsJson
     ) {
         Task task = baseTask(stop, orderIndex, title, description, TaskType.CLUE_RIDDLE);
-        task.setContentJson("""
-            {
-              "purpose": %s,
-              "evidence": %s,
-              "question": %s,
-              "options": %s,
-              "explanation": %s
-              %s
+        ObjectNode content = objectMapper.createObjectNode();
+        content.put("purpose", purpose);
+        content.put("evidence", evidence);
+        content.put("question", question);
+        content.set("options", readJsonNode(optionsJson, "clue-riddle options"));
+        content.put("explanation", explanation);
+
+        if (extraFieldsJson != null && !extraFieldsJson.isBlank()) {
+            JsonNode extraFields = readJsonNode(extraFieldsJson, "clue-riddle extra fields");
+            if (!extraFields.isObject()) {
+                throw new IllegalStateException("Clue-riddle extra fields must be a JSON object");
             }
-            """.formatted(
-                toJsonString(purpose),
-                toJsonString(evidence),
-                toJsonString(question),
-                optionsJson,
-                toJsonString(explanation),
-                extraFieldsJson == null ? "" : extraFieldsJson
-            ));
+            content.setAll((ObjectNode) extraFields);
+        }
+
+        task.setContentJson(writeJson(content, "Failed to encode clue-riddle task content"));
         task.setCorrectAnswerJson("""
             {
               "selected": %s
@@ -1377,6 +1377,22 @@ public class DataLoader implements ApplicationRunner {
             return objectMapper.writeValueAsString(value);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Failed to encode task seed text", e);
+        }
+    }
+
+    private JsonNode readJsonNode(String json, String context) {
+        try {
+            return objectMapper.readTree(json);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Failed to parse " + context, e);
+        }
+    }
+
+    private String writeJson(JsonNode node, String errorMessage) {
+        try {
+            return objectMapper.writeValueAsString(node);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(errorMessage, e);
         }
     }
 

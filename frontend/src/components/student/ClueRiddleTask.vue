@@ -145,16 +145,16 @@ function getPlatformTheme(platform) {
   const label = String(platform ?? 'Sosialt medium').toLowerCase()
   if (label.includes('facebook') || label.includes('fjesbok')) {
     return {
-      accent: '#1877F2',
-      accentSoft: 'color-mix(in srgb, #1877F2 18%, white)',
-      stripe: 'linear-gradient(90deg, #1877F2 0%, #4F8DF8 100%)',
+      accent: 'var(--color-social-facebook)',
+      accentSoft: 'color-mix(in srgb, var(--color-social-facebook) 18%, white)',
+      stripe: 'linear-gradient(90deg, var(--color-social-facebook) 0%, var(--color-social-facebook-light) 100%)',
     }
   }
   if (label === 'x' || label.includes('twitter') || label.includes('tweety')) {
     return {
-      accent: '#111111',
-      accentSoft: 'color-mix(in srgb, #111111 10%, white)',
-      stripe: 'linear-gradient(90deg, #444444 0%, #111111 100%)',
+      accent: 'var(--color-social-x)',
+      accentSoft: 'color-mix(in srgb, var(--color-social-x) 10%, white)',
+      stripe: 'linear-gradient(90deg, var(--color-social-x-soft) 0%, var(--color-social-x) 100%)',
     }
   }
 

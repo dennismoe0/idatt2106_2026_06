@@ -696,6 +696,8 @@ public class GameService {
         options.forEach(option -> shuffledOptions.add(option.deepCopy()));
         Collections.shuffle(shuffledOptions);
 
+        // Only singular-answer tasks can be biased away from the middle slot.
+        // Multi-answer tasks intentionally keep a fully random order.
         moveCorrectOptionAwayFromMiddle(shuffledOptions, socialMediaCorrectOptionId(correctAnswerJson));
 
         ArrayNode shuffledArray = objectMapper.createArrayNode();
