@@ -12,7 +12,12 @@
 
     <article class="clue-riddle__evidence">
       <span>Bevis</span>
-      <p v-if="content.evidence">{{ content.evidence }}</p>
+      <p v-if="content.evidence && !evidencePassword">{{ content.evidence }}</p>
+
+      <div v-if="evidencePassword" class="clue-riddle__evidence-card">
+        <p class="clue-riddle__evidence-note">{{ content.evidence }}</p>
+        <code class="clue-riddle__evidence-password">{{ evidencePassword }}</code>
+      </div>
 
       <div v-if="socialPost" class="clue-riddle__social-shell" :style="postThemeStyle">
         <div class="clue-riddle__social-platform">
@@ -65,7 +70,10 @@
     </article>
 
     <div class="clue-riddle__question">
-      <h3>{{ content.question }}</h3>
+      <div class="clue-riddle__question-head">
+        <h3>{{ content.question }}</h3>
+        <p>Velg forklaringen som best kobler passordet til det digitale sporet.</p>
+      </div>
       <div class="clue-riddle__options">
         <button
           v-for="option in options"
@@ -73,8 +81,10 @@
           class="clue-riddle__option"
           :class="{ 'clue-riddle__option--selected': selected === option.id }"
           :disabled="!!result"
+          :aria-pressed="selected === option.id"
           @click="selected = option.id"
         >
+          <span class="clue-riddle__option-badge">{{ optionBadge(option.id) }}</span>
           <strong>{{ option.label }}</strong>
           <span v-if="option.detail">{{ option.detail }}</span>
         </button>
@@ -94,7 +104,7 @@
         aria-live="polite"
       >
         <h3>{{ result.correct ? 'Spor funnet!' : 'Ikke helt ennå' }}</h3>
-        <p>{{ result.explanation }}</p>
+        <p>{{ resultMessage }}</p>
         <div class="clue-riddle__actions">
           <button v-if="!result.correct" @click="$emit('tryAgain')">Prøv igjen</button>
           <button v-else @click="$emit('next')">
@@ -122,6 +132,15 @@ const content = computed(() => props.task?.contentJson ?? {})
 const options = computed(() => content.value.options ?? [])
 const socialPost = computed(() => content.value.socialPost ?? null)
 const postThemeStyle = computed(() => getPostThemeStyle(socialPost.value?.platform))
+const selectedOption = computed(() => options.value.find((option) => option.id === selected.value) ?? null)
+const evidencePassword = computed(() => content.value.evidencePassword ?? null)
+const resultMessage = computed(() => {
+  if (!props.result) return ''
+  if (props.result.correct) return props.result.explanation
+  return selectedOption.value?.detail
+    ? `Ikke helt. ${selectedOption.value.detail}`
+    : 'Ikke helt. Prøv å se nøyere på beviset.'
+})
 
 watch(() => props.task?.id, () => {
   selected.value = ''
@@ -223,12 +242,17 @@ function getAvatarStyle(username, platform) {
     background: `linear-gradient(135deg, hsl(${hue} 76% 72%) 0%, hsl(${secondaryHue} 62% 58%) 100%)`,
   }
 }
+
+function optionBadge(optionId) {
+  const index = options.value.findIndex((option) => option.id === optionId)
+  return index >= 0 ? String.fromCharCode(65 + index) : '?'
+}
 </script>
 
 <style scoped>
 .clue-riddle {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 .clue-riddle__intro,
@@ -240,22 +264,32 @@ function getAvatarStyle(username, platform) {
 }
 
 .clue-riddle__intro {
-  border: 2px solid var(--color-primary);
-  background: var(--color-primary-light);
+  border: 2px solid rgba(20, 73, 112, 0.2);
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.9), rgba(228, 241, 255, 0.96)),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 35%);
+  box-shadow: 0 18px 32px rgba(20, 73, 112, 0.08);
 }
 
 .clue-riddle__label {
   margin: 0 0 var(--space-1);
-  color: var(--color-primary-dark);
+  color: #0f4c81;
   font-size: var(--text-sm);
   font-weight: var(--font-bold);
   text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .clue-riddle h2,
 .clue-riddle h3,
 .clue-riddle p {
   margin-top: 0;
+}
+
+.clue-riddle__story-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
+  gap: var(--space-4);
 }
 
 .clue-riddle__intro p,
@@ -268,7 +302,23 @@ function getAvatarStyle(username, platform) {
 
 .clue-riddle__why {
   border: 1px solid var(--color-border);
-  background: var(--color-surface);
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+}
+
+.clue-riddle__section-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.clue-riddle__section-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: #dbeafe;
+  font-size: 1.1rem;
 }
 
 .clue-riddle__evidence {
@@ -286,6 +336,45 @@ function getAvatarStyle(username, platform) {
   color: var(--color-text);
   font-size: var(--text-sm);
   font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.clue-riddle__evidence-head strong {
+  color: #7c5300;
+  font-size: var(--text-sm);
+}
+
+.clue-riddle__evidence-card {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: rgba(58, 35, 5, 0.92);
+  color: #fff7d6;
+}
+
+.clue-riddle__evidence-note {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 247, 214, 0.74);
+}
+
+.clue-riddle__evidence-password {
+  display: inline-block;
+  width: fit-content;
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.clue-riddle__evidence-body {
+  color: rgba(255, 247, 214, 0.92);
 }
 
 .clue-riddle__question {
@@ -443,6 +532,15 @@ function getAvatarStyle(username, platform) {
   line-height: 1.5;
 }
 
+.clue-riddle__question-head {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.clue-riddle__question-head p {
+  color: var(--color-text-muted);
+}
+
 .clue-riddle__options {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -456,11 +554,18 @@ function getAvatarStyle(username, platform) {
   gap: var(--space-2);
   padding: var(--space-3);
   border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
   color: var(--color-text);
   text-align: left;
   cursor: pointer;
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.05);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.clue-riddle__option:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 24px rgba(15, 23, 42, 0.08);
 }
 
 .clue-riddle__option span {
@@ -468,9 +573,27 @@ function getAvatarStyle(username, platform) {
   line-height: 1.4;
 }
 
+.clue-riddle__option-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+}
+
 .clue-riddle__option--selected {
-  border-color: var(--color-primary);
-  background: var(--color-primary-light);
+  border-color: #2563eb;
+  background: linear-gradient(180deg, #eff6ff, #dbeafe);
+  box-shadow: 0 18px 30px rgba(37, 99, 235, 0.15);
+}
+
+.clue-riddle__option--selected .clue-riddle__option-badge {
+  background: #2563eb;
+  color: #fff;
 }
 
 .clue-riddle__submit,
@@ -531,4 +654,10 @@ function getAvatarStyle(username, platform) {
 .riddle-result-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
 .riddle-result-enter-from,
 .riddle-result-leave-to { opacity: 0; transform: translateY(-10px); }
+
+@media (max-width: 800px) {
+  .clue-riddle__story-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
