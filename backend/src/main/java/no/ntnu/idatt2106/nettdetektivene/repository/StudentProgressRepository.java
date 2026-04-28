@@ -23,4 +23,6 @@ public interface StudentProgressRepository extends JpaRepository<StudentProgress
 
     @Query("SELECT COUNT(DISTINCT sp.stop.id) FROM StudentProgress sp WHERE sp.student.id = :studentId AND sp.completed = true")
     long countDistinctCompletedStops(@Param("studentId") Long studentId);
+
+    long countByStudent_IdAndCompletedTrue(Long studentId);
 }

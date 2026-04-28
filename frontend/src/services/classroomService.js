@@ -19,6 +19,9 @@ export const classroomService = {
   getStops: (classroomId) =>
     api.get(`/api/classrooms/${classroomId}/stops`),
 
+  getStudentProgress: (classroomId) =>
+    api.get(`/api/classrooms/${classroomId}/student-progress`),
+
   getMyStatus: (classroomId) =>
     api.get(`/api/classrooms/${classroomId}/my-status`),
 

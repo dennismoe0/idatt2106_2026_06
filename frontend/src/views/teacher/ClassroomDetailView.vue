@@ -57,27 +57,21 @@
           <!-- Current stop -->
           <span class="stop-cell">
             <template v-if="currentStop(student)">
-              {{ stopIcon(currentStop(student).theme) }} {{ currentStop(student).name }}
+              {{ currentStop(student).currentStopName }}
             </template>
             <span v-else class="cell-empty">—</span>
           </span>
 
-          <!-- Tasks progress -->
+          <!-- Tasks completed -->
           <span class="progress-cell">
             <template v-if="studentProgress(student)">
               <strong>{{ studentProgress(student).completedTasks }}</strong>
-              / {{ studentProgress(student).totalTasks }}
             </template>
             <span v-else class="cell-empty">—</span>
           </span>
 
-          <!-- Last completed stop -->
-          <span class="stop-cell">
-            <template v-if="lastCompletedStop(student)">
-              {{ stopIcon(lastCompletedStop(student).theme) }} {{ lastCompletedStop(student).name }}
-            </template>
-            <span v-else class="cell-empty">—</span>
-          </span>
+          <!-- Last completed stop (not available from API — hidden) -->
+          <span class="stop-cell cell-empty">—</span>
 
           <!-- Actions -->
           <div class="student-actions">
@@ -164,9 +158,8 @@ const leaderboard = ref([])
 const lbLoading = ref(false)
 const lbError = ref('')
 
-// Stops state (for mapping current stop name + icon)
-const stops = ref([])
-const stopsError = ref('')
+// Per-student progress from dedicated teacher endpoint
+const studentProgressMap = ref({}) // keyed by studentId
 
 const students = computed(() => classroomStore.students)
 const classroom = computed(() =>
@@ -183,11 +176,11 @@ onMounted(async () => {
   if (classroomStore.classrooms.length === 0) {
     await classroomStore.fetchMyClassrooms()
   }
-  await Promise.all([loadStudents(), loadLeaderboard(), loadStops()])
+  await Promise.all([loadStudents(), loadLeaderboard(), loadStudentProgress()])
   pollInterval = setInterval(async () => {
-    await Promise.allSettled([loadStudents(), loadLeaderboard()])
+    await Promise.allSettled([loadStudents(), loadLeaderboard(), loadStudentProgress()])
   }, 5000)
-  console.log('[ClassroomDetailView] Polling started every 5s (students + leaderboard); stops fetched once')
+  console.log('[ClassroomDetailView] Polling started every 5s')
 })
 
 onUnmounted(() => {
@@ -221,87 +214,35 @@ async function loadLeaderboard() {
   }
 }
 
-async function loadStops() {
+async function loadStudentProgress() {
   try {
-    const { data } = await gameService.getStopsMeta()
-    stops.value = [...data].sort((a, b) => a.orderIndex - b.orderIndex)
-    console.log('[ClassroomDetailView] Stops meta loaded:', stops.value.length)
+    const { data } = await classroomService.getStudentProgress(classroomId)
+    const map = {}
+    if (Array.isArray(data)) {
+      data.forEach(entry => { map[entry.studentId] = entry })
+    }
+    studentProgressMap.value = map
+    console.log('[ClassroomDetailView] Student progress loaded for', data?.length ?? 0, 'students')
   } catch (err) {
-    console.error('[ClassroomDetailView] Failed to fetch stops meta:', err)
-    stopsError.value = 'Kunne ikke hente stoppene.'
+    console.error('[ClassroomDetailView] Failed to fetch student progress:', err)
   }
 }
 
 function studentProgress(student) {
-  // Match by displayName (as provided by leaderboard API)
-  return leaderboard.value.find((e) => e.displayName === student.displayName) || null
-}
-
-function progressTitle(student) {
-  const e = studentProgress(student)
-  if (!e) return 'Fremdrift ukjent'
-  if (e.totalTasks <= 0) return 'Ingen oppgaver'
-}
-
-function currentStopByEntry(entry) {
-  if (!stops.value || stops.value.length === 0) return null
-  let cumulative = 0
-  const total = stops.value.reduce((acc, s) => acc + (s.taskCount ?? 0), 0)
-  if (entry.completedTasks >= total) return null // all done
-  for (const stop of stops.value) {
-    const count = stop.taskCount ?? 0
-    if (entry.completedTasks < cumulative + count) {
-      return stop
-    }
-    cumulative += count
-  }
-  return stops.value[stops.value.length - 1] || null
+  return studentProgressMap.value[student.userId] || null
 }
 
 function currentStop(student) {
-  const e = studentProgress(student)
-  if (!e) return null
-  return currentStopByEntry(e)
-}
-
-// Compute the last fully completed stop for an entry (null if none completed yet)
-function lastCompletedStopByEntry(entry) {
-  if (!stops.value || stops.value.length === 0) return null
-  const completed = Number(entry?.completedTasks ?? 0)
-  if (completed <= 0) return null
-
-  let cumulative = 0
-  let last = null
-  for (const stop of stops.value) {
-    const count = stop.taskCount ?? 0
-    cumulative += count
-    if (completed >= cumulative) {
-      last = stop
-    } else {
-      break
-    }
-  }
-  return last
+  const p = studentProgress(student)
+  if (!p || !p.currentStopName) return null
+  return p
 }
 
 function lastCompletedStop(student) {
-  const e = studentProgress(student)
-  if (!e) return null
-  return lastCompletedStopByEntry(e)
+  // Not available from the new endpoint; hide this column gracefully
+  return null
 }
 
-function stopIcon(theme) {
-  const map = {
-    FAKE_NEWS: '📰',
-    PHISHING_EMAIL: '✉️',
-    AI_PHOTO: '📷',
-    PASSWORD: '🔑',
-    MARKETPLACE: '🛒',
-    SOCIAL_MEDIA: '💬',
-    FINAL_BOSS: '🏆',
-  }
-  return map[theme] || '📍'
-}
 
 async function approve(studentId) {
   console.log('[ClassroomDetailView] Approving student:', studentId)
