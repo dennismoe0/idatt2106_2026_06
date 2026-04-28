@@ -27,11 +27,6 @@
           </li>
           <li>
             <a href="#" class="nav-link">
-              <span class="nav-icon">📊</span> Fremgang
-            </a>
-          </li>
-          <li>
-            <a href="#" class="nav-link">
               <span class="nav-icon">🕯️</span> Ukens mysterium
             </a>
           </li>
