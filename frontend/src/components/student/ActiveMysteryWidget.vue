@@ -320,12 +320,12 @@ async function submitAnswer() {
 
 .mystery-card__result--correct {
   background: var(--color-note-correct-bg);
-  border-color: #22c55e;
+  border-color: var(--color-success);
 }
 
 .mystery-card__result--wrong {
   background: var(--color-note-wrong-bg);
-  border-color: #ef4444;
+  border-color: var(--color-danger);
 }
 
 .mystery-card__result-headline {

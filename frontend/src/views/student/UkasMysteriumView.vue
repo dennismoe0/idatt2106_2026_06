@@ -1,3 +1,13 @@
+<script setup>
+import { computed } from 'vue'
+import { useClassroomStore } from '@/stores/classroom'
+import DetectiveBar from '@/components/common/DetectiveBar.vue'
+import ActiveMysteryWidget from '@/components/student/ActiveMysteryWidget.vue'
+
+const classroomStore = useClassroomStore()
+const classroomId = computed(() => Number(classroomStore.currentClassroomId))
+</script>
+
 <template>
   <div class="mysterium-view cork-board-bg">
     <DetectiveBar :back-to="{ name: 'Home' }" page-title="Ukas Mysterium" />
@@ -19,16 +29,6 @@
     </main>
   </div>
 </template>
-
-<script setup>
-import { computed } from 'vue'
-import { useClassroomStore } from '@/stores/classroom'
-import DetectiveBar from '@/components/common/DetectiveBar.vue'
-import ActiveMysteryWidget from '@/components/student/ActiveMysteryWidget.vue'
-
-const classroomStore = useClassroomStore()
-const classroomId = computed(() => Number(classroomStore.currentClassroomId))
-</script>
 
 <style scoped>
 .mysterium-view {
@@ -62,7 +62,7 @@ const classroomId = computed(() => Number(classroomStore.currentClassroomId))
   font-family: 'Special Elite', serif;
   font-size: clamp(1.8rem, 5vw, 2.6rem);
   font-weight: var(--font-bold);
-  color: var(--color-medal-gold-bg);
+  color: var(--color-gold);
   margin: 0 0 var(--space-3);
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
