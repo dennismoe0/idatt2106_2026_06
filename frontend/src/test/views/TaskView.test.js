@@ -94,7 +94,6 @@ describe('TaskView', () => {
           MarketplaceTask: true,
           PhishingEmailTask: true,
           FinalBossTask: true,
-          ClueRevealModal: true,
           SuspectLineup: true,
           ConfettiOverlay: true,
           MedalToast: true,

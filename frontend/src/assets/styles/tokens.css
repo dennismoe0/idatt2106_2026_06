@@ -290,6 +290,8 @@
   --color-map-path-done:             #F5C518;
   --color-map-path-upcoming:         #9E9E9E;
   --color-map-path-locked:           #7A7A7A;
+  --color-map-path-stone-outer:      #8B7355;
+  --color-map-path-stone-inner:      #A8926A;
 
   /* Font */
   --font-sans: "Nunito", system-ui, -apple-system, sans-serif;

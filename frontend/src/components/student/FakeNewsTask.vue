@@ -2,18 +2,19 @@
   <section class="fake-news-task">
     <p class="fake-news-task__guidance">{{ task.guidanceText }}</p>
 
-    <p class="fake-news-task__instruction">🔍 Klikk på den artikkelen du tror er falsk</p>
+    <p class="fake-news-task__instruction">🔍 Klikk på den artikkelen du tror er ekte</p>
 
     <div class="fake-news-task__articles">
       <article
         v-for="(article, index) in articles"
         :key="index"
         class="newspaper pinned-note article-card"
+        data-peek-trigger
         :class="articleClass(index)"
         :style="`--card-rotate: ${cardRotation(index)}deg`"
         role="button"
         tabindex="0"
-        :aria-label="`Velg denne artikkelen som falsk: ${article.headline}`"
+        :aria-label="`Velg denne artikkelen som ekte: ${article.headline}`"
         :aria-pressed="chosenIndex === index"
         :aria-disabled="!!result"
         @click="pickCard(index)"
@@ -92,8 +93,8 @@ watch(() => props.result, (r) => {
 function getCorrectIndex(r) {
   // Prefer an explicit index from the server (future-proof)
   if (typeof r?.correctArticleIndex === 'number') return r.correctArticleIndex
-  // Fallback: derive from the submit-response object — the correct article has value false
-  return articles.value.findIndex((_, index) => r?.[`article_${index}`] === false)
+  // Fallback: the correct article (real) has value true in the answer map
+  return articles.value.findIndex((_, index) => r?.[`article_${index}`] === true)
 }
 
 function articleClass(index) {
@@ -118,7 +119,7 @@ function pickCard(index) {
   chosenIndex.value = index
   const answer = {}
   articles.value.forEach((_, i) => {
-    answer[`article_${i}`] = i !== index
+    answer[`article_${i}`] = i === index  // chosen card = true (real), others = false (fake)
   })
   console.log('[FakeNewsTask] Card picked index:', index, 'answer:', answer)
   emit('submitted', answer)

@@ -16,6 +16,7 @@
         class="artifacts-wrap"
         :class="{ 'artifacts-wrap--done': !!result }"
         ref="containerRef"
+        data-peek-trigger
         @click="handleClick"
       >
         <img
@@ -79,6 +80,7 @@
           v-for="(img, index) in images"
           :key="img.id"
           class="image-card"
+          data-peek-trigger
           :class="{
             'image-card--answered': !!result,
             'image-card--correct':  result?.correct,

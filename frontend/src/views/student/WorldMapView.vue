@@ -1,6 +1,9 @@
 <template>
   <div class="world-map-view">
 
+    <!-- Top bar — shown even in portrait so user can navigate away -->
+    <DetectiveBar :back-to="{ name: 'Home' }" page-title="Kart" class="world-map-view__bar" />
+
     <!-- Portrait guard: shown when height > width -->
     <div v-if="isPortrait" class="world-map-view__portrait-guard" role="alert" aria-live="assertive">
       <span class="world-map-view__rotate-icon" aria-hidden="true">↻</span>
@@ -8,7 +11,7 @@
     </div>
 
     <template v-else>
-      <!-- Scale container — fills the fixed viewport -->
+      <!-- Scale container — fills viewport below the bar -->
       <div ref="containerRef" class="world-map-view__container">
         <LoadingSpinner v-if="loading" class="world-map-view__loading" />
         <p v-else-if="error" class="world-map-view__error">{{ error }}</p>
@@ -17,24 +20,17 @@
           :stops="stops"
           :current-node-index="currentNodeIndex"
           :shaking-node-index="shakingNodeIndex"
+          :is-walking="isWalking"
           class="world-map-view__canvas"
           :style="canvasTransform"
           @node-click="handleNodeClick"
         />
       </div>
 
-      <!-- Back button top-left, outside scaled canvas -->
-      <button class="world-map-view__back-btn" @click="router.push({ name: 'Home' })" aria-label="Tilbake til hjemmesiden">
-        ← Tilbake
-      </button>
-
-      <!-- Map toggle top-left below back button -->
+      <!-- Map toggle fixed below the bar -->
       <button class="world-map-view__map-toggle" @click="switchToSimpleMap" aria-label="Bytt til enkel kartvisning">
         Enkel visning
       </button>
-
-      <!-- HUD floats in top-right, outside scaled canvas -->
-      <PlayerHud class="world-map-view__hud" />
 
       <!-- Enter area: bottom-right, fixed, outside scaled canvas -->
       <div class="world-map-view__enter-area" aria-live="polite">
@@ -64,8 +60,9 @@ import { useAvatarStore } from '@/stores/avatar'
 import { useWorldMapScale } from '@/composables/useWorldMapScale'
 import { useAvatarWalk } from '@/composables/useAvatarWalk'
 import WorldMapCanvas from '@/components/student/WorldMapCanvas.vue'
-import PlayerHud from '@/components/common/PlayerHud.vue'
+import DetectiveBar from '@/components/common/DetectiveBar.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import { useNotebookStore } from '@/stores/notebook'
 
 const router = useRouter()
 const gameStore = useGameStore()
@@ -74,6 +71,8 @@ const avatarStore = useAvatarStore()
 
 const { containerRef, scale } = useWorldMapScale()
 const { currentNodeIndex, isWalking, walkTo, initAutoWalk } = useAvatarWalk()
+
+const notebookStore  = useNotebookStore()
 
 const loading = ref(false)
 const error = ref(null)
@@ -153,6 +152,9 @@ onMounted(async () => {
   loading.value = true
   try {
     await gameStore.fetchStops(classroomStore.currentClassroomId)
+    notebookStore.fetchEntries().catch(err =>
+      console.warn('[WorldMapView] Notebook fetch failed (non-fatal):', err)
+    )
     // Ensure avatar is present (may already be prefetched at login)
     if (!avatarStore.avatar) {
       await avatarStore.fetchAvatar().catch(err =>
@@ -179,6 +181,7 @@ onUnmounted(() => {
   window.removeEventListener('resize', checkOrientation)
   clearTimeout(lockedTimer)
 })
+
 </script>
 
 <style scoped>
@@ -187,6 +190,14 @@ onUnmounted(() => {
   inset: 0;
   background: var(--color-map-bg);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.world-map-view__bar {
+  position: relative;
+  z-index: 200;
+  flex-shrink: 0;
 }
 
 /* ---- Portrait guard ---- */
@@ -221,13 +232,14 @@ onUnmounted(() => {
   line-height: 1.5;
 }
 
-/* ---- Scale container ---- */
+/* ---- Scale container — fills area below the DetectiveBar ---- */
 .world-map-view__container {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  flex: 1;
+  overflow: hidden;
 }
 
-/* Canvas positioned from top-left 50%/50%, centred via transform in JS */
+/* Canvas centred in the container — top/left 50% set via inline style, transform applied in JS */
 .world-map-view__canvas {
   position: absolute;
   top: 50%;
@@ -253,35 +265,10 @@ onUnmounted(() => {
   font-size: 1rem;
 }
 
-/* ---- Back button ---- */
-.world-map-view__back-btn {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 100;
-  padding: 0.5rem 1rem;
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.15s;
-}
-.world-map-view__back-btn:hover {
-  background: rgba(0, 0, 0, 0.8);
-}
-.world-map-view__back-btn:focus-visible {
-  outline: 3px solid #fff;
-  outline-offset: 4px;
-}
-
-/* ---- Map toggle ---- */
+/* ---- Map toggle — below bar, top-left ---- */
 .world-map-view__map-toggle {
   position: fixed;
-  top: 3.5rem;
+  top: calc(48px + 0.5rem);
   left: 1rem;
   z-index: 100;
   padding: 0.4rem 0.875rem;
@@ -302,14 +289,6 @@ onUnmounted(() => {
 .world-map-view__map-toggle:focus-visible {
   outline: 3px solid #fff;
   outline-offset: 4px;
-}
-
-/* ---- HUD overlay ---- */
-.world-map-view__hud {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 100;
 }
 
 /* ---- Enter area ---- */
@@ -361,4 +340,5 @@ onUnmounted(() => {
   outline: 3px solid #fff;
   outline-offset: 4px;
 }
+
 </style>

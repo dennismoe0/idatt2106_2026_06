@@ -207,10 +207,12 @@ public class GameService {
         progress.setCompletedAt(LocalDateTime.now());
         studentProgressRepository.save(progress);
 
-        // Award 1 star + 10 XP for this first correct answer
+        // Award XP (and 1 star only for non-LEARN tasks)
         User student = userRepository.findById(studentId)
             .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        student.setStarBalance(student.getStarBalance() + 1);
+        if (task.getTaskType() != TaskType.LEARN) {
+            student.setStarBalance(student.getStarBalance() + 1);
+        }
         student.setXp(student.getXp() + XP_PER_TASK);
 
         boolean stopCompleted = isStopComplete(studentId, task.getStop().getId());
@@ -221,7 +223,7 @@ public class GameService {
             student.setXp(student.getXp() + XP_PER_STOP);
             xpEarned += XP_PER_STOP;
             notebookService.createAutoClueIfNotExists(studentId, task.getStop());
-            int taskCount = Math.toIntExact(taskRepository.countByStop_Id(task.getStop().getId()));
+            int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNot(task.getStop().getId(), TaskType.LEARN));
             StudentXpLog xpLog = new StudentXpLog();
             xpLog.setStudent(student);
             xpLog.setStop(task.getStop());
@@ -230,7 +232,8 @@ public class GameService {
             studentXpLogRepository.save(xpLog);
         }
         userRepository.save(student);
-        log.info("[GameService] awarded starsEarned=1 xpEarned={} studentId={} taskId={}", xpEarned, studentId, taskId);
+        int starsEarned = task.getTaskType() != TaskType.LEARN ? 1 : 0;
+        log.info("[GameService] awarded starsEarned={} xpEarned={} studentId={} taskId={}", starsEarned, xpEarned, studentId, taskId);
 
         MedalDto medalEarned = stopCompleted
             ? checkAndAwardMedal(studentId, task.getStop().getId()).map(this::toMedalDto).orElse(null)
@@ -250,7 +253,7 @@ public class GameService {
             }
         }
 
-        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 1, xpEarned, correctClueIds, null, clueText, showSuspectReveal);
+        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, starsEarned, xpEarned, correctClueIds, null, clueText, showSuspectReveal);
     }
 
     @Transactional(readOnly = true)
@@ -328,8 +331,8 @@ public class GameService {
     }
 
     private boolean isStopComplete(Long studentId, Long stopId) {
-        long taskCount = taskRepository.countByStop_Id(stopId);
-        return taskCount > 0 && completedTaskCount(studentId, stopId) == taskCount;
+        long gameTaskCount = taskRepository.countByStop_IdAndTaskTypeNot(stopId, TaskType.LEARN);
+        return gameTaskCount > 0 && completedGameTaskCount(studentId, stopId) == gameTaskCount;
     }
 
     private Optional<Medal> checkAndAwardMedal(Long studentId, Long stopId) {
@@ -480,7 +483,7 @@ public class GameService {
             Iterator<Map.Entry<String, JsonNode>> fields = correct.fields();
             while (fields.hasNext()) {
                 Map.Entry<String, JsonNode> entry = fields.next();
-                if (!entry.getValue().asBoolean()) {
+                if (entry.getValue().asBoolean()) {
                     return Integer.parseInt(entry.getKey().replace("article_", ""));
                 }
             }
@@ -516,8 +519,8 @@ public class GameService {
     }
 
     private StopResponse toStopResponse(Long studentId, Long classroomId, Stop stop) {
-        int taskCount = Math.toIntExact(taskRepository.countByStop_Id(stop.getId()));
-        int correctCount = Math.toIntExact(completedTaskCount(studentId, stop.getId()));
+        int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNot(stop.getId(), TaskType.LEARN));
+        int correctCount = Math.toIntExact(completedGameTaskCount(studentId, stop.getId()));
         boolean unlocked = isStopUnlocked(studentId, classroomId, stop);
         boolean completed = isStopComplete(studentId, stop.getId());
         boolean xpClaimable = completed && isXpClaimable(studentId, stop.getId());
@@ -587,12 +590,16 @@ public class GameService {
     }
 
     private boolean allTasksCompleted(Long studentId, Long stopId) {
-        long taskCount = taskRepository.countByStop_Id(stopId);
-        return taskCount > 0 && completedTaskCount(studentId, stopId) == taskCount;
+        long gameTaskCount = taskRepository.countByStop_IdAndTaskTypeNot(stopId, TaskType.LEARN);
+        return gameTaskCount > 0 && completedGameTaskCount(studentId, stopId) == gameTaskCount;
     }
 
     private long completedTaskCount(Long studentId, Long stopId) {
         return studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(studentId, stopId);
+    }
+
+    private long completedGameTaskCount(Long studentId, Long stopId) {
+        return studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(studentId, stopId, TaskType.LEARN);
     }
 
     private String extractExplanation(Task task) {

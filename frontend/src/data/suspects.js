@@ -1,0 +1,60 @@
+export const SUSPECTS = [
+  {
+    id: 0,
+    name: 'Birger Bakmann',
+    role: 'IT-konsulent',
+    emoji: '🧑‍💻',
+    image: '/suspects/birger.png',
+    description: 'Teknisk ekspert med tilgang til mange systemer. Jobber alltid sent.',
+  },
+  {
+    id: 1,
+    name: 'Sunniva Strand',
+    role: 'Reisende journalist',
+    emoji: '📸',
+    image: '/suspects/sunniva.png',
+    description: 'Dekket idrettsparksaken tett. Har mange kontakter i kommunen.',
+  },
+  {
+    id: 2,
+    name: 'Malte Skygge',
+    role: 'Nettkafé-eier',
+    emoji: '☕',
+    image: '/suspects/malte.png',
+    description: 'Driver nettkafeen på Bytorget. Var der sent den aktuelle kvelden.',
+  },
+  {
+    id: 3,
+    name: 'Frida Frost',
+    role: 'Skolebibliotekar',
+    emoji: '📚',
+    image: '/suspects/frida.png',
+    description: 'Har alltid vært interessert i digital sikkerhet. Lånte bøker om hacking.',
+  },
+  {
+    id: 4,
+    name: 'Ronnie Raske',
+    role: 'Leveransebud',
+    emoji: '📦',
+    image: '/suspects/ronnie.png',
+    description: 'Leverte pakker til rådhuset uken det skjedde. Ingen faste arbeidsrutiner.',
+  },
+  {
+    id: 5,
+    name: 'Tore Tunnel',
+    role: 'Anonym blogger',
+    emoji: '🕶️',
+    image: '/suspects/tore.png',
+    description: 'Postet mystiske innlegg om «den store avsløringen» dagene i forveien.',
+  },
+  {
+    id: 6,
+    name: 'Kaja Klar',
+    role: 'Ordførerens assistent',
+    emoji: '🗂️',
+    image: '/suspects/kaja.png',
+    description: 'Hadde daglig tilgang til ordførerens kalender og kontoopplysninger.',
+  },
+]
+
+export const THIEF_ID = 2

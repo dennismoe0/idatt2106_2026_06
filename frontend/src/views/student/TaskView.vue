@@ -28,6 +28,8 @@
       v-else
       class="task-view__main"
       :class="currentTask?.taskType === 'LEARN' ? 'task-view__main--clean' : 'cork-board-bg'"
+      @mouseover="handlePeekHover"
+      @mouseout="handlePeekOut"
     >
 
       <StopSummary
@@ -46,36 +48,44 @@
         <p v-else-if="!currentTask" class="task-view__state">Ingen oppgaver funnet for dette stoppet.</p>
 
         <section v-else class="task-view__section">
-          <!-- Progress dots -->
-          <div class="task-dots" role="list" :aria-label="`Oppgave ${currentTaskIndex + 1} av ${tasks.length}`">
-            <span
-              v-for="(t, i) in tasks"
-              :key="t.id"
-              class="dot"
-              role="listitem"
-              :class="{
-                'dot--current': i === currentTaskIndex && !taskResults[t.id],
-                'dot--correct': taskResults[t.id]?.correct === true,
-                'dot--wrong':   taskResults[t.id] && !taskResults[t.id].correct
-              }"
-              :aria-label="`Oppgave ${i + 1}${taskResults[t.id] ? (taskResults[t.id].correct ? ': riktig' : ': feil') : ''}`"
+          <!-- Progress dots + replay button -->
+          <div class="task-view__meta">
+            <div class="task-dots" role="list">
+              <template v-for="(t, i) in tasks" :key="t.id">
+                <span
+                  v-if="t.taskType !== 'LEARN'"
+                  class="dot"
+                  role="listitem"
+                  :class="{
+                    'dot--current': i === currentTaskIndex && !taskResults[t.id],
+                    'dot--correct': taskResults[t.id]?.correct === true,
+                    'dot--wrong':   taskResults[t.id] && !taskResults[t.id].correct
+                  }"
+                  :aria-label="`Oppgave ${i + 1}${taskResults[t.id] ? (taskResults[t.id].correct ? ': riktig' : ': feil') : ''}`"
+                />
+              </template>
+            </div>
+            <button class="task-view__replay-btn" @click="replayIntro" :title="mysteryScenario ? 'Se historien på nytt' : 'Se oppgaveteksten på nytt'">
+              ↩ Intro
+            </button>
+          </div>
+
+          <!-- Avatar: in-flow spacer, hidden during peek so cards don't shift -->
+          <div
+            v-if="currentTask?.taskType !== 'LEARN'"
+            class="task-view__avatar-wrap"
+            :class="{ 'task-view__avatar-wrap--peekmode': !!peekState }"
+          >
+            <AvatarPreview
+              :selections="avatarStore.avatar ?? {}"
+              :size="160"
+              class="task-view__avatar"
+              aria-hidden="true"
             />
           </div>
 
-          <!-- Task layout: expanded avatar + task content -->
-          <div class="task-view__layout">
-            <!-- Expanded avatar (animates down from bar) -->
-            <div class="task-view__avatar-wrap">
-              <AvatarPreview
-                :selections="avatarStore.avatar ?? {}"
-                :size="100"
-                class="task-view__avatar"
-                aria-hidden="true"
-              />
-            </div>
-
-            <!-- Task component -->
-            <div class="task-view__content">
+          <!-- Task component -->
+          <div class="task-view__content">
               <LearningTask
                 v-if="currentTask.taskType === 'LEARN'"
                 :task="currentTask"
@@ -153,16 +163,25 @@
                 Ukjent taskType: {{ currentTask.taskType }}
               </p>
             </div>
-          </div>
         </section>
       </template>
     </div>
 
-    <ClueRevealModal
-      v-if="showClueModal"
-      :clue-text="result?.clueText"
-      @close="handleClueModalClosed"
-    />
+    <!-- Peek avatar: fixed overlay, teleported so it doesn't affect layout -->
+    <Teleport to="body">
+      <div
+        v-if="peekState && currentTask?.taskType !== 'LEARN'"
+        class="task-view__peek-avatar"
+        :style="avatarPeekStyle"
+      >
+        <AvatarPreview
+          :selections="avatarStore.avatar ?? {}"
+          :size="avatarPeekSize"
+          aria-hidden="true"
+        />
+      </div>
+    </Teleport>
+
     <SuspectLineup
       v-if="showSuspectLineup"
       @chosen="handleSuspectChosen"
@@ -194,7 +213,6 @@ import SocialMediaTask from '@/components/student/SocialMediaTask.vue'
 import MarketplaceTask from '@/components/student/MarketplaceTask.vue'
 import PhishingEmailTask from '@/components/student/PhishingEmailTask.vue'
 import FinalBossTask from '@/components/student/FinalBossTask.vue'
-import ClueRevealModal from '@/components/student/ClueRevealModal.vue'
 import SuspectLineup from '@/components/student/SuspectLineup.vue'
 import ArrestScene from '@/components/student/ArrestScene.vue'
 import ConfettiOverlay from '@/components/common/ConfettiOverlay.vue'
@@ -220,14 +238,15 @@ const error            = ref('')
 const isMockMode       = ref(false)
 const confettiMode     = ref(false)
 const medalToast       = ref(null)
-const showClueModal    = ref(false)
 const showSuspectLineup = ref(false)
 const showSummary      = ref(false)
 const showTutorial     = ref(false)
 const showMystery      = ref(false)
 const arrestSceneStep  = ref(-1)
+const peekState        = ref(null)
 let confettiTimer = null
 let medalTimer    = null
+let peekOutTimer  = null
 
 const preferredMap = localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap'
 
@@ -253,6 +272,26 @@ const arrestScenes = [
   },
 ]
 const arrestScene = computed(() => arrestScenes[arrestSceneStep.value] ?? null)
+
+const avatarPeekSize = computed(() => {
+  if (!peekState.value) return 160
+  return Math.round(160 * peekState.value.scale)
+})
+
+const avatarPeekStyle = computed(() => {
+  if (!peekState.value) return {}
+  const { centerX, targetTop } = peekState.value
+  const sz = avatarPeekSize.value
+  return {
+    position: 'fixed',
+    left: `${centerX - sz / 2}px`,
+    top: `${targetTop - sz * 0.73}px`,
+    width: `${sz}px`,
+    zIndex: 1,
+    pointerEvents: 'none',
+    transition: 'top 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.3s ease, width 0.25s ease',
+  }
+})
 
 const TUTORIAL_TEXTS = {
   LEARN: {
@@ -375,7 +414,8 @@ async function loadTasks() {
 
 function checkMystery() {
   if (!stopId.value || !tasks.value.length) return
-  if (mysteryScenario.value) {
+  const mysteryKey = `mystery_seen_stop_${stopId.value}`
+  if (mysteryScenario.value && !localStorage.getItem(mysteryKey)) {
     showMystery.value = true
     console.log('[TaskView] Showing mystery screen for stop', stopId.value)
     return
@@ -385,6 +425,7 @@ function checkMystery() {
 
 function acceptMystery() {
   showMystery.value = false
+  localStorage.setItem(`mystery_seen_stop_${stopId.value}`, '1')
   console.log('[TaskView] Mystery accepted for stop', stopId.value)
   checkTutorial()
 }
@@ -404,6 +445,15 @@ function startTasks() {
   localStorage.setItem(key, '1')
   showTutorial.value = false
   console.log('[TaskView] Tutorial dismissed for stop', stopId.value)
+}
+
+function replayIntro() {
+  if (mysteryScenario.value) {
+    showMystery.value = true
+  } else {
+    showTutorial.value = true
+  }
+  console.log('[TaskView] Replaying intro for stop', stopId.value)
 }
 
 async function handleSubmit(answer) {
@@ -734,18 +784,11 @@ function handleCelebration(submitResult) {
     clearTimeout(medalTimer)
     medalTimer = setTimeout(() => { medalToast.value = null }, 4000)
   }
-  if (submitResult?.stopCompleted) {
-    if (submitResult.showSuspectReveal) {
-      setTimeout(() => { showSuspectLineup.value = true }, 1200)
-    } else if (submitResult.clueText) {
-      setTimeout(() => { showClueModal.value = true }, 1200)
-    }
+  if (submitResult?.stopCompleted && submitResult.showSuspectReveal) {
+    setTimeout(() => { showSuspectLineup.value = true }, 1200)
   }
 }
 
-function handleClueModalClosed() {
-  showClueModal.value = false
-}
 function handleSuspectChosen() {
   showSuspectLineup.value = false
 }
@@ -789,7 +832,24 @@ async function advanceArrestScene() {
 onBeforeUnmount(() => {
   clearTimeout(confettiTimer)
   clearTimeout(medalTimer)
+  clearTimeout(peekOutTimer)
 })
+
+function handlePeekHover(e) {
+  const trigger = e.target.closest('[data-peek-trigger]')
+  if (!trigger) return
+  clearTimeout(peekOutTimer)
+  const rect = trigger.getBoundingClientRect()
+  const scale = Math.min(Math.max(rect.width / 250, 0.5), 1.3)
+  peekState.value = { centerX: rect.left + rect.width / 2, targetTop: rect.top, scale }
+}
+
+function handlePeekOut(e) {
+  if (!e.relatedTarget?.closest?.('[data-peek-trigger]')) {
+    clearTimeout(peekOutTimer)
+    peekOutTimer = setTimeout(() => { peekState.value = null }, 80)
+  }
+}
 
 function goNext() {
   if (result.value && currentTask.value) {
@@ -856,12 +916,37 @@ function goToMap() {
   margin: 0 auto var(--space-4);
 }
 
+/* Progress meta row: dots + replay button */
+.task-view__meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-2) 0 var(--space-4);
+}
+
+.task-view__replay-btn {
+  background: none;
+  border: 1px solid rgba(30, 41, 59, 0.18);
+  border-radius: var(--radius-full);
+  padding: 2px var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+  white-space: nowrap;
+}
+.task-view__replay-btn:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
 /* Progress dots */
 .task-dots {
   display: flex;
   gap: var(--space-2);
   justify-content: center;
-  padding: var(--space-2) 0 var(--space-4);
 }
 .dot {
   width: 12px;
@@ -875,34 +960,27 @@ function goToMap() {
 .dot--correct { background: var(--color-success); }
 .dot--wrong   { background: var(--color-danger); }
 
-/* Task layout: avatar beside content */
-.task-view__layout {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-6);
-}
-
+/* Avatar shown above task content, centered */
 .task-view__avatar-wrap {
-  flex-shrink: 0;
-  animation: avatar-drop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  transform-origin: top center;
+  display: flex;
+  justify-content: center;
+  padding-bottom: var(--space-2);
 }
-@keyframes avatar-drop-in {
-  from { transform: scale(0.3) translateY(-60px); opacity: 0; }
-  to   { transform: scale(1) translateY(0);       opacity: 1; }
-}
+/* Keep layout space but hide the in-flow avatar while peek overlay is active */
+.task-view__avatar-wrap--peekmode { visibility: hidden; }
+
+/* Peek overlay: teleported to body, lives behind task cards via z-index */
+.task-view__peek-avatar { display: block; }
 
 .task-view__avatar {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  object-fit: cover;
+  animation: avatar-drop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.35));
 }
 
-.task-view__content { flex: 1; min-width: 0; }
-
-@media (max-width: 640px) {
-  .task-view__layout { flex-direction: column; align-items: center; }
-  .task-view__avatar { width: 72px; height: 72px; }
+@keyframes avatar-drop-in {
+  from { transform: translateY(-30px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
 }
+
+.task-view__content { width: 100%; position: relative; z-index: 2; }
 </style>

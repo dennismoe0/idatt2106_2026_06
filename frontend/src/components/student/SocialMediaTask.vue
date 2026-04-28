@@ -33,7 +33,7 @@
             </label>
           </div>
 
-          <div class="post-card" role="article" :aria-label="`Innlegg fra ${postItem.username ?? 'ukjent bruker'}`">
+          <div class="post-card" role="article" data-peek-trigger :aria-label="`Innlegg fra ${postItem.username ?? 'ukjent bruker'}`">
             <div class="post-card__stripe" aria-hidden="true" />
             <span class="post-avatar" :style="getAvatarStyle(postItem.username, postItem.platform)" aria-hidden="true">
               {{ getInitials(postItem.username) }}
@@ -75,7 +75,7 @@
           <span class="post-platform__dot" aria-hidden="true" />
           {{ getPlatformLabel(platformLabel) }}
         </div>
-        <div class="post-card" role="article" :aria-label="`Innlegg fra ${post.username ?? 'ukjent bruker'}`">
+        <div class="post-card" role="article" data-peek-trigger :aria-label="`Innlegg fra ${post.username ?? 'ukjent bruker'}`">
           <div class="post-card__stripe" aria-hidden="true" />
           <span class="post-avatar" :style="getAvatarStyle(post.username, post.platform)" aria-hidden="true">
             {{ getInitials(post.username) }}

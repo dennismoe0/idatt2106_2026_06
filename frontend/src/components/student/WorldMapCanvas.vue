@@ -124,18 +124,24 @@
         style="transform: translate(3px, 5px)"
       />
 
-      <!-- Base stroke: solid grey for upcoming, dashed for locked -->
+      <!-- Enhanced base stroke: dark outer + lighter inner for cobblestone look -->
       <template v-for="(seg, i) in PATH_SEGMENTS" :key="`base-${i}`">
         <path
           v-if="segmentStates[i] !== 'completed'"
           :d="seg"
           fill="none"
-          :style="{ stroke: segmentStates[i] === 'locked'
-            ? 'var(--color-map-path-locked)'
-            : 'var(--color-map-path-upcoming)' }"
-          stroke-width="24"
+          style="stroke: var(--color-map-path-stone-outer)"
+          stroke-width="26"
           stroke-linecap="round"
           :stroke-dasharray="segmentStates[i] === 'locked' ? '14 16' : undefined"
+        />
+        <path
+          v-if="segmentStates[i] === 'upcoming'"
+          :d="seg"
+          fill="none"
+          style="stroke: var(--color-map-path-stone-inner)"
+          stroke-width="18"
+          stroke-linecap="round"
         />
       </template>
 
@@ -150,6 +156,7 @@
           stroke-linecap="round"
         />
       </template>
+
     </svg>
 
     <!-- Layer 3: Nodes -->
@@ -164,7 +171,14 @@
     />
 
     <!-- Layer 4: Avatar -->
-    <div class="world-canvas__avatar" :style="avatarStyle">
+    <div
+      class="world-canvas__avatar"
+      :class="{
+        'world-canvas__avatar--walking': props.isWalking,
+        'world-canvas__avatar--idle':    !props.isWalking,
+      }"
+      :style="avatarStyle"
+    >
       <AvatarPreview :selections="avatarStore.avatar ?? {}" :size="80" />
     </div>
 
@@ -178,9 +192,10 @@ import WorldMapNode from '@/components/student/WorldMapNode.vue'
 import AvatarPreview from '@/components/student/AvatarPreview.vue'
 
 const props = defineProps({
-  stops:            { type: Array,  required: true },
-  currentNodeIndex: { type: Number, required: true },
-  shakingNodeIndex: { type: Number, default: null },
+  stops:            { type: Array,   required: true },
+  currentNodeIndex: { type: Number,  required: true },
+  shakingNodeIndex: { type: Number,  default: null },
+  isWalking:        { type: Boolean, default: false },
 })
 
 defineEmits(['node-click'])
@@ -211,6 +226,7 @@ const FULL_PATH =
   'C 910,560 1050,320 1090,280 ' +
   'C 1130,240 1270,480 1310,520 ' +
   'C 1360,560 1450,300 1480,260'
+
 
 const segmentStates = computed(() =>
   PATH_SEGMENTS.map((_, i) => {
@@ -254,5 +270,24 @@ const avatarStyle = computed(() => {
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
   z-index: 10;
   transform: translateX(-50%);
+}
+
+@keyframes avatar-walk {
+  0%   { transform: translateX(-50%) rotate(-5deg); }
+  50%  { transform: translateX(-50%) rotate(5deg); }
+  100% { transform: translateX(-50%) rotate(-5deg); }
+}
+
+@keyframes avatar-idle {
+  0%, 100% { transform: translateX(-50%) translateY(0px); }
+  50%       { transform: translateX(-50%) translateY(-4px); }
+}
+
+.world-canvas__avatar--walking {
+  animation: avatar-walk 0.45s ease-in-out infinite;
+}
+
+.world-canvas__avatar--idle {
+  animation: avatar-idle 2.2s ease-in-out infinite;
 }
 </style>

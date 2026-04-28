@@ -3,7 +3,7 @@
     <p class="phishing-task__guidance">{{ task.guidanceText }}</p>
 
     <!-- Email card -->
-    <article class="pinned-note phishing-task__email" style="--card-rotate: -0.3deg">
+    <article class="pinned-note phishing-task__email" style="--card-rotate: -0.3deg" data-peek-trigger>
       <!-- From row -->
       <div class="phishing-task__from-row">
         <span class="phishing-task__field-label">Fra:</span>
