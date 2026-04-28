@@ -58,7 +58,7 @@ public class GameService {
     private static final int CORRECT_SCORE = 100;
     private static final int XP_PER_TASK = 10;
     private static final int XP_PER_STOP = 30;
-    private static final Set<TaskType> COMPLETION_EXCLUDED_TASK_TYPES = EnumSet.of(TaskType.LEARN);
+    private static final Set<TaskType> COMPLETION_EXCLUDED_TASK_TYPES = EnumSet.of(TaskType.LEARN, TaskType.CLUE_RIDDLE);
 
     private final StopRepository stopRepository;
     private final TaskRepository taskRepository;
