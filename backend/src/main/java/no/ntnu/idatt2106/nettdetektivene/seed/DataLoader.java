@@ -190,8 +190,7 @@ public class DataLoader implements ApplicationRunner {
                         "Hva er et KI-bilde?",
                         "Et KI-bilde er laget av et dataprogram. Det kan se ekte ut ved første øyekast, men det viser ofte mennesker eller situasjoner som aldri har eksistert på ordentlig.",
                         new String[]{
-                            "Bildebeskrivelse: \"Vaktkamera viser tyven utenfor rådhuset kl. 22.14\" kan være falskt hvis personen eller stedet aldri har eksistert slik på bildet.",
-                            "Bevislinje: \"Dette bildet beviser hvem som tok pengene\" er ikke nok i seg selv hvis bildet egentlig er laget av KI."
+                        
                         },
                         new String[]{
                             "Et bilde kan se ekte ut uten å være ekte.",
@@ -215,7 +214,7 @@ public class DataLoader implements ApplicationRunner {
                     new Slide(
                         "",
                         "Hva er forskjellen på ekte og manipulert?",
-                        "Et ekte bilde viser scenen slik kameraet fanget den. Et manipulert bilde kan starte som et ekte foto, men noen har endret innholdet etterpå, for eksempel ved å legge til personer, fjerne ting eller flytte detaljer.",
+                        "Et manipulert bilde kan starte som et ekte foto, men noen har endret innholdet etterpå, for eksempel ved å legge til personer, fjerne ting eller flytte detaljer.",
                         new String[]{
                             "Ekte: Bildet viser bare personene som faktisk var i scenen da bildet ble tatt.",
                             "Manipulert: Flere personer er lagt inn i samme scene etterpå, slik at bildet forteller en annen historie."
