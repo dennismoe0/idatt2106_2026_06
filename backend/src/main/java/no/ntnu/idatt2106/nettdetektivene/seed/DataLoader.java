@@ -714,10 +714,10 @@ public class DataLoader implements ApplicationRunner {
                     { "id": "c", "value": "S@nder_2015#" },
                     { "id": "d", "value": "SolKatt!Fjord#22" }
                   ],
-                  "explanation": "S@nder_2015# er den beste forbedringen av alternativene fordi det blander store og små bokstaver og legger til et spesialtegn. Det er fortsatt ikke et ideelt passord, siden navnet og årstallet fortsatt kan være lette å gjette."
+                  "explanation": "SolKatt!Fjord#22 er det beste valget fordi det er langt, blander store og små bokstaver, tall og spesialtegn, og ikke bruker navnet eller årstallet fra det svake passordet. Slike personlige spor gjør passord lettere å gjette."
                 }
                 """,
-                "{\"selected\": \"c\"}"),
+                "{\"selected\": \"d\"}"),
             passwordTask(pwdStop, 4, "Bygg et sterkt passord", "Bruk brikkene til å lage et passord som er sterkt nok.",
                 """
                 {
