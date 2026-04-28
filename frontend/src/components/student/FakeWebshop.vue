@@ -48,8 +48,14 @@
     </header>
 
     <section class="fake-shop__product">
-      <div class="fake-shop__gallery" aria-hidden="true">
-        <div class="fake-shop__img-placeholder">🛍️</div>
+      <div class="fake-shop__gallery">
+        <img
+          v-if="productImageUrl"
+          :src="productImageUrl"
+          alt="Produktbilde"
+          class="fake-shop__product-img"
+        />
+        <div v-else class="fake-shop__img-placeholder" aria-hidden="true">🛍️</div>
       </div>
 
       <div class="fake-shop__details">
@@ -166,6 +172,7 @@ const props = defineProps({
     default: 'Sjekk alltid betalingsvalg, kontaktinfo og returregler før du handler.',
   },
   ctaText: { type: String, default: 'Legg i handlekurv' },
+  productImageUrl: { type: String, default: '' },
   clickableElements: { type: Array, default: () => [] },
   flaggedElements: { type: Set, default: () => new Set() },
   feedbackStates: { type: Object, default: () => ({}) },
@@ -312,7 +319,7 @@ function handleToggle(id) {
 
 .fake-shop__product {
   display: grid;
-  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr);
+  grid-template-columns: clamp(120px, 28%, 260px) minmax(0, 1fr);
   gap: var(--space-4);
   padding: var(--space-4);
   border-radius: var(--radius-lg);
@@ -323,12 +330,20 @@ function handleToggle(id) {
 .fake-shop__gallery {
   display: grid;
   gap: var(--space-2);
+  align-self: start;
+}
+
+.fake-shop__product-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
 }
 
 .fake-shop__img-placeholder {
   display: grid;
   place-items: center;
-  min-height: 168px;
+  aspect-ratio: 1 / 1;
   border-radius: var(--radius-md);
   background:
     radial-gradient(circle at top, color-mix(in srgb, var(--color-surface) 75%, transparent), transparent 60%),
@@ -520,8 +535,9 @@ function handleToggle(id) {
     grid-template-columns: 1fr;
   }
 
+  .fake-shop__product-img,
   .fake-shop__img-placeholder {
-    min-height: 112px;
+    aspect-ratio: unset;
   }
 }
 </style>

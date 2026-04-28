@@ -715,6 +715,7 @@ public class DataLoader implements ApplicationRunner {
                   "siteName": "sneaker-blitz.shop",
                   "question": "Klikk på de delene du synes er mistenkelige.",
                   "mockup": {
+                    "productImageUrl": "/marketplace/air-max-270.png",
                     "headline": "Nike Air Max — KUN I DAG!",
                     "tagline": "Salg slutter om 2 timer. Kun noen få igjen!",
                     "productName": "Nike Air Max 270",
@@ -743,6 +744,7 @@ public class DataLoader implements ApplicationRunner {
                   "siteName": "billig-elektronikk.cc",
                   "question": "Klikk på de delene du synes er mistenkelige.",
                   "mockup": {
+                    "productImageUrl": "/marketplace/Playstation5.png",
                     "headline": "PlayStation 5 — PÅ LAGER NÅ!",
                     "tagline": "Rask levering, super pris!",
                     "productName": "PlayStation 5",
@@ -771,6 +773,7 @@ public class DataLoader implements ApplicationRunner {
                   "siteName": "streetwear-fast.net",
                   "question": "Klikk på de delene du synes er mistenkelige.",
                   "mockup": {
+                    "productImageUrl": "/marketplace/urban-storm-jacket.png",
                     "headline": "Streetwear-jakke til spesialpris",
                     "tagline": "Midlertidig kampanje. Begrenset antall.",
                     "productName": "Urban Storm Jacket",
