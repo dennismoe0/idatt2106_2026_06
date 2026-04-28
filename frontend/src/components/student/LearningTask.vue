@@ -76,6 +76,80 @@
                   </ul>
                 </div>
               </div>
+              <div v-else-if="task.stopTheme === 'FAKE_NEWS' && newsVisualFor(currentSlideIndex)" class="news-visual">
+                <div v-if="newsVisualFor(currentSlideIndex).domains" class="news-domains">
+                  <div class="news-domains__column news-domains__column--safe">
+                    <p class="news-domains__heading">
+                      <span class="news-domains__pill news-domains__pill--safe">Trygge domenenavn</span>
+                    </p>
+                    <article
+                      v-for="site in newsVisualFor(currentSlideIndex).domains.safe"
+                      :key="site.url"
+                      class="news-domains__card news-domains__card--safe"
+                    >
+                      <div class="news-domains__bar news-domains__bar--safe">
+                        <span class="news-domains__lock" aria-hidden="true">🔒</span>
+                        <span class="news-domains__url">{{ site.url }}</span>
+                      </div>
+                      <p class="news-domains__name">{{ site.name }}</p>
+                      <p class="news-domains__tag">{{ site.tag }}</p>
+                    </article>
+                  </div>
+
+                  <div class="news-domains__column news-domains__column--risky">
+                    <p class="news-domains__heading">
+                      <span class="news-domains__pill news-domains__pill--risky">Mistenkelige domenenavn</span>
+                    </p>
+                    <article
+                      v-for="site in newsVisualFor(currentSlideIndex).domains.risky"
+                      :key="site.url"
+                      class="news-domains__card news-domains__card--risky"
+                    >
+                      <div class="news-domains__bar news-domains__bar--risky">
+                        <span class="news-domains__lock" aria-hidden="true">⚠️</span>
+                        <span class="news-domains__url">{{ site.url }}</span>
+                      </div>
+                      <p class="news-domains__name">{{ site.name }}</p>
+                      <p class="news-domains__tag">{{ site.tag }}</p>
+                    </article>
+                  </div>
+                </div>
+
+                <div v-if="newsVisualFor(currentSlideIndex).crossCheck" class="news-search">
+                  <div class="news-search__bar">
+                    <span class="news-search__icon" aria-hidden="true">🔍</span>
+                    <span class="news-search__query">{{ newsVisualFor(currentSlideIndex).crossCheck.query }}</span>
+                  </div>
+                  <p class="news-search__count">
+                    Viser 4 treff fra ulike kilder
+                  </p>
+                  <div class="news-search__results">
+                    <article
+                      v-for="hit in newsVisualFor(currentSlideIndex).crossCheck.hits"
+                      :key="hit.key"
+                      class="news-search__hit"
+                      :class="`news-search__hit--${hit.tone}`"
+                    >
+                      <div class="news-search__hit-top">
+                        <span class="news-search__source">{{ hit.source }}</span>
+                        <span
+                          class="news-search__badge"
+                          :class="`news-search__badge--${hit.tone}`"
+                        >
+                          {{ hit.badge }}
+                        </span>
+                      </div>
+                      <p class="news-search__url">{{ hit.url }} · {{ hit.time }}</p>
+                      <p class="news-search__title">{{ hit.headline }}</p>
+                      <p class="news-search__snippet">{{ hit.snippet }}</p>
+                    </article>
+                  </div>
+                  <div class="news-search__verdict">
+                    <p class="news-search__verdict-title">{{ newsVisualFor(currentSlideIndex).crossCheck.verdict.title }}</p>
+                    <p class="news-search__verdict-body">{{ newsVisualFor(currentSlideIndex).crossCheck.verdict.body }}</p>
+                  </div>
+                </div>
+              </div>
               <div v-else-if="task.stopTheme === 'FAKE_NEWS'" class="typed-examples">
                 <p class="typed-examples__label">{{ currentSlide.exampleType || 'Eksempel' }}</p>
                 <ul class="slide__list">
@@ -502,6 +576,75 @@ const SOCIAL_MEDIA_VISUAL_EXAMPLES = {
   ],
 }
 
+const NEWS_VISUAL_EXAMPLES = {
+  1: {
+    domains: {
+      query: '"skoler stenger trondheim"',
+      safe: [
+        { url: 'nrk.no/trondelag', name: 'NRK Trøndelag', tag: 'Lisensiert allmennkringkaster', icon: '🟦' },
+        { url: 'vg.no', name: 'VG', tag: 'Norsk avis med redaksjon', icon: '🟥' },
+        { url: 'trondheim.kommune.no', name: 'Trondheim kommune', tag: 'Offentlig nettsted (.kommune.no)', icon: '🟩' },
+      ],
+      risky: [
+        { url: 'supernytt24.xyz', name: 'Supernytt24', tag: 'Ukjent avisside med mistenkelig domenenavn', icon: '⚠️' },
+        { url: 'deldettenaa.blog', name: 'Del dette nå', tag: 'Bloggsted uten redaktør', icon: '⚠️' },
+        { url: 'sannhet-nyheter-online.net', name: 'Sannhet Nyheter', tag: 'Framstår som et mediehus', icon: '⚠️' },
+      ],
+    },
+  },
+  2: {
+    crossCheck: {
+      query: '"alle skoler stenger før 12" trondheim',
+      verdict: {
+        title: 'Vurder helheten',
+        body: 'Tre seriøse kilder avkrefter eller avviser saken. Bare ett ukjent nettsted publiserer den dramatiske versjonen.',
+      },
+      hits: [
+        {
+          key: 'nrk',
+          tone: 'safe',
+          source: 'NRK Trøndelag',
+          url: 'nrk.no/trondelag',
+          time: 'Oppdatert i dag 09:42',
+          headline: 'Ingen meldinger om stenging — kommunen avkrefter rykter',
+          snippet: 'Vi har vært i kontakt med Trondheim kommune som bekrefter at skolene følger ordinær timeplan.',
+          badge: 'Bekreftet ekte',
+        },
+        {
+          key: 'kommune',
+          tone: 'safe',
+          source: 'Trondheim kommune',
+          url: 'trondheim.kommune.no/skole',
+          time: 'Publisert 08:15',
+          headline: 'Skolene følger ordinær timeplan i dag',
+          snippet: 'Det sirkulerer en falsk melding i sosiale medier. Følg meldinger fra skolen din i Visma Flyt.',
+          badge: 'Offentlig kilde',
+        },
+        {
+          key: 'adressa',
+          tone: 'safe',
+          source: 'Adresseavisen',
+          url: 'adressa.no',
+          time: '10 min siden',
+          headline: 'Falsk melding om skolestenging spres i sosiale medier',
+          snippet: 'Lokalavisen advarer mot å dele saken videre uten å sjekke kilden først.',
+          badge: 'Lokalavis',
+        },
+        {
+          key: 'fishy',
+          tone: 'risky',
+          source: 'Supernytt24',
+          url: 'supernytt24.xyz/breaking',
+          time: 'For 4 min siden',
+          headline: 'SJOKK! ALLE SKOLER STENGES FØR KL. 12 — DEL NÅ!',
+          snippet: 'En hemmelig kilde i rådhuset sier at alle allerede vet sannheten…',
+          badge: 'Eneste sted saken finnes',
+        },
+      ],
+    },
+  },
+}
+
 watch(() => props.task?.id, () => {
   phase.value         = 'LEARN'
   submittedOnce.value = false
@@ -604,6 +747,10 @@ function marketplaceVisualFor(index) {
 
 function socialMediaVisualFor(index) {
   return props.task?.stopTheme === 'SOCIAL_MEDIA' ? SOCIAL_MEDIA_VISUAL_EXAMPLES[index] ?? null : null
+}
+
+function newsVisualFor(index) {
+  return props.task?.stopTheme === 'FAKE_NEWS' ? NEWS_VISUAL_EXAMPLES[index] ?? null : null
 }
 
 function socialInitials(username) {
@@ -932,9 +1079,341 @@ function scrollToLearningTop() {
   gap: var(--space-2);
 }
 
+.news-visual {
+  display: grid;
+  gap: var(--space-5);
+  margin-top: var(--space-2);
+}
+
 .news-examples {
   display: grid;
   gap: var(--space-3);
+}
+
+.news-example {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 10px 24px rgba(20, 30, 48, 0.06);
+}
+
+.news-example__label {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.news-example__headline {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--color-heading);
+}
+
+.news-example__body {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: 1.65;
+  color: var(--color-text);
+}
+
+.news-comments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-left: 4px solid var(--color-primary);
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-md);
+}
+
+.news-comments__title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 800;
+  color: var(--color-heading);
+}
+
+.news-comments__list {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.news-comments__item {
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--color-text);
+}
+
+.news-domains {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.news-domains__column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.news-domains__heading {
+  margin: 0;
+}
+
+.news-domains__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.news-domains__pill--safe {
+  background: color-mix(in srgb, var(--color-success-light) 70%, white);
+  color: var(--color-success);
+  border: 1px solid color-mix(in srgb, var(--color-success) 40%, transparent);
+}
+
+.news-domains__pill--risky {
+  background: color-mix(in srgb, var(--color-danger-light) 70%, white);
+  color: var(--color-danger);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 40%, transparent);
+}
+
+.news-domains__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.news-domains__card--safe {
+  border-color: color-mix(in srgb, var(--color-success) 28%, var(--color-border));
+}
+
+.news-domains__card--risky {
+  border-color: color-mix(in srgb, var(--color-danger) 30%, var(--color-border));
+}
+
+.news-domains__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.news-domains__bar--safe {
+  background: color-mix(in srgb, var(--color-success-light) 75%, white);
+  color: #1f5d3a;
+  border: 1px solid color-mix(in srgb, var(--color-success) 35%, transparent);
+}
+
+.news-domains__bar--risky {
+  background: color-mix(in srgb, var(--color-danger-light) 70%, white);
+  color: #7a1f1f;
+  border: 1px solid color-mix(in srgb, var(--color-danger) 35%, transparent);
+}
+
+.news-domains__lock {
+  font-size: 0.95rem;
+}
+
+.news-domains__url {
+  flex: 1;
+}
+
+.news-domains__name {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 800;
+  color: var(--color-heading);
+}
+
+.news-domains__tag {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.news-search {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, #ffffff 0%, #f5f7fb 100%);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.news-search__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(20, 30, 48, 0.05);
+}
+
+.news-search__icon {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+}
+
+.news-search__query {
+  font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: var(--text-sm);
+  color: var(--color-heading);
+  font-weight: 600;
+}
+
+.news-search__count {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.news-search__results {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.news-search__hit {
+  display: grid;
+  gap: 0.25rem;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.news-search__hit--safe {
+  border-color: color-mix(in srgb, var(--color-success) 28%, var(--color-border));
+  background: color-mix(in srgb, var(--color-success-light) 35%, white);
+}
+
+.news-search__hit--risky {
+  border-color: color-mix(in srgb, var(--color-danger) 35%, var(--color-border));
+  background: color-mix(in srgb, var(--color-danger-light) 35%, white);
+}
+
+.news-search__hit-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.news-search__source {
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.news-search__badge {
+  padding: 0.18rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.news-search__badge--safe {
+  background: color-mix(in srgb, var(--color-success-light) 75%, white);
+  color: var(--color-success);
+  border: 1px solid color-mix(in srgb, var(--color-success) 38%, transparent);
+}
+
+.news-search__badge--risky {
+  background: var(--color-danger);
+  color: var(--color-text-on-dark);
+}
+
+.news-search__url {
+  margin: 0;
+  font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  word-break: break-all;
+}
+
+.news-search__title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 800;
+  color: var(--color-heading);
+  line-height: 1.35;
+}
+
+.news-search__hit--risky .news-search__title {
+  color: #7a1f1f;
+}
+
+.news-search__snippet {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--color-text);
+}
+
+.news-search__verdict {
+  display: grid;
+  gap: 0.25rem;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-primary-soft) 70%, white);
+  border-left: 4px solid var(--color-primary);
+}
+
+.news-search__verdict-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 800;
+  color: var(--color-heading);
+}
+
+.news-search__verdict-body {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+@media (min-width: 720px) {
+  .news-domains {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .typed-examples {
@@ -1200,95 +1679,6 @@ function scrollToLearningTop() {
   border-radius: var(--radius-lg);
   background: linear-gradient(180deg, var(--color-surface-soft) 0%, var(--color-surface) 100%);
   border: 1px solid var(--color-border);
-}
-
-.news-example {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  box-shadow: 0 10px 24px rgba(20, 30, 48, 0.06);
-}
-
-.news-example__label {
-  margin: 0;
-  font-size: var(--text-xs);
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-primary);
-}
-
-.news-example__headline {
-  margin: 0;
-  font-size: var(--text-lg);
-  font-weight: 800;
-  line-height: 1.35;
-  color: var(--color-heading);
-}
-
-.news-example__body {
-  margin: 0;
-  font-size: var(--text-base);
-  line-height: 1.65;
-  color: var(--color-text);
-}
-
-.news-example__comment {
-  margin: 0;
-  font-size: var(--text-sm);
-  line-height: 1.6;
-  color: var(--color-text-muted);
-}
-
-.news-comments {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border-left: 4px solid var(--color-primary);
-  background: var(--color-primary-soft);
-  border-radius: var(--radius-md);
-}
-
-.news-comments__title {
-  margin: 0;
-  font-size: var(--text-sm);
-  font-weight: 800;
-  color: var(--color-heading);
-}
-
-.news-comments__list {
-  margin: 0;
-  padding-left: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.news-comments__item {
-  font-size: var(--text-sm);
-  line-height: 1.55;
-  color: var(--color-text);
-}
-
-.news-example__meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--color-border);
-}
-
-.news-example__source,
-.news-example__tag {
-  font-size: var(--text-xs);
-  font-weight: 700;
-  color: var(--color-text-muted);
 }
 
 .slide__examples-title {
