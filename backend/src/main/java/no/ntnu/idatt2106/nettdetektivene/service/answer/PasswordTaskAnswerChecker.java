@@ -39,7 +39,7 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
             String subtype = content.path("type").asText("CHOICE");
 
             if ("BUILDER".equals(subtype)) {
-                return checkBuilderAnswer(correctAnswer, answer);
+                return checkBuilderAnswer(content, correctAnswer, answer);
             }
 
             Object submitted = answer.get("selected");
@@ -53,7 +53,7 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
         }
     }
 
-    private boolean checkBuilderAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
+    private boolean checkBuilderAnswer(JsonNode content, JsonNode correctAnswer, Map<String, Object> answer) {
         String requiredStrength = correctAnswer.path("minStrength").asText("STRONG");
         Object submittedPassword = answer.get("password");
         if (submittedPassword == null) {
@@ -62,6 +62,11 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
         }
 
         String password = String.valueOf(submittedPassword);
+        int maxLength = content.path("maxLength").asInt(0);
+        if (maxLength > 0 && password.length() > maxLength) {
+            log.info("[PasswordTaskAnswerChecker] PASSWORD BUILDER rejected due to maxLength={} submittedLength={}", maxLength, password.length());
+            return false;
+        }
         String strength = passwordStrengthEvaluator.evaluate(password);
         log.info(
             "[PasswordTaskAnswerChecker] PASSWORD BUILDER submitted strength={} required={}",
