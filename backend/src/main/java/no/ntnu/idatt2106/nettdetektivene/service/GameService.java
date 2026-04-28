@@ -178,7 +178,7 @@ public class GameService {
             .findByStudent_IdAndTask_Id(studentId, taskId);
 
         if (existingProgress.map(StudentProgress::isCompleted).orElse(false)) {
-            boolean stopCompleted = isStopComplete(studentId, task.getStop().getId());
+            boolean stopCompleted = canCompleteStop(task) && isStopComplete(studentId, task.getStop().getId());
             String clueText = stopCompleted ? task.getStop().getClueText() : null;
             boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
             return new SubmitAnswerResponse(
@@ -223,7 +223,7 @@ public class GameService {
         }
         student.setXp(student.getXp() + XP_PER_TASK);
 
-        boolean stopCompleted = isStopComplete(studentId, task.getStop().getId());
+        boolean stopCompleted = canCompleteStop(task) && isStopComplete(studentId, task.getStop().getId());
         int xpEarned = XP_PER_TASK;
         String clueText = stopCompleted ? task.getStop().getClueText() : null;
         boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
@@ -233,10 +233,7 @@ public class GameService {
             student.setXp(student.getXp() + XP_PER_STOP);
             xpEarned += XP_PER_STOP;
             notebookService.createAutoClueIfNotExists(studentId, task.getStop());
-            int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNotIn(
-                task.getStop().getId(),
-                COMPLETION_EXCLUDED_TASK_TYPES
-            ));
+            int taskCount = Math.toIntExact(requiredTaskCount(task.getStop().getId()));
             StudentXpLog xpLog = new StudentXpLog();
             xpLog.setStudent(student);
             xpLog.setStop(task.getStop());
@@ -261,7 +258,7 @@ public class GameService {
             explanation,
             stopCompleted,
             medalEarned,
-            1,
+            starsEarned,
             xpEarned,
             correctClueIds,
             null,
@@ -309,10 +306,7 @@ public class GameService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "XP already claimed for this stop within the last 7 days");
         }
 
-        int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNotIn(
-            stopId,
-            COMPLETION_EXCLUDED_TASK_TYPES
-        ));
+        int taskCount = Math.toIntExact(requiredTaskCount(stopId));
         int xpEarned = XP_PER_TASK * taskCount + XP_PER_STOP;
 
         User student = userRepository.findById(studentId)
@@ -630,6 +624,10 @@ public class GameService {
 
     private boolean shouldShowSuspectReveal(Stop stop) {
         return Integer.valueOf(4).equals(stop.getOrderIndex());
+    }
+
+    private boolean canCompleteStop(Task task) {
+        return !COMPLETION_EXCLUDED_TASK_TYPES.contains(task.getTaskType());
     }
 
     private String extractExplanation(Task task) {

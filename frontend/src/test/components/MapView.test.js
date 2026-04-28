@@ -30,6 +30,7 @@ const router = createRouter({ history: createMemoryHistory(), routes: [
   { path: '/map', component: MapView },
   { path: '/task', name: 'Task', component: { template: '<div/>' } },
   { path: '/world-map', name: 'WorldMap', component: { template: '<div/>' } },
+  { path: '/suspects', name: 'SuspectDossier', component: { template: '<div/>' } },
 ]})
 
 describe('MapView', () => {
