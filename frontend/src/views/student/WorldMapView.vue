@@ -32,12 +32,6 @@
         Enkel visning
       </button>
 
-      <!-- Suspect Lineup -->
-      <SuspectLineup
-        v-if="showLineup"
-        @chosen="onLineupChosen"
-      />
-
       <!-- Enter area: bottom-right, fixed, outside scaled canvas -->
       <div class="world-map-view__enter-area" aria-live="polite">
         <p v-if="lockedMessage" class="world-map-view__locked-msg" role="status">
@@ -68,7 +62,6 @@ import { useAvatarWalk } from '@/composables/useAvatarWalk'
 import WorldMapCanvas from '@/components/student/WorldMapCanvas.vue'
 import DetectiveBar from '@/components/common/DetectiveBar.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import SuspectLineup from '@/components/student/SuspectLineup.vue'
 import { useNotebookStore } from '@/stores/notebook'
 
 const router = useRouter()
@@ -80,7 +73,6 @@ const { containerRef, scale } = useWorldMapScale()
 const { currentNodeIndex, isWalking, walkTo, initAutoWalk } = useAvatarWalk()
 
 const notebookStore  = useNotebookStore()
-const showLineup     = ref(false)
 
 const loading = ref(false)
 const error = ref(null)
@@ -190,9 +182,6 @@ onUnmounted(() => {
   clearTimeout(lockedTimer)
 })
 
-function onLineupChosen() {
-  showLineup.value = false
-}
 </script>
 
 <style scoped>

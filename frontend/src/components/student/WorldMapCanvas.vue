@@ -130,7 +130,7 @@
           v-if="segmentStates[i] !== 'completed'"
           :d="seg"
           fill="none"
-          stroke="#8B7355"
+          style="stroke: var(--color-map-path-stone-outer)"
           stroke-width="26"
           stroke-linecap="round"
           :stroke-dasharray="segmentStates[i] === 'locked' ? '14 16' : undefined"
@@ -139,7 +139,7 @@
           v-if="segmentStates[i] === 'upcoming'"
           :d="seg"
           fill="none"
-          stroke="#A8926A"
+          style="stroke: var(--color-map-path-stone-inner)"
           stroke-width="18"
           stroke-linecap="round"
         />
