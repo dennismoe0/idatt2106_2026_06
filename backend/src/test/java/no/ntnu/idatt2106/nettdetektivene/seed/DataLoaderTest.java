@@ -134,7 +134,7 @@ class DataLoaderTest {
     }
 
     @Test
-    void run_seedsPasswordBuilderTaskWithPitfalls() throws Exception {
+    void run_seedsPasswordBuilderTaskWithoutPitfalls() throws Exception {
         List<Task> tasks = seededTasks();
 
         Task builderTask = tasks.stream()
@@ -144,10 +144,7 @@ class DataLoaderTest {
             .orElseThrow();
 
         JsonNode content = parseJson(builderTask.getContentJson());
-        assertThat(content.path("pitfalls").isArray()).isTrue();
-        assertThat(content.path("pitfalls"))
-            .extracting(JsonNode::asText)
-            .containsExactly("OlaErBest", "2005", "hund");
+        assertThat(content.has("pitfalls")).isFalse();
     }
 
     @Test
