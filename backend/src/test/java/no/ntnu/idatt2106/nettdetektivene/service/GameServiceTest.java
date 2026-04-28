@@ -243,6 +243,31 @@ class GameServiceTest {
     }
 
     @Test
+    void submitAnswer_alreadyCompletedNonClueTaskKeepsCompletionStateEvenOnWrongResubmit() {
+        Stop stop = stop(1L, 1, "Nyhetskvartalet");
+        Task task = fakeNewsTask(20L, stop);
+        StudentProgress progress = new StudentProgress();
+        progress.setCompleted(true);
+        progress.setScore(100);
+
+        when(taskRepository.findById(20L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 20L)).thenReturn(Optional.of(progress));
+        when(taskRepository.countByStop_IdAndTaskTypeNotIn(eq(1L), any())).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(eq(STUDENT_ID), eq(1L), any())).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            20L,
+            new SubmitAnswerRequest(Map.of("article_0", false, "article_1", true))
+        );
+
+        assertThat(response.correct()).isTrue();
+        assertThat(response.stopCompleted()).isTrue();
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
+    }
+
+    @Test
     void submitAnswer_alreadyCompletedClueRiddleStillRejectsWrongAnswer() {
         Stop stop = stop(4L, 1, "Passordbanken");
         Task task = clueRiddleTask(27L, stop);
@@ -561,6 +586,24 @@ class GameServiceTest {
 
         assertThat(strongResponse.correct()).isTrue();
         verify(studentProgressRepository).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_passwordBuilder_rejectsPasswordExceedingConfiguredMaxLength() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task task = passwordBuilderTask(23L, stop);
+        when(taskRepository.findById(23L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 23L)).thenReturn(Optional.empty());
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            23L,
+            new SubmitAnswerRequest(Map.of("password", "TigerMånePizza42!#@2026Sol"))
+        );
+
+        assertThat(response.correct()).isFalse();
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
     }
 
     @Test
@@ -939,6 +982,7 @@ class GameServiceTest {
               "words": ["Tiger", "Måne", "Pizza"],
               "symbols": ["!", "#", "@"],
               "numbers": ["7", "42", "99"],
+              "maxLength": 24,
               "minStrength": "STRONG",
               "explanation": "Et sterkt passord er langt og blander tegn."
             }
