@@ -555,8 +555,8 @@ public class GameService {
                 ));
             });
             return feedback;
-        } catch (Exception e) {
-            log.warn("[GameService] Failed to parse contentJson for phishing clue feedback taskId={}", task.getId());
+        } catch (JsonProcessingException e) {
+            log.warn("[GameService] Failed to parse contentJson for phishing clue feedback taskId={}", task.getId(), e);
             return List.of();
         }
     }

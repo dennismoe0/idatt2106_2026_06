@@ -957,12 +957,12 @@ public class DataLoader implements ApplicationRunner {
                   {
                     "id": "no_emojis",
                     "label": "E-posten inneholder ingen emojier",
-                    "detail": "Dette er phishing fordi e-posten ikke inneholder noen emojis, og ekte IT-avdelinger bruker alltid minst én emoji i viktige meldinger."
+                    "detail": "At en formell IT-melding ikke har emojier er ikke et phishing-tegn i seg selv."
                   },
                   {
                     "id": "knows_name",
                     "label": "E-posten starter med Hei Kari",
-                    "detail": "Avsenderen vet hva bruker heter"
+                    "detail": "Avsenderen vet hva brukeren heter"
                   }
                 ]
                 """,

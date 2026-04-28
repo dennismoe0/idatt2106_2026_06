@@ -89,8 +89,8 @@ SET
     'question', 'Hva er det sterkeste phishing-sporet?',
     'options', JSON_ARRAY(
       JSON_OBJECT('id', 'wrong_domain', 'label', 'Lenken går til kommune-sikkerhet.net i stedet for kommunens ekte domene, og det betyr at siden kan være laget for å stjele innloggingen din', 'detail', 'Et domene som bare ligner på det ekte er et av de tydeligste phishing-tegnene.'),
-      JSON_OBJECT('id', 'no_emojis', 'label', 'E-posten inneholder ingen emojier', 'detail', 'Dette er phishing fordi e-posten ikke inneholder noen emojis, og ekte IT-avdelinger bruker alltid minst én emoji i viktige meldinger.'),
-      JSON_OBJECT('id', 'knows_name', 'label', 'E-posten starter med Hei Kari', 'detail', 'Avsenderen vet hva bruker heter')
+      JSON_OBJECT('id', 'no_emojis', 'label', 'E-posten inneholder ingen emojier', 'detail', 'At en formell IT-melding ikke har emojier er ikke et phishing-tegn i seg selv.'),
+      JSON_OBJECT('id', 'knows_name', 'label', 'E-posten starter med Hei Kari', 'detail', 'Avsenderen vet hva brukeren heter')
     ),
     'explanation', 'Riktig. Feil domene er et tydelig phishing-spor, fordi svindlere ofte lager nettsider som ligner på ekte innlogginger. Loggene viser at lenken ble åpnet fra nettverket til Xoo Inn Cafe.',
     'email', JSON_OBJECT(
