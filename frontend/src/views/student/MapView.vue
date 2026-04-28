@@ -1,9 +1,15 @@
 <template>
   <div class="map-view">
     <DetectiveBar page-title="Kart" :back-to="{ name: 'Home' }" />
-    <button class="map-view__world-btn" @click="switchToWorldMap" aria-label="Bytt til verdenskart">
-      Verdenskart
-    </button>
+
+    <div class="map-view__actions" aria-label="Kartvalg">
+      <button class="map-view__world-btn" @click="switchToWorldMap" aria-label="Bytt til verdenskart">
+        Verdenskart
+      </button>
+      <RouterLink class="map-view__dossier-btn" :to="{ name: 'SuspectDossier' }" aria-label="Åpne mistenktmappe">
+        🗂 Mistenktmappe
+      </RouterLink>
+    </div>
 
     <LoadingSpinner v-if="loading" />
 
@@ -140,9 +146,19 @@ function handleStopClick(stop) {
   padding: var(--space-4);
 }
 
-.map-view__world-btn {
-  display: block;
+.map-view__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
   margin: var(--space-3) 0 0;
+}
+
+.map-view__world-btn,
+.map-view__dossier-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
   padding: var(--space-2) var(--space-4);
   background: var(--color-surface);
   color: var(--color-primary);
@@ -152,10 +168,19 @@ function handleStopClick(stop) {
   font-weight: var(--font-medium);
   cursor: pointer;
   font-family: inherit;
+  text-decoration: none;
   transition: background var(--transition-fast), color var(--transition-fast);
 }
-.map-view__world-btn:hover {
+
+.map-view__world-btn:hover,
+.map-view__dossier-btn:hover {
   background: var(--color-primary-light);
+}
+
+.map-view__dossier-btn {
+  color: #7f1d1d;
+  border-color: #9b2226;
+  font-weight: var(--font-bold);
 }
 
 .stops-path {

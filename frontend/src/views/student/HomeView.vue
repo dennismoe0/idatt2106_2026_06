@@ -92,6 +92,7 @@ const studentName = computed(() =>
 const activeCards = [
   { title: 'Medaljer',           icon: '🏅', route: { name: 'Medals' },         color: '#B45309' },
   { title: 'Notatblokk',        icon: '📝', route: { name: 'Notebook' },          color: '#0E7490' },
+  { title: 'Mistenktmappe',     icon: '🗂️', route: { name: 'SuspectDossier' },   color: '#9B2226' },
   { title: 'Profil',            icon: '🕵️', route: { name: 'Profile' },           color: '#6D28D9' },
   { title: 'Ledertavle',        icon: '📊', route: { name: 'Leaderboard' },       color: '#1D4ED8' },
   { title: 'Butikk',            icon: '🏪', route: { name: 'Shop' },              color: '#065F46' },
