@@ -15,7 +15,10 @@
           :style="getPostThemeStyle(postItem.platform)"
         >
           <div class="post-shell__toolbar">
-            <div class="post-platform">{{ postItem.platform ?? 'Sosialt medium' }}</div>
+            <div class="post-platform">
+              <span class="post-platform__dot" aria-hidden="true" />
+              {{ getPlatformLabel(postItem.platform) }}
+            </div>
             <label class="rank-picker">
               <span class="rank-picker__label">Rangering</span>
               <select
@@ -32,7 +35,9 @@
 
           <div class="post-card" role="article" data-peek-trigger :aria-label="`Innlegg fra ${postItem.username ?? 'ukjent bruker'}`">
             <div class="post-card__stripe" aria-hidden="true" />
-            <span class="post-avatar" aria-hidden="true">{{ postItem.avatar ?? '👤' }}</span>
+            <span class="post-avatar" :style="getAvatarStyle(postItem.username, postItem.platform)" aria-hidden="true">
+              {{ getInitials(postItem.username) }}
+            </span>
             <div class="post-body">
               <div class="post-header">
                 <div class="post-identity">
@@ -46,13 +51,18 @@
                     <span class="post-verified__check" aria-hidden="true">✓</span>
                   </span>
                 </div>
+                <div class="post-subline">
+                  <span class="post-handle">{{ getHandle(postItem.username) }}</span>
+                  <span class="post-separator" aria-hidden="true">•</span>
+                  <span class="post-timestamp">{{ getDisplayTimestamp(postItem) }}</span>
+                </div>
               </div>
               <p class="post-content">{{ postItem.content }}</p>
-              <p v-if="hasPostMeta(postItem)" class="post-meta">
-                <span v-if="postItem.likes !== undefined && postItem.likes !== null">❤️ {{ formatMetric(postItem.likes) }}</span>
-                <span v-if="postItem.likes !== undefined && postItem.likes !== null && postItem.timestamp">·</span>
-                <span v-if="postItem.timestamp">{{ postItem.timestamp }}</span>
-              </p>
+              <div class="post-actions" aria-label="Innleggsaktivitet">
+                <span class="post-action-stat">♡ {{ formatMetric(getMetric(postItem, 'likes')) }}</span>
+                <span class="post-action-stat">💬 {{ formatMetric(getMetric(postItem, 'comments')) }}</span>
+                <span class="post-action-stat">↗ {{ formatMetric(getMetric(postItem, 'shares')) }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -61,10 +71,15 @@
 
     <template v-else>
       <div class="post-shell" :style="postThemeStyle">
-        <div class="post-platform">{{ platformLabel }}</div>
+        <div class="post-platform">
+          <span class="post-platform__dot" aria-hidden="true" />
+          {{ getPlatformLabel(platformLabel) }}
+        </div>
         <div class="post-card" role="article" data-peek-trigger :aria-label="`Innlegg fra ${post.username ?? 'ukjent bruker'}`">
           <div class="post-card__stripe" aria-hidden="true" />
-          <span class="post-avatar" aria-hidden="true">{{ post.avatar ?? '👤' }}</span>
+          <span class="post-avatar" :style="getAvatarStyle(post.username, post.platform)" aria-hidden="true">
+            {{ getInitials(post.username) }}
+          </span>
           <div class="post-body">
             <div class="post-header">
               <div class="post-identity">
@@ -78,13 +93,18 @@
                   <span class="post-verified__check" aria-hidden="true">✓</span>
                 </span>
               </div>
+              <div class="post-subline">
+                <span class="post-handle">{{ getHandle(post.username) }}</span>
+                <span class="post-separator" aria-hidden="true">•</span>
+                <span class="post-timestamp">{{ getDisplayTimestamp(post) }}</span>
+              </div>
             </div>
             <p class="post-content">{{ post.content }}</p>
-            <p v-if="hasPostMeta(post)" class="post-meta">
-              <span v-if="post.likes !== undefined && post.likes !== null">❤️ {{ formatMetric(post.likes) }}</span>
-              <span v-if="post.likes !== undefined && post.likes !== null && post.timestamp">·</span>
-              <span v-if="post.timestamp">{{ post.timestamp }}</span>
-            </p>
+            <div class="post-actions" aria-label="Innleggsaktivitet">
+              <span class="post-action-stat">♡ {{ formatMetric(getMetric(post, 'likes')) }}</span>
+              <span class="post-action-stat">💬 {{ formatMetric(getMetric(post, 'comments')) }}</span>
+              <span class="post-action-stat">↗ {{ formatMetric(getMetric(post, 'shares')) }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -191,9 +211,9 @@ const selected = ref(null)
 const rankings = ref({})
 const content = computed(() => props.task?.contentJson ?? {})
 const taskSubtype = computed(() => String(content.value.type ?? 'CHOOSE_ACTION').toUpperCase())
-const isIdentifyWorstTask = computed(() => taskSubtype.value === 'IDENTIFY_WORST')
-const post = computed(() => content.value.post ?? {})
 const posts = computed(() => Array.isArray(content.value.posts) ? content.value.posts : [])
+const isIdentifyWorstTask = computed(() => taskSubtype.value === 'IDENTIFY_WORST' || posts.value.length > 0)
+const post = computed(() => content.value.post ?? {})
 const platformLabel = computed(() => post.value.platform ?? 'Sosialt medium')
 const rankingOptions = computed(() => Array.from({ length: posts.value.length }, (_, index) => index + 1))
 const rankedWorstPostId = computed(() => {
@@ -247,8 +267,74 @@ function formatMetric(value) {
   return typeof value === 'number' ? value.toLocaleString('nb-NO') : String(value)
 }
 
-function hasPostMeta(postItem) {
-  return !!postItem?.timestamp || postItem?.likes != null
+function getPlatformLabel(platform) {
+  const label = String(platform ?? 'Sosialt medium').trim()
+  const lowered = label.toLowerCase()
+  if (lowered.includes('facebook') || lowered.includes('fjesbok')) return 'Fjesbok.no'
+  if (lowered === 'x' || lowered.includes('twitter') || lowered.includes('tweety')) return 'Tweety.no'
+  return label
+}
+
+function getInitials(username) {
+  const source = String(username ?? '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+
+  if (!source.length) return 'SM'
+
+  if (source.length === 1) {
+    return source[0].replace(/[^a-zA-Z0-9ÆØÅæøå]/g, '').slice(0, 2).toUpperCase() || 'SM'
+  }
+
+  return source
+    .slice(0, 2)
+    .map(part => part[0] ?? '')
+    .join('')
+    .toUpperCase()
+}
+
+function getHandle(username) {
+  const normalized = String(username ?? 'bruker')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '')
+    .replace(/[^a-z0-9_.æøå-]/gi, '')
+
+  return `@${normalized || 'bruker'}`
+}
+
+function getDisplayTimestamp(postItem) {
+  return postItem?.timestamp || '2 timer siden'
+}
+
+function getFallbackNumber(postItem, seedOffset = 0) {
+  const seedText = `${postItem?.id ?? ''}|${postItem?.username ?? ''}|${postItem?.content ?? ''}|${seedOffset}`
+  let total = 0
+
+  for (const char of seedText) total += char.charCodeAt(0)
+
+  return total
+}
+
+function getMetric(postItem, metric) {
+  if (postItem?.[metric] != null && postItem[metric] !== '') return postItem[metric]
+
+  const seed = getFallbackNumber(postItem, metric.length)
+  if (metric === 'likes') return 24 + (seed % 180)
+  if (metric === 'comments') return 3 + (seed % 36)
+  if (metric === 'shares') return 1 + (seed % 18)
+  return ''
+}
+
+function getAvatarStyle(username, platform) {
+  const seed = getFallbackNumber({ username, content: platform })
+  const hue = seed % 360
+  const secondaryHue = (hue + 36) % 360
+
+  return {
+    background: `linear-gradient(135deg, hsl(${hue} 76% 72%) 0%, hsl(${secondaryHue} 62% 58%) 100%)`,
+  }
 }
 
 function assignRank(postId, rawValue) {
@@ -318,6 +404,9 @@ function submit() {
 }
 
 .post-platform {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   justify-self: start;
   border-radius: var(--radius-full);
   padding: var(--space-1) var(--space-3);
@@ -325,6 +414,15 @@ function submit() {
   color: var(--post-accent);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
+  letter-spacing: 0.02em;
+}
+
+.post-platform__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 18%, transparent);
 }
 
 .post-card {
@@ -352,11 +450,12 @@ function submit() {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  font-size: 1.6rem;
+  font-size: 0.9rem;
+  font-weight: var(--font-bold);
+  letter-spacing: 0.08em;
+  color: white;
   line-height: 1;
   flex-shrink: 0;
-  background:
-    radial-gradient(circle at 30% 30%, white 0%, color-mix(in srgb, var(--post-accent-soft) 80%, white) 35%, var(--post-accent-soft) 100%);
   border: 2px solid color-mix(in srgb, var(--post-accent) 20%, white);
   box-shadow: 0 6px 14px color-mix(in srgb, var(--post-accent) 14%, transparent);
 }
@@ -367,9 +466,8 @@ function submit() {
 }
 
 .post-header {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
+  display: grid;
+  gap: 0.15rem;
   margin-bottom: var(--space-1);
 }
 
@@ -384,6 +482,24 @@ function submit() {
   font-weight: var(--font-bold);
   font-size: var(--text-sm);
   color: var(--color-text);
+}
+
+.post-subline {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  min-width: 0;
+}
+
+.post-handle,
+.post-timestamp {
+  white-space: nowrap;
+}
+
+.post-separator {
+  opacity: 0.65;
 }
 
 .post-verified {
@@ -411,11 +527,22 @@ function submit() {
   font-size: var(--text-sm);
 }
 
-.post-meta {
-  margin: var(--space-2) 0 0;
+.post-actions {
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid color-mix(in srgb, var(--post-accent) 10%, var(--color-border));
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
   color: var(--color-text-muted);
-  line-height: 1.4;
   font-size: var(--text-xs);
+}
+
+.post-action-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: var(--font-medium);
 }
 
 .ranking-hint {
@@ -584,5 +711,15 @@ function submit() {
 .result-slide-enter-from {
   transform: translateY(-12px);
   opacity: 0;
+}
+
+@media (max-width: 640px) {
+  .post-card {
+    padding-inline: var(--space-3);
+  }
+
+  .post-actions {
+    gap: var(--space-2);
+  }
 }
 </style>

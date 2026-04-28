@@ -10,6 +10,7 @@ const routes = [
   { path: '/register',      name: 'Register',     component: () => import('@/views/auth/RegisterView.vue'),           meta: { public: true } },
   { path: '/unauthorized',  name: 'Unauthorized', component: () => import('@/views/UnauthorizedView.vue'),            meta: { public: true } },
   { path: '/student-login', name: 'StudentLogin', component: () => import('@/views/auth/StudentLoginView.vue'),       meta: { public: true } },
+  { path: '/help',          name: 'Help',         component: () => import('@/views/student/HelpView.vue'),             meta: { public: true } },
 
   // Student
   { path: '/',              name: 'Home',           component: () => import('@/views/student/HomeView.vue'),          meta: { role: 'STUDENT' } },
@@ -35,6 +36,7 @@ const routes = [
   { path: '/teacher/classrooms/:id',  name: 'ClassroomDetail', component: () => import('@/views/teacher/ClassroomDetailView.vue'), meta: { role: 'TEACHER' } },
   { path: '/teacher/students/:studentId/notebook', name: 'TeacherNotebook', component: () => import('@/views/teacher/TeacherNotebookView.vue'), meta: { role: 'TEACHER' } },
   { path: '/teacher/classroom/:classroomId/mysterium', name: 'WeeklyMysteryManage', component: () => import('@/views/teacher/WeeklyMysteryManageView.vue'), meta: { role: 'TEACHER' } },
+  { path: '/teacher/notifications', name: 'TeacherNotifications', component: () => import('@/views/teacher/TeacherNotificationsView.vue'), meta: { role: 'TEACHER' } },
 
   // Fallback
   { path: '/:pathMatch(.*)*', redirect: '/login' }

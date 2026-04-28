@@ -330,8 +330,8 @@ public class DataLoader implements ApplicationRunner {
                         "Hvorfor lures vi lettere i feeden?",
                         "På sosiale medier går ting fort, og vi scroller ofte uten å stoppe opp. Innlegg som gjør oss sinte, redde eller veldig nysgjerrige får ofte mest oppmerksomhet, og derfor er det lett å dele noe før vi har tenkt oss om.",
                         new String[]{
-                            "Innlegg: \"DEL NÅ før dette blir slettet!!!\" prøver å få deg til å reagere fort i stedet for å sjekke først.",
-                            "Skolerykte: \"Jeg har hørt at prøven er lekket til 7B\" kan spre seg raskt selv om ingen har vist bevis."
+                            "Innlegg som roper \"DEL NÅ før dette blir slettet!!!\" prøver å stresse deg til å reagere før du sjekker om informasjonen stemmer.",
+                            "Et skolerykte som \"Jeg har hørt at prøven er lekket til 7B\" kan spre seg raskt selv om ingen har vist bevis."
                         },
                         new String[]{
                             "Sterke følelser er ikke det samme som sterke bevis.",
@@ -793,7 +793,7 @@ public class DataLoader implements ApplicationRunner {
                 """,
                 "{\"correctElementIds\": [\"payment\", \"contact\"]}",
                 "Se etter butikker som gjør det vanskelig å kontakte dem eller krever usikre betalingsmåter."),
-            socialMediaTask(socialStop, 2, "Del eller vent?", "Velg riktig handling.",
+            socialMediaTask(socialStop, 2, "Sjekk før du deler", "Velg den tryggeste handlingen før du reagerer på innlegget.",
                 """
                 {
                   "type": "CHOOSE_ACTION",
@@ -802,7 +802,7 @@ public class DataLoader implements ApplicationRunner {
                     "content": "DELE DETTE NÅ!!! Rektor skal visst forby alle mobiler fra mandag, også i storefri 😱 Kusina til venninna mi sier lærerne fikk beskjed i går kveld, men ingen voksne vil si noe ennå!!!",
                     "likes": 287, "comments": 46, "timestamp": "I dag kl. 08:14", "verified": false
                   },
-                  "question": "Hva bør du gjøre med dette innlegget?",
+                  "question": "Hva er det tryggeste du bør gjøre med dette innlegget?",
                   "options": [
                     { "id": "SHARE", "text": "Del det videre med en gang" },
                     { "id": "WAIT", "text": "Vent og se om det dukker opp andre steder" },
@@ -813,7 +813,7 @@ public class DataLoader implements ApplicationRunner {
                 }
                 """,
                 "{\"action\": \"CHECK_SOURCES\"}"),
-            socialMediaTask(socialStop, 3, "Følelser på sosiale medier", "Identifiser hvilke følelser innlegget prøver å skape.",
+            socialMediaTask(socialStop, 3, "Stopp ryktespredningen", "Velg den tryggeste handlingen når et innlegg prøver å få deg til å reagere raskt.",
                 """
                 {
                   "type": "CHOOSE_ACTION",
@@ -822,7 +822,7 @@ public class DataLoader implements ApplicationRunner {
                     "content": "Helt sykt hvis dette stemmer: noen sier prøven i samfunnsfag allerede er lekket i en Snap-gruppe 😡 Del så alle får vite hvor urettferdig skolen er!!!",
                     "likes": 613, "comments": 128, "timestamp": "I dag kl. 10:27", "verified": false
                   },
-                  "question": "Hva bør du gjøre?",
+                  "question": "Hva er smartest å gjøre før du reagerer eller deler?",
                   "options": [
                     { "id": "SHARE", "text": "Del med en gang - dette er viktig!" },
                     { "id": "CHECK_SOURCES", "text": "Sjekk om det er sant før du deler" },

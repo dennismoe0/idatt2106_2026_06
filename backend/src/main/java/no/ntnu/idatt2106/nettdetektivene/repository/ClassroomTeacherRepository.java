@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+import java.util.List;
+import no.ntnu.idatt2106.nettdetektivene.entity.User;
 
 public interface ClassroomTeacherRepository extends JpaRepository<ClassroomTeacher, Long> {
     @Query("""
@@ -26,4 +28,11 @@ public interface ClassroomTeacherRepository extends JpaRepository<ClassroomTeach
           and ct.teacher.school is not null
         """)
     Optional<School> findSchoolByClassroomId(@Param("classroomId") Long classroomId);
+
+    @Query("""
+        select ct.teacher
+        from ClassroomTeacher ct
+        where ct.classroom.id = :classroomId
+        """)
+    List<User> findTeachersByClassroomId(@Param("classroomId") Long classroomId);
 }
