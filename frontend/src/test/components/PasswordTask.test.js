@@ -66,4 +66,16 @@ describe('PasswordTask', () => {
 
     expect(wrapper.emitted('submitted')[0][0]).toEqual({ password: 'Tiger42!' })
   })
+
+  it('shows retry instead of next after a wrong answer', async () => {
+    const wrapper = mount(PasswordTask, {
+      props: {
+        task: BUILDER_TASK,
+        result: { correct: false, explanation: 'Ikke sterkt nok.' },
+      },
+    })
+
+    expect(wrapper.text()).toContain('Prøv igjen')
+    expect(wrapper.text()).not.toContain('Neste oppgave')
+  })
 })

@@ -34,7 +34,7 @@ describe('TaskView', () => {
   beforeEach(async () => {
     setActivePinia(createPinia())
     localStorage.clear()
-    localStorage.setItem('tutorial_seen_stop_6', '1')
+    localStorage.setItem('tutorial_seen_classroom_11_stop_6', '1')
     localStorage.setItem('mapView', 'world')
     await router.push('/task?stopId=6&classroomId=11')
     await router.isReady()
@@ -102,8 +102,8 @@ describe('TaskView', () => {
     ])
     vi.spyOn(gameStore, 'submitAnswer').mockImplementation((taskId) => Promise.resolve(
       taskId === 404
-        ? { correct: true, explanation: 'Bra jobbet.', stopCompleted: true, clueText: 'Spor: Xoo Inn Cafe.', medalEarned: null }
-        : { correct: true, explanation: 'Bra jobbet.', stopCompleted: false, medalEarned: null }
+        ? { correct: true, explanation: 'Bra jobbet.', stopCompleted: true, clueText: 'Spor: Xoo Inn Cafe.', showSuspectReveal: true, medalEarned: null }
+        : { correct: true, explanation: 'Bra jobbet.', stopCompleted: false, showSuspectReveal: false, medalEarned: null }
     ))
   })
 
@@ -200,6 +200,68 @@ describe('TaskView', () => {
     expect(router.currentRoute.value.name).toBe('WorldMap')
   })
 
+  it('starts at the first incomplete Passordbanken task when the tutorial is already completed', async () => {
+    localStorage.setItem('mystery_seen_stop_6', '1')
+    const gameStore = useGameStore()
+    gameStore.fetchTasks.mockResolvedValue([
+      {
+        id: 400,
+        taskType: 'LEARN',
+        completed: true,
+        stopId: 6,
+        stopName: 'Passordbanken',
+        stopTheme: 'PASSWORD',
+        stopOrderIndex: 6,
+        stopDescription: 'Tyven er nesten tatt.',
+        contentJson: { slides: [], quiz: [] },
+      },
+      {
+        id: 401,
+        taskType: 'PASSWORD',
+        completed: false,
+        stopId: 6,
+        stopName: 'Passordbanken',
+        stopTheme: 'PASSWORD',
+        stopOrderIndex: 6,
+        stopDescription: 'Tyven er nesten tatt.',
+        contentJson: { type: 'CHOICE', question: 'Velg det sterkeste passordet.', options: [] },
+      },
+    ])
+
+    const wrapper = mount(TaskView, {
+      global: {
+        plugins: [router],
+        stubs: {
+          DetectiveBar: true,
+          StopMysteryScreen: true,
+          TutorialScreen: true,
+          LearningTask: {
+            template: '<div class="learn-stub">learn</div>',
+          },
+          PasswordTask: {
+            template: '<div class="password-stub">password</div>',
+          },
+          ClueRiddleTask: true,
+          FakeNewsTask: true,
+          AIPhotoTask: true,
+          SocialMediaTask: true,
+          MarketplaceTask: true,
+          PhishingEmailTask: true,
+          FinalBossTask: true,
+          ConfettiOverlay: true,
+          MedalToast: true,
+          StopSummary: true,
+          AvatarPreview: true,
+        },
+      },
+    })
+
+    await flushPromises()
+
+    expect(wrapper.find('.learn-stub').exists()).toBe(false)
+    expect(wrapper.find('.password-stub').exists()).toBe(true)
+  })
+
   it('does not show stored clue modal after learning task completion', async () => {
     const gameStore = useGameStore()
     gameStore.fetchTasks.mockResolvedValue([
@@ -223,8 +285,8 @@ describe('TaskView', () => {
       },
     ])
     gameStore.submitAnswer.mockImplementation((taskId) => Promise.resolve(taskId === 400
-      ? { correct: true, explanation: 'Intro ferdig.', stopCompleted: false, medalEarned: null }
-      : { correct: true, explanation: 'Spor lagret.', stopCompleted: true, clueText: 'Spor: Xoo Inn Cafe.', medalEarned: null }))
+      ? { correct: true, explanation: 'Intro ferdig.', stopCompleted: false, showSuspectReveal: false, medalEarned: null }
+      : { correct: true, explanation: 'Spor lagret.', stopCompleted: true, clueText: 'Spor: Xoo Inn Cafe.', showSuspectReveal: true, medalEarned: null }))
 
     const wrapper = mount(TaskView, {
       global: {
@@ -269,6 +331,7 @@ describe('TaskView', () => {
     await wrapper.get('.submit-clue').trigger('click')
     await flushPromises()
     expect(wrapper.find('.stored-clue-modal').exists()).toBe(true)
+    expect(wrapper.find('.stored-clue-modal__secondary').exists()).toBe(false)
   })
 
   it('rejects wrong clue-riddle answers in mock mode', async () => {

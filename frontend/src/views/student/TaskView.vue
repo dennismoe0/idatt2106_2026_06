@@ -101,6 +101,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="result = null"
               />
 
               <FakeNewsTask
@@ -229,7 +230,12 @@
             <button type="button" class="stored-clue-modal__primary" @click="continueAfterStoredClue">
               Fortsett
             </button>
-            <button type="button" class="stored-clue-modal__secondary" @click="openClueBoard">
+            <button
+              v-if="!storedClueModal.requiresEndFlow"
+              type="button"
+              class="stored-clue-modal__secondary"
+              @click="openClueBoard"
+            >
               Åpne sporbrett
             </button>
           </div>
@@ -446,6 +452,7 @@ async function loadTasks() {
   try {
     tasks.value = (await gameStore.fetchTasks(stopId.value, classroomId.value))
       .map(t => ({ ...t, contentJson: typeof t.contentJson === 'string' ? JSON.parse(t.contentJson) : t.contentJson }))
+    currentTaskIndex.value = firstIncompleteTaskIndex(tasks.value)
     console.log('[TaskView] Loaded', tasks.value.length, 'tasks from API')
     isMockMode.value = false
   } catch (apiError) {
@@ -461,6 +468,11 @@ async function loadTasks() {
     loading.value = false
     checkMystery()
   }
+}
+
+function firstIncompleteTaskIndex(loadedTasks) {
+  const index = loadedTasks.findIndex(task => !task.completed)
+  return index >= 0 ? index : 0
 }
 
 function checkMystery() {
@@ -485,17 +497,21 @@ function checkTutorial() {
   if (!stopId.value || !tasks.value.length) return
   const taskType = tasks.value[0]?.taskType
   if (!taskType) return
-  const key = `tutorial_seen_stop_${stopId.value}`
+  const key = tutorialSeenKey()
   if (!localStorage.getItem(key)) {
     showTutorial.value = true
   }
 }
 
 function startTasks() {
-  const key = `tutorial_seen_stop_${stopId.value}`
+  const key = tutorialSeenKey()
   localStorage.setItem(key, '1')
   showTutorial.value = false
   console.log('[TaskView] Tutorial dismissed for stop', stopId.value)
+}
+
+function tutorialSeenKey() {
+  return `tutorial_seen_classroom_${classroomId.value}_stop_${stopId.value}`
 }
 
 function replayIntro() {
@@ -545,6 +561,7 @@ function maybeShowStoredClueModal(task, submitResult) {
       || submitResult.explanation
       || task.contentJson?.evidence
       || 'Et nytt spor er lagret i sporbrettet.',
+    requiresEndFlow: submitResult.showSuspectReveal === true,
   }
 }
 
@@ -561,6 +578,10 @@ function buildMockResult(task, answer) {
       ? (task.mockExplanation ?? 'Bra jobbet.')
       : (task.mockWrongExplanation ?? 'Dette stemmer ikke med sporet. Prøv igjen og se nærmere på beviset.'),
     stopCompleted: currentTaskIndex.value === tasks.value.length - 1,
+    showSuspectReveal: correct
+      && currentTaskIndex.value === tasks.value.length - 1
+      && task.taskType === 'CLUE_RIDDLE'
+      && task.stopTheme === 'PASSWORD',
     medalEarned: currentTaskIndex.value === tasks.value.length - 1
       ? { id: 1, name: 'Nyhetsdetektiv', description: 'Du fullførte stoppet i mock-modus.' }
       : null
@@ -894,7 +915,8 @@ function handleCelebration(submitResult) {
 function shouldShowArrestScene() {
   return result.value?.correct
     && result.value?.stopCompleted
-    && currentTask.value?.stopTheme === 'PASSWORD'
+    && result.value?.showSuspectReveal
+    && currentTask.value?.taskType === 'CLUE_RIDDLE'
 }
 
 async function advanceArrestScene() {
