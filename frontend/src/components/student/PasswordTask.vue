@@ -95,7 +95,10 @@
         <p class="inline-result__explanation">{{ result.explanation }}</p>
         <p v-if="result.stopCompleted" class="inline-result__stop">🎉 Du fullførte Passordbanken!</p>
         <div class="inline-result__actions">
-          <button class="next-btn" @click="$emit('next')">
+          <button v-if="!result.correct" class="retry-btn" @click="retry">
+            Prøv igjen
+          </button>
+          <button v-else class="next-btn" @click="$emit('next')">
             {{ isLastTask ? 'Videre til sammendrag →' : 'Neste oppgave →' }}
           </button>
         </div>
@@ -112,7 +115,7 @@ const props = defineProps({
   result:     { type: Object,  default: null },
   isLastTask: { type: Boolean, default: false },
 })
-const emit = defineEmits(['submitted', 'next'])
+const emit = defineEmits(['submitted', 'next', 'retry'])
 
 const selected = ref(null)
 const parts    = ref([])
@@ -196,6 +199,12 @@ function submit() {
     : { selected: selected.value }
   console.log('[PasswordTask] Submitting:', answer)
   emit('submitted', answer)
+}
+
+function retry() {
+  selected.value = null
+  parts.value = []
+  emit('retry')
 }
 </script>
 
@@ -381,6 +390,17 @@ function submit() {
 }
 .next-btn:hover  { background: var(--color-btn-primary-hover); }
 .next-btn:active { transform: scale(0.98); }
+
+.retry-btn {
+  background: var(--color-surface);
+  color: var(--color-danger);
+  border: 2px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-6);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-base);
+  cursor: pointer;
+}
 
 .result-slide-enter-active { transition: transform 0.3s ease, opacity 0.3s ease; }
 .result-slide-enter-from   { transform: translateY(-12px); opacity: 0; }
