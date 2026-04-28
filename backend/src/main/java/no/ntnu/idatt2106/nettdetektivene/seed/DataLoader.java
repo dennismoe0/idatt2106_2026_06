@@ -714,7 +714,7 @@ public class DataLoader implements ApplicationRunner {
                     { "id": "c", "value": "S@nder_2015#" },
                     { "id": "d", "value": "SolKatt!Fjord#22" }
                   ],
-                  "explanation": "S@nder_2015# er den beste forbedringen av alternativene fordi det blander store og smÃ¥ bokstaver og legger til et spesialtegn. Det er fortsatt ikke et ideelt passord, siden navnet og Ã¥rstallet fortsatt kan vÃ¦re lette Ã¥ gjette."
+                  "explanation": "S@nder_2015# er den beste forbedringen av alternativene fordi det blander store og små bokstaver og legger til et spesialtegn. Det er fortsatt ikke et ideelt passord, siden navnet og årstallet fortsatt kan være lette å gjette."
                 }
                 """,
                 "{\"selected\": \"c\"}"),

@@ -139,6 +139,22 @@ class GameServiceTest {
     }
 
     @Test
+    void getStops_marksStopCompleteWhenCompletedCountExceedsRequiredCount() {
+        Stop first = stop(1L, 1, "Nyhetskvartalet");
+        when(classroomRepository.existsById(CLASSROOM_ID)).thenReturn(true);
+        when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first));
+        when(taskRepository.countByStop_IdAndTaskTypeNotIn(eq(1L), any())).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(
+            eq(STUDENT_ID), eq(1L), any())).thenReturn(3L);
+        when(studentXpLogRepository.findTopByStudent_IdAndStop_IdOrderByAwardedAtDesc(STUDENT_ID, 1L))
+            .thenReturn(Optional.empty());
+
+        var response = gameService.getStops(STUDENT_ID, CLASSROOM_ID);
+
+        assertThat(response.getFirst().completed()).isTrue();
+    }
+
+    @Test
     void getStops_zeroTaskPreviousStopDoesNotUnlockNextStop() {
         Stop first = stop(1L, 1, "Nyhetskvartalet");
         Stop second = stop(2L, 2, "Postkontoret");

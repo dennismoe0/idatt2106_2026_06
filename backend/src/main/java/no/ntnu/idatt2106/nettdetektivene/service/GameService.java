@@ -365,7 +365,7 @@ public class GameService {
 
     private boolean isStopComplete(Long studentId, Long stopId) {
         long taskCount = requiredTaskCount(stopId);
-        return taskCount > 0 && completedTaskCount(studentId, stopId) == taskCount;
+        return taskCount > 0 && completedTaskCount(studentId, stopId) >= taskCount;
     }
 
     private Optional<Medal> checkAndAwardMedal(Long studentId, Long stopId) {
@@ -652,7 +652,7 @@ public class GameService {
 
     private boolean allTasksCompleted(Long studentId, Long stopId) {
         long taskCount = requiredTaskCount(stopId);
-        return taskCount > 0 && completedTaskCount(studentId, stopId) == taskCount;
+        return taskCount > 0 && completedTaskCount(studentId, stopId) >= taskCount;
     }
 
     private long completedTaskCount(Long studentId, Long stopId) {
