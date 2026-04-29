@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   RESERVED_REPORT_TITLES,
+  buildClueBlocks,
   buildGeneralPages,
   buildLevelPagesForGroup,
   estimateTextUnits,
@@ -118,6 +119,57 @@ describe('packBlocks', () => {
     expect(pages[1]).toEqual([blocks[1]])
     expect(pages[2]).toEqual([blocks[2]])
   })
+
+  it('caps the number of blocks per page via maxBlocksPerPage (default 2)', () => {
+    const blocks = [
+      { key: 'a', units: 1 },
+      { key: 'b', units: 1 },
+      { key: 'c', units: 1 },
+      { key: 'd', units: 1 },
+      { key: 'e', units: 1 },
+    ]
+    // capacity is large enough that only the per-page count cap should apply
+    const pages = packBlocks(blocks, 50)
+    expect(pages).toHaveLength(3)
+    expect(pages[0]).toHaveLength(2)
+    expect(pages[1]).toHaveLength(2)
+    expect(pages[2]).toHaveLength(1)
+  })
+
+  it('respects an explicit maxBlocksPerPage override', () => {
+    const blocks = [
+      { key: 'a', units: 1 },
+      { key: 'b', units: 1 },
+      { key: 'c', units: 1 },
+      { key: 'd', units: 1 },
+    ]
+    const pages = packBlocks(blocks, 50, 1)
+    expect(pages).toHaveLength(4)
+    for (const page of pages) {
+      expect(page).toHaveLength(1)
+    }
+  })
+})
+
+describe('buildClueBlocks', () => {
+  it('produces a single clue block with the expected metadata', () => {
+    const autoClue = {
+      id: 99,
+      content: 'Tyven hadde røde sko.',
+      createdAt: '2026-04-15T12:00:00Z',
+    }
+    const blocks = buildClueBlocks(autoClue)
+    expect(blocks).toHaveLength(1)
+    const [block] = blocks
+    expect(block.key).toBe('clue-99')
+    expect(block.type).toBe('clue')
+    expect(block.label).toBe('Spor')
+    expect(block.content).toBe('Tyven hadde røde sko.')
+    expect(block.createdAt).toBe('2026-04-15T12:00:00Z')
+    expect(block.units).toBeGreaterThanOrEqual(1)
+    // The hard cap baked into buildClueBlocks
+    expect(block.units).toBeLessThanOrEqual(11)
+  })
 })
 
 describe('buildLevelPagesForGroup', () => {
@@ -165,6 +217,20 @@ describe('buildLevelPagesForGroup', () => {
     expect(allBlocks[1].type).toBe('reflection')
     expect(allBlocks[1].id).toBe('r1')
     expect(allBlocks[2].id).toBe('r2')
+  })
+
+  it('places the auto-clue after the tip and before reflections', () => {
+    const group = {
+      stopId: 8,
+      autoTip: { id: 't1', content: 'Tip here', createdAt: '2026-04-01' },
+      autoClue: { id: 'c1', content: 'Clue here', createdAt: '2026-04-01' },
+      reflections: [
+        { id: 'r1', content: 'Reflection', createdAt: '2026-04-02' },
+      ],
+    }
+    const pages = buildLevelPagesForGroup(1, group)
+    const types = pages.flatMap((p) => p.blocks).map((b) => b.type)
+    expect(types).toEqual(['tip', 'clue', 'reflection'])
   })
 
   it('sets partLabel and splits across pages when content overflows', () => {

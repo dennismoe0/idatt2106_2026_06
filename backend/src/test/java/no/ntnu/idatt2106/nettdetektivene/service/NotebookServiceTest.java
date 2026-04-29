@@ -255,4 +255,61 @@ class NotebookServiceTest {
         assertThatThrownBy(() -> notebookService.createReflection(1L, 99L, "text"))
             .isInstanceOf(ResourceNotFoundException.class);
     }
+
+    // ── updateEntry / deleteEntry: auto-generated entries are protected ─────
+
+    private NotebookEntry makeOwnedEntry(Long id, NotebookEntry.EntryType type) {
+        User owner = new User();
+        owner.setId(1L);
+        NotebookEntry entry = new NotebookEntry();
+        entry.setId(id);
+        entry.setStudent(owner);
+        entry.setEntryType(type);
+        entry.setContent("original");
+        return entry;
+    }
+
+    @Test
+    void updateEntry_throwsBadRequestWhenEditingAutoTip() {
+        NotebookEntry entry = makeOwnedEntry(10L, NotebookEntry.EntryType.AUTO_TIP);
+        when(notebookRepository.findById(10L)).thenReturn(Optional.of(entry));
+
+        assertThatThrownBy(() -> notebookService.updateEntry(1L, 10L, "new content"))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Cannot edit auto-generated entries");
+        verify(notebookRepository, never()).save(any());
+    }
+
+    @Test
+    void updateEntry_throwsBadRequestWhenEditingAutoClue() {
+        NotebookEntry entry = makeOwnedEntry(11L, NotebookEntry.EntryType.AUTO_CLUE);
+        when(notebookRepository.findById(11L)).thenReturn(Optional.of(entry));
+
+        assertThatThrownBy(() -> notebookService.updateEntry(1L, 11L, "new content"))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Cannot edit auto-generated entries");
+        verify(notebookRepository, never()).save(any());
+    }
+
+    @Test
+    void deleteEntry_throwsBadRequestWhenDeletingAutoTip() {
+        NotebookEntry entry = makeOwnedEntry(20L, NotebookEntry.EntryType.AUTO_TIP);
+        when(notebookRepository.findById(20L)).thenReturn(Optional.of(entry));
+
+        assertThatThrownBy(() -> notebookService.deleteEntry(1L, 20L))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Cannot delete auto-generated entries");
+        verify(notebookRepository, never()).delete(any());
+    }
+
+    @Test
+    void deleteEntry_throwsBadRequestWhenDeletingAutoClue() {
+        NotebookEntry entry = makeOwnedEntry(21L, NotebookEntry.EntryType.AUTO_CLUE);
+        when(notebookRepository.findById(21L)).thenReturn(Optional.of(entry));
+
+        assertThatThrownBy(() -> notebookService.deleteEntry(1L, 21L))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Cannot delete auto-generated entries");
+        verify(notebookRepository, never()).delete(any());
+    }
 }

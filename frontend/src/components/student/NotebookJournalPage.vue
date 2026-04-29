@@ -369,18 +369,18 @@ function formatDate(isoString) {
 
 .journal-entry-card--clue {
   background:
-    linear-gradient(135deg, rgba(255, 235, 196, 0.55), rgba(244, 215, 165, 0.45));
-  border-color: rgba(168, 102, 36, 0.42);
+    linear-gradient(135deg, var(--color-journal-clue-bg-top), var(--color-journal-clue-bg-bottom));
+  border-color: var(--color-journal-clue-border);
   box-shadow:
     0 4px 12px rgba(118, 88, 39, 0.08),
-    inset 0 0 0 1px rgba(255, 244, 215, 0.5);
+    inset 0 0 0 1px var(--color-journal-clue-inner);
 }
 
 .journal-entry-card__label--clue {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  color: var(--color-journal-stamp, #8b3a1a);
+  color: var(--color-journal-stamp);
   font-weight: 800;
 }
 
