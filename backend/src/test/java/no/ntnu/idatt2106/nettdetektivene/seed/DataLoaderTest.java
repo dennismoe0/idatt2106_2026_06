@@ -325,6 +325,64 @@ class DataLoaderTest {
     }
 
     @Test
+    void run_updatesExistingTaskEvenWhenTaskTypeChangedForSameStopAndOrder() throws Exception {
+        List<Task> seededTasks = seededTasks();
+        Task expectedMarketplaceClue = seededTasks.stream()
+            .filter(task -> task.getStop().getName().equals("Markedsplassen"))
+            .filter(task -> task.getOrderIndex() == 5)
+            .filter(task -> task.getTaskType() == TaskType.CLUE_RIDDLE)
+            .findFirst()
+            .orElseThrow();
+
+        Stop marketplaceStop = new Stop();
+        marketplaceStop.setId(4L);
+        marketplaceStop.setName("Markedsplassen");
+        marketplaceStop.setOrderIndex(4);
+        marketplaceStop.setTheme("MARKETPLACE");
+
+        Task existingTask = new Task();
+        existingTask.setId(405L);
+        existingTask.setStop(marketplaceStop);
+        existingTask.setOrderIndex(5);
+        existingTask.setTaskType(TaskType.MARKETPLACE);
+        existingTask.setTitle("Legacy marketplace clue");
+        existingTask.setContentJson("{\"question\":\"old\"}");
+        existingTask.setCorrectAnswerJson("{\"selected\":\"wrong\"}");
+
+        StopRepository stopRepository = mock(StopRepository.class);
+        TaskRepository taskRepository = mock(TaskRepository.class);
+        MedalRepository medalRepository = mock(MedalRepository.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        DataLoader loader = new DataLoader(stopRepository, taskRepository, medalRepository, objectMapper);
+
+        when(stopRepository.count()).thenReturn(1L);
+        when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(marketplaceStop));
+        when(stopRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(taskRepository.count()).thenReturn(1L);
+        when(taskRepository.findAll()).thenReturn(List.of(existingTask));
+        when(taskRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(medalRepository.count()).thenReturn(0L);
+        when(medalRepository.findAll()).thenReturn(List.of());
+        when(medalRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        loader.run(new DefaultApplicationArguments());
+
+        ArgumentCaptor<List<Task>> tasksCaptor = listCaptor();
+        org.mockito.Mockito.verify(taskRepository).saveAll(tasksCaptor.capture());
+
+        Task savedTask = tasksCaptor.getValue().stream()
+            .filter(task -> task.getStop().getOrderIndex() == 4)
+            .filter(task -> task.getOrderIndex() == 5)
+            .findFirst()
+            .orElseThrow();
+
+        assertThat(savedTask.getId()).isEqualTo(405L);
+        assertThat(savedTask.getTaskType()).isEqualTo(TaskType.CLUE_RIDDLE);
+        assertThat(savedTask.getContentJson()).isEqualTo(expectedMarketplaceClue.getContentJson());
+        assertThat(savedTask.getCorrectAnswerJson()).isEqualTo(expectedMarketplaceClue.getCorrectAnswerJson());
+    }
+
+    @Test
     void run_updatesExistingSeededStopsWhenDatabaseAlreadyContainsStops() throws Exception {
         StopRepository stopRepository = mock(StopRepository.class);
         TaskRepository taskRepository = mock(TaskRepository.class);

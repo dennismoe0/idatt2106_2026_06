@@ -1337,7 +1337,7 @@ public class DataLoader implements ApplicationRunner {
     }
 
     private String taskSeedKey(Task task) {
-        return task.getStop().getOrderIndex() + "|" + task.getOrderIndex() + "|" + task.getTaskType().name();
+        return task.getStop().getOrderIndex() + "|" + task.getOrderIndex();
     }
 
     private Stop stop(String name, String description, String theme, int orderIndex, boolean finalBoss, String autoTip, String clueText) {
