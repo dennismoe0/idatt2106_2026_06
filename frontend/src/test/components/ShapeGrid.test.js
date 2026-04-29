@@ -30,4 +30,55 @@ describe('ShapeGrid', () => {
     await w.findAll('.shape-tile')[2].trigger('click')
     expect(w.emitted('update:modelValue')).toBeFalsy()
   })
+
+  it('renders medal-locked tile alongside normal tiles', () => {
+    const w = mount(ShapeGrid, {
+      props: {
+        modelValue: 'short',
+        variants: ['short'],
+        previewComponent: StubLayer,
+        previewProps: {},
+        variantProp: 'hairStyle',
+        medalLocked: [{ value: 'mohawk', stopName: 'Datasenteret' }],
+      },
+    })
+
+    const tiles = w.findAll('.shape-tile')
+    expect(tiles).toHaveLength(2)
+    expect(tiles[1].classes()).toContain('shape-tile--medal-locked')
+  })
+
+  it('does not emit update when medal-locked tile is clicked', async () => {
+    const w = mount(ShapeGrid, {
+      props: {
+        modelValue: 'short',
+        variants: ['short'],
+        previewComponent: StubLayer,
+        previewProps: {},
+        variantProp: 'hairStyle',
+        medalLocked: [{ value: 'mohawk', stopName: 'Datasenteret' }],
+      },
+    })
+
+    await w.findAll('.shape-tile')[1].trigger('click')
+    expect(w.emitted('update:modelValue')).toBeFalsy()
+  })
+
+  it('shows tooltip on click of medal-locked tile', async () => {
+    const w = mount(ShapeGrid, {
+      props: {
+        modelValue: 'short',
+        variants: ['short'],
+        previewComponent: StubLayer,
+        previewProps: {},
+        variantProp: 'hairStyle',
+        medalLocked: [{ value: 'mohawk', stopName: 'Datasenteret' }],
+      },
+    })
+
+    await w.findAll('.shape-tile')[1].trigger('click')
+    const bubble = w.find('.shape-bubble')
+    expect(bubble.isVisible()).toBe(true)
+    expect(bubble.text()).toContain('Datasenteret')
+  })
 })
