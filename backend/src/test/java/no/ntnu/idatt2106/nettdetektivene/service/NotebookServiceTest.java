@@ -156,19 +156,40 @@ class NotebookServiceTest {
         stop.setClueText("Tyven hadde røde sko.");
 
         when(notebookRepository.existsByStudent_IdAndStop_IdAndEntryType(
-            1L, 1L, NotebookEntry.EntryType.AUTO_TIP)).thenReturn(false);
+            1L, 1L, NotebookEntry.EntryType.AUTO_CLUE)).thenReturn(false);
         when(userRepository.getReferenceById(1L)).thenReturn(new User());
 
         notebookService.createAutoClueIfNotExists(1L, stop);
 
         ArgumentCaptor<NotebookEntry> captor = ArgumentCaptor.forClass(NotebookEntry.class);
         verify(notebookRepository).save(captor.capture());
-        assertThat(captor.getValue().getEntryType()).isEqualTo(NotebookEntry.EntryType.AUTO_TIP);
+        assertThat(captor.getValue().getEntryType()).isEqualTo(NotebookEntry.EntryType.AUTO_CLUE);
         assertThat(captor.getValue().getContent()).isEqualTo("Tyven hadde røde sko.");
     }
 
     @Test
-    void createAutoClueIfNotExists_fallsBackToAutoTipWhenClueTextIsBlank() {
+    void createAutoClueIfNotExists_savesBothTipAndClueWhenStopHasBoth() {
+        Stop stop = makeStop(1L, 1);
+        stop.setAutoTip("Generelt tips");
+        stop.setClueText("Konkret spor");
+
+        when(notebookRepository.existsByStudent_IdAndStop_IdAndEntryType(
+            1L, 1L, NotebookEntry.EntryType.AUTO_TIP)).thenReturn(false);
+        when(notebookRepository.existsByStudent_IdAndStop_IdAndEntryType(
+            1L, 1L, NotebookEntry.EntryType.AUTO_CLUE)).thenReturn(false);
+        when(userRepository.getReferenceById(1L)).thenReturn(new User());
+
+        notebookService.createAutoClueIfNotExists(1L, stop);
+
+        ArgumentCaptor<NotebookEntry> captor = ArgumentCaptor.forClass(NotebookEntry.class);
+        verify(notebookRepository, times(2)).save(captor.capture());
+        List<NotebookEntry> saved = captor.getAllValues();
+        assertThat(saved).extracting(NotebookEntry::getEntryType)
+            .containsExactlyInAnyOrder(NotebookEntry.EntryType.AUTO_TIP, NotebookEntry.EntryType.AUTO_CLUE);
+    }
+
+    @Test
+    void createAutoClueIfNotExists_skipsClueWhenClueTextIsBlankButStillCreatesAutoTip() {
         Stop stop = makeStop(1L, 1);
         stop.setClueText("");
         stop.setAutoTip("Tyven brukte norsk IP-adresse.");
@@ -180,7 +201,8 @@ class NotebookServiceTest {
         notebookService.createAutoClueIfNotExists(1L, stop);
 
         ArgumentCaptor<NotebookEntry> captor = ArgumentCaptor.forClass(NotebookEntry.class);
-        verify(notebookRepository).save(captor.capture());
+        verify(notebookRepository, times(1)).save(captor.capture());
+        assertThat(captor.getValue().getEntryType()).isEqualTo(NotebookEntry.EntryType.AUTO_TIP);
         assertThat(captor.getValue().getContent()).isEqualTo("Tyven brukte norsk IP-adresse.");
     }
 
@@ -190,7 +212,7 @@ class NotebookServiceTest {
         stop.setClueText("Tyven hadde røde sko.");
 
         when(notebookRepository.existsByStudent_IdAndStop_IdAndEntryType(
-            1L, 1L, NotebookEntry.EntryType.AUTO_TIP)).thenReturn(true);
+            1L, 1L, NotebookEntry.EntryType.AUTO_CLUE)).thenReturn(true);
 
         notebookService.createAutoClueIfNotExists(1L, stop);
 

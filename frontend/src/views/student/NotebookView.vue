@@ -8,14 +8,14 @@
           <div class="journal-cover-stage__spine"></div>
         </div>
 
-        <button class="journal-cover" type="button" @click="openJournal" aria-label="Åpne notatblokk">
+        <div class="journal-cover" aria-hidden="true">
           <span class="journal-cover__sigil" aria-hidden="true">
             <span class="journal-cover__sigil-eye"></span>
           </span>
           <span class="journal-cover__badge">Arkiv 03</span>
           <span class="journal-cover__title">MYSTISK JOURNAL</span>
-          <span class="journal-cover__hint">Trykk for å åpne</span>
-        </button>
+          <span class="journal-cover__hint">Åpner...</span>
+        </div>
       </div>
     </div>
 
@@ -44,27 +44,21 @@
             </svg>
           </button>
 
-          <div class="journal-bookstage" :style="bookStageStyle">
+          <div
+            class="journal-bookstage"
+            :class="{ 'journal-bookstage--kindle': isKindleMode }"
+            :style="bookStageStyle"
+          >
             <div class="journal-bookstage__shadow" aria-hidden="true"></div>
-            <div class="journal-bookstage__spine" aria-hidden="true"></div>
+            <div v-if="!isKindleMode" class="journal-bookstage__spine" aria-hidden="true"></div>
 
-            <article class="journal-paper journal-paper--left" :data-page="currentSpread.left.number">
+            <article
+              v-if="isKindleMode"
+              class="journal-paper journal-paper--single"
+              :data-page="kindlePage.number"
+            >
               <NotebookJournalPage
-                :page="currentSpread.left"
-                side="left"
-                interactive
-                :start-stop-edit="startEdit"
-                :start-add-note="startAddNote"
-                :start-note-edit="startNoteEdit"
-                :remove-note="removeNote"
-                :start-reflection-edit="startReflectionEdit"
-                :remove-reflection="removeReflection"
-              />
-            </article>
-
-            <article class="journal-paper journal-paper--right" :data-page="currentSpread.right.number">
-              <NotebookJournalPage
-                :page="currentSpread.right"
+                :page="kindlePage"
                 side="right"
                 interactive
                 :start-stop-edit="startEdit"
@@ -76,14 +70,44 @@
               />
             </article>
 
-            <div v-if="turnLeaf" class="journal-leaf" :class="`journal-leaf--${turnLeaf.direction}`" aria-hidden="true">
-              <article class="journal-paper journal-paper--leaf-face journal-paper--leaf-front" :data-page="turnLeaf.front.number">
-                <NotebookJournalPage :page="turnLeaf.front" :side="turnLeaf.frontSide" />
+            <template v-else>
+              <article class="journal-paper journal-paper--left" :data-page="currentSpread.left.number">
+                <NotebookJournalPage
+                  :page="currentSpread.left"
+                  side="left"
+                  interactive
+                  :start-stop-edit="startEdit"
+                  :start-add-note="startAddNote"
+                  :start-note-edit="startNoteEdit"
+                  :remove-note="removeNote"
+                  :start-reflection-edit="startReflectionEdit"
+                  :remove-reflection="removeReflection"
+                />
               </article>
-              <article class="journal-paper journal-paper--leaf-face journal-paper--leaf-back" :data-page="turnLeaf.back.number">
-                <NotebookJournalPage :page="turnLeaf.back" :side="turnLeaf.backSide" />
+
+              <article class="journal-paper journal-paper--right" :data-page="currentSpread.right.number">
+                <NotebookJournalPage
+                  :page="currentSpread.right"
+                  side="right"
+                  interactive
+                  :start-stop-edit="startEdit"
+                  :start-add-note="startAddNote"
+                  :start-note-edit="startNoteEdit"
+                  :remove-note="removeNote"
+                  :start-reflection-edit="startReflectionEdit"
+                  :remove-reflection="removeReflection"
+                />
               </article>
-            </div>
+
+              <div v-if="turnLeaf" class="journal-leaf" :class="`journal-leaf--${turnLeaf.direction}`" aria-hidden="true">
+                <article class="journal-paper journal-paper--leaf-face journal-paper--leaf-front" :data-page="turnLeaf.front.number">
+                  <NotebookJournalPage :page="turnLeaf.front" :side="turnLeaf.frontSide" />
+                </article>
+                <article class="journal-paper journal-paper--leaf-face journal-paper--leaf-back" :data-page="turnLeaf.back.number">
+                  <NotebookJournalPage :page="turnLeaf.back" :side="turnLeaf.backSide" />
+                </article>
+              </div>
+            </template>
           </div>
 
           <button
@@ -236,7 +260,8 @@ const editReflectionContent = ref('')
 const showJournalOverlay = ref(true)
 const isOpening = ref(false)
 const animationDuration = 980
-const pageTurnDuration = 820
+const openHoldMs = 220
+const pageTurnDuration = 900
 const spreadIndex = ref(0)
 const turnState = ref(null)
 const viewport = ref({ width: 1280, height: 900 })
@@ -245,6 +270,7 @@ const BOOK_ASPECT_RATIO = 1.58
 const BOOK_WIDTH_SCALE = 1.25
 
 let openTimer = null
+let autoOpenTimer = null
 let turnMidTimer = null
 let turnEndTimer = null
 
@@ -279,18 +305,39 @@ const journalPages = computed(() => {
 })
 
 const spreadCount = computed(() => Math.max(1, Math.ceil(journalPages.value.length / 2)))
-const canGoPrev = computed(() => spreadIndex.value > 0 && !turnState.value)
-const canGoNext = computed(() => spreadIndex.value < spreadCount.value - 1 && !turnState.value)
+const pageCount = computed(() => Math.max(1, journalPages.value.length))
+const isKindleMode = computed(() => viewport.value.width <= 720)
+const kindlePageIndex = ref(0)
+const canGoPrev = computed(() => {
+  if (turnState.value) return false
+  return isKindleMode.value ? kindlePageIndex.value > 0 : spreadIndex.value > 0
+})
+const canGoNext = computed(() => {
+  if (turnState.value) return false
+  return isKindleMode.value
+    ? kindlePageIndex.value < pageCount.value - 1
+    : spreadIndex.value < spreadCount.value - 1
+})
 const isCompactLayout = computed(() => viewport.value.width <= 900)
 
 const bookHeight = computed(() => {
+  const isNarrow = viewport.value.width <= 640
   const chromeReserve = isCompactLayout.value ? 282 : 214
   const availableHeight = viewport.value.height - chromeReserve
-  const availableWidth = viewport.value.width - (viewport.value.width <= 640 ? 32 : 72)
-  return Math.round(Math.min(720, Math.max(220, Math.min(availableHeight, availableWidth / BOOK_ASPECT_RATIO))))
+  const horizontalPadding = isNarrow ? 24 : 72
+  const availableWidth = viewport.value.width - horizontalPadding
+  const widthRatio = isKindleMode.value
+    ? 0.72
+    : BOOK_ASPECT_RATIO * BOOK_WIDTH_SCALE
+  const widthLimitedHeight = availableWidth / widthRatio
+  const minHeight = isKindleMode.value ? 360 : 220
+  return Math.round(Math.min(820, Math.max(minHeight, Math.min(availableHeight, widthLimitedHeight))))
 })
 
-const bookWidth = computed(() => Math.round(bookHeight.value * BOOK_ASPECT_RATIO * BOOK_WIDTH_SCALE))
+const bookWidth = computed(() => {
+  const ratio = isKindleMode.value ? 0.72 : BOOK_ASPECT_RATIO * BOOK_WIDTH_SCALE
+  return Math.round(bookHeight.value * ratio)
+})
 const bookStageStyle = computed(() => ({
   width: `${bookWidth.value}px`,
   height: `${bookHeight.value}px`,
@@ -298,9 +345,12 @@ const bookStageStyle = computed(() => ({
 }))
 
 const coverHeight = computed(() => {
-  const availableHeight = viewport.value.height - 150
-  const availableWidth = viewport.value.width - 96
-  return Math.round(Math.min(470, Math.max(260, Math.min(availableHeight, availableWidth / 1.56))))
+  const isNarrow = viewport.value.width <= 640
+  const availableHeight = viewport.value.height - (isNarrow ? 110 : 150)
+  const availableWidth = viewport.value.width - (isNarrow ? 32 : 96)
+  const minHeight = isNarrow ? 200 : 260
+  const maxHeight = isNarrow ? 360 : 470
+  return Math.round(Math.min(maxHeight, Math.max(minHeight, Math.min(availableHeight, availableWidth / 1.56))))
 })
 
 const coverWidth = computed(() => Math.round(coverHeight.value * 0.78))
@@ -323,6 +373,7 @@ function getSpread(targetSpreadIndex) {
 }
 
 const currentSpread = computed(() => getSpread(spreadIndex.value))
+const kindlePage = computed(() => getPageAt(kindlePageIndex.value))
 
 const turnLeaf = computed(() => {
   if (!turnState.value) return null
@@ -353,6 +404,10 @@ function clearOpenTimer() {
   if (openTimer) {
     clearTimeout(openTimer)
     openTimer = null
+  }
+  if (autoOpenTimer) {
+    clearTimeout(autoOpenTimer)
+    autoOpenTimer = null
   }
 }
 
@@ -560,7 +615,6 @@ function openJournal() {
 
   playPageTurn()
   isOpening.value = true
-  clearOpenTimer()
   openTimer = setTimeout(() => {
     showJournalOverlay.value = false
     isOpening.value = false
@@ -596,11 +650,19 @@ function queueTurn(direction) {
 
 function goNext() {
   if (!canGoNext.value) return
+  if (isKindleMode.value) {
+    kindlePageIndex.value += 1
+    return
+  }
   queueTurn('next')
 }
 
 function goPrev() {
   if (!canGoPrev.value) return
+  if (isKindleMode.value) {
+    kindlePageIndex.value -= 1
+    return
+  }
   queueTurn('back')
 }
 
@@ -627,11 +689,31 @@ watch(spreadCount, (nextCount) => {
   }
 })
 
+watch(pageCount, (nextCount) => {
+  if (kindlePageIndex.value > nextCount - 1) {
+    kindlePageIndex.value = Math.max(0, nextCount - 1)
+  }
+})
+
+watch(isKindleMode, (kindle) => {
+  if (kindle) {
+    kindlePageIndex.value = Math.min(pageCount.value - 1, spreadIndex.value * 2)
+  } else {
+    spreadIndex.value = Math.min(spreadCount.value - 1, Math.floor(kindlePageIndex.value / 2))
+  }
+})
+
 onMounted(() => {
   updateViewport()
   load()
   window.addEventListener('resize', updateViewport)
   window.addEventListener('keydown', handleKeydown)
+  // Auto-play the book opening animation as soon as the view is mounted so
+  // pupils don't need to click anything to enter the journal.
+  autoOpenTimer = setTimeout(() => {
+    openJournal()
+    autoOpenTimer = null
+  }, openHoldMs)
 })
 
 onBeforeUnmount(() => {
@@ -726,10 +808,7 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
-  width: min(100%, 1320px);
   max-width: 100%;
-  min-height: 80vh;
-  height: min(84vh, 980px);
   padding: 18px;
   perspective: 2800px;
   border-radius: 34px;
@@ -740,6 +819,50 @@ onBeforeUnmount(() => {
   box-shadow:
     inset 0 1px 0 rgba(255, 238, 210, 0.08),
     0 32px 56px rgba(0, 0, 0, 0.34);
+}
+
+.journal-bookstage--kindle {
+  grid-template-columns: 1fr;
+  perspective: none;
+  padding: 14px;
+  border-radius: 26px;
+}
+
+.journal-paper--single {
+  margin: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.journal-paper--single :deep(.journal-page-content) {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 85, 33, 0.4) transparent;
+}
+
+.journal-paper--single :deep(.journal-page-content)::-webkit-scrollbar {
+  width: 8px;
+}
+
+.journal-paper--single :deep(.journal-page-content)::-webkit-scrollbar-thumb {
+  background: rgba(124, 85, 33, 0.35);
+  border-radius: 999px;
+}
+
+.journal-paper--single :deep(.journal-page-content__blocks) {
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.journal-paper--single :deep(.journal-entry-card) {
+  flex: 0 0 auto;
+  max-height: none;
+}
+
+.journal-paper--single :deep(.journal-entry-card__scroll) {
+  overflow: visible;
+  padding-right: 0;
 }
 
 .journal-bookstage__shadow {
@@ -843,21 +966,22 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  border-radius: inherit;
-  background: linear-gradient(90deg, rgba(44, 23, 9, 0.24), transparent 36%, rgba(32, 17, 8, 0.28));
-  opacity: 0.5;
+  border-radius: 18px;
+  background: linear-gradient(90deg, rgba(44, 23, 9, 0.32), transparent 38%, rgba(32, 17, 8, 0.32));
+  opacity: 0;
+  animation: leaf-shade var(--turn-ms) ease-in-out forwards;
 }
 
 .journal-leaf--next {
   right: 18px;
   transform-origin: left center;
-  animation: turn-next var(--turn-ms) cubic-bezier(0.2, 0.78, 0.2, 1) forwards;
+  animation: turn-next var(--turn-ms) cubic-bezier(0.45, 0.05, 0.25, 1) forwards;
 }
 
 .journal-leaf--back {
   left: 18px;
   transform-origin: right center;
-  animation: turn-back var(--turn-ms) cubic-bezier(0.2, 0.78, 0.2, 1) forwards;
+  animation: turn-back var(--turn-ms) cubic-bezier(0.45, 0.05, 0.25, 1) forwards;
 }
 
 .journal-paper--leaf-face {
@@ -866,6 +990,11 @@ onBeforeUnmount(() => {
   margin: 0;
   backface-visibility: hidden;
   transform-style: preserve-3d;
+  border-radius: 10px 24px 24px 10px;
+}
+
+.journal-leaf--back .journal-paper--leaf-face {
+  border-radius: 24px 10px 10px 24px;
 }
 
 .journal-paper--leaf-back {
@@ -890,9 +1019,19 @@ onBeforeUnmount(() => {
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
   }
 
-  45% {
-    transform: rotateY(-92deg) translateZ(18px);
-    box-shadow: 0 18px 28px rgba(0, 0, 0, 0.22);
+  25% {
+    transform: rotateY(-46deg) translateZ(20px);
+    box-shadow: -8px 16px 24px rgba(0, 0, 0, 0.22);
+  }
+
+  50% {
+    transform: rotateY(-92deg) translateZ(28px);
+    box-shadow: 0 24px 36px rgba(0, 0, 0, 0.28);
+  }
+
+  75% {
+    transform: rotateY(-138deg) translateZ(20px);
+    box-shadow: 8px 16px 24px rgba(0, 0, 0, 0.22);
   }
 
   100% {
@@ -907,15 +1046,30 @@ onBeforeUnmount(() => {
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
   }
 
-  45% {
-    transform: rotateY(92deg) translateZ(18px);
-    box-shadow: 0 18px 28px rgba(0, 0, 0, 0.22);
+  25% {
+    transform: rotateY(46deg) translateZ(20px);
+    box-shadow: 8px 16px 24px rgba(0, 0, 0, 0.22);
+  }
+
+  50% {
+    transform: rotateY(92deg) translateZ(28px);
+    box-shadow: 0 24px 36px rgba(0, 0, 0, 0.28);
+  }
+
+  75% {
+    transform: rotateY(138deg) translateZ(20px);
+    box-shadow: -8px 16px 24px rgba(0, 0, 0, 0.22);
   }
 
   100% {
     transform: rotateY(180deg) translateZ(0);
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
   }
+}
+
+@keyframes leaf-shade {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.85; }
 }
 
 /* Arrow controls placed to left/right of the book stage */
@@ -1032,7 +1186,6 @@ onBeforeUnmount(() => {
   align-items: flex-start;
   border: none;
   border-radius: 18px;
-  cursor: pointer;
   color: var(--color-journal-parchment-warm);
   text-align: left;
   transform-origin: left center;
@@ -1219,15 +1372,41 @@ onBeforeUnmount(() => {
     gap: var(--space-3);
   }
 
+  .journal-reader__stage-shell {
+    padding: 0 0.35rem;
+    gap: 0.25rem;
+  }
+
   .journal-bookstage {
-    --paper-gap: 8px;
-    padding: 12px;
+    --paper-gap: 6px;
+    padding: 10px;
+    min-height: auto;
+    border-radius: 22px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 238, 210, 0.08),
+      0 18px 32px rgba(0, 0, 0, 0.3);
   }
 
   .journal-bookstage__spine {
-    top: 12px;
-    bottom: 12px;
-    width: 22px;
+    top: 10px;
+    bottom: 10px;
+    width: 18px;
+  }
+
+  .journal-paper--left {
+    border-radius: 14px 8px 8px 16px;
+  }
+
+  .journal-paper--right {
+    border-radius: 8px 16px 16px 8px;
+  }
+
+  .journal-paper--leaf-face {
+    border-radius: 8px 16px 16px 8px;
+  }
+
+  .journal-leaf--back .journal-paper--leaf-face {
+    border-radius: 16px 8px 8px 16px;
   }
 
   .journal-paper--left::after,
@@ -1242,8 +1421,52 @@ onBeforeUnmount(() => {
     right: 16px;
   }
 
+  .journal-leaf {
+    top: 10px;
+    bottom: 10px;
+  }
+
+  .journal-leaf--next {
+    right: 10px;
+  }
+
+  .journal-leaf--back {
+    left: 10px;
+  }
+
   .journal-modal__button {
     width: 100%;
+  }
+
+  .journal-cover-stage {
+    perspective: 1600px;
+  }
+
+  .journal-cover {
+    padding: clamp(14px, 4vw, 22px);
+  }
+}
+
+@media (max-width: 420px) {
+  .journal-reader__stage-shell {
+    padding: 0 0.15rem;
+  }
+
+  .journal-nav__arrow {
+    width: 38px;
+    height: 38px;
+  }
+
+  .journal-bookstage {
+    --paper-gap: 4px;
+    padding: 8px;
+    border-radius: 18px;
+  }
+
+  .journal-bookstage__spine {
+    width: 14px;
+    top: 8px;
+    bottom: 8px;
   }
 }
 
@@ -1259,5 +1482,11 @@ onBeforeUnmount(() => {
     transition-duration: 1ms !important;
     animation-duration: 1ms !important;
   }
+}
+</style>
+
+<style>
+body:has(.journal-reader) {
+  overflow: hidden;
 }
 </style>

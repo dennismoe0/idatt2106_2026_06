@@ -84,7 +84,7 @@ export function splitTextIntoChunks(text, maxChars) {
  * block.units per page does not exceed capacity. A single block whose units
  * exceed capacity still lands alone on its own page (no splitting here).
  */
-export function packBlocks(blocks, capacity) {
+export function packBlocks(blocks, capacity, maxBlocksPerPage = 2) {
   if (!blocks.length) return [[]]
 
   const pages = []
@@ -93,7 +93,9 @@ export function packBlocks(blocks, capacity) {
 
   for (const block of blocks) {
     const blockUnits = block.units ?? 1
-    if (currentPage.length && usedUnits + blockUnits > capacity) {
+    const overUnits = currentPage.length && usedUnits + blockUnits > capacity
+    const overCount = currentPage.length >= maxBlocksPerPage
+    if (overUnits || overCount) {
       pages.push(currentPage)
       currentPage = []
       usedUnits = 0
@@ -138,6 +140,19 @@ export function buildTipBlocks(autoTip) {
       content: autoTip.content,
       createdAt: autoTip.createdAt,
       units: Math.min(11, 3 + estimateTextUnits(autoTip.content, 76))
+    }
+  ]
+}
+
+export function buildClueBlocks(autoClue) {
+  return [
+    {
+      key: `clue-${autoClue.id}`,
+      type: 'clue',
+      label: 'Spor',
+      content: autoClue.content,
+      createdAt: autoClue.createdAt,
+      units: Math.min(11, 3 + estimateTextUnits(autoClue.content, 76))
     }
   ]
 }
@@ -187,12 +202,17 @@ export function buildLevelPagesForGroup(stopOrder, group) {
     blocks.push(...buildTipBlocks(group.autoTip))
   }
 
-  // 2. User's own observations for this level
+  // 2. Auto-discovered clue from the stop, kept separate from the tip
+  if (group?.autoClue) {
+    blocks.push(...buildClueBlocks(group.autoClue))
+  }
+
+  // 3. User's own observations for this level
   for (const reflection of group?.reflections ?? []) {
     blocks.push(...buildReflectionBlocks(reflection))
   }
 
-  // 3. Empty state
+  // 4. Empty state
   if (!blocks.length) {
     blocks.push({
       key: `level-empty-${stopOrder}`,
