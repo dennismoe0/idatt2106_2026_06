@@ -368,7 +368,7 @@ const TUTORIAL_TEXTS = {
   },
   MARKETPLACE: {
     title: 'Avdekk svindel på nett',
-    instructions: 'Du vil se falske nettbutikker. Klikk på de delene som virker mistenkelige — domene, pris, betalingsvalg, kontaktinfo. Noen sider er helt trygge!'
+    instructions: 'Før hovedoppgavene trener du på egne øvingsbutikker med andre produkter. Klikk på feltene som virker mistenkelige — for eksempel domene, betalingsvalg og kontaktinfo.'
   },
   SOCIAL_MEDIA: {
     title: 'Tenk før du deler',
@@ -634,13 +634,17 @@ function buildMockTasks() {
         articles: [
           {
             headline: 'Trondheim kommune deler ut gratis nettbrett til alle elever',
+            ingress: 'Kommunen tester en begrenset digital satsing i noen bydeler.',
             body: 'Kommunen tester ny digital satsing i fire bydeler.',
-            source: 'Adresseavisen'
+            source: 'Adresseavisen',
+            date: '2026-01-14'
           },
           {
             headline: 'Forskere fant usynlig energi i skolemelk',
+            ingress: 'Artikkelen lover superkrefter, men viser ikke til seriøs forskning.',
             body: 'Artikkelen påstår at melk gir superkrefter etter klokken 19.',
-            source: 'nyheter24-ekte.no'
+            source: 'nyheter24-ekte.no',
+            date: '2026-01-14'
           }
         ]
       },

@@ -52,7 +52,7 @@
         </BaseButton>
       </form>
 
-      <RouterLink class="back-link" to="/login">Tilbake til innlogging</RouterLink>
+      <RouterLink class="back-link" to="/login">Tilbake til elevinnlogging</RouterLink>
     </section>
   </main>
 </template>

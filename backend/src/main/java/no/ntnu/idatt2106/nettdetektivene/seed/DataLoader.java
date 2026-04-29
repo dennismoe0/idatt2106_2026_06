@@ -97,47 +97,47 @@ public class DataLoader implements ApplicationRunner {
                         "",
                         "Hva er falske nyheter?",
                         "Nyhetsartikkel",
-                        "Falske nyheter er laget for å få deg til å tro på noe som ikke stemmer. De kan se ut som vanlige nyheter, men prøver ofte å få deg til å bli redd, sint eller supernysgjerrig så du klikker og deler uten å tenke deg om.",
+                        "Falske nyheter er innhold som ser ut som ekte nyheter, men som er laget for å påvirke deg mer enn å informere deg. Målet er ofte at du skal reagere raskt med følelser som frykt, sinne eller stress, slik at du klikker eller deler før du rekker å sjekke om informasjonen stemmer. Derfor er første steg alltid å stoppe opp og spørre: Hvem står bak dette, og kan påstanden bevises?",
                         new String[]{
-                            "SJOKK! ALLE SKOLER STENGES FØR KL. 12 - DEL NÅ! || Høres dramatisk ut, men betyr ikke at saken er ekte.",
-                            "\"En hemmelig kilde i rådhuset sier at alle allerede vet sannheten.\" || Dette er svakere enn når en skole, kommune eller avis sier hvem som faktisk står bak informasjonen."
+                            "SJOKK! ALLE SKOLER STENGES FØR KL. 12 - DEL NÅ! || Overskriften prøver å stresse deg til å dele med en gang i stedet for å sjekke fakta.",
+                            "\"En hemmelig kilde i rådhuset sier at alle allerede vet sannheten.\" || Uklare kilder gjør saken svak. Troverdige saker viser hvem som uttaler seg og hvor informasjonen kommer fra."
                         },
                         new String[]{
-                            "Ikke stol på en sak bare fordi overskriften ser viktig ut.",
-                            "Spør: Hvem sier dette, og hvordan vet de det?"
+                            "Sterke følelser er ikke det samme som sterke bevis.",
+                            "Før du tror på saken: sjekk avsender, kilde og om påstanden kan bekreftes."
                         }
                     ),
                     new Slide(
                         "",
                         "Hva bør du sjekke først?",
                         "Domenenavn",
-                        "Se først på hvem som har publisert saken. Ekte nyheter kommer ofte fra kjente steder som NRK.no, VG.no eller kommunen sin egen nettside. Nakne rare domenenavn kan være et tegn på at noen prøver å se seriøse ut uten å være det.",
+                        "Det første du bør sjekke er nettadressen (domenet) og hvem som faktisk har publisert saken. Falske sider prøver ofte å ligne på kjente medier med navn som ser troverdige ut ved første blikk, men domenet avslører dem. Se alltid på hele adressen, ikke bare logo, farger eller overskrift.",
                         new String[]{
-                            "Troverdig eksempel: nrk.no, vg.no, trondheim.kommune.no",
-                            "Mistenkelig eksempel: supernytt24.xyz, deldettenaa.blog, sannhet-nyheter-online.net"
+                            "Troverdig eksempel: nrk.no, vg.no, trondheim.kommune.no || Kjente avsendere har tydelig identitet og sporbare kanaler.",
+                            "Mistenkelig eksempel: supernytt24.xyz, deldettenaa.blog, sannhet-nyheter-online.net || Rare domener og sensasjonelle navn er vanlige faresignaler."
                         },
                         new String[]{
-                            "Sjekk alltid nettadressen, ikke bare logoen.",
-                            "Hvis domenet ser rart ut, bør du bli ekstra skeptisk."
+                            "Sjekk alltid hele URL-en, ikke bare hvordan siden ser ut.",
+                            "Hvis domenet virker rart eller ukjent, stopp og dobbeltsjekk før du deler."
                         }
                     ),
                     new Slide(
                         "",
                         "Hvordan kan du dobbeltsjekke?",
                         "Kildesjekk",
-                        "Hvis en sak er viktig og ekte, finnes den ofte flere steder. Søk opp samme påstand hos andre seriøse avsendere, eller gå til nettsiden til skolen, kommunen eller politiet hvis det er de saken handler om.",
+                        "Når en påstand er stor, bør du finne den igjen hos flere seriøse kilder. En ekte nyhet kan vanligvis bekreftes i offisielle kanaler, for eksempel hos skole, kommune, politi eller etablerte medier. Hvis bare én ukjent side skriver om noe veldig dramatisk, er det et tydelig varseltegn.",
                         new String[]{
-                            "Hvis noen sier at alle skoler stenger i morgen, sjekk skolens meldingstjeneste eller kommunen sin nettside.",
-                            "Hvis bare én ukjent side skriver om noe kjempestort, er det et tegn på at noe ikke stemmer."
+                            "Påstand: \"Alle skoler stenger i morgen\" || Sjekk skolens meldingstjeneste, kommunen sine nettsider eller andre kjente medier før du tror på det.",
+                            "Hvis bare én ukjent side omtaler en stor hendelse || Behandle saken som usikker til du finner uavhengig bekreftelse."
                         },
                         new String[]{
-                            "Store påstander trenger sterke bevis.",
-                            "Del først når du har sjekket at det stemmer."
+                            "Store påstander krever flere troverdige kilder.",
+                            "Del bare når du har sjekket at informasjonen faktisk stemmer."
                         }
                     ),
-                    new Quiz("q1", "Hva er det første du bør se etter i en nyhetsartikkel?", new String[]{"Domenet og kilden", "Fargen på overskriften", "Antall delinger"}, "Domenet og kilden"),
-                    new Quiz("q2", "Hva er et varseltegn i en overskrift?", new String[]{"Rolig og saklig språk", "Store bokstaver og skremmende ordvalg", "Kort og presis tekst"}, "Store bokstaver og skremmende ordvalg"),
-                    new Quiz("q3", "Hva bør du gjøre om du er usikker på en nyhet?", new String[]{"Dele den for å advare andre", "Ignorere den alltid", "Sjekke den på andre seriøse nettsteder"}, "Sjekke den på andre seriøse nettsteder")
+                    new Quiz("q1", "Hva kjennetegner ofte en falsk nyhet?", new String[]{"Den prøver å få deg til å reagere raskt med sterke følelser", "Den har alltid mange bilder", "Den er alltid veldig kort"}, "Den prøver å få deg til å reagere raskt med sterke følelser"),
+                    new Quiz("q2", "Hva bør du sjekke først når du ser en ny sak?", new String[]{"Domenet og hvem som publiserte saken", "Hvor mange som allerede har delt den", "Om overskriften har emojier"}, "Domenet og hvem som publiserte saken"),
+                    new Quiz("q3", "Hva gjør du hvis en stor påstand bare finnes på én ukjent side?", new String[]{"Del den raskt så andre blir advart", "Dobbeltsjekk hos seriøse kilder før du tror eller deler", "Stol på saken hvis den høres viktig ut"}, "Dobbeltsjekk hos seriøse kilder før du tror eller deler")
                 )
             ),
             learnTask(mailStop, 1, "Lær om phishing", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
@@ -279,50 +279,50 @@ public class DataLoader implements ApplicationRunner {
                     new Quiz("q3", "Hva er en passordfrase?", new String[]{"En rekke tilfeldige ord som danner et langt passord", "Et langt ord", "Passordet til telefonen"}, "En rekke tilfeldige ord som danner et langt passord")
                 )
             ),
-            learnTask(marketStop, 1, "Lær om nettsvindel", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
+            learnTask(marketStop, 1, "Lær om nettsvindel", "Les kortene og tren på å finne mistenkelige felt før du går videre.",
                 learnContentJson(
                     new Slide(
                         "",
-                        "Hvordan ser nettsvindel ut?",
-                        "En falsk nettbutikk prøver å få deg til å kjøpe noe raskt før du rekker å tenke deg om. Derfor bruker den ofte kjempestore rabatter og ord som \"kun i dag\" eller \"bare 2 igjen\".",
+                  "Hva trener du på i Markedsplassen?",
+                  "I Markedsplassen skal du klikke på feltene som faktisk er mistenkelige i en nettbutikk-mockup. Du trener på å lese informasjonen kritisk, ikke på å gjette ut fra design alene.",
                         new String[]{
-                            "Produktside: \"Vinterjakke før 2 499 kr - nå 199 kr - bare 2 igjen!\" er et klassisk lokketilbud.",
-                            "Banner: \"SALGET SLUTTER OM 10 MINUTTER\" som kommer tilbake hver gang du åpner siden, er et dårlig tegn."
+                    "Eksempel: Butikken gadget-garagen.shop selger trådløse ørepropper til ekstrem rabatt og ber deg betale raskt.",
+                    "Du vurderer felt som nettadresse, betaling, retur og kontaktinfo før du markerer noe."
                         },
                         new String[]{
-                            "Hvis tilbudet virker altfor godt, er det ofte fordi noe er galt.",
-                            "Svindlere prøver å få deg til å skynde deg."
+                    "Målet er å markere mistenkelige felt i selve nettbutikken.",
+                    "Se etter konkrete faresignaler, ikke bare en følelse av at noe er rart."
                         }
                     ),
                     new Slide(
                         "",
-                        "Hvilke røde flagg bør du se etter?",
-                        "Se på domenet, kontaktinformasjonen og betalingsmåten. Ekte butikker vil vanligvis vise hvem de er, hvordan du kan kontakte dem, og bruke normale betalingsløsninger.",
+                  "Hvilke varselsignaler går igjen?",
+                  "Se ekstra nøye på domene, betalingsmåte og kontaktinfo. Noen ganger er prisen normal, men betalingen utrygg. Andre ganger er kontaktfeltet det tydeligste problemet.",
                         new String[]{
-                            "Butikknavn: komplett.no og elkjop.no virker mer troverdige enn billig-ps5.cc eller supertilbud-now.xyz.",
-                            "Betaling: \"Send beløpet med gavekortkode\" eller \"betal til privat konto\" er mistenkelig."
+                    "På retrohub-deals.net kan betaling se vanlig ut, men kontaktfeltet mangler både e-post, adresse og organisasjonsnummer.",
+                    "På trendfunn-market.biz kan kontakt se grei ut, men butikken krever gavekort eller bankoverføring til privat konto."
                         },
                         new String[]{
-                            "Ukjent domene er et tegn du bør merke deg.",
-                            "Rare betalingsmåter er ofte et stort varselsignal."
+                    "Røde flagg kan variere fra oppgave til oppgave.",
+                    "Lav pris alene er ikke alltid nok til å markere et felt."
                         }
                     ),
                     new Slide(
                         "",
-                        "Hvordan handler du tryggere?",
-                        "Ta deg tid før du kjøper. Søk opp butikken, se om andre har erfaringer med den, og sjekk om kontaktinformasjonen faktisk ser ekte ut.",
+                  "Slik får du riktig i klikk-oppgaven",
+                  "For å få riktig må du markere alle mistenkelige felt og unngå ekstra klikk på felt som ikke er mistenkelige. Tenk gjennom hvert felt før du sender.",
                         new String[]{
-                            "Se etter telefonnummer, ekte e-post og organisasjonsnavn.",
-                            "Kortbetaling er tryggere enn gavekort fordi du lettere kan klage hvis noe går galt."
+                    "Hvis domene og kontaktinfo er mistenkelige, klikker du bare de to feltene.",
+                    "Hvis du i tillegg markerer returfeltet uten grunn, blir svaret feil."
                         },
                         new String[]{
-                            "Sjekk før du betaler.",
-                            "Det er lov å vente litt før du bestemmer deg."
+                    "Spør deg selv: Er dette feltet faktisk et varselsignal i denne oppgaven?",
+                    "Send først når du har både alle riktige og ingen ekstra markeringer."
                         }
                     ),
-                    new Quiz("q1", "Hva er et varseltegn på en useriøs nettbutikk?", new String[]{"De har mange produkter", "De krever betaling med gavekort", "De tilbyr gratis frakt"}, "De krever betaling med gavekort"),
-                    new Quiz("q2", "Hva gjør betaling med gavekort risikabelt?", new String[]{"Det er saktere", "Pengene er nesten umulige å spore og få tilbake", "Du får ikke kvittering"}, "Pengene er nesten umulige å spore og få tilbake"),
-                    new Quiz("q3", "Hva bør du gjøre om en nettbutikk virker mistenkelig?", new String[]{"Kjøp og håp det ordner seg", "Be venner handle der først", "Søk opp butikken og les anmeldelser"}, "Søk opp butikken og les anmeldelser")
+                new Quiz("q1", "Hva er målet i Markedsplassen-oppgaven?", new String[]{"Klikke på alle produkter med lav pris", "Klikke på feltene som virker mistenkelige", "Skrive en tekst om hvorfor butikken er falsk"}, "Klikke på feltene som virker mistenkelige"),
+                new Quiz("q2", "Hvilken påstand stemmer best?", new String[]{"Lav pris betyr alltid at feltet skal markeres", "Du må vurdere hvert felt i kontekst", "Hvis designet er fint, er butikken trygg"}, "Du må vurdere hvert felt i kontekst"),
+                new Quiz("q3", "Når blir svaret riktig i CLICK_SUSPICIOUS?", new String[]{"Når du markerer minst ett felt", "Når du markerer alle og bare de mistenkelige feltene", "Når du markerer de samme feltene som vennen din"}, "Når du markerer alle og bare de mistenkelige feltene")
                 )
             ),
             learnTask(socialStop, 1, "Lær om sosiale medier", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
@@ -384,6 +384,7 @@ public class DataLoader implements ApplicationRunner {
                       "articles": [
                         {
                           "headline": "Trondheim kommune holder skolene åpne etter nattens snøfall",
+                          "ingress": "Kommunen ber elever møte som vanlig, men beregne ekstra reisetid etter snøværet.",
                           "body": "Brøytemannskapene har jobbet gjennom natten, og kommunen opplyser at skolene følger vanlig timeplan torsdag morgen. Elever og foresatte blir bedt om å beregne ekstra tid og følge meldinger fra skolen dersom busser blir forsinket.",
                           "source": "Trondheim kommune",
                           "author": "Ingrid Solberg",
@@ -392,29 +393,33 @@ public class DataLoader implements ApplicationRunner {
                         },
                         {
                           "headline": "SJOKK: Regjeringen stenger ALLE skoler i Norge før lunsj på grunn av iskald luft",
-                          "body": "Ifølge SkoleRedning24 får alle elever fri allerede i dag, og flere lærere skal ha fått hemmelige SMS-er om å sende barna hjem. Ingen kommune eller skole har publisert noe om dette, men artikkelen hevder at vedtaket gjelder hele landet.",
-                          "source": "SkoleRedning24",
+                          "ingress": "Artikkelen hevder at et nasjonalt hastevedtak er tatt, men viser ikke til dokumenter eller navngitte kilder.",
+                          "body": "Saken påstår at alle elever må hjem før lunsj på grunn av ekstremkulde, og viser til en anonym beredskapskilde. Ingen departementer, fylker eller kommuner er sitert med navn, og det finnes ingen lenke til vedtak eller melding i offisielle kanaler.",
+                          "source": "ViktigeSkoleNytt24.xyz",
                           "author": "Admin",
                           "date": "2026-01-14",
                           "isReal": false
                         },
                         {
                           "headline": "Foreldre raser etter snøkaos, men eksperter advarer mot å stole på skjermbilder alene",
-                          "body": "Saken viser til flere delte skjermbilder av meldinger mellom foreldre, men oppgir ikke når de er sendt eller hvem som faktisk står bak dem. Artikkelen lenker til en side som ser ut som lokalavis, men ingen konkret skole eller kommune er sitert direkte.",
-                          "source": "Trondheimnytt.com",
+                          "ingress": "Saken viser til delte skjermbilder og sterke reaksjoner, men gir få muligheter for etterprøving.",
+                          "body": "Artikkelen viser til skjermbilder fra foreldrenettverk og en lokal ekspert, men oppgir verken fullt navn, tidspunkt eller hvilken skole uttalelsene gjelder. Den omtaler kommunen indirekte, men uten sitat eller lenke til faktisk melding.",
+                          "source": "TrondheimVarsel.blog",
                           "author": "Nyhetsdesk",
+                          "date": "2026-01-14",
                           "isReal": false
                         },
                         {
                           "headline": "Forskere: Ny snøspray over byen gjør at skolegårder blir helt isfrie på fem sekunder",
-                          "body": "En ukjent blogg hevder at kommunen har testet en hemmelig kjemispray som smelter all is med én gang og gjør skolegårder varme resten av vinteren. Påstanden viser ikke til forskning, navn på eksperter eller noen steder teknologien faktisk brukes.",
-                          "source": "Vintermirakel.blog",
+                          "ingress": "Bloggen påstår at en hemmelig spray løser hele vinterproblemet på sekunder.",
+                          "body": "Saken hevder at kommunen testet en ny spray natt til tirsdag, men oppgir ingen forskningsmiljøer, rapporter eller teststeder. Påstandene om varig effekt i minusgrader støttes ikke av målinger eller uttalelser fra fagpersoner.",
+                          "source": "VinterFakta.info",
                           "author": "Maks Nyhet",
                           "date": "2026-01-13",
                           "isReal": false
                         }
                       ],
-                      "explanation": "Den ekte saken viser til en kjent offentlig kilde og konkrete råd. De falske artiklene bruker dramatiske ord, uklare kilder eller påstander som ikke henger sammen med virkeligheten."
+                      "explanation": "Den ekte saken har tydelig avsender, konkret tiltak og etterprøvbar informasjon. De falske sakene mangler navngitte kilder, vedtak eller faglig dokumentasjon, selv når de høres aktuelle ut."
                     }
                     """
             ),
@@ -422,12 +427,13 @@ public class DataLoader implements ApplicationRunner {
                 newsStop,
                 3,
                 "Mobilforbud på buss",
-                "Les overskriftene som om de dukket opp i feeden din på vei hjem fra skolen.",
+                "Les overskriftene som i en vanlig feed, og se etter om saken har tydelige kilder og konkrete vedtak.",
                 """
                     {
                       "articles": [
                         {
                           "headline": "AtB tester stille sone på utvalgte bussavganger i rushtiden",
+                          "ingress": "Et begrenset prøveprosjekt skal undersøke om passasjerer ønsker roligere bussavganger.",
                           "body": "AtB opplyser at ordningen skal testes på tre avganger i to uker for å se om flere ønsker en roligere busstur. Tiltaket er frivillig og gjelder bare bakerst i bussen på de aktuelle rutene.",
                           "source": "AtB pressemelding",
                           "author": "Marius Heggli",
@@ -436,29 +442,33 @@ public class DataLoader implements ApplicationRunner {
                         },
                         {
                           "headline": "NÅ KOMMER MOBILBOT: 1500 kroner hvis du ser på TikTok på bussen",
-                          "body": "Flere innlegg hevder at kontrollører allerede deler ut bøter til ungdom som bruker mobil på buss til og fra skolen. Ingen viser til vedtak, dato eller noen offisiell melding fra AtB eller kommunen.",
-                          "source": "DelDetVidere24",
-                          "author": "Redaksjonen",
+                          "ingress": "Artikkelen viser til et internt notat om gebyr, men oppgir ikke hvor notatet kommer fra.",
+                          "body": "Saken påstår at mobilbot innføres etter vinterferien og at kontrollører skal skrive ut gebyr på stedet. Den viser til et internt notat uten dokumentnummer, dato eller navn på avsender, og ingen offisielle kanaler bekrefter at et slikt vedtak er vedtatt. Artikkelen ber i tillegg lesere dele saken videre med en gang.",
+                          "source": "RuteNytt Trondheim",
+                          "author": "Nyhetsvakt",
                           "date": "2026-02-03",
                           "isReal": false
                         },
                         {
-                          "headline": "AtB vurderer strengere mobilregler etter klager fra voksne reisende",
-                          "body": "Artikkelen hevder at transportselskapet vurderer å forby lyd og video på buss for alle under 18 år. Den viser til at 'flere passasjerer reagerer', men mangler dato for når vurderingen skal tas opp og oppgir bare en vag kilde omtalt som 'en person nær kollektivmiljøet'.",
-                          "source": "atb-nyheter.net",
+                          "headline": "AtB vurderer strengere mobilregler etter passasjerklager",
+                          "ingress": "Saken virker troverdig, men blander påstander om forslag, vedtak og gjennomføring.",
+                          "body": "Artikkelen skriver at AtB vurderer mobilfrie soner i hele bussen, men omtaler samtidig ordningen som om den allerede er besluttet. Den viser ikke til styresak, høringsdokument eller dato for behandling, og kildene omtales kun som ansatte i kollektivmiljøet.",
+                          "source": "Midtbyen Tidende",
                           "author": "Signe Dahl",
+                          "date": "2026-02-03",
                           "isReal": false
                         },
                         {
-                          "headline": "Ny sensor i taket skal automatisk blokkere mobilsignaler på alle busser i Midt-Norge",
-                          "body": "Artikkelen påstår at et nytt system kan lese skjermene til passasjerene og slå av internett for dem som ser på videoer. Den forklarer ikke hvordan dette skulle være lovlig eller teknisk mulig, og ingen seriøse kilder omtaler systemet.",
-                          "source": "framtidsbuss.info",
+                          "headline": "Pilotprosjekt: app skal automatisk dempe mobillyd på buss i rushtiden",
+                          "ingress": "Artikkelen beskriver en teknisk løsning, men gir ingen detaljer om personvern eller frivillighet.",
+                          "body": "Saken hevder at passasjerer blir med i et lydfilter automatisk når de går om bord. Den forklarer ikke hvordan samtykke innhentes, hvilke linjer som deltar eller hvem som er ansvarlig for løsningen. Ingen lenker til prosjektbeskrivelse eller personvernerklæring er oppgitt.",
+                          "source": "KollektivForum",
                           "author": "TekTeam",
                           "date": "2026-02-02",
                           "isReal": false
                         }
                       ],
-                      "explanation": "Den ekte saken er konkret og begrenset til en liten test. De falske artiklene mangler tydelige kilder, datoer eller beskriver løsninger som høres usannsynlige ut."
+                      "explanation": "Den ekte saken skiller tydelig mellom test og vedtak, med konkret omfang og rammer. De falske sakene mangler sporbar dokumentasjon og bruker uklare eller anonyme kilder, selv om de kan høres troverdige ut."
                     }
                     """
             ),
@@ -466,43 +476,48 @@ public class DataLoader implements ApplicationRunner {
                 newsStop,
                 4,
                 "Gratis spillvaluta",
-                "Fire saker lover ulike ting til spillere. Bare én tåler en kritisk sjekk.",
+                "Fire saker lover ting til spillere. Bare én har tydelig avsender, verifiserbare kilder og trygg fremgangsmåte.",
                 """
                     {
                       "articles": [
                         {
                           "headline": "Spillselskap advarer mot falske gavekort og gratis valuta-lenker",
-                          "body": "I en sikkerhetsmelding ber spillselskapet brukere ignorere sider som lover gratis valuta eller eksklusive skins mot innlogging. Selskapet minner om at all bonusvaluta deles ut inne i spillet eller på offisielle kampanjesider.",
-                          "source": "Spillselskapets sikkerhetsblogg",
+                          "ingress": "Selskapet minner spillere om at ekte kampanjer bare deles via offisielle kanaler.",
+                          "body": "I en sikkerhetsmelding ber spillselskapet brukere ignorere innlegg som lover gratis valuta mot innlogging eller deling av engangskoder. Meldingen viser til tidligere svindelforsøk og forklarer at kampanjer alltid publiseres i verifiserte kanaler og inne i spillets eget varslingssystem.",
+                          "source": "Spillstudioets statusside",
                           "author": "Security Team",
                           "date": "2026-03-08",
                           "isReal": true
                         },
                         {
-                          "headline": "HEMMELIG PÅSKEKODE gir alle norske barn 50 000 spillmynter i kveld",
-                          "body": "Saken lover at alle som logger inn før midnatt får gratis spillvaluta og sjeldne skins sendt direkte til kontoen. Kampanjen finnes ikke på spillets egne kanaler, og artikkelen prøver å presse leseren til å handle raskt.",
-                          "source": "GameBonusGratis.xyz",
-                          "author": "BonusNytt",
+                          "headline": "Nordisk turnering åpner for bonusvaluta til seere som kobler konto før finalen",
+                          "ingress": "Saken virker troverdig, men beskriver belønning uten å vise til offisielle turneringssider.",
+                          "body": "Artikkelen hevder at seere får bonusvaluta gjennom en partnerkampanje under finalen, men oppgir ikke hvilken arrangør som står bak eller hvor reglene finnes. For å delta må brukeren koble konto via en ekstern side, uten at spillselskapet er sitert direkte.",
+                          "source": "Nordic Esport Desk",
+                          "author": "LiveDesk",
                           "date": "2026-03-08",
                           "isReal": false
                         },
                         {
-                          "headline": "Kjent e-sportprofil sier nye bonusmynter kan hentes via ekstern partner",
-                          "body": "Saken viser til en partnerkampanje som skal være koblet til en stor turnering, men nevner verken hvilken turnering eller hvilken partner som står bak. Det finnes heller ingen dato eller offisiell lenke til spillselskapet, bare en oppfordring om å registrere seg raskt for å ikke gå glipp av tilbudet.",
-                          "source": "E-sportNorge24",
-                          "author": "LiveDesk",
+                          "headline": "Community-arrangør deler kode for gratis skins til nye spillere denne helgen",
+                          "ingress": "Saken bruker kjent miljøspråk, men blander fan-initiativ med påstått offisiell kampanje.",
+                          "body": "Innlegget sier at en community-arrangør deler ut kodepakker på vegne av studioet, men kampanjen finnes ikke i studioets nyheter eller sosiale kanaler. Teksten ber spillere registrere e-post og telefonnummer for å få forhåndstilgang til kodene, uten å forklare hvorfor opplysningene trengs.",
+                          "source": "Community Hub Norge",
+                          "author": "Aina Berg",
+                          "date": "2026-03-08",
                           "isReal": false
                         },
                         {
-                          "headline": "Skjult server i Sverige deler ut gratis skins hvis du oppgir passord og telefonnummer",
-                          "body": "En ukjent side hevder at en privat server samarbeider med spillet og kan fylle opp kontoer med premium-innhold på sekunder. Påstanden er umulig å sjekke, og siden ber om både passord, telefonnummer og engangskode.",
-                          "source": "UltraSkinDrop.net",
+                          "headline": "Supportstrøm lover kompensasjonspakker etter serverfeil - krever verifisering av konto",
+                          "ingress": "Saken ser hjelpsom ut, men krever innlogging i et skjema utenfor spillets egne systemer.",
+                          "body": "Artikkelen hevder at support deler ut kompensasjon etter ustabile servere, men ber brukere sende brukernavn, passord og engangskode i et eget verifiseringsskjema. Ingen offisiell supportside ber om slike opplysninger, og det finnes ingen referanse til saksnummer eller driftsmelding.",
+                          "source": "Supportkanalen LIVE",
                           "author": "AK Gamer",
                           "date": "2026-03-07",
                           "isReal": false
                         }
                       ],
-                      "explanation": "Den ekte saken advarer og viser til offisielle kanaler. De falske sakene lover urealistiske gevinster, bruker hastverk eller peker til uklare kampanjer uten sporbare kilder."
+                      "explanation": "Den ekte saken forklarer tydelig hvordan verifiserte kampanjer faktisk publiseres. De falske sakene mangler offisielle referanser, ber om unødvendig informasjon eller leder brukeren utenfor kjente kanaler."
                     }
                     """
             ),
@@ -529,10 +544,12 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("sender", "sender", "kundevarsling@dnb-kundeservice.com", true, "Avsenderen ser ekte ut ved første blikk, men domenet er ikke dnb.no."),
                     new Clue("link1", "link", "dnb-kontroll.com/bekreft", true, "Lenken peker til et annet domene enn banken sin offisielle nettside."),
                     new Clue("urgency", "text", "innen 30 minutter", true, "Svindlere bruker tidspress for å få deg til å klikke før du rekker å sjekke."),
+                    new Clue("greeting", "text", "Hei Oliver,", false, "En personlig hilsen kan virke troverdig, men er ikke nok alene. Sjekk alltid avsenderadresse og lenke."),
+                    new Clue("amount", "text", "4 890 kr", false, "Beløpet alene beviser ikke at e-posten er falsk. Det er kombinasjonen av feil domene, lenke og tidspress som avslører svindelen."),
+                    new Clue("merchant", "text", "Steam Market", false, "Navnet på en kjent tjeneste kan brukes i både ekte og falske varsler. Ikke vurder tjenesten alene."),
+                    new Clue("signature", "text", "DNB Kundeservice", false, "Navn og signatur kan kopieres. De blir først nyttige når domenet og lenken også stemmer."),
                     new Clue("bankid", "text", "logge inn med BankID", true, "Phishing prøver ofte å få deg til å oppgi innlogging eller BankID på en falsk side."),
                     new Clue("threat", "text", "kortet og kontoen din bli midlertidig låst", true, "Trusler om sperring eller låsing brukes for å skape panikk."),
-                    new Clue("greeting", "text", "Hei Oliver,", false, "At meldingen bruker navnet ditt betyr ikke at den er ekte. Navn kan være lett å finne eller gjette."),
-                    new Clue("merchant", "text", "Steam Market", false, "Et kjent navn eller sted i meldingen er ikke i seg selv bevis på svindel. Det er avsender, lenke og presset som avslører mest her."),
                     new Clue("logo", "branding", "DNB Kundeservice", false, "Logo og avsendernavn alene er ikke nok. Svindlere kopierer ofte kjente merkevarer for å se troverdige ut.")
                 ),
                 "E-posten ser profesjonell ut, men avsenderen og lenken er falske. Tidspresset er laget for å stresse deg til å gi fra deg BankID-opplysninger."
@@ -561,11 +578,16 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("sender", "sender", "varsling@posten-levering.net", true, "Adressen ligner på Posten, men bruker ikke det offisielle domenet posten.no."),
                     new Clue("link1", "link", "posten-oppdatering.net/betaling", true, "Betalingslenken går til en side som ikke tilhører Posten."),
                     new Clue("urgency", "text", "Betal i dag", true, "Kunstig hastverk er et vanlig grep i phishing."),
+                    new Clue("delivery_place", "text", "utleveringsstedet", false, "Et vanlig leveringsord er ikke mistenkelig i seg selv. Det viktige er hvor lenken peker."),
+                    new Clue("fee", "text", "19 kr", false, "Et lite beløp er ikke farlig i seg selv. Svindlere bruker det fordi det får betalingen til å virke ufarlig."),
+                    new Clue("return_sender", "text", "sendt i retur til avsender", false, "Retur til avsender kan skje i ekte pakkemeldinger også. Se etter feil domene og betalingslenke."),
+                    new Clue("signature", "text", "Hilsen Posten", false, "En vanlig signatur kan kopieres og er ikke nok til å bevise at e-posten er ekte."),
                     new Clue("deadline", "text", "innen kl. 23.00", true, "En kort tidsfrist er laget for å få deg til å reagere før du tenker deg om."),
                     new Clue("card", "text", "Ha bankkort klart", true, "Meldingen prøver å få deg klar til å oppgi betalingsinformasjon på en ukjent side."),
                     new Clue("greeting", "text", "Hei kunde!", true, "En veldig generell hilsen kan være et tegn på at meldingen er sendt ut til mange uten å vite hvem du er."),
                     new Clue("delivery", "text", "utleveringsstedet", false, "At meldingen nevner utleveringsstedet er ganske vanlig i ekte pakkemeldinger. Det er ikke det som avslører svindelen her."),
                     new Clue("sender_name", "sender_name", "Posten", false, "Avsendernavnet kan se riktig ut selv når selve e-postadressen er falsk.")
+
                 ),
                 List.of("sender", "link1", "urgency", "deadline", "card", "greeting"),
                 "Dette ligner på en ekte pakkemelding, men både avsender og lenke er feil. Det lille gebyret og tidspresset er klassiske phishing-grep."
@@ -595,12 +617,15 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("sender", "sender", "it-support@skole-login.com", true, "Skolen ville brukt sitt eget domene, ikke skole-login.com."),
                     new Clue("link1", "link", "skole-login.com/verify", true, "Lenken leder til et ukjent domene som kan stjele skoleinnloggingen din."),
                     new Clue("urgency", "text", "før kl. 14.00 i dag", true, "Tidspress gjør det lettere å lure elever til å handle raskt."),
+                    new Clue("greeting_generic", "text", "Hei,", false, "En vanlig hilsen er ikke i seg selv et tegn på svindel. Du må se på domenet og lenken også."),
+                    new Clue("failed_attempts", "text", "flere feilforsøk", false, "Feilforsøk kan være en ekte grunn til et varsel. Her er problemet at e-posten sender deg til et ukjent domene."),
+                    new Clue("school_tools", "text", "Teams, Canvas og skolemail", false, "Kjente skoletjenester kan nevnes i ekte meldinger også. Det er lenken og avsenderdomenet som avgjør her."),
+                    new Clue("signature_role", "text", "IT-support", false, "Signaturen alene forteller ikke om meldingen er ekte. Svindlere kan skrive samme signatur som skolen."),
                     new Clue("password", "text", "Bruk skolepassordet ditt på nytt", true, "Det er mistenkelig når en e-post ber deg skrive inn passordet ditt via en lenke."),
                     new Clue("deactivated", "text", "kontoen blir deaktivert automatisk", true, "Trussel om å miste tilgang brukes for å stresse deg til å handle raskt."),
                     new Clue("apps", "text", "Du kan ikke bruke vanlige skoleapper igjen før dette er gjort.", true, "Meldingen prøver å skremme deg med konsekvenser for å få deg til å klikke."),
                     new Clue("greeting", "text", "Hei elev,", true, "En generell hilsen i stedet for navnet ditt kan være et tegn på at meldingen er masseutsendt phishing."),
-                    new Clue("services", "text", "Teams, Canvas og skolemail", false, "At meldingen nevner ekte tjenester du bruker gjør den ikke automatisk farlig. Det avgjørende er det falske domenet og presset om å logge inn."),
-                    new Clue("signature", "text", "Mvh", false, "En vanlig avslutning gjør ikke meldingen trygg. Du må fortsatt sjekke avsender og lenke.")
+                    new Clue("signature_close", "text", "Mvh", false, "En vanlig avslutning gjør ikke meldingen trygg. Du må fortsatt sjekke avsender og lenke.")
                 ),
                 "Meldingen ser ut som en vanlig IT-beskjed, men domenet er feil og haster unødvendig. Slike e-poster bør alltid sjekkes i skolens offisielle kanaler før du klikker."
             ),
@@ -741,6 +766,7 @@ public class DataLoader implements ApplicationRunner {
                   "siteName": "sneaker-blitz.shop",
                   "question": "Klikk på de delene du synes er mistenkelige.",
                   "mockup": {
+                    "productImageUrl": "/marketplace/air-max-270.png",
                     "headline": "Nike Air Max — KUN I DAG!",
                     "tagline": "Salg slutter om 2 timer. Kun noen få igjen!",
                     "productName": "Nike Air Max 270",
@@ -769,6 +795,7 @@ public class DataLoader implements ApplicationRunner {
                   "siteName": "billig-elektronikk.cc",
                   "question": "Klikk på de delene du synes er mistenkelige.",
                   "mockup": {
+                    "productImageUrl": "/marketplace/playstation-5.png",
                     "headline": "PlayStation 5 — PÅ LAGER NÅ!",
                     "tagline": "Rask levering, super pris!",
                     "productName": "PlayStation 5",
@@ -797,6 +824,7 @@ public class DataLoader implements ApplicationRunner {
                   "siteName": "streetwear-fast.net",
                   "question": "Klikk på de delene du synes er mistenkelige.",
                   "mockup": {
+                    "productImageUrl": "/marketplace/urban-storm-jacket.png",
                     "headline": "Streetwear-jakke til spesialpris",
                     "tagline": "Midlertidig kampanje. Begrenset antall.",
                     "productName": "Urban Storm Jacket",

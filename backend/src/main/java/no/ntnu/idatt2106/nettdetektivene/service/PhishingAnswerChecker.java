@@ -13,8 +13,8 @@ public class PhishingAnswerChecker {
     /**
      * Returns true only when the submitted answer matches the required clues exactly.
      * Supports two correctAnswer formats:
-     *  - New:  { "clues": ["id1", "id2"] } — checked against submitted flaggedClueIds
-     *  - Old:  { "action": "REPORT" }      — checked against submitted action (backward compat)
+     *  - New:  { "correctClueIds": ["id1", "id2"] } — checked against submitted flaggedClueIds
+     *  - Old:  { "action": "REPORT" }                — checked against submitted action (backward compat)
      */
     public static boolean check(JsonNode correctAnswer, Map<String, Object> answer) {
         if (correctAnswer == null || answer == null) return false;
