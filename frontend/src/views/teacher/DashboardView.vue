@@ -38,9 +38,9 @@
             </router-link>
           </li>
           <li>
-            <a href="#" class="nav-link">
+            <router-link to="/teacher/settings" class="nav-link">
               <span class="nav-icon">⚙️</span> Innstillinger
-            </a>
+            </router-link>
           </li>
         </ul>
       </nav>
