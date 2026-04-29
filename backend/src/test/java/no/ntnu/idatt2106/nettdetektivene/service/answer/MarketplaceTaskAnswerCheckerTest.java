@@ -1,6 +1,7 @@
 package no.ntnu.idatt2106.nettdetektivene.service.answer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.ntnu.idatt2106.nettdetektivene.entity.Task;
 import no.ntnu.idatt2106.nettdetektivene.entity.TaskType;
 import org.junit.jupiter.api.Test;
 
@@ -8,11 +9,13 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class MarketplaceTaskAnswerCheckerTest {
 
-    private final MarketplaceTaskAnswerChecker checker = new MarketplaceTaskAnswerChecker();
     private final ObjectMapper mapper = new ObjectMapper();
+    private final MarketplaceTaskAnswerChecker checker = new MarketplaceTaskAnswerChecker(mapper);
 
     @Test
     void supportedType_isMarketplace() {
@@ -61,6 +64,36 @@ class MarketplaceTaskAnswerCheckerTest {
         var correct = mapper.readTree("{\"correctElementIds\": []}");
         var answer  = Map.<String, Object>of("flaggedElementIds", List.of("domain"));
         assertThat(checker.isCorrect(null, correct, answer)).isFalse();
+    }
+
+    @Test
+    void clickSuspicious_staleEmptyCorrect_fallsBackToContentJson_correctFlags() throws Exception {
+        // Simulates stale DB: correctAnswerJson has empty correctElementIds,
+        // but contentJson has isSuspicious: true on "domain" and "payment"
+        var correct = mapper.readTree("{\"correctElementIds\": []}");
+        var answer  = Map.<String, Object>of("flaggedElementIds", List.of("domain", "payment"));
+        Task task = mock(Task.class);
+        when(task.getContentJson()).thenReturn("""
+            {"elements": [
+              {"id": "domain",  "isSuspicious": true},
+              {"id": "payment", "isSuspicious": true},
+              {"id": "price",   "isSuspicious": false}
+            ]}""");
+        assertThat(checker.isCorrect(task, correct, answer)).isTrue();
+    }
+
+    @Test
+    void clickSuspicious_staleEmptyCorrect_nothingFlagged_fails() throws Exception {
+        // "Ingenting mistenkelig" when there are actually suspicious items
+        var correct = mapper.readTree("{\"correctElementIds\": []}");
+        var answer  = Map.<String, Object>of("flaggedElementIds", List.of());
+        Task task = mock(Task.class);
+        when(task.getContentJson()).thenReturn("""
+            {"elements": [
+              {"id": "domain",  "isSuspicious": true},
+              {"id": "payment", "isSuspicious": true}
+            ]}""");
+        assertThat(checker.isCorrect(task, correct, answer)).isFalse();
     }
 
     @Test

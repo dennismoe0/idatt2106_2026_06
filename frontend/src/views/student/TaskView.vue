@@ -368,7 +368,7 @@ const TUTORIAL_TEXTS = {
   },
   MARKETPLACE: {
     title: 'Avdekk svindel på nett',
-    instructions: 'Du vil se falske nettbutikker. Klikk på de delene som virker mistenkelige — domene, pris, betalingsvalg, kontaktinfo. Noen sider er helt trygge!'
+    instructions: 'Før hovedoppgavene trener du på egne øvingsbutikker med andre produkter. Klikk på feltene som virker mistenkelige — for eksempel domene, betalingsvalg og kontaktinfo.'
   },
   SOCIAL_MEDIA: {
     title: 'Tenk før du deler',

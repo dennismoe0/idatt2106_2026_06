@@ -90,9 +90,9 @@ class GameServiceTest {
                 new LearningTaskAnswerChecker(),
                 new PhishingEmailTaskAnswerChecker(),
                 new AiPhotoTaskAnswerChecker(),
+                new MarketplaceTaskAnswerChecker(new ObjectMapper()),
                 new ClueRiddleTaskAnswerChecker(),
-                new MarketplaceTaskAnswerChecker(),
-                new PasswordTaskAnswerChecker(new ObjectMapper(), new PasswordStrengthEvaluator()),
+                new PasswordTaskAnswerChecker(new ObjectMapper(), new PasswordStrengthEvaluator()),   
                 new SocialMediaTaskAnswerChecker()
             )
         );
