@@ -1,10 +1,12 @@
 package no.ntnu.idatt2106.nettdetektivene.seed;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.JsonNode;
+import no.ntnu.idatt2106.nettdetektivene.entity.Medal;
 import no.ntnu.idatt2106.nettdetektivene.entity.Stop;
 import no.ntnu.idatt2106.nettdetektivene.entity.Task;
+import no.ntnu.idatt2106.nettdetektivene.entity.TaskType;
 import no.ntnu.idatt2106.nettdetektivene.repository.MedalRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StopRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
@@ -14,6 +16,7 @@ import org.springframework.boot.DefaultApplicationArguments;
 
 import java.util.List;
 import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -66,8 +69,8 @@ class DataLoaderTest {
 
         loader.run(new DefaultApplicationArguments());
 
-        ArgumentCaptor<List<Stop>> stopsCaptor = ArgumentCaptor.forClass(List.class);
-        ArgumentCaptor<List<Task>> tasksCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<Stop>> stopsCaptor = listCaptor();
+        ArgumentCaptor<List<Task>> tasksCaptor = listCaptor();
 
         org.mockito.Mockito.verify(stopRepository).saveAll(stopsCaptor.capture());
         org.mockito.Mockito.verify(taskRepository).saveAll(tasksCaptor.capture());
@@ -180,6 +183,22 @@ class DataLoaderTest {
     }
 
     @Test
+    void run_seedsPasswordBuilderTaskUsesNeutralNumberOptions() throws Exception {
+        List<Task> tasks = seededTasks();
+
+        Task builderTask = tasks.stream()
+            .filter(task -> "PASSWORD".equals(task.getTaskType().name()))
+            .filter(task -> parseJson(task.getContentJson()).path("type").asText().equals("BUILDER"))
+            .findFirst()
+            .orElseThrow();
+
+        ArrayNode numbers = (ArrayNode) parseJson(builderTask.getContentJson()).path("numbers");
+        assertThat(numbers).extracting(JsonNode::asText)
+            .contains("42")
+            .doesNotContain("420");
+    }
+
+    @Test
     void run_seedsPasswordBankWithThreePasswordTasksAndFinalClueRiddle() throws Exception {
         List<Task> tasks = seededTasks();
 
@@ -217,14 +236,13 @@ class DataLoaderTest {
 
         assertThat(passwordImprovementTask.getTitle()).isEqualTo("Gjør passordet bedre");
         assertThat(content.path("question").asText())
-            .contains("Hei").contains("Hvilken versjon er best?");
-        assertThat(content.path("options").get(1).path("value").asText()).contains("H@iP").contains("021");
+            .isEqualTo("Noen har prøvd å gjøre passordet 'HeiPåDeg' sterkere. Hvilken versjon er best?");
+        assertThat(content.path("options").get(1).path("value").asText()).isEqualTo("H@iPÅD4g!021");
         assertThat(answer.path("selected").asText()).isEqualTo("b");
         assertThat(content.path("explanation").asText())
-            .contains("den beste varianten")
-            .contains("små bokstaver")
-            .doesNotContain("Ã")
-            .contains("gjette");
+            .contains("mindre personlig")
+            .contains("mer tilfeldig")
+            .doesNotContain("Ã");
     }
 
     @Test
@@ -265,7 +283,7 @@ class DataLoaderTest {
         order2.setId(102L);
         order2.setStop(passwordStop);
         order2.setOrderIndex(2);
-        order2.setTaskType(no.ntnu.idatt2106.nettdetektivene.entity.TaskType.PASSWORD);
+        order2.setTaskType(TaskType.PASSWORD);
         order2.setTitle("Velg det tryggeste passordet");
         order2.setCorrectAnswerJson("{\"selected\":\"legacy\"}");
         order2.setContentJson("{\"type\":\"CHOICE\",\"question\":\"old\"}");
@@ -274,8 +292,8 @@ class DataLoaderTest {
         order3.setId(103L);
         order3.setStop(passwordStop);
         order3.setOrderIndex(3);
-        order3.setTaskType(no.ntnu.idatt2106.nettdetektivene.entity.TaskType.PASSWORD);
-        order3.setTitle("GjÃ¸r passordet bedre");
+        order3.setTaskType(TaskType.PASSWORD);
+        order3.setTitle("Gjør passordet bedre");
         order3.setCorrectAnswerJson("{\"selected\":\"legacy\"}");
         order3.setContentJson("{\"type\":\"CHOICE\",\"question\":\"old\"}");
 
@@ -291,7 +309,7 @@ class DataLoaderTest {
 
         loader.run(new DefaultApplicationArguments());
 
-        ArgumentCaptor<List<Task>> tasksCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<Task>> tasksCaptor = listCaptor();
         org.mockito.Mockito.verify(taskRepository).saveAll(tasksCaptor.capture());
 
         Map<Integer, Task> passwordTasksByOrder = tasksCaptor.getValue().stream()
@@ -303,6 +321,92 @@ class DataLoaderTest {
         assertThat(passwordTasksByOrder.get(3).getCorrectAnswerJson()).isEqualTo(expectedAnswersByOrder.get(3));
         assertThat(passwordTasksByOrder.get(2).getId()).isEqualTo(102L);
         assertThat(passwordTasksByOrder.get(3).getId()).isEqualTo(103L);
+    }
+
+    @Test
+    void run_updatesExistingSeededStopsWhenDatabaseAlreadyContainsStops() throws Exception {
+        StopRepository stopRepository = mock(StopRepository.class);
+        TaskRepository taskRepository = mock(TaskRepository.class);
+        MedalRepository medalRepository = mock(MedalRepository.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        DataLoader loader = new DataLoader(stopRepository, taskRepository, medalRepository, objectMapper);
+
+        Stop passwordStop = new Stop();
+        passwordStop.setId(6L);
+        passwordStop.setName("Old Password Stop");
+        passwordStop.setDescription("old");
+        passwordStop.setOrderIndex(6);
+        passwordStop.setTheme("OLD");
+        passwordStop.setFinalBoss(true);
+
+        when(stopRepository.count()).thenReturn(1L);
+        when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(passwordStop));
+        when(stopRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(taskRepository.count()).thenReturn(0L);
+        when(taskRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(medalRepository.count()).thenReturn(0L);
+        when(medalRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        loader.run(new DefaultApplicationArguments());
+
+        ArgumentCaptor<List<Stop>> stopsCaptor = listCaptor();
+        org.mockito.Mockito.verify(stopRepository).saveAll(stopsCaptor.capture());
+
+        Stop savedPasswordStop = stopsCaptor.getValue().stream()
+            .filter(stop -> stop.getOrderIndex() == 6)
+            .findFirst()
+            .orElseThrow();
+
+        assertThat(savedPasswordStop.getId()).isEqualTo(6L);
+        assertThat(savedPasswordStop.getName()).isEqualTo("Passordbanken");
+        assertThat(savedPasswordStop.getTheme()).isEqualTo("PASSWORD");
+        assertThat(savedPasswordStop.isFinalBoss()).isFalse();
+    }
+
+    @Test
+    void run_updatesExistingSeededMedalsWhenDatabaseAlreadyContainsMedals() throws Exception {
+        StopRepository stopRepository = mock(StopRepository.class);
+        TaskRepository taskRepository = mock(TaskRepository.class);
+        MedalRepository medalRepository = mock(MedalRepository.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        DataLoader loader = new DataLoader(stopRepository, taskRepository, medalRepository, objectMapper);
+
+        Stop passwordStop = new Stop();
+        passwordStop.setId(6L);
+        passwordStop.setName("Passordbanken");
+        passwordStop.setOrderIndex(6);
+        passwordStop.setTheme("PASSWORD");
+
+        Medal existingMedal = new Medal();
+        existingMedal.setId(16L);
+        existingMedal.setName("Passordvokter");
+        existingMedal.setDescription("old");
+        existingMedal.setImageUrl("/old.png");
+        existingMedal.setStop(passwordStop);
+
+        when(stopRepository.count()).thenReturn(1L);
+        when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(passwordStop));
+        when(stopRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(taskRepository.count()).thenReturn(0L);
+        when(taskRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(medalRepository.count()).thenReturn(1L);
+        when(medalRepository.findAll()).thenReturn(List.of(existingMedal));
+        when(medalRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        loader.run(new DefaultApplicationArguments());
+
+        ArgumentCaptor<List<Medal>> medalsCaptor = listCaptor();
+        org.mockito.Mockito.verify(medalRepository).saveAll(medalsCaptor.capture());
+
+        Medal savedPasswordMedal = medalsCaptor.getValue().stream()
+            .filter(medal -> "Passordvokter".equals(medal.getName()))
+            .findFirst()
+            .orElseThrow();
+
+        assertThat(savedPasswordMedal.getId()).isEqualTo(16L);
+        assertThat(savedPasswordMedal.getDescription()).isEqualTo("Fullfør Passordbanken.");
+        assertThat(savedPasswordMedal.getImageUrl()).isEqualTo("/medals/stop-6.png");
+        assertThat(savedPasswordMedal.getStop().getOrderIndex()).isEqualTo(6);
     }
 
     private List<Task> seededTasks() throws Exception {
@@ -319,7 +423,7 @@ class DataLoaderTest {
 
         loader.run(new DefaultApplicationArguments());
 
-        ArgumentCaptor<List<Task>> tasksCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<Task>> tasksCaptor = listCaptor();
         org.mockito.Mockito.verify(taskRepository).saveAll(tasksCaptor.capture());
         return tasksCaptor.getValue();
     }
@@ -341,5 +445,10 @@ class DataLoaderTest {
             }
         }
         return -1;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> ArgumentCaptor<List<T>> listCaptor() {
+        return ArgumentCaptor.forClass((Class<List<T>>) (Class<?>) List.class);
     }
 }
