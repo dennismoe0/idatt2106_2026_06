@@ -194,8 +194,8 @@ class DataLoaderTest {
 
         ArrayNode numbers = (ArrayNode) parseJson(builderTask.getContentJson()).path("numbers");
         assertThat(numbers).extracting(JsonNode::asText)
-            .contains("42")
-            .doesNotContain("420");
+            .contains("67")
+            .doesNotContain("7");
     }
 
     @Test
