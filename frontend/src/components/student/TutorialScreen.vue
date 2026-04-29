@@ -42,12 +42,15 @@ const avatarStore = useAvatarStore()
   justify-content: center;
   align-items: flex-start;
   padding: var(--space-4);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .tutorial__card {
   transform: rotate(var(--card-rotate, 0deg));
-  max-width: 560px;
-  width: 100%;
+  width: min(100%, 560px);
+  max-width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
