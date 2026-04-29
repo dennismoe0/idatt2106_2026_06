@@ -47,32 +47,32 @@ public class DataLoader implements ApplicationRunner {
                  "Noen prøver å spre kaos etter at penger som skulle gå til den nye idrettsparken plutselig forsvant fra ordførerens prosjektkonto. Nå dukker det opp dramatiske artikler som peker i alle retninger, og folk i byen begynner å skylde på feil personer.\n\nHvis vi skal finne ut hva som faktisk skjedde med ordføreren og pengene, må vi først lære å skille ekte nyheter fra falske. Klarer du å stoppe løgnene før de blir til \"sannheten\" alle tror på?",
                  "FAKE_NEWS", 1, false,
                  "Falske nyheter bruker gjerne skremmende overskrifter og anonyme kilder. Sjekk alltid hvem som har skrevet saken: er nettadressen til et kjent mediehus? Søk opp saken på andre seriøse nettsteder for å se om historien stemmer. Overdrevne påstander uten dokumentasjon er et varseltegn.",
-                 "Spor: Tyven la ut en falsk nyhet som prøvde å peke mot Xoo Inn Cafe. Artikkelen brukte sjokkord, ukjent kilde og hastedeling."),
+                 "Basser Gravling var ikke aktiv på noen systemer da nyheten ble publisert."),
             stop("Fotografen",
                  "Nå hevder flere at de har funnet \"bevisbildet\" som viser hvem som sto ved rådhuset den kvelden pengene forsvant. Problemet er at bildet som deles kan være manipulert, eller til og med laget av KI.\n\nHvis vi skal komme nærmere tyven, må vi vite om bildet er ekte eller bare et nytt forsøk på å villede etterforskningen. Dette oppdraget handler om å lære å se forskjell på ekte spor og falske bevis.",
                  "AI_PHOTO", 2, false,
                  "Bilder kan manipuleres og AI kan lage realistiske falske bilder. Se etter unaturlige detaljer: rare fingre, jevne bakgrunner og uskarp tekst er vanlige feil. Du kan bruke omvendt bildesøk til å sjekke om et bilde er tatt ut av en helt annen sammenheng enn det påstår.",
-                 "Spor: Det troverdige bildet viser at en innlogging skjedde fra en PC ved disken på Xoo Inn Cafe."),
+                 "Hoppesprett var på cafeen, men hun var ikke aktiv på nettet. Hun var på cafeen med venner."),
             stop("Postkontoret",
                  "Et nytt spor har dukket opp: noen i kommunen fikk en e-post som så helt ekte ut, klikket på lenken og mistet kontroll over kontoen sin. Det kan være akkurat slik tyven kom seg inn i systemene rundt ordførerens prosjekt.\n\nFor å komme videre i saken må vi forstå hvordan phishing faktisk fungerer. Hvis du lærer å avsløre falske e-poster, kan du finne ut hvordan tyven åpnet døren innenfra.",
                  "PHISHING_EMAIL", 3, false,
                  "Phishing-e-poster later som de er fra banker, skoler eller kjente selskaper for å lure deg til å gi fra deg passord eller penger. Se etter skrivefeil, ukjente avsenderadresser og lenker der nettadressen ikke stemmer med avsenderen. En ekte avsender ber aldri om passord eller betalingsinformasjon via e-post.",
-                 "Spor: Phishing-lenken brukte feil domene, og loggene viser at den ble åpnet fra nettverket til Xoo Inn Cafe."),
+                 "Ulvan Bites har ikke tilkobling til Dyr og Frosker AS. Han er usannsynlig tyven."),
             stop("Markedsplassen",
                  "Et nytt spor peker mot en falsk nettbutikk og et domene registrert nær Bytorget. Det ser ut som tyven brukte svindelsider for å samle inn penger og informasjon, kanskje som en del av planen rundt pengene som forsvant.\n\nFor å koble svindelen til hovedsaken må du lære hvordan falske nettbutikker avsløres. Hvis du finner hva som er galt med sidene, kan vi koble sporene nærmere personen bak hele planen.",
                  "MARKETPLACE", 4, false,
                  "Svindel på nett bruker priser som er for gode til å være sanne, krever betaling på forhånd og har vage eller kopierte produktbeskrivelser. Sjekk alltid selgerprofilen og les tilbakemeldinger fra andre kjøpere. Betal aldri med gavekort eller kryptovaluta — det er nesten umulig å spore.",
-                 "Spor: Den falske nettbutikken ble registrert fra IP-adressen til Xoo Inn Cafe kl. 21:14."),
+                 "Pondus Grisling har ikke tilgang til Dyr og Frosker AS sitt lokale i Kjøttmeisgata, og han var live uten pause mens nettbutikken ble laget."),
             stop("Den sosiale møteplassen",
                  "Nå vet vi at noen også har brukt falske kontoer for å kontakte elever og spre rykter om saken. Målet virker å være å få folk til å dele feil informasjon, peke mot feil mistenkte og holde den ekte tyven skjult litt lenger.\n\nDerfor må du lære hvordan manipulasjon i sosiale medier ser ut. Hvis du avslører de falske kontoene og ryktene, får vi det siste sporet vi trenger før konfrontasjonen med tyven.",
                  "SOCIAL_MEDIA", 5, false,
                  "Sosiale medier viser deg mest det du allerede er enig i, noe som kan gjøre det vanskelig å se helhetsbildet. Fremmede som tar kontakt og raskt ber om personlig informasjon kan ha skjulte hensikter. Del aldri telefonnummer, adresse, passord eller bilder du ikke vil at alle skal se.",
-                 "Spor: Den falske kontoen ble opprettet med engangs-epost fra Xoo Inn Cafe sitt gjestenett."),
+                 "Millie Mus og Snikrev Revesen er våre to hovedmistenkte."),
             stop("Passordbanken",
                  "Etterforskerne tror nå at tyven ikke bare lurte folk, men også brukte stjålne innlogginger for å bevege seg videre i systemene. Noen brukte svake passord, og det ga tyven en enklere vei mot ordførerens prosjektkonto.\n\nSkal vi forstå hvordan innbruddet skjedde, må vi lære hva som gjør et passord lett å knekke og hva som faktisk beskytter en konto. Jo bedre du blir her, jo nærmere kommer vi hvordan tyven jobbet.",
                  "PASSWORD", 6, false,
                  "Et sterkt passord er langt, tilfeldig og unikt for hver konto du bruker. En rekke tilfeldige ord er lettere å huske og vanskeligere å knekke enn korte passord med spesialtegn. Del aldri passordet ditt med andre, og bruk aldri samme passord på flere nettsteder.",
-                 "Spor: Reservekontoen brukte passordet XooInnAdmin2019, som peker mot noen med admin-kobling til Xoo Inn Cafe."),
+                 "Innloggingstidspunktet passer med Snikrev, ikke med Millie."),
             stop("Datasenteret",
                  "Nå har vi nesten hele bildet: pengene for idrettsparken ble stjålet, byen ble forvirret med falske nyheter, kontoer ble kompromittert med phishing og svake passord, og falske spor ble spredd med bilder, nettbutikker og sosiale medier.\n\nTyven har aktivert en reserveplan fra datasenteret for å slette sporene sine en gang for alle. Nå må du bruke alt du har lært for å stanse systemene før sannheten forsvinner.",
                  "FINAL_BOSS", 7, true,
@@ -913,217 +913,316 @@ public class DataLoader implements ApplicationRunner {
             clueRiddleTask(
                 newsStop,
                 5,
-                "Gåtespor: Falsk nyhet fra tyven",
-                "Tyven prøver å forvirre byen med en falsk artikkel. Finn artikkelen som ikke tåler kildekritikk.",
-                "Du bruker det du lærte om falske nyheter: sjekk kilde, språk og om påstanden kan bekreftes andre steder. Riktig valg gir første spor til Datasenteret.",
-                "Politiet fant tre artikler som ble delt like etter tyveriet. Én av dem ble laget av tyven for å peke mot feil sted.",
+                "Gåtespor: Falsk nyhet",
+                "En nyhet prøver å villede etterforskningen. Du må finne den falske og se hvem som kan kobles til tidspunktet den ble lagt ut.",
+                "En nyhet prøver å villede etterforskningen. Du må bruke kildekritikk for å finne den falske nyheten: sjekk hvem som publiserer, om påstanden har bevis, og om språket prøver å styre mistanken mot noen uten dokumentasjon.",
+                "Når den falske nyheten er funnet, sjekker du tidspunktet artikkelen ble publisert. Systemet kan da vise hvem som var logget på nettverket til Xoo Inn Cafe da nyheten ble lagt ut.",
                 null,
-                "Hvilken artikkel er falsk?",
+                "Hvilken nyhet er falsk?",
                 """
                 [
                   {
-                    "id": "official_update",
-                    "label": "Kommunen bekrefter: idrettspark-konto sperret etter mistenkelig overføring",
-                    "detail": "Publisert på kommunens nettside med dato, kontaktperson og rolig språk."
+                    "id": "municipality_account",
+                    "label": "Kommunen bekrefter sperret konto",
+                    "detail": "Publisert på kommunens egen side med rolig språk, tidspunkt og kontaktperson.",
+                    "source": "dyreby.kommune.no",
+                    "body": "Kommunen bekrefter at prosjektkontoen er sperret mens politiet undersøker digitale spor."
                   },
                   {
-                    "id": "fake_cafe_article",
-                    "label": "SJOKK: Tyven skjulte pengene på Xoo Inn Cafe - DEL NÅ!",
-                    "detail": "Ukjent side, ingen forfatter, bare anonyme kilder og store bokstaver."
+                    "id": "foreign_hacker_group",
+                    "label": "EKSTRA: Tyven er en utenlandsk hackergruppe",
+                    "detail": "Saken skylder på noen langt borte uten kilde, dokumentasjon eller spor som kan kontrolleres.",
+                    "source": "DårligNytt24",
+                    "body": "Anonyme eksperter sier at en ukjent hackergruppe står bak. Ingen lokale spor trenger undersøkes."
                   },
                   {
-                    "id": "police_brief",
+                    "id": "police_digital_tracks",
                     "label": "Politiet undersøker digitale spor etter overføringen",
-                    "detail": "Kort pressemelding med saksnummer og lenke til politiets kanal."
+                    "detail": "Kort og etterprøvbar melding fra politiets kanal.",
+                    "source": "politiet.no",
+                    "body": "Politiet ber innbyggere vente på bekreftet informasjon mens digitale logger gjennomgås."
                   }
                 ]
                 """,
-                "fake_cafe_article",
-                "Riktig. Den falske saken bruker sjokkord, ukjent kilde og hastedeling. Men den nevner Xoo Inn Cafe, og det stedet blir et spor å undersøke videre."
+                "foreign_hacker_group",
+                "Riktig. Nyheten prøver å skylde på noen langt borte uten bevis.",
+                """
+                {
+                  "caseNumber": 1,
+                  "variant": "news",
+                  "result": "Du sjekker tidspunktet artikkelen ble publisert.\\nSystemet viser hvem som var logget på nettverket til Xoo Inn Cafe.\\nAlle mistenkte var på Xoo Inn Cafe den kvelden\\nunntatt én.",
+                  "logic": "Basser Gravling var på familieselskap da den falske artikkelen ble lagt ut, og er sannsynlig helt uskyldig i saken.",
+                  "elimination": "Basser Gravling fjernes.",
+                  "clue": "Basser Gravling var ikke aktiv på noen systemer da nyheten ble publisert.",
+                  "backgroundImage": "/story_pictures/clue-board-bg.png"
+                }
+                """
             ),
             clueRiddleTask(
                 photoStop,
                 5,
-                "Gåtespor: Hvilket bilde kan brukes?",
-                "Noen har sendt inn tre bilder fra Xoo Inn Cafe. Finn bildet som faktisk kan brukes som bevis.",
-                "Du bruker det du lærte om KI og manipulering: se etter rare hender, uleselig tekst, gjentatte mønstre og skygger som ikke stemmer.",
-                "Overvåkingssystemet ved Xoo Inn Cafe tok bilder samme kveld som den falske nyheten ble delt.",
+                "Gåtespor: Ekte bilde",
+                "Det har blitt spredt mange bilder av Hoppesprett på Xoo Cafe med en PC. Mange i landsbyen beskylder henne for å være tyven. Hoppesprett er fortvilet og sier hun aldri ville gjort noe sånt. Hun forklarer også at hun var på cafeen med to venninner. Hun mener bildene som er spredt ikke kan være ekte. Som etterforsker trenger vi at du finner ut om bildene er ekte eller ikke.",
+                "Som etterforsker trenger vi at du finner ut om bildene er ekte eller ikke. Bildene brukes som bevis mot Hoppesprett, så du må undersøke dem nøye før landsbyen får trekke en konklusjon.",
+                "Du må avgjøre om bildene er ekte eller ikke. Du kan velge flere enn ett bilde, fordi flere bilder kan være falske samtidig.",
                 null,
-                "Hvilket bilde er mest troverdig som ekte bevis?",
+                "Du må avgjøre om bildene er ekte eller ikke. Hva er ekte, og hva er ikke ekte? Du kan velge flere enn ett bilde.",
                 """
                 [
                   {
-                    "id": "ai_window",
-                    "label": "Bilde A: personen ved vinduet har seks fingre og skiltet bak er uleselig",
-                    "detail": "Flere små detaljer ser KI-genererte ut."
+                    "id": "photo_a",
+                    "label": "Bilde A",
+                    "imageUrl": "/story_pictures/clue-photo-hoppesprett-a.png",
+                    "alt": "Falskt KI-generert bilde av Hoppesprett ved en PC på Xoo Cafe."
                   },
                   {
-                    "id": "real_counter",
-                    "label": "Bilde B: mobilbilde ved disken med leselig klokke, naturlige skygger og vanlig kamerastøy",
-                    "detail": "Detaljene henger sammen på tvers av bildet."
+                    "id": "photo_b",
+                    "label": "Bilde B",
+                    "imageUrl": "/story_pictures/clue-photo-hoppesprett-b.png",
+                    "alt": "Falskt KI-generert bilde av Hoppesprett med kode på en laptop."
                   },
                   {
-                    "id": "edited_jacket",
-                    "label": "Bilde C: jakken er skarpere enn resten og skyggen peker feil vei",
-                    "detail": "Ser ut som noe er redigert inn."
+                    "id": "photo_c",
+                    "label": "Bilde C",
+                    "imageUrl": "/story_pictures/clue-photo-hoppesprett-c.png",
+                    "alt": "Falskt KI-generert bilde av Hoppesprett ved en laptop i cafeen."
                   }
                 ]
                 """,
-                "real_counter",
-                "Riktig. Bilde B er mest troverdig. Det viser at en innlogging skjedde fra en PC ved disken på Xoo Inn Cafe."
+                "[\"photo_a\", \"photo_b\", \"photo_c\"]",
+                "Riktig. Alle bildene er KI-genererte og er falske!",
+                """
+                {
+                  "caseNumber": 2,
+                  "variant": "photo",
+                  "selectionMode": "multi",
+                  "result": "Alle bildene av Hoppesprett er falske.\\nHun var på cafe med venner.\\nVennene til Hoppesprett kan bekrefte dette!",
+                  "logic": "Bildene lyver, og Hoppesprett var ikke aktiv på nettet på tidspunktet for tyveriet og spredningen av de falske nyhetene.",
+                  "elimination": "Hoppesprett fjernes.",
+                  "clue": "Hoppesprett var på cafeen, men hun var ikke aktiv på nettet. Hun var på cafeen med venner.",
+                  "backgroundImage": "/story_pictures/clue-board-bg.png"
+                }
+                """
             ),
             clueRiddleTask(
                 mailStop,
                 5,
-                "Gåtespor: Phishing-e-posten",
-                "En ansatt i kommunen fikk en e-post før pengene forsvant. Finn tegnet som avslører at den er phishing.",
-                "Du bruker det du lærte om phishing: sjekk avsender, lenke og kunstig hastverk. Riktig valg viser hvordan tyven kom inn i systemet.",
-                "E-posten ba mottakeren bekrefte kontoen sin etter en påstått sikkerhetsfeil.",
+                "Gåtespor: Phishing",
+                "En e-post ble brukt for å få tilgang til kontoer. Denne e-posten var med på å stjele informasjon som ble brukt til å stjele pengene fra ordføreren.",
+                "På dagen tyveriet skjedde, fikk ordføreren tre e-poster. En av e-postene ser mistenkelig ut og er sannsynligvis brukt av tyven.",
+                "To av e-postene kommer fra vanlige kontoer: hare.haresen@zoo.com og frosk.kvekk@dyremail.com. Den tredje kommer fra patterOGjur@zoo.xz og prøver å få borgemesteren til å gi fra seg informasjon. Se etter faretegnene du lærte i læringsfasen.",
                 null,
-                "Hva er det sterkeste phishing-sporet?",
+                "På dagen tyveriet skjedde, fikk ordføreren tre e-poster. Hvilken av e-postene ser mistenkelig ut? Denne er sannsynligvis brukt av tyven!",
                 """
                 [
                   {
-                    "id": "wrong_domain",
-                    "label": "Lenken går til kommune-sikkerhet.net i stedet for kommunens ekte domene, og det betyr at siden kan være laget for å stjele innloggingen din",
-                    "detail": ""
+                    "id": "hare_meeting",
+                    "label": "A",
+                    "detail": "Dette er en normal møteavtale uten lenker, trusler eller innloggingskrav.",
+                    "from": "hare.haresen@zoo.com",
+                    "subject": "Møte om parken",
+                    "body": "Hei! Jeg legger ved agendaen til møtet om idrettsparken. Vi sees kl. 14.",
+                    "flag": "Ingen tydelige faretegn."
                   },
                   {
-                    "id": "no_emojis",
-                    "label": "E-posten inneholder ingen emojier",
-                    "detail": ""
+                    "id": "frosk_invoice",
+                    "label": "B",
+                    "detail": "Dette er en vanlig fakturabeskjed fra en kjent avsender.",
+                    "from": "frosk.kvekk@dyremail.com",
+                    "subject": "Kvittering for kontorrekvisita",
+                    "body": "Hei, her er kvitteringen for forrige bestilling. Ta kontakt hvis noe ikke stemmer.",
+                    "flag": "Rolig språk og ingen passordforespørsel."
                   },
                   {
-                    "id": "knows_name",
-                    "label": "E-posten starter med Hei Kari",
-                    "detail": ""
+                    "id": "scam_login",
+                    "label": "C",
+                    "detail": "Feil domene, truende tidsfrist og lenke som ber om påloggingsinformasjon.",
+                    "from": "patterOGjur@zoo.xz",
+                    "subject": "VIKTIG: Oppdater kontoen din nå",
+                    "body": "Kontoen din blir stengt innen 30 minutter. Klikk her og bekreft passord og bankinformasjon.",
+                    "flag": "Faretegn: ukjent avsender, hastepress og innloggingslenke."
                   }
                 ]
                 """,
-                "wrong_domain",
-                "Riktig. Feil domene er et tydelig phishing-spor, fordi svindlere ofte lager nettsider som ligner på ekte innlogginger. Loggene viser at lenken ble åpnet fra nettverket til Xoo Inn Cafe."
-                ,
+                "scam_login",
+                "Riktig! Denne mailen har mange faretegn.",
                 """
                 {
-                  "email": {
-                    "fromName": "Trondheim kommune IT",
-                    "fromEmail": "varsling@kommune-sikkerhet.net",
-                    "subject": "Viktig: kontoen din må sikres i dag",
-                    "body": "Hei Kari,\\n\\nVi har registrert en sikkerhetsfeil på kontoen din etter uvanlig aktivitet i natt. For å beholde tilgang til e-post og lønnssystem må du bekrefte brukeren din før kl. 13.00 i dag.\\n\\nLogg inn her: kommune-sikkerhet.net/bekreft\\n\\nHilsen IT-avdelingen"
-                  }
+                  "caseNumber": 3,
+                  "variant": "email",
+                  "result": "Denne mailen er brukt til å stjele informasjon fra borgemesteren.\\nMailen blir sporet tilbake til Dyr og Frosker AS.",
+                  "logic": "Ulvan Bites har ingen tilkobling til Dyr og Frosker AS. Han er ikke ansatt og driver heller ikke handel med selskapet. Det er derfor usannsynlig at Ulvan Bites er tyven!",
+                  "elimination": "Ulvan Bites fjernes.",
+                  "clue": "Ulvan Bites har ikke tilkobling til Dyr og Frosker AS. Han er usannsynlig tyven.",
+                  "backgroundImage": "/story_pictures/clue-board-bg.png"
                 }
                 """
             ),
             clueRiddleTask(
                 marketStop,
                 5,
-                "Gåtespor: Falsk nettbutikk",
-                "Tyven brukte en falsk nettbutikk som lokkemiddel. Finn sporene som avslører hvor siden ble laget.",
-                "Du bruker det du lærte om nettsvindel: sjekk domene, kontaktinfo og betaling. Riktig valg kobler svindelsiden til etterforskningen.",
-                "Den falske butikken solgte idrettspark-effekter med enorm rabatt og ba folk betale før varen fantes.",
+                "Gåtespor: Falsk butikk",
+                "En falsk butikk ble laget. Den falske butikken tror vi stjal informasjonen til borgemesteren! Siste uke handlet borgemesteren på disse tre sidene. Vi må avgjøre om noen av butikkene er falske!",
+                "En falsk butikk ble laget, og vi tror den stjal informasjonen til borgemesteren. Siste uke handlet borgemesteren på tre sider. Du må avgjøre om noen av butikkene er falske.",
+                "Her ser du tre nettsider i samme format som resten av Markedsplassen. En er en åpenbar svindel, mens to er realistiske og troverdige. Det er mulig å velge flere sider som falske, men bare én av dem er faktisk falsk.",
                 null,
-                "Hva er det viktigste tekniske sporet?",
+                "Hvilke av disse nettsidene ser falske ut?",
                 """
                 [
                   {
-                    "id": "ip_cafe",
-                    "label": "Registreringsloggen viser IP-adressen til Xoo Inn Cafe kl. 21:14",
-                    "detail": "IP-sporet viser hvor siden ble opprettet fra."
+                    "id": "sportslageret",
+                    "label": "A",
+                    "detail": "Butikken har tydelig kontaktinfo, realistiske priser og vanlig kortbetaling.",
+                    "url": "sportslageret.no",
+                    "headline": "Treningsutstyr til idrettsparken",
+                    "body": "Organisasjonsnummer, returregler og kundeservice er lett å finne.",
+                    "price": "499 kr",
+                    "payment": "Kort og faktura"
                   },
                   {
-                    "id": "green_button",
-                    "label": "Kjøp-knappen er grønn",
-                    "detail": "Fargen på en knapp sier lite alene."
+                    "id": "superdeal",
+                    "label": "B",
+                    "detail": "Urealistisk rabatt, uklart domene, dårlig språk og betaling før varen finnes.",
+                    "url": "super-sport-kupp.xyz",
+                    "headline": "SUPER DEAL! 90% RABATT!",
+                    "body": "Kun i dag. Ingen retur. Betal med gavekort før pakken sendes.",
+                    "price": "29 kr",
+                    "payment": "Gavekort"
                   },
                   {
-                    "id": "product_photo",
-                    "label": "Produktbildet viser en fotball",
-                    "detail": "Bildet kan være relevant for varen, men avslører ikke tyven."
+                    "id": "lokaltrykk",
+                    "label": "C",
+                    "detail": "Lokal butikk med normal bestilling, hentepunkt og kontaktperson.",
+                    "url": "lokaltrykk-dyreby.no",
+                    "headline": "Drakter med klubbtrykk",
+                    "body": "Bestilling kan hentes i butikk, og prisen matcher lignende butikker.",
+                    "price": "349 kr",
+                    "payment": "Kort"
                   }
                 ]
                 """,
-                "ip_cafe",
-                "Riktig. IP-adressen peker til Xoo Inn Cafe, samme sted som dukket opp i nyhetssporet og phishing-loggen."
+                "[\"superdeal\"]",
+                "Riktig. Denne nettsiden ser veldig mistenkelig ut.",
+                """
+                {
+                  "caseNumber": 4,
+                  "variant": "shop",
+                  "selectionMode": "multi",
+                  "result": "Butikken ble opprettet fra Dyr og Frosker AS sine lokaler i Kjøttmeisgata 67a.\\nPondus Grisling er ansatt i Dyr og Frosker AS, men har ikke tilgang til lokalene i Kjøttmeisgata.",
+                  "logic": "Pondus Grisling har ikke tilgang til kontorene. Dessuten hadde han livestream fra soverommet sitt da butikken ble opprettet. Det er sannsynligvis ikke Grisling.",
+                  "elimination": "Pondus Grisling fjernes.",
+                  "clue": "Pondus har ikke tilgang til Dyr og Frosker AS sitt lokale i Kjøttmeisgata, og han var live uten pause mens nettbutikken ble laget.",
+                  "backgroundImage": "/story_pictures/clue-board-bg.png"
+                }
+                """
             ),
             clueRiddleTask(
                 socialStop,
                 5,
                 "Gåtespor: Falsk konto",
-                "En falsk konto prøvde å få elever til å dele rykter. Finn detaljen som avslører hvor kontoen ble laget.",
-                "Du bruker det du lærte om sosiale medier: sjekk profil, språk, hastverk og hva kontoen prøver å få deg til å gjøre.",
-                "Kontoen skrev: 'Jeg vet hvem tyven er, del før politiet sletter bevisene!'",
+                "Det er mye misinformasjon som er ute og går i byen! Innbyggerne er usikre og forvirret. Hva er sann informasjon, og hva er ikke sant?",
+                "Det er mye misinformasjon som er ute og går i byen. Innbyggerne er usikre og forvirret, og vi må finne ut hva som er sann informasjon og hva som ikke er det.",
+                "Hjelp oss å finne hvilken konto som sprer falsk informasjon, slik at vi kan undersøke nærmere. To innlegg viser til informasjon som kan kontrolleres, mens én konto sprer informasjon som ikke er verifiserbar.",
                 null,
-                "Hva er det viktigste sporet fra kontoen?",
+                "Hvilken konto sprer falsk informasjon?",
                 """
                 [
                   {
-                    "id": "many_emojis",
-                    "label": "Innlegget bruker mange emojis",
-                    "detail": "Det kan være manipulerende, men peker ikke til et sted."
+                    "id": "truth_hunter",
+                    "label": "A",
+                    "detail": "Påstanden er alvorlig, men kontoen viser ingen kilde, dokumentasjon eller etterprøvbar informasjon.",
+                    "username": "Sannhetsjegeren",
+                    "handle": "@jegerwebtest",
+                    "initials": "SJ",
+                    "body": "Jeg har bevis for at ordføreren samarbeidet med tyven. De skjuler det for deg.",
+                    "metrics": "215 likerklikk · 42 kommentarer · 98 delinger",
+                    "verified": false
                   },
                   {
-                    "id": "cafe_wifi_signup",
-                    "label": "Kontoen ble opprettet med engangs-epost fra Xoo Inn Cafe sitt gjestenett",
-                    "detail": "Opprettelsesloggen kobler kontoen til samme sted som de andre sporene, og innlegget prøver å få deg til å dele raskt og handle impulsivt."
+                    "id": "knut_kalorm",
+                    "label": "B",
+                    "detail": "Knut peker til kommunens åpne møteprotokoll, som kan sjekkes.",
+                    "username": "Knut Kålorm",
+                    "handle": "@knut_kalorm",
+                    "initials": "KK",
+                    "body": "Møteprotokollen fra kommunen ligger ute nå. Der står bare at kontoen er sperret mens saken undersøkes.",
+                    "metrics": "54 likerklikk · 8 kommentarer · 6 delinger",
+                    "verified": true
                   },
                   {
-                    "id": "short_username",
-                    "label": "Brukernavnet er kort",
-                    "detail": "Et kort navn er ikke nok til å avsløre en konto."
+                    "id": "bjorn_bamse",
+                    "label": "C",
+                    "detail": "Bjørn viser til politiets oppdatering og ber folk vente på bekreftet informasjon.",
+                    "username": "Bjørn Bamse",
+                    "handle": "@bamse_bjorn",
+                    "initials": "BB",
+                    "body": "Politiet sier at digitale spor undersøkes. Ikke heng ut folk før de vet mer.",
+                    "metrics": "88 likerklikk · 11 kommentarer · 12 delinger",
+                    "verified": true
                   }
                 ]
                 """,
-                "cafe_wifi_signup",
-                "Riktig. Kontoen ble laget via Xoo Inn Cafe sitt gjestenett, og innlegget prøver å presse deg til å dele før du tenker. Nå peker nyhet, bilde, phishing, nettbutikk og sosial konto samme vei.",
+                "truth_hunter",
+                "Riktig. Denne kontoen sprer informasjon som ikke er verifiserbar og sannsynlig falsk.",
                 """
                 {
-                  "socialPost": {
-                    "platform": "Tweety.no",
-                    "username": "SannhetsJegeren99",
-                    "handle": "@sannhet99",
-                    "avatar": "👁️",
-                    "content": "Jeg vet hvem tyven er, del før politiet sletter bevisene!",
-                    "likes": 418,
-                    "comments": 73,
-                    "shares": 126,
-                    "timestamp": "I dag kl. 21:03",
-                    "verified": false,
-                    "clueTitle": "Spor i kontoopprettelsen",
-                    "clueText": "Kontoen ble opprettet med engangs-epost fra Xoo Inn Cafe sitt gjestenett."
-                  }
+                  "caseNumber": 5,
+                  "variant": "social",
+                  "result": "Vi sporer kontoen tilbake til Jeger og Mus-foreningen sin PC!",
+                  "logic": "Jeger og Mus-konferansen har samling flere ganger i året. Dette gjør det tydelig hvem våre to mistenkte er!\\nSnikrev Revesen og Millie Mus er begge medlemmer og aktive deltakere på konferansene og samlingene til Jeger og Mus.",
+                  "elimination": "Ingen fjernes.",
+                  "clue": "Millie Mus og Snikrev Revesen er våre to hovedmistenkte.",
+                  "backgroundImage": "/story_pictures/clue-board-bg.png"
                 }
                 """
             ),
             clueRiddleTask(
                 pwdStop,
                 5,
-                "Gåtespor: Passordet i loggen",
-                "Det siste sporet handler om passordet tyven brukte på en reservekonto.",
-                "Du bruker det du lærte om passord for å lese et siste digitalt spor. Et lekket passord kan avsløre både vaner og hvem kontoen er knyttet til.",
-                "Reservekontoen brukte passordet XooInnAdmin2019.",
-                "XooInnAdmin2019",
-                "Hva forteller passordet oss?",
+                "Gåtespor: Siste spor",
+                "Nå er bare to mistenkte igjen: Millie Mus og Snikrev Revesen. Begge sier de brukte PC-en hos Jeger og Mus-foreningen. Du finner innloggingsloggen til kontoen som spredte falsk informasjon.",
+                "Nå er bare to mistenkte igjen: Millie Mus og Snikrev Revesen. Begge sier de brukte PC-en hos Jeger og Mus-foreningen.",
+                "Du finner innloggingsloggen til kontoen som spredte falsk informasjon. Passordet er Muserbest123, men spørsmålet er hva vi faktisk kan konkludere ut fra passordet og loggen.",
+                "Muserbest123",
+                "Hva kan vi faktisk konkludere ut fra passordet og loggen?",
                 """
                 [
                   {
-                    "id": "random_strong",
-                    "label": "Det er et sterkt tilfeldig passord",
-                    "detail": "Det er ikke tilfeldig: det inneholder sted, rolle og årstall."
+                    "id": "millie_proof",
+                    "label": "Dette beviser at Millie Mus er tyven",
+                    "detail": "Passordet peker mot Mus, men passord alene er ikke nok bevis."
                   },
                   {
-                    "id": "cafe_admin",
-                    "label": "Noen med admin-tilgang på Xoo Inn Cafe laget eller kjente kontoen",
-                    "detail": "Passordet peker mot stedet og en administratorrolle."
+                    "id": "snikrev_proof",
+                    "label": "Dette beviser at Snikrev Revesen er tyven",
+                    "detail": "Tidslinjen peker mot Snikrev, men du må først kombinere flere spor."
                   },
                   {
-                    "id": "no_clue",
-                    "label": "Passord gir aldri etterforskningsspor",
-                    "detail": "Passord kan ofte avsløre vaner og koblinger."
+                    "id": "combine_evidence",
+                    "label": "Dette er et spor, men vi må kombinere det med annen informasjon",
+                    "detail": "Riktig tenkemåte: passordet er bare ett spor. Loggen avgjør hva det betyr."
                   }
                 ]
                 """,
-                "cafe_admin",
-                "Riktig. Passordet peker mot noen med admin-kobling til Xoo Inn Cafe. Dette er det siste sporet før Datasenteret."
+                "combine_evidence",
+                "Riktig. Et passord alene er ikke nok bevis.",
+                """
+                {
+                  "caseNumber": 6,
+                  "variant": "password",
+                  "password": "Muserbest123",
+                  "timeline": [
+                    { "time": "18:57", "text": "Innlogging OK" },
+                    { "time": "18:58", "text": "Tilgang til konto" },
+                    { "time": "19:03", "text": "Nytt innlegg publisert" }
+                  ],
+                  "result": "Du ser nærmere på loggene.\\nKontoen ble brukt samtidig som Millie jobbet med bibliotekssystemet.\\nSnikrev Revesen hadde ingen aktivitet registrert i dette tidsrommet.",
+                  "logic": "Passordet peker mot Mus, men det viktigste er tidslinjen:\\nMillie kunne ikke være på to steder samtidig.",
+                  "final": "Snikrev Revesen er tyven.",
+                  "clue": "Innloggingstidspunktet passer med Snikrev, ikke med Millie.",
+                  "backgroundImage": "/story_pictures/clue-board-bg.png"
+                }
+                """
             )
         ));
         syncTasks(tasks);
@@ -1557,13 +1656,18 @@ public class DataLoader implements ApplicationRunner {
         }
 
         task.setContentJson(writeJson(content, "Failed to encode clue riddle content"));
-        task.setCorrectAnswerJson("""
-            {
-              "selected": %s
-            }
-            """.formatted(toJsonString(correctOptionId)));
+        ObjectNode correctAnswer = objectMapper.createObjectNode();
+        correctAnswer.set("selected", clueRiddleCorrectSelection(correctOptionId));
+        task.setCorrectAnswerJson(writeJson(correctAnswer, "Failed to encode clue riddle correct answer"));
         task.setGuidanceText("Bruk det du nettopp lærte til å løse en liten sak. Svaret gir et spor du trenger i Datasenteret.");
         return task;
+    }
+
+    private JsonNode clueRiddleCorrectSelection(String correctOptionId) {
+        if (correctOptionId != null && correctOptionId.trim().startsWith("[")) {
+            return readJsonNode(correctOptionId, "clue riddle correct selection");
+        }
+        return objectMapper.getNodeFactory().textNode(correctOptionId);
     }
 
     private String toJsonString(String value) {
