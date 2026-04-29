@@ -454,30 +454,6 @@ onMounted(async () => {
   margin-top: 4px;
 }
 
-/* ── Password form ──────────────────────────────────────────── */
-.password-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  max-width: 420px;
-}
-.form-group  { display: flex; flex-direction: column; gap: var(--space-2); }
-.form-label  { font-size: var(--text-sm); font-weight: 700; }
-.form-input {
-  height: 46px;
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0 14px;
-  font-family: inherit;
-  font-size: var(--text-base);
-  color: var(--color-text);
-  background: var(--color-surface);
-  outline: none;
-  box-sizing: border-box;
-  transition: border-color var(--transition-fast);
-}
-.form-input:focus { border-color: var(--color-primary); }
-.form-actions { display: flex; justify-content: flex-start; }
 
 /* ── Feedback messages ──────────────────────────────────────── */
 .save-msg {
