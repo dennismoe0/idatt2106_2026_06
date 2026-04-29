@@ -1,2 +1,0 @@
-ALTER TABLE notebook_entries
-    MODIFY entry_type ENUM('AUTO_TIP','AUTO_CLUE','REFLECTION','GENERAL_NOTE') NOT NULL;
