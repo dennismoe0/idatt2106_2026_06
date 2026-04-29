@@ -189,9 +189,11 @@ public class GameService {
                 log.info("[GameService] wrong answer on already completed task studentId={} taskId={}", studentId, taskId);
                 List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
                     ? correctClueIdsFor(task) : List.of();
+                List<PhishingClueFeedbackDto> phishingClues = task.getTaskType() == TaskType.PHISHING_EMAIL
+                    ? phishingCluesFor(task) : List.of();
                 Integer correctArticleIndex = task.getTaskType() == TaskType.FAKE_NEWS
                     ? fakeNewsCorrectIndex(task) : null;
-                return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, correctArticleIndex, null, false);
+                return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, phishingClues, correctArticleIndex, null, false);
             }
             boolean stopCompleted = canReturnStopCompletion(task) && isStopComplete(studentId, task.getStop().getId());
             String clueText = stopCompleted ? task.getStop().getClueText() : null;
@@ -813,6 +815,12 @@ public class GameService {
         }
         if (!correctAnswer.path("action").isMissingNode()) {
             return correctAnswer.path("action").asText();
+        }
+        if (correctAnswer.path("acceptedSelected").isArray() && !correctAnswer.path("acceptedSelected").isEmpty()) {
+            return correctAnswer.path("acceptedSelected").get(0).asText();
+        }
+        if (correctAnswer.path("acceptedActions").isArray() && !correctAnswer.path("acceptedActions").isEmpty()) {
+            return correctAnswer.path("acceptedActions").get(0).asText();
         }
         return null;
     }
