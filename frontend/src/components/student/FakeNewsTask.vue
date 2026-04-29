@@ -8,7 +8,7 @@
       <article
         v-for="(article, index) in articles"
         :key="index"
-        class="newspaper pinned-note article-card"
+        class="newspaper-clipping article-card"
         data-peek-trigger
         :class="articleClass(index)"
         :style="`--card-rotate: ${cardRotation(index)}deg`"
@@ -20,13 +20,24 @@
         @click="pickCard(index)"
         @keydown.enter.space.prevent="pickCard(index)"
       >
-        <header class="newspaper__masthead" aria-hidden="true">
-          <span class="newspaper__brand">{{ mastheadBrand(article).toUpperCase() }}</span>
+        <header class="newspaper-clipping__masthead" aria-hidden="true">
+          <span class="newspaper-clipping__brand">{{ mastheadBrand(article).toUpperCase() }}</span>
+          <span v-if="article.date" class="newspaper-clipping__edition">{{ formatEdition(article.date) }}</span>
         </header>
-        <h3 class="newspaper__headline">{{ article.headline.toUpperCase() }}</h3>
-        <p class="newspaper__byline">Kilde: {{ article.source }}</p>
-        <div class="newspaper__body">
-          <p class="newspaper__lede">{{ article.body }}</p>
+        <div class="newspaper-clipping__rule" aria-hidden="true"></div>
+
+        <p class="newspaper-clipping__kicker">Nyheter</p>
+        <h3 class="newspaper-clipping__headline">{{ article.headline }}</h3>
+        <p v-if="article.ingress" class="newspaper-clipping__standfirst">{{ article.ingress }}</p>
+
+        <p class="newspaper-clipping__byline">
+          <span v-if="article.author">Av {{ article.author }}</span>
+          <span v-if="article.author"> &middot; </span>
+          <span>Kilde: {{ article.source }}</span>
+        </p>
+
+        <div class="newspaper-clipping__body">
+          <p class="newspaper-clipping__lede">{{ article.body }}</p>
         </div>
       </article>
     </div>
@@ -112,7 +123,18 @@ function articleClass(index) {
 }
 
 function cardRotation(index) {
-  return index % 2 === 0 ? -0.5 : 0.4
+  return index % 2 === 0 ? -0.4 : 0.3
+}
+
+function formatEdition(date) {
+  if (!date || typeof date !== 'string') return ''
+  const parts = date.split('-')
+  if (parts.length !== 3) return date
+  const months = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des']
+  const year  = parts[0]
+  const month = months[Math.max(0, Math.min(11, parseInt(parts[1], 10) - 1))] ?? ''
+  const day   = String(parseInt(parts[2], 10))
+  return `${day}. ${month}. ${year}`
 }
 
 function pickCard(index) {
@@ -168,28 +190,53 @@ function extractDomainOrName(input) {
 
 <style scoped>
 .fake-news-task {
+  --article-card-width: 500px;
+  --article-grid-gap: var(--space-3);
+  --article-grid-max: calc((var(--article-card-width) * 2) + var(--article-grid-gap));
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
 .fake-news-task__instruction {
-  margin: 0;
-  font-weight: 700;
-  font-size: var(--text-base);
+  max-width: var(--article-grid-max);
+  width: min(100%, 560px);
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--color-wood);
+  font-size: clamp(1.17rem, 1.95vw, 1.36rem);
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  align-self: stretch;
+  box-shadow: none;
 }
 
 .fake-news-task__guidance {
-  margin: 0;
+  max-width: var(--article-grid-max);
+  width: min(100%, 620px);
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--color-cork-dark);
-  font-weight: 600;
+  font-size: clamp(1.27rem, 2.08vw, 1.46rem);
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  align-self: stretch;
+  box-shadow: none;
 }
 
 .fake-news-task__articles {
   display: grid;
-  gap: var(--space-6);
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--article-grid-gap);
+  grid-template-columns: repeat(2, minmax(0, var(--article-card-width)));
+  justify-content: center;
 }
 
 .article-card {
@@ -255,93 +302,169 @@ function extractDomainOrName(input) {
 .next-btn:active { transform: scale(0.98); }
 .next-btn:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 2px; }
 
-.newspaper {
-  --paper-bg: #f4efe2;
-  --ink: #111;
-  --masthead-ink: #0d0d0d;
-  --rule: rgba(0,0,0,0.15);
+/* Newspaper clipping card — replaces the old post-it look with a classic newspaper feel */
+.newspaper-clipping {
+  --paper-bg: #f3ecda;
+  --paper-bg-2: #efe7d2;
+  --ink: #1b1b1b;
+  --ink-soft: rgba(27, 27, 27, 0.78);
+  --rule: rgba(27, 27, 27, 0.85);
+  --rule-soft: rgba(27, 27, 27, 0.45);
 
-  background: var(--paper-bg);
-  border: 1.5px solid var(--rule);
-  padding: clamp(12px, 1.5vw, 18px);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(0,0,0,0.04), transparent 55%),
+    radial-gradient(circle at 88% 100%, rgba(0,0,0,0.05), transparent 55%),
+    linear-gradient(var(--paper-bg), var(--paper-bg-2));
+  border: 1px solid rgba(27, 27, 27, 0.18);
+  border-radius: 0;
+  padding: clamp(16px, 2vw, 22px) clamp(16px, 2.2vw, 24px);
   color: var(--ink);
-  box-shadow: 2px 3px 10px rgba(0,0,0,0.25);
+  box-shadow:
+    0 1px 0 rgba(0,0,0,0.05),
+    2px 3px 10px rgba(0,0,0,0.22);
   transform: rotate(var(--card-rotate, 0deg));
-  max-width: 36ch;
+  width: 100%;
+  max-width: 500px;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
-.newspaper__masthead {
+/* Masthead: nameplate + edition info */
+.newspaper-clipping__masthead {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  border-bottom: 2px solid var(--rule);
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
+  gap: var(--space-2);
 }
-.newspaper__brand {
-  font-family: Georgia, "Times New Roman", serif;
-  font-weight: 800;
-  font-size: clamp(18px, 2.6vw, 22px);
+.newspaper-clipping__brand {
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-weight: 900;
+  font-size: clamp(20px, 2.6vw, 26px);
+  letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: var(--masthead-ink);
+  color: var(--ink);
+}
+.newspaper-clipping__edition {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-soft);
+  white-space: nowrap;
 }
 
-.newspaper__headline {
-  margin: 6px 0 4px 0;
+/* Classic double rule under the nameplate */
+.newspaper-clipping__rule {
+  margin: 6px 0 10px 0;
+  border-top: 2px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  height: 4px;
+}
+
+/* Small uppercase category line above headline */
+.newspaper-clipping__kicker {
+  margin: 0 0 4px 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-weight: 900;
-  letter-spacing: 0.2px;
-  line-height: 1.15;
-  font-size: clamp(18px, 3vw, 24px);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
   text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.newspaper-clipping__headline {
+  margin: 0 0 6px 0;
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-weight: 800;
+  letter-spacing: 0.1px;
+  line-height: 1.15;
+  font-size: clamp(20px, 2.4vw, 26px);
+  color: var(--ink);
   overflow-wrap: anywhere;
   word-break: break-word;
   hyphens: auto;
 }
 
-.newspaper__byline {
+/* Standfirst / dek (ingress) */
+.newspaper-clipping__standfirst {
   margin: 0 0 8px 0;
-  font-size: 12px;
-  opacity: 0.9;
-  border-bottom: 1px solid var(--rule);
-  padding-bottom: 6px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 14.5px;
+  line-height: 1.4;
+  color: var(--ink);
 }
 
-.newspaper__body {
-  column-count: 1;
-  column-gap: 18px;
+/* Byline rule */
+.newspaper-clipping__byline {
+  margin: 0 0 10px 0;
+  padding: 6px 0;
+  border-top: 1px solid var(--rule-soft);
+  border-bottom: 1px solid var(--rule-soft);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 11.5px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
-.newspaper__lede {
-  margin: 10px 0 0 0;
-  font-family: Georgia, serif;
-  line-height: 1.35;
+
+.newspaper-clipping__body {
+  column-count: 1;
+}
+.newspaper-clipping__lede {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 14px;
+  line-height: 1.5;
+  text-align: justify;
+  hyphens: auto;
+  color: var(--ink);
+}
+.newspaper-clipping__lede::first-letter {
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-weight: 800;
+  font-size: 2.4em;
+  line-height: 0.9;
+  float: left;
+  margin: 4px 6px 0 0;
+  color: var(--ink);
 }
 
 /* Preserve interaction visuals */
-.newspaper.article-card:hover:not([aria-disabled="true"]) {
+.newspaper-clipping.article-card:hover:not([aria-disabled="true"]) {
   transform: rotate(0deg) scale(1.02) translateY(-3px);
-  box-shadow: 4px 6px 16px rgba(0,0,0,0.35);
+  box-shadow: 4px 6px 16px rgba(0,0,0,0.32);
 }
 
 /* Card state feedback, articleClass() returns these class names */
-.newspaper.article-card--chosen {
+.newspaper-clipping.article-card--chosen {
   border-color: var(--color-wood);
   box-shadow: 0 0 0 3px var(--color-wood);
 }
-.newspaper.article-card--correct {
+.newspaper-clipping.article-card--correct {
   border-color: var(--color-success);
   box-shadow: 0 0 0 3px var(--color-success);
 }
-.newspaper.article-card--wrong {
+.newspaper-clipping.article-card--wrong {
   border-color: var(--color-danger);
   box-shadow: 0 0 0 3px var(--color-danger);
 }
-.newspaper.article-card--muted {
+.newspaper-clipping.article-card--muted {
   opacity: 0.55;
   filter: grayscale(30%);
+}
+
+@media (max-width: 900px) {
+  .fake-news-task__instruction,
+  .fake-news-task__guidance {
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .fake-news-task__articles {
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+  }
 }
 
 </style>
