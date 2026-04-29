@@ -1,11 +1,16 @@
 <template>
   <section class="task-card">
-    <h2>{{ task.stop?.name ?? 'Markedsplassen' }}</h2>
-    <p class="guidance">{{ task.guidanceText }}</p>
+    <header class="mp-header">
+      <div class="mp-header__icon" aria-hidden="true">🛒</div>
+      <div class="mp-header__text">
+        <h2 class="mp-header__title">{{ task.stop?.name ?? 'Markedsplassen' }}</h2>
+        <p class="mp-header__guidance">{{ task.guidanceText ?? 'Sjekk URL, priser, kontaktinfo og betalingsvalg nøye.' }}</p>
+      </div>
+    </header>
 
     <!-- CLICK_SUSPICIOUS: interactive fake webshop with flaggable elements -->
     <template v-if="taskSubtype === 'CLICK_SUSPICIOUS'">
-      <p class="question">{{ contentJson.question ?? 'Klikk på de delene av nettstedet som virker mistenkelige.' }}</p>
+      <p class="question">{{ contentJson.question ?? 'Klikk på de delene du synes er mistenkelige' }}</p>
 
       <div data-peek-trigger>
         <FakeWebshop
@@ -22,6 +27,7 @@
           :return-policy-text="mockupContent.returnPolicyText"
           :notice="mockupContent.notice"
           :cta-text="mockupContent.ctaText"
+          :product-image-url="mockupContent.productImageUrl"
           :clickable-elements="csElements"
           :flagged-elements="flagged"
           :feedback-states="feedbackStates"
@@ -40,6 +46,7 @@
           v-for="el in csElements"
           :key="el.id"
           class="cs-result-list__item"
+          :class="`cs-result-item--${elementResultState(el)}`"
         >
           <span :class="elementResultIcon(el)">{{ elementResultEmoji(el) }}</span>
           <span><strong>{{ el.label }}</strong>: {{ el.explanation }}</span>
@@ -76,6 +83,7 @@
             :contact-text="mockupContent.contactText"
             :notice="mockupContent.notice"
             :cta-text="mockupContent.ctaText"
+            :product-image-url="mockupContent.productImageUrl"
           />
 
           <div v-else class="site-preview__placeholder">
@@ -229,6 +237,10 @@ const mockupContent = computed(() => {
       contentJson.value.returnPolicyText ??
       'Retur: ingen informasjon tilgjengelig',
     ctaText: mockup.ctaText ?? 'Kjøp nå',
+    productImageUrl:
+      mockup.productImageUrl ??
+      contentJson.value.productImageUrl ??
+      '',
     badges,
     notice:
       mockup.notice ??
@@ -257,15 +269,36 @@ function elementLabel(id) {
   return csElements.value.find(e => e.id === id)?.label ?? id
 }
 
-const correctIds = computed(() => new Set(props.result?.correctElementIds ?? []))
+const correctIds = computed(() => {
+  // Prefer ids from the response if backend provides them, else derive from
+  // the task's own elements (each carries an `isSuspicious` flag).
+  const fromResult = props.result?.correctElementIds
+  if (Array.isArray(fromResult) && fromResult.length > 0) {
+    return new Set(fromResult)
+  }
+  return new Set(
+    csElements.value
+      .filter(el => el?.isSuspicious === true)
+      .map(el => el.id),
+  )
+})
 
 function elementResultEmoji(el) {
   if (!props.result) return ''
   const wasFlagged = flagged.has(el.id)
   if (wasFlagged && correctIds.value.has(el.id)) return '✅'
   if (wasFlagged && !correctIds.value.has(el.id)) return '❌'
-  if (!wasFlagged && correctIds.value.has(el.id)) return '🔍'
+  if (!wasFlagged && correctIds.value.has(el.id)) return '⚠️'
   return '✓'
+}
+
+function elementResultState(el) {
+  if (!props.result) return 'ok'
+  const wasFlagged = flagged.has(el.id)
+  if (wasFlagged && correctIds.value.has(el.id)) return 'correct'
+  if (wasFlagged && !correctIds.value.has(el.id)) return 'wrong'
+  if (!wasFlagged && correctIds.value.has(el.id)) return 'missed'
+  return 'ok'
 }
 
 function elementResultIcon(el) {
@@ -375,9 +408,42 @@ function hasDisplayValue(value) {
   gap: var(--space-4);
 }
 
-.guidance {
+/* ── Marketplace header banner ──────────────────────────────── */
+.mp-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-surface) 100%);
+  border: 1.5px solid var(--color-primary-soft-strong);
+}
+
+.mp-header__icon {
+  flex-shrink: 0;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.mp-header__text {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.mp-header__title {
   margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--color-heading);
+  line-height: 1.2;
+}
+
+.mp-header__guidance {
+  margin: 0;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
+  line-height: 1.4;
 }
 
 .question {
@@ -669,13 +735,37 @@ function hasDisplayValue(value) {
 .cs-result-list__item {
   display: flex;
   gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   font-size: var(--text-sm);
   color: var(--color-text);
+  line-height: 1.45;
+}
+.cs-result-item--correct {
+  border-color: var(--color-info);
+  background: var(--color-info-light);
+}
+.cs-result-item--wrong {
+  border-color: var(--color-danger);
+  background: var(--color-danger-light);
+}
+.cs-result-item--missed {
+  border-color: var(--color-info-soft);
+  background: var(--color-info-bg);
+}
+.cs-result-item--ok {
+  opacity: 0.75;
+}
+.cs-icon--correct,
+.cs-icon--wrong,
+.cs-icon--missed,
+.cs-icon--ok {
+  flex-shrink: 0;
+  font-size: 1.1em;
   line-height: 1.4;
 }
-.cs-icon--correct { flex-shrink: 0; }
-.cs-icon--wrong   { flex-shrink: 0; }
-.cs-icon--missed  { flex-shrink: 0; }
-.cs-icon--ok      { flex-shrink: 0; opacity: 0.4; }
+.cs-icon--ok { opacity: 0.55; }
 
 </style>

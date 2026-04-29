@@ -42,7 +42,7 @@
       </form>
 
       <div class="auth-links">
-        <RouterLink to="/login">Har du allerede en konto? Logg inn</RouterLink>
+        <RouterLink to="/teacher-login">Har du allerede en konto? Logg inn</RouterLink>
       </div>
     </div>
   </main>

@@ -5,11 +5,10 @@ import { useClassroomStore } from '@/stores/classroom'
 const routes = [
   // Public
 
-
-  { path: '/login',         name: 'Login',        component: () => import('@/views/auth/LoginView.vue'),              meta: { public: true } },
+  { path: '/login',         alias: '/student-login', name: 'StudentLogin', component: () => import('@/views/auth/StudentLoginView.vue'), meta: { public: true } },
+  { path: '/teacher-login', name: 'TeacherLogin', component: () => import('@/views/auth/LoginView.vue'),              meta: { public: true } },
   { path: '/register',      name: 'Register',     component: () => import('@/views/auth/RegisterView.vue'),           meta: { public: true } },
   { path: '/unauthorized',  name: 'Unauthorized', component: () => import('@/views/UnauthorizedView.vue'),            meta: { public: true } },
-  { path: '/student-login', name: 'StudentLogin', component: () => import('@/views/auth/StudentLoginView.vue'),       meta: { public: true } },
   { path: '/help',          name: 'Help',         component: () => import('@/views/student/HelpView.vue'),             meta: { public: true } },
 
   // Student
@@ -51,18 +50,19 @@ const router = createRouter({
 router.beforeEach((to) => {
   const auth = useAuthStore()
   const classroom = useClassroomStore()
+  const loginRoute = to.meta.role === 'TEACHER' ? { name: 'TeacherLogin' } : { name: 'StudentLogin' }
 
   if (to.meta.public) return true
 
   if (!auth.isAuthenticated) {
-    console.log('[router] Unauthenticated — redirecting to login from', to.path)
-    return { name: 'Login' }
+    console.log('[router] Unauthenticated — redirecting to', loginRoute.name, 'from', to.path)
+    return loginRoute
   }
 
   // Authenticated but no role — token is corrupt; treat as unauthenticated
   if (!auth.role) {
-    console.warn('[router] Authenticated but no role — token corrupt, redirecting to login')
-    return { name: 'Login' }
+    console.warn('[router] Authenticated but no role — token corrupt, redirecting to', loginRoute.name)
+    return loginRoute
   }
 
   if (to.meta.role && auth.role !== to.meta.role) {

@@ -70,24 +70,18 @@
 
         <button type="submit" class="feide-btn" :disabled="loading">
           <span v-if="loading" class="feide-btn__spinner" aria-hidden="true" />
-          {{ loading ? 'Logger inn…' : 'Fortsett' }}
+          {{ loading ? 'Logger inn…' : 'Logg inn' }}
         </button>
       </form>
 
       <hr class="feide-divider" />
 
-      <!-- Help accordion -->
-      <details class="feide-help">
-        <summary class="feide-help__summary">
-          Trenger du hjelp?
-          <span class="feide-help__icon" aria-hidden="true">+</span>
-        </summary>
-        <div class="feide-help__body">
-          <RouterLink to="/login" class="feide-teacher-link">
-            Lærer? Logg inn her
-          </RouterLink>
-        </div>
-      </details>
+      <div class="feide-alt-login">
+        <p class="feide-alt-login__title">Er du lærer?</p>
+        <RouterLink to="/teacher-login" class="feide-teacher-link">
+          Gå til lærerinnlogging
+        </RouterLink>
+      </div>
     </div>
 
     <p class="feide-sikt">Feide leveres av <strong>Sikt</strong></p>
@@ -115,6 +109,9 @@ onMounted(() => {
   if (authStore.isAuthenticated && authStore.isStudent) {
     console.log('[StudentLoginView] Already logged in as student — redirecting')
     router.replace(postLoginDestination())
+  } else if (authStore.isAuthenticated && authStore.isTeacher) {
+    console.log('[StudentLoginView] Already logged in as teacher — redirecting')
+    router.replace({ name: 'Dashboard' })
   }
 })
 
@@ -334,40 +331,35 @@ async function handleSubmit() {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Help accordion ── */
-.feide-help {
+.feide-alt-login {
+  display: grid;
+  gap: var(--space-3);
+}
+.feide-alt-login__title {
   margin: 0;
-}
-.feide-help__summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  list-style: none;
-  cursor: pointer;
   font-size: var(--text-sm);
-  color: #333;
-  padding: var(--space-1) 0;
-  user-select: none;
-}
-.feide-help__summary::-webkit-details-marker { display: none; }
-.feide-help__summary::marker { display: none; }
-.feide-help__icon {
-  font-size: 1.1rem;
-  color: #555;
-  line-height: 1;
-  transition: transform 0.2s;
-}
-details[open] .feide-help__icon { transform: rotate(45deg); }
-
-.feide-help__body {
-  padding: var(--space-3) 0 var(--space-1);
+  font-weight: 600;
+  color: #2f4d6f;
 }
 .feide-teacher-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid #c8d3df;
+  border-radius: 4px;
   font-size: var(--text-sm);
-  color: #4a7eb5;
+  color: #205493;
   text-decoration: none;
+  font-weight: 600;
+  background: #f8fafc;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
-.feide-teacher-link:hover { text-decoration: underline; }
+.feide-teacher-link:hover {
+  background: #eef4fb;
+  border-color: #4a7eb5;
+}
 
 /* ── Sikt credit ── */
 .feide-sikt {

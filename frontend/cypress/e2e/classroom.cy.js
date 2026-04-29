@@ -12,7 +12,7 @@ function loginAsTeacher() {
 
   cy.intercept('GET', '**/api/classrooms', { statusCode: 200, body: [] }).as('getClassrooms')
 
-  cy.visit('/login')
+  cy.visit('/teacher-login')
   cy.get('input[type="email"]').type(TEACHER.email)
   cy.get('input[type="password"]').type(TEACHER.password)
   cy.get('button[type="submit"]').click()
