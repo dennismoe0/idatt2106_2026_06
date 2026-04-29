@@ -75,4 +75,41 @@ describe('PhishingEmailTask', () => {
     expect(clueBtns[0].classes()).toContain('clue-btn--flagged')
     expect(clueBtns[1].classes()).not.toContain('clue-btn--flagged')
   })
+
+  it('shows optional flagged clues with a hint icon instead of wrong', async () => {
+    const task = {
+      ...TASK,
+      contentJson: {
+        email: {
+          ...TASK.contentJson.email,
+          body: 'Hei kunde, klikk umiddelbart her.',
+          clues: [
+            { id: 'sender', type: 'sender', label: 'support@dnb-kundeservice.com', isClue: true, explanation: 'Falskt domene.' },
+            { id: 'urgency', type: 'text', label: 'umiddelbart', isClue: true, explanation: 'Hastverk.' },
+            { id: 'greeting', type: 'text', label: 'Hei kunde', isClue: true, explanation: 'Generell hilsen.' }
+          ]
+        }
+      }
+    }
+
+    const wrapper = mount(PhishingEmailTask, { props: { task } })
+    const greetingBtn = wrapper.findAll('.clue-btn').find(button => button.text() === 'Hei kunde')
+    await greetingBtn.trigger('click')
+    await wrapper.setProps({
+      result: {
+        correct: false,
+        explanation: 'Forklaring',
+        correctClueIds: ['sender', 'urgency'],
+        phishingClues: [
+          { id: 'sender', label: 'support@dnb-kundeservice.com', explanation: 'Falskt domene.', isClue: true },
+          { id: 'urgency', label: 'umiddelbart', explanation: 'Hastverk.', isClue: true },
+          { id: 'greeting', label: 'Hei kunde', explanation: 'Generell hilsen.', isClue: true }
+        ]
+      }
+    })
+
+    const clueItems = wrapper.findAll('.phishing-task__clue-item').map(item => item.text())
+    expect(clueItems.some(text => text.includes('💡') && text.includes('Hei kunde'))).toBe(true)
+    expect(clueItems.some(text => text.includes('❌') && text.includes('Hei kunde'))).toBe(false)
+  })
 })

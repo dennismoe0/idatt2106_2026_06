@@ -22,11 +22,20 @@ class GameServicePhishingTest {
     }
 
     @Test
-    void check_returnsTrue_whenAllRequiredCluesFlagged() {
+    void check_returnsFalse_whenExtraWrongCluesAreFlagged() {
         JsonNode correct = json("""
             { "correctClueIds": ["sender", "link1"] }
             """);
         Map<String, Object> answer = Map.of("flaggedClueIds", List.of("sender", "link1", "urgency"));
+        assertThat(PhishingAnswerChecker.check(correct, answer)).isFalse();
+    }
+
+    @Test
+    void check_returnsTrue_whenFlaggedCluesMatchExactly() {
+        JsonNode correct = json("""
+            { "correctClueIds": ["sender", "link1"] }
+            """);
+        Map<String, Object> answer = Map.of("flaggedClueIds", List.of("sender", "link1"));
         assertThat(PhishingAnswerChecker.check(correct, answer)).isTrue();
     }
 

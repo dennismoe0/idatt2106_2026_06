@@ -284,6 +284,8 @@ class GameServiceTest {
         assertThat(content.has("explanation")).isFalse();
         assertThat(content.path("email").has("correctAction")).isFalse();
         assertThat(content.path("email").has("suspiciousElements")).isTrue();
+        assertThat(content.path("email").path("clues").get(0).has("isClue")).isFalse();
+        assertThat(content.path("email").path("clues").get(0).has("explanation")).isFalse();
     }
 
     @Test
@@ -365,6 +367,12 @@ class GameServiceTest {
         );
 
         assertThat(response.correct()).isTrue();
+        assertThat(response.phishingClues()).extracting("id")
+            .contains("sender", "urgency", "logo");
+        assertThat(response.phishingClues()).extracting("explanation")
+            .contains("Avsenderadressen bruker feil domene.", "Hastverk er et vanlig phishing-tegn.", "Logo og avsendernavn alene er ikke nok.");
+        assertThat(response.phishingClues()).extracting("isClue")
+            .contains(true, false);
         verify(studentProgressRepository).save(any(StudentProgress.class));
     }
 
@@ -748,7 +756,30 @@ class GameServiceTest {
                 "fromName": "DNB Kundeservice",
                 "fromEmail": "support@dnb-kundeservice.com",
                 "subject": "Viktig",
-                "body": "Klikk her",
+                "body": "Klikk her med en gang",
+                "clues": [
+                  {
+                    "id": "sender",
+                    "type": "sender",
+                    "label": "support@dnb-kundeservice.com",
+                    "isClue": true,
+                    "explanation": "Avsenderadressen bruker feil domene."
+                  },
+                  {
+                    "id": "urgency",
+                    "type": "text",
+                    "label": "med en gang",
+                    "isClue": true,
+                    "explanation": "Hastverk er et vanlig phishing-tegn."
+                  },
+                  {
+                    "id": "logo",
+                    "type": "branding",
+                    "label": "DNB Kundeservice",
+                    "isClue": false,
+                    "explanation": "Logo og avsendernavn alene er ikke nok."
+                  }
+                ],
                 "suspiciousElements": ["fromEmail"],
                 "correctAction": "REPORT"
               },

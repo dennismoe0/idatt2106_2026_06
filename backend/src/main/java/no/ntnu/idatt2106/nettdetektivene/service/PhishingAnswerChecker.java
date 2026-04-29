@@ -11,7 +11,7 @@ public class PhishingAnswerChecker {
     private PhishingAnswerChecker() {}
 
     /**
-     * Returns true when the submitted answer correctly identifies all required clues.
+     * Returns true only when the submitted answer matches the required clues exactly.
      * Supports two correctAnswer formats:
      *  - New:  { "clues": ["id1", "id2"] } — checked against submitted flaggedClueIds
      *  - Old:  { "action": "REPORT" }      — checked against submitted action (backward compat)
@@ -26,7 +26,7 @@ public class PhishingAnswerChecker {
             Object raw = answer.get("flaggedClueIds");
             if (!(raw instanceof List<?> list)) return false;
             List<String> flagged = list.stream().map(Object::toString).toList();
-            return new HashSet<>(flagged).containsAll(required);
+            return new HashSet<>(flagged).equals(new HashSet<>(required));
         }
 
         // Old format: action string
