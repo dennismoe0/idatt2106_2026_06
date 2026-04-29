@@ -368,11 +368,11 @@ class GameServiceTest {
 
         assertThat(response.correct()).isTrue();
         assertThat(response.phishingClues()).extracting("id")
-            .contains("sender", "urgency");
+            .contains("sender", "urgency", "logo");
         assertThat(response.phishingClues()).extracting("explanation")
-            .contains("Avsenderadressen bruker feil domene.", "Hastverk er et vanlig phishing-tegn.");
+            .contains("Avsenderadressen bruker feil domene.", "Hastverk er et vanlig phishing-tegn.", "Logo og avsendernavn alene er ikke nok.");
         assertThat(response.phishingClues()).extracting("isClue")
-            .containsOnly(true);
+            .contains(true, false);
         verify(studentProgressRepository).save(any(StudentProgress.class));
     }
 
@@ -771,6 +771,13 @@ class GameServiceTest {
                     "label": "med en gang",
                     "isClue": true,
                     "explanation": "Hastverk er et vanlig phishing-tegn."
+                  },
+                  {
+                    "id": "logo",
+                    "type": "branding",
+                    "label": "DNB Kundeservice",
+                    "isClue": false,
+                    "explanation": "Logo og avsendernavn alene er ikke nok."
                   }
                 ],
                 "suspiciousElements": ["fromEmail"],

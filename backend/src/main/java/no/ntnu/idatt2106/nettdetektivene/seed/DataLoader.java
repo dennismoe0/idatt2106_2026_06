@@ -953,17 +953,17 @@ public class DataLoader implements ApplicationRunner {
                   {
                     "id": "wrong_domain",
                     "label": "Lenken går til kommune-sikkerhet.net i stedet for kommunens ekte domene, og det betyr at siden kan være laget for å stjele innloggingen din",
-                    "detail": "   "
+                    "detail": ""
                   },
                   {
                     "id": "no_emojis",
                     "label": "E-posten inneholder ingen emojier",
-                    "detail": "   "
+                    "detail": ""
                   },
                   {
                     "id": "knows_name",
                     "label": "E-posten starter med Hei Kari",
-                    "detail": "   "
+                    "detail": ""
                   }
                 ]
                 """,
