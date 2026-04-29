@@ -133,6 +133,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useClassroomStore } from '@/stores/classroom'
 import { useNotificationStore } from '@/stores/notification'
 import { useSchoolStore } from '@/stores/school'
+import { classroomService } from '@/services/classroomService'
 
 const router = useRouter()
 const audioStore = useAudioStore()
@@ -171,20 +172,35 @@ function setVolume(classroomId, value) {
   applyToAudioStore()
 }
 
-function toggleMute(classroomId) {
+async function toggleMute(classroomId) {
   ensureDefaults(classroomId)
-  volumeSettings[classroomId].muted = !volumeSettings[classroomId].muted
+  const next = !volumeSettings[classroomId].muted
+  volumeSettings[classroomId].muted = next
   applyToAudioStore()
+  try {
+    await classroomService.setMusicMuted(classroomId, next)
+    console.log('[Settings] Music muted set to', next, 'for classroom', classroomId)
+  } catch (err) {
+    console.error('[Settings] Failed to set music muted:', err)
+  }
 }
 
-function muteAll() {
+async function muteAll() {
   classrooms.value.forEach(c => { ensureDefaults(c.id); volumeSettings[c.id].muted = true })
   applyToAudioStore()
+  await Promise.allSettled(
+    classrooms.value.map(c => classroomService.setMusicMuted(c.id, true)
+      .catch(err => console.error('[Settings] muteAll failed for', c.id, err)))
+  )
 }
 
-function unmuteAll() {
+async function unmuteAll() {
   classrooms.value.forEach(c => { ensureDefaults(c.id); volumeSettings[c.id].muted = false })
   applyToAudioStore()
+  await Promise.allSettled(
+    classrooms.value.map(c => classroomService.setMusicMuted(c.id, false)
+      .catch(err => console.error('[Settings] unmuteAll failed for', c.id, err)))
+  )
 }
 
 function applyToAudioStore() {
@@ -206,22 +222,21 @@ async function saveVolumeSettings() {
   volumeSaveMsg.value = ''
   volumeSaveError.value = false
   try {
-    // Persist locally so settings survive page reload
     localStorage.setItem(VOLUME_KEY, JSON.stringify(volumeSettings))
+    applyToAudioStore()
 
-    const active = classrooms.value
-    .map(c => volumeSettings[c.id])
-    .filter(s => s && !s.muted)
-
-    const masterVolume = active.length > 0
-      ? Math.min(...active.map(s => s.volume)) / 100
-      : 0
-
-    audioStore.setVolume(masterVolume)
+    // Propagate mute state to each classroom via backend so students receive it
+    await Promise.allSettled(
+      classrooms.value.map(c => {
+        const muted = volumeSettings[c.id]?.muted ?? false
+        return classroomService.setMusicMuted(c.id, muted)
+          .catch(err => console.error('[Settings] save mute failed for', c.id, err))
+      })
+    )
 
     volumeSaveMsg.value = '✓ Lydinnstillinger lagret.'
-    // eslint-disable-next-line no-unused-vars
   } catch (err) {
+    console.error('[Settings] saveVolumeSettings failed:', err)
     volumeSaveError.value = true
     volumeSaveMsg.value = 'Noe gikk galt. Prøv igjen.'
   } finally {
@@ -232,7 +247,7 @@ async function saveVolumeSettings() {
 
 function handleLogout() {
   authStore.logout()
-  router.push({ name: 'Login' })
+  router.push({ name: 'TeacherLogin' })
 }
 
 onMounted(async () => {
