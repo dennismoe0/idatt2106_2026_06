@@ -8,8 +8,13 @@ import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.SchoolLeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentProgressSummaryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
-import no.ntnu.idatt2106.nettdetektivene.repository.LeaderboardRow;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.StopResponse;
+import no.ntnu.idatt2106.nettdetektivene.entity.Stop;
+import no.ntnu.idatt2106.nettdetektivene.entity.TaskType;
+import no.ntnu.idatt2106.nettdetektivene.repository.StopRepository;
+import no.ntnu.idatt2106.nettdetektivene.repository.StudentProgressRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.SchoolLeaderboardRow;
 import no.ntnu.idatt2106.nettdetektivene.entity.Classroom;
 import no.ntnu.idatt2106.nettdetektivene.entity.ClassroomStudent;
@@ -32,7 +37,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +53,8 @@ public class ClassroomService {
     private final ClassroomCodeGenerator classroomCodeGenerator;
     private final TaskRepository taskRepository;
     private final NotificationService notificationService;
+    private final StopRepository stopRepository;
+    private final StudentProgressRepository studentProgressRepository;
 
     @Transactional
     public ClassroomResponse createClassroom(Long teacherId, CreateClassroomRequest req) {
@@ -149,6 +158,75 @@ public class ClassroomService {
         return classroomStudentRepository.findByClassroom_Id(classroomId).stream()
             .map(this::toStudentResponse)
             .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<StudentProgressSummaryDto> getStudentProgressSummaries(Long teacherId, Long classroomId) {
+        log.info("[ClassroomService] getStudentProgressSummaries teacherId={} classroomId={}", teacherId, classroomId);
+        verifyTeacherOwnsClassroom(teacherId, classroomId);
+
+        List<ClassroomStudent> approved = classroomStudentRepository.findByClassroom_Id(classroomId).stream()
+            .filter(cs -> cs.getStatus() == ClassroomStudentStatus.APPROVED)
+            .toList();
+
+        List<Stop> stops = stopRepository.findAllByOrderByOrderIndexAsc();
+
+        // Required task count per stop (excluding LEARN tasks)
+        Map<Long, Long> requiredPerStop = stops.stream().collect(Collectors.toMap(
+            Stop::getId,
+            s -> taskRepository.countByStop_IdAndTaskTypeNot(s.getId(), TaskType.LEARN)
+        ));
+
+        return approved.stream().map(member -> {
+            Long studentId = member.getStudent().getId();
+            int totalCompleted = (int) studentProgressRepository.countByStudent_IdAndCompletedTrue(studentId);
+
+            // Current stop = first stop the student hasn't yet fully completed
+            Stop current = stops.stream()
+                .filter(stop -> {
+                    long required = requiredPerStop.getOrDefault(stop.getId(), 0L);
+                    if (required == 0) return false;
+                    long done = studentProgressRepository
+                        .countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(
+                            studentId, stop.getId(), TaskType.LEARN);
+                    return done < required;
+                })
+                .findFirst()
+                .orElse(null);
+
+            String currentStopName = current != null ? current.getName() : "Fullført";
+            int currentStopOrder = current != null ? current.getOrderIndex() : stops.size() + 1;
+
+            // Last completed stop = the stop just before the current one
+            int currentIdx = current != null ? stops.indexOf(current) : stops.size();
+            String lastCompletedStopName = currentIdx > 0 ? stops.get(currentIdx - 1).getName() : null;
+
+            return new StudentProgressSummaryDto(studentId, member.getDisplayName(), totalCompleted, currentStopName, currentStopOrder, lastCompletedStopName);
+        }).toList();
+    }
+
+    public List<StopResponse> getStopsForClassroom(Long teacherId, Long classroomId) {
+        log.info("Fetching stops for classroomId={} teacherId={}", classroomId, teacherId);
+        verifyTeacherOwnsClassroom(teacherId, classroomId);
+        return stopRepository.findAllByOrderByOrderIndexAsc().stream()
+            .map(this::toStopResponse)
+            .toList();
+    }
+
+    private StopResponse toStopResponse(Stop stop) {
+        int taskCount = (int) taskRepository.countByStop_Id(stop.getId());
+        return new StopResponse(
+            stop.getId(),           // Long id
+            stop.getName(),         // String name
+            stop.getOrderIndex(),   // int orderIndex
+            stop.getDescription(),  // String description
+            false,                  // boolean locked  (no locking logic yet — adjust if needed)
+            false,                  // boolean completed (teacher view: not per-student, so false)
+            taskCount,              // int taskCount
+            0,                      // int correctCount (teacher view: no per-student data here)
+            false,                  // boolean xpClaimable
+            stop.getTheme()         // String theme
+        );
     }
 
     public StudentInClassroomResponse updateStudentStatus(

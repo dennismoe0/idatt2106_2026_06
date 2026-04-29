@@ -1,12 +1,12 @@
 <template>
   <main class="classroom-detail">
     <header class="classroom-detail__header">
-      <button class="back-btn" @click="router.push({ name: 'Dashboard' })">← Tilbake</button>
+      <button class="btn btn-ghost btn-sm" @click="router.push({ name: 'Dashboard' })">← Tilbake</button>
       <div class="classroom-detail__title">
         <h1>{{ classroom?.name ?? 'Klasserom' }}</h1>
         <div v-if="classroom?.joinCode" class="join-code">
           Kode: <strong>{{ classroom.joinCode }}</strong>
-          <button class="copy-btn" @click="copyCode">{{ codeCopied ? 'Kopiert!' : 'Kopier' }}</button>
+          <button class="btn btn-secondary btn-sm" @click="copyCode">{{ codeCopied ? 'Kopiert!' : 'Kopier' }}</button>
         </div>
       </div>
       <button
@@ -19,7 +19,7 @@
       </button>
       <RouterLink
         :to="{ name: 'WeeklyMysteryManage', params: { classroomId } }"
-        class="mysterium-link"
+        class="btn btn-primary btn-sm"
       >
         Ukens Mysterium
       </RouterLink>
@@ -31,38 +31,91 @@
     <section v-else>
       <p class="student-count">{{ students.length }} elev{{ students.length !== 1 ? 'er' : '' }}</p>
 
-      <ul class="student-list">
-        <li v-for="student in students" :key="student.userId" class="student-row">
+      <div class="student-table">
+        <!-- Header row -->
+        <div class="student-table__header">
+          <span>Elev</span>
+          <span>Status</span>
+          <span>Nåværende stopp</span>
+          <span>Oppgaver fullført</span>
+          <span>Sist fullførte stopp</span>
+          <span>Handlinger</span>
+        </div>
+
+        <div v-for="student in students" :key="student.userId" class="student-table__row">
+          <!-- Name -->
           <span class="student-name">
             {{ student.displayName }}
             <span class="student-username">{{ student.username }}</span>
           </span>
+
+          <!-- Status -->
           <span class="badge" :class="`badge--${student.status.toLowerCase()}`">
             {{ statusLabel(student.status) }}
           </span>
+
+          <!-- Current stop -->
+          <span class="stop-cell">
+            <template v-if="currentStop(student)">
+              {{ currentStop(student).currentStopName }}
+            </template>
+            <span v-else class="cell-empty">—</span>
+          </span>
+
+          <!-- Tasks completed -->
+          <span class="progress-cell">
+            <template v-if="studentProgress(student)">
+              <strong>{{ studentProgress(student).completedTasks }}</strong>
+            </template>
+            <span v-else class="cell-empty">—</span>
+          </span>
+
+          <!-- Last completed stop -->
+          <span class="stop-cell">
+            <template v-if="lastCompletedStop(student)">
+              {{ lastCompletedStop(student) }}
+            </template>
+            <span v-else class="cell-empty">—</span>
+          </span>
+
+          <!-- Actions -->
           <div class="student-actions">
             <RouterLink
               :to="{ name: 'TeacherNotebook', params: { studentId: student.userId }, query: { studentName: student.displayName, classroomId: classroomId } }"
-              class="notebook-link"
+              class="action-btn"
             >
-              Se Notatblokk
+              Notatblokk
             </RouterLink>
-            <BaseButton
+            <button
               v-if="student.status === 'PENDING'"
-              size="sm"
+              class="action-btn action-btn--approve"
               @click="approve(student.userId)"
-            >Godkjenn</BaseButton>
-            <BaseButton
+            >Godkjenn</button>
+            <button
               v-if="student.status !== 'KICKED'"
-              size="sm"
-              variant="danger"
+              class="action-btn action-btn--danger"
               @click="openKickModal(student)"
-            >Kast ut</BaseButton>
+            >Kast ut</button>
           </div>
-        </li>
-      </ul>
+        </div>
+      </div>
 
       <p v-if="students.length === 0" class="student-empty">Ingen elever har meldt seg på enda.</p>
+
+      <!-- Detailed leaderboard section inside the same view -->
+      <section class="leaderboard-section">
+        <h2 class="leaderboard-title">Ledertavle</h2>
+        <LoadingSpinner v-if="lbLoading" />
+        <template v-else>
+          <LeaderboardTable
+            :aria-label="'Ledertavle for klassen'"
+            :entries="leaderboard"
+            :current-student-id="null"
+            empty-label="Ingen elever å vise enda."
+          />
+        </template>
+        <p v-if="lbError" class="leaderboard-error">{{ lbError }}</p>
+      </section>
     </section>
 
     <!-- Kick confirmation modal -->
@@ -75,7 +128,7 @@
       <p>Er du sikker på at du vil kaste ut <strong>{{ kickTarget.displayName }}</strong>?</p>
       <p class="kick-warning">Eleven kan søke om å bli med igjen, men du må godkjenne dem på nytt.</p>
       <div class="modal-actions">
-        <button class="btn btn-outline" @click="kickTarget = null">Avbryt</button>
+        <button class="btn btn-secondary" @click="kickTarget = null">Avbryt</button>
         <button class="btn btn-danger" @click="kick(kickTarget.userId)">Ja, kast ut</button>
       </div>
     </BaseModal>
@@ -87,9 +140,10 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useClassroomStore } from '@/stores/classroom'
 import { classroomService } from '@/services/classroomService'
-import BaseButton from '@/components/common/BaseButton.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import LeaderboardTable from '@/components/student/LeaderboardTable.vue'
+import { gameService } from '@/services/gameService'
 
 const route = useRoute()
 const router = useRouter()
@@ -102,6 +156,14 @@ const kickTarget = ref(null)
 const codeCopied = ref(false)
 const musicMuted = ref(false)
 let pollInterval = null
+
+// Leaderboard state
+const leaderboard = ref([])
+const lbLoading = ref(false)
+const lbError = ref('')
+
+// Per-student progress from dedicated teacher endpoint
+const studentProgressMap = ref({}) // keyed by studentId
 
 const students = computed(() => classroomStore.students)
 const classroom = computed(() =>
@@ -118,8 +180,10 @@ onMounted(async () => {
   if (classroomStore.classrooms.length === 0) {
     await classroomStore.fetchMyClassrooms()
   }
-  await loadStudents()
-  pollInterval = setInterval(loadStudents, 5000)
+  await Promise.all([loadStudents(), loadLeaderboard(), loadStudentProgress()])
+  pollInterval = setInterval(async () => {
+    await Promise.allSettled([loadStudents(), loadLeaderboard(), loadStudentProgress()])
+  }, 5000)
   console.log('[ClassroomDetailView] Polling started every 5s')
 })
 
@@ -139,6 +203,50 @@ async function loadStudents() {
     loading.value = false
   }
 }
+
+async function loadLeaderboard() {
+  if (leaderboard.value.length === 0) lbLoading.value = true
+  lbError.value = ''
+  try {
+    const { data } = await gameService.getLeaderboard(classroomId)
+    leaderboard.value = Array.isArray(data) ? data : []
+  } catch (err) {
+    console.error('[ClassroomDetailView] Failed to fetch leaderboard:', err)
+    lbError.value = 'Kunne ikke hente ledertavlen.'
+  } finally {
+    lbLoading.value = false
+  }
+}
+
+async function loadStudentProgress() {
+  try {
+    const { data } = await classroomService.getStudentProgress(classroomId)
+    const map = {}
+    if (Array.isArray(data)) {
+      data.forEach(entry => { map[entry.studentId] = entry })
+    }
+    studentProgressMap.value = map
+    console.log('[ClassroomDetailView] Student progress loaded for', data?.length ?? 0, 'students')
+  } catch (err) {
+    console.error('[ClassroomDetailView] Failed to fetch student progress:', err)
+  }
+}
+
+function studentProgress(student) {
+  return studentProgressMap.value[student.userId] || null
+}
+
+function currentStop(student) {
+  const p = studentProgress(student)
+  if (!p || !p.currentStopName) return null
+  return p
+}
+
+function lastCompletedStop(student) {
+  const p = studentProgress(student)
+  return p?.lastCompletedStopName || null
+}
+
 
 async function approve(studentId) {
   console.log('[ClassroomDetailView] Approving student:', studentId)
@@ -225,31 +333,6 @@ async function copyCode() {
   border-color: var(--color-danger);
 }
 .mute-all-btn--active:hover { opacity: 0.85; }
-
-.mysterium-link {
-  align-self: center;
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-primary);
-  text-decoration: none;
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-md);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.mysterium-link:hover {
-  background: var(--color-primary-soft);
-}
-.back-btn {
-  background: none;
-  border: none;
-  color: var(--color-primary);
-  cursor: pointer;
-  font-size: var(--text-sm);
-  padding: 0;
-  margin-bottom: var(--space-3);
-}
 .classroom-detail__title {
   display: flex;
   align-items: baseline;
@@ -263,49 +346,64 @@ async function copyCode() {
   color: var(--color-text-muted);
   font-size: var(--text-sm);
 }
-.copy-btn {
-  background: none;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: var(--space-1) var(--space-2);
-  cursor: pointer;
-  font-size: var(--text-xs);
-  color: var(--color-text);
-}
 .student-count {
   color: var(--color-text-muted);
   font-size: var(--text-sm);
   margin-bottom: var(--space-3);
 }
-.student-list {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  gap: var(--space-2);
-}
-.student-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-surface);
+/* ---- Student table ---- */
+.student-table {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  overflow: hidden;
+  font-size: var(--text-sm);
 }
+
+.student-table__header,
+.student-table__row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr 1.2fr 2fr 1.8fr;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.student-table__header {
+  background: var(--color-surface-soft);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.student-table__row {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+.student-table__row:last-child {
+  border-bottom: none;
+}
+.student-table__row:hover {
+  background: var(--color-surface-soft);
+}
+
 .student-name {
-  flex: 1;
   font-weight: var(--font-medium);
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 2px;
 }
 .student-username {
   font-size: var(--text-xs);
-  font-weight: var(--font-normal);
+  font-weight: 400;
   color: var(--color-text-muted);
 }
+
 .badge {
-  padding: var(--space-1) var(--space-2);
+  display: inline-block;
+  padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
@@ -314,22 +412,73 @@ async function copyCode() {
 .badge--pending  { background: var(--color-warning-light); color: var(--color-warning); }
 .badge--approved { background: var(--color-success-light); color: var(--color-success); }
 .badge--kicked   { background: var(--color-danger-light);  color: var(--color-danger); }
+
+.stop-cell {
+  font-size: var(--text-xs);
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progress-cell {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+.progress-cell strong {
+  color: var(--color-primary);
+}
+
+.cell-empty {
+  color: var(--color-text-muted);
+}
+
 .student-actions {
   display: flex;
   gap: var(--space-2);
+  flex-wrap: wrap;
 }
-.notebook-link {
-  font-size: var(--text-sm);
-  color: var(--color-primary);
-  text-decoration: none;
-  padding: var(--space-1) var(--space-3);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-md);
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
   white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
 }
-.notebook-link:hover {
-  background: var(--color-primary-soft);
+.action-btn:hover {
+  background: var(--color-surface-soft);
+  border-color: var(--color-border-strong);
 }
+.action-btn--approve {
+  background: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.action-btn--approve:hover {
+  background: var(--color-success);
+  color: #fff;
+}
+.action-btn--danger {
+  background: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+.action-btn--danger:hover {
+  background: var(--color-danger);
+  color: #fff;
+}
+
 .student-empty {
   color: var(--color-text-muted);
   padding: var(--space-6);
@@ -348,25 +497,5 @@ async function copyCode() {
   gap: var(--space-3);
   justify-content: flex-end;
   margin-top: var(--space-4);
-}
-.btn {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: 800;
-  font-size: var(--text-sm);
-}
-.btn-outline {
-  background: var(--color-surface);
-  color: var(--color-primary);
-  border: 2px solid var(--color-primary);
-}
-.btn-danger {
-  background: var(--color-danger);
-  color: var(--color-text-on-dark);
 }
 </style>

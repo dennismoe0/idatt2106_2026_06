@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -45,6 +46,23 @@ public class NotificationController {
     @PutMapping("/read-all")
     public ResponseEntity<Void> markAllRead(@AuthenticationPrincipal UserDetails userDetails) {
         notificationService.markAllRead(currentUserId(userDetails));
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('TEACHER')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteNotification(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+        notificationService.deleteNotification(currentUserId(userDetails), id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('TEACHER')")
+    @DeleteMapping("/old")
+    public ResponseEntity<Void> deleteOldNotifications(@AuthenticationPrincipal UserDetails userDetails) {
+        notificationService.deleteOldNotifications(currentUserId(userDetails));
         return ResponseEntity.noContent().build();
     }
 

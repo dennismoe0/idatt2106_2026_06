@@ -1703,11 +1703,11 @@ public class DataLoader implements ApplicationRunner {
             task.setCorrectAnswerJson(objectMapper.writeValueAsString(objectMapper.readTree("""
                 {
                   "challenge_0": { "article_0": true, "article_1": false },
-                  "challenge_1": { "image_0": "AI_GENERATED" },
+                  "challenge_1": { "image_0": "AI_GENERATED", "image_1": "REAL" },
                   "challenge_2": { "action": "REPORT" },
-                  "challenge_3": { "selected": "b" },
+                  "challenge_3": { "domain": "true", "payment": "true" },
                   "challenge_4": { "selected": "CHECK_SOURCES" },
-                  "challenge_5": { "selected": "c" }
+                  "challenge_5": { "selected": "d" }
                 }
                 """)));
         } catch (JsonProcessingException e) {

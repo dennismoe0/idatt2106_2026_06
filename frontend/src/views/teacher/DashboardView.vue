@@ -26,31 +26,21 @@
             </router-link>
           </li>
           <li>
-            <a href="#" class="nav-link">
-              <span class="nav-icon">📊</span> Fremgang
-            </a>
-          </li>
-          <li>
-            <a href="#" class="nav-link">
-              <span class="nav-icon">🕯️</span> Ukens mysterium
-            </a>
-          </li>
-          <li>
             <router-link to="/teacher/notifications" class="nav-link" data-testid="notifications-link">
               <span class="nav-icon">🔔</span> Varsler
               <span
-                v-if="notificationStore.unreadCount > 0"
-                class="notification-badge"
-                data-testid="notification-badge"
+                  v-if="notificationStore.unreadCount > 0"
+                  class="notification-badge"
+                  data-testid="notification-badge"
               >
                 {{ notificationStore.unreadCount }}
               </span>
             </router-link>
           </li>
           <li>
-            <a href="#" class="nav-link">
+            <router-link to="/teacher/settings" class="nav-link">
               <span class="nav-icon">⚙️</span> Innstillinger
-            </a>
+            </router-link>
           </li>
         </ul>
       </nav>
@@ -90,10 +80,10 @@
 
           <!-- Teacher has a school -->
           <SchoolOverview
-            v-if="schoolStore.school"
-            :school="schoolStore.school"
-            :classrooms="schoolClassrooms"
-            @copy-code="copySchoolCode"
+              v-if="schoolStore.school"
+              :school="schoolStore.school"
+              :classrooms="schoolClassrooms"
+              @copy-code="copySchoolCode"
           />
 
           <!-- No school yet -->
@@ -112,11 +102,11 @@
         <div class="section-label">Dine klasser</div>
         <div class="classrooms-grid">
           <a
-            v-for="classroom in classrooms"
-            :key="classroom.id"
-            class="classroom-card"
-            @click.prevent="goToClassroom(classroom.id)"
-            href="#"
+              v-for="classroom in classrooms"
+              :key="classroom.id"
+              class="classroom-card"
+              @click.prevent="goToClassroom(classroom.id)"
+              href="#"
           >
             <div class="card-header">
               <div class="card-name">{{ classroom.name }}</div>
@@ -126,6 +116,13 @@
             <div class="card-meta">Opprettet {{ formatDate(classroom.createdAt) }}</div>
             <div class="card-footer">
               <span class="btn btn-primary btn-sm">Se klassen →</span>
+              <router-link
+                  :to="{ name: 'WeeklyMysteryManage', params: { classroomId: classroom.id } }"
+                  class="btn btn-mystery btn-sm"
+                  @click.stop
+              >
+                🕯️ Ukens mysterium
+              </router-link>
             </div>
           </a>
 
@@ -164,21 +161,21 @@
           <div class="form-group">
             <label class="form-label">Klassenavn *</label>
             <input
-              v-model="createForm.name"
-              class="form-input"
-              type="text"
-              placeholder="f.eks. 7A — Blindern skole"
-              required
-              autofocus
+                v-model="createForm.name"
+                class="form-input"
+                type="text"
+                placeholder="f.eks. 7A — Blindern skole"
+                required
+                autofocus
             />
           </div>
           <div class="form-group">
             <label class="form-label">Beskrivelse <span class="optional">(valgfri)</span></label>
             <input
-              v-model="createForm.description"
-              class="form-input"
-              type="text"
-              placeholder="f.eks. Vår 2026"
+                v-model="createForm.description"
+                class="form-input"
+                type="text"
+                placeholder="f.eks. Vår 2026"
             />
           </div>
           <div v-if="createError" class="form-error">{{ createError }}</div>
@@ -259,7 +256,6 @@ onMounted(async () => {
 })
 
 function goToClassroom(id) {
-  // TODO: register ClassroomDetail route in index.js when the view is built
   router.push({ name: 'ClassroomDetail', params: { id } })
 }
 
@@ -526,6 +522,9 @@ function formatDate(dateStr) {
   margin-top: auto;
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-border);
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
 }
 
 /* ─── New classroom card ──────────────────────────────────── */
@@ -588,6 +587,31 @@ function formatDate(dateStr) {
 }
 .btn-outline:hover { background: var(--color-primary-light); }
 .btn-sm { padding: var(--space-2) var(--space-4); font-size: var(--text-xs); }
+
+.btn-mystery {
+  background: var(--color-accent-soft, #FFF3E0);
+  color: var(--color-accent-dark, #C05621);
+  border: 1.5px solid var(--color-accent-light, #FBBF79);
+}
+.btn-mystery:hover {
+  background: var(--color-accent-light, #FBBF79);
+  color: var(--color-accent-dark, #C05621);
+  transform: translateY(-1px);
+}
+
+/* Sidebar disabled state — teacher has no classrooms yet */
+.nav-link--disabled {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 20px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  border-left: 3px solid transparent;
+  cursor: not-allowed;
+  user-select: none;
+}
 
 /* ─── Loading / Error ─────────────────────────────────────── */
 .loading-state {

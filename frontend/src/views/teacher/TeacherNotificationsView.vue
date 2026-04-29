@@ -25,16 +25,6 @@
             </router-link>
           </li>
           <li>
-            <a href="#" class="nav-link">
-              <span class="nav-icon">📊</span> Fremgang
-            </a>
-          </li>
-          <li>
-            <a href="#" class="nav-link">
-              <span class="nav-icon">🕯️</span> Ukens mysterium
-            </a>
-          </li>
-          <li>
             <router-link
               to="/teacher/notifications"
               class="nav-link active"
@@ -66,32 +56,45 @@
     <main class="notifications-page">
       <header class="notifications-header">
         <div>
-          <RouterLink to="/teacher" class="back-link">Tilbake til dashboard</RouterLink>
+          <RouterLink to="/teacher" class="btn btn-outline btn-sm back-btn">← Tilbake til dashboard</RouterLink>
           <h1>Varsler</h1>
           <p>{{ notificationStore.unreadCount }} uleste varsler</p>
         </div>
-        <button
-          class="btn btn-primary"
-          :disabled="notificationStore.unreadCount === 0 || actionLoading"
-          @click="markAll"
-        >
-          Marker alle som lest
-        </button>
+        <div class="header-actions">
+          <button
+            class="btn btn-primary"
+            :disabled="notificationStore.unreadCount === 0 || actionLoading"
+            @click="markAll"
+          >
+            Marker alle som lest
+          </button>
+          <button
+            class="btn btn-danger"
+            :disabled="sortedNotifications.length === 0 || actionLoading"
+            @click="deleteAll"
+          >
+            Slett alle varsler
+          </button>
+        </div>
       </header>
 
       <div v-if="notificationStore.loading" class="state-card">Laster varsler...</div>
       <div v-else-if="notificationStore.error" class="error-card">{{ notificationStore.error }}</div>
-      <div v-else-if="notificationStore.notifications.length === 0" class="state-card">
+      <div v-else-if="sortedNotifications.length === 0" class="state-card">
         Ingen varsler.
       </div>
 
       <section v-else class="notifications-list">
+        <!-- Recent / active notifications -->
         <article
-          v-for="notification in notificationStore.notifications"
+          v-for="notification in recentNotifications"
           :key="notification.id"
           class="notification-card"
-          :class="{ unread: !notification.isRead }"
-      >
+          :class="{
+            unread: !notification.isRead,
+            'notification-card--handled': notification.isRead
+          }"
+        >
           <div class="notification-main">
             <span class="type-label">{{ typeLabel(notification.type) }}</span>
             <h2>{{ notification.message }}</h2>
@@ -100,22 +103,31 @@
 
           <div class="notification-actions">
             <template v-if="notification.type === 'STUDENT_JOIN_REQUEST'">
-              <button
-                class="btn btn-primary btn-sm"
-                :data-testid="`approve-notification-${notification.id}`"
-                :disabled="actionLoading"
-                @click="handleJoinRequest(notification, 'APPROVED')"
+              <span
+                v-if="notification.status && notification.status !== 'PENDING'"
+                class="handled-badge"
+                :class="handledActions[notification.id] === 'KICKED' ? 'handled-badge--denied' : 'handled-badge--approved'"
               >
-                Godkjenn
-              </button>
-              <button
-                class="btn btn-danger btn-sm"
-                :data-testid="`deny-notification-${notification.id}`"
-                :disabled="actionLoading"
-                @click="handleJoinRequest(notification, 'KICKED')"
-              >
-                Avvis
-              </button>
+                {{ handledActions[notification.id] === 'KICKED' ? '✗ Avvist' : '✓ Godkjent' }}
+              </span>
+              <template v-else>
+                <button
+                  class="btn btn-primary btn-sm"
+                  :data-testid="`approve-notification-${notification.id}`"
+                  :disabled="actionLoading || handledActions[notification.id]"
+                  @click="handleJoinRequest(notification, 'APPROVED')"
+                >
+                  Godkjenn
+                </button>
+                <button
+                  class="btn btn-danger btn-sm"
+                  :data-testid="`deny-notification-${notification.id}`"
+                  :disabled="actionLoading || handledActions[notification.id]"
+                  @click="handleJoinRequest(notification, 'KICKED')"
+                >
+                  Avvis
+                </button>
+              </template>
             </template>
 
             <button
@@ -135,6 +147,42 @@
             >
               Marker lest
             </button>
+
+            <button
+              class="btn btn-ghost btn-sm"
+              :disabled="actionLoading"
+              @click="deleteNotification(notification.id)"
+              title="Slett varsel"
+            >
+              🗑️
+            </button>
+          </div>
+        </article>
+
+        <div v-if="oldNotifications.length > 0" class="old-divider">
+          <span>Eldre varsler</span>
+        </div>
+
+        <article
+          v-for="notification in oldNotifications"
+          :key="notification.id"
+          class="notification-card notification-card--old"
+        >
+          <div class="notification-main">
+            <span class="type-label type-label--muted">{{ typeLabel(notification.type) }}</span>
+            <h2>{{ notification.message }}</h2>
+            <p>{{ formatDate(notification.createdAt) }}</p>
+          </div>
+
+          <div class="notification-actions">
+            <button
+              class="btn btn-ghost btn-sm"
+              :disabled="actionLoading"
+              @click="deleteNotification(notification.id)"
+              title="Slett varsel"
+            >
+              🗑️
+            </button>
           </div>
         </article>
       </section>
@@ -143,7 +191,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useNotificationStore } from '@/stores/notification'
 import { useClassroomStore } from '@/stores/classroom'
@@ -156,13 +204,89 @@ const classroomStore = useClassroomStore()
 const authStore = useAuthStore()
 const schoolStore = useSchoolStore()
 const actionLoading = ref(false)
+const handledActions = ref({}) // { [notificationId]: 'APPROVED' | 'KICKED' }
+
+// Notifications older than 8 hours are considered stale
+const STALE_MS = 8 * 60 * 60 * 1000
+
+function isOld(notification) {
+  if (!notification.createdAt) return false
+  return Date.now() - new Date(notification.createdAt).getTime() > STALE_MS
+}
+
+// All notifications sorted newest first
+const sortedNotifications = computed(() =>
+  [...(notificationStore.notifications ?? [])].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  )
+)
+
+const recentNotifications = computed(() =>
+  sortedNotifications.value.filter(n => !isOld(n))
+)
+
+const oldNotifications = computed(() =>
+  sortedNotifications.value.filter(n => isOld(n))
+)
+
+// Auto-delete old notifications every 8 hours
+let autoCleanupInterval = null
+
+let pollInterval = null
 
 onMounted(async () => {
   await Promise.all([
     notificationStore.fetchNotifications(),
     notificationStore.fetchUnreadCount()
   ])
+
+  pollInterval = setInterval(async () => {
+    await notificationStore.fetchNotifications()
+    await notificationStore.fetchUnreadCount()
+  }, 5000)
+
+  // Run once on mount, then every 8 hours
+  purgeOldNotifications()
+  autoCleanupInterval = setInterval(purgeOldNotifications, STALE_MS)
 })
+
+onUnmounted(() => {
+  clearInterval(autoCleanupInterval)
+  clearInterval(pollInterval)
+})
+
+async function purgeOldNotifications() {
+  try {
+    await notificationStore.deleteOldNotifications()
+  } catch (err) {
+    console.warn('[TeacherNotificationsView] Auto-purge failed', err)
+  }
+}
+
+async function deleteNotification(id) {
+  actionLoading.value = true
+  try {
+    await notificationStore.deleteNotification(id)
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+async function deleteAll() {
+  actionLoading.value = true
+  try {
+    const all = [...(notificationStore.notifications ?? [])]
+    for (const n of all) {
+      try {
+        await notificationStore.deleteNotification(n.id)
+      } catch (err) {
+        console.warn('[TeacherNotificationsView] Failed to delete notification', n.id, err)
+      }
+    }
+  } finally {
+    actionLoading.value = false
+  }
+}
 
 function typeLabel(type) {
   if (type === 'STUDENT_JOIN_REQUEST') return 'Innmeldingsforespørsel'
@@ -186,6 +310,7 @@ async function handleJoinRequest(notification, status) {
   try {
     await classroomStore.updateStudentStatus(notification.classroomId, studentId, status)
     await notificationStore.markAsRead(notification.id)
+    handledActions.value = { ...handledActions.value, [notification.id]: status }
   } finally {
     actionLoading.value = false
   }
@@ -381,11 +506,16 @@ function viewMystery(notification) {
   font-size: var(--text-sm);
 }
 
-.back-link {
-  color: var(--color-primary);
-  font-size: var(--text-sm);
-  font-weight: 800;
-  text-decoration: none;
+.header-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.back-btn {
+  align-self: flex-start;
+  margin-bottom: var(--space-2);
 }
 
 .notifications-list {
@@ -416,6 +546,68 @@ function viewMystery(notification) {
   border-color: var(--color-primary);
 }
 
+/* Old/stale notifications */
+.notification-card--old {
+  opacity: 0.45;
+  border-color: transparent !important;
+  box-shadow: none;
+}
+
+.notification-card--old:hover {
+  opacity: 0.65;
+}
+
+/* Handled (approved/denied) notifications */
+.notification-card--handled {
+  opacity: 0.5;
+  border-color: transparent !important;
+  box-shadow: none;
+  transition: opacity var(--transition-fast);
+}
+
+.notification-card--handled:hover {
+  opacity: 0.7;
+}
+
+.handled-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.handled-badge--approved {
+  background: var(--color-success-light, #dcfce7);
+  color: var(--color-success, #16a34a);
+}
+
+.handled-badge--denied {
+  background: var(--color-danger-light, #fee2e2);
+  color: var(--color-danger);
+}
+
+.old-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: var(--space-2);
+}
+
+.old-divider::before,
+.old-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
 .notification-main h2 {
   margin: 8px 0 6px;
   font-size: var(--text-lg);
@@ -436,6 +628,11 @@ function viewMystery(notification) {
   color: var(--color-primary);
   font-size: var(--text-xs);
   font-weight: 900;
+}
+
+.type-label--muted {
+  background: var(--color-border);
+  color: var(--color-text-muted);
 }
 
 .notification-actions {
@@ -482,6 +679,18 @@ function viewMystery(notification) {
   color: var(--color-text-on-dark);
 }
 
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+.btn-ghost:hover {
+  background: var(--color-surface-hover, #f9fafb);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
 .btn-sm {
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-xs);
@@ -522,6 +731,11 @@ function viewMystery(notification) {
 
   .notification-actions {
     justify-content: flex-start;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 </style>

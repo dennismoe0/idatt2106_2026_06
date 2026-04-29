@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ClaimXpResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.PlayerProfileDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ProgressResponse;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.StopMetaResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.StopResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.SubmitAnswerRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.SubmitAnswerResponse;
@@ -32,6 +33,13 @@ public class GameController {
     private static final Logger log = LoggerFactory.getLogger(GameController.class);
 
     private final GameService gameService;
+
+    @GetMapping("/stops/meta")
+    @PreAuthorize("hasRole('TEACHER')")
+    public List<StopMetaResponse> getStopsMeta() {
+        log.info("[GameController] GET /stops/meta");
+        return gameService.getStopsMeta();
+    }
 
     @GetMapping("/stops")
     @PreAuthorize("hasRole('STUDENT')")
