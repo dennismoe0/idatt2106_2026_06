@@ -26,7 +26,6 @@ import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomStudentRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.ClassroomTeacherRepository;
-import no.ntnu.idatt2106.nettdetektivene.repository.StopRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import no.ntnu.idatt2106.nettdetektivene.util.ClassroomCodeGenerator;
