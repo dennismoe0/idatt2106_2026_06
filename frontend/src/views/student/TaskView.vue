@@ -35,7 +35,7 @@
     <div
       v-else
       class="task-view__main"
-      :class="currentTask?.taskType === 'LEARN' ? 'task-view__main--clean' : 'cork-board-bg'"
+      :class="taskMainClass"
       @mouseover="handlePeekHover"
       @mouseout="handlePeekOut"
     >
@@ -55,7 +55,7 @@
         <p v-else-if="error" class="task-view__state task-view__state--error">{{ error }}</p>
         <p v-else-if="!currentTask" class="task-view__state">Ingen oppgaver funnet for dette stoppet.</p>
 
-        <section v-else class="task-view__section">
+        <section v-else class="task-view__section" :class="{ 'task-view__section--clue': currentTask?.taskType === 'CLUE_RIDDLE' }">
           <!-- Progress dots + replay button -->
           <div class="task-view__meta">
             <div class="task-dots" role="list">
@@ -80,7 +80,7 @@
 
           <!-- Avatar: in-flow spacer, hidden during peek so cards don't shift -->
           <div
-            v-if="currentTask?.taskType !== 'LEARN'"
+            v-if="currentTask?.taskType !== 'LEARN' && currentTask?.taskType !== 'CLUE_RIDDLE'"
             class="task-view__avatar-wrap"
             :class="{ 'task-view__avatar-wrap--peekmode': !!peekState }"
           >
@@ -190,7 +190,7 @@
     <!-- Peek avatar: fixed overlay, teleported so it doesn't affect layout -->
     <Teleport to="body">
       <div
-        v-if="peekState && currentTask?.taskType !== 'LEARN'"
+        v-if="peekState && currentTask?.taskType !== 'LEARN' && currentTask?.taskType !== 'CLUE_RIDDLE'"
         class="task-view__peek-avatar"
         :style="avatarPeekStyle"
       >
@@ -224,6 +224,23 @@
 
           <article class="stored-clue-modal__card">
             <span>{{ storedClueModal.stopName }}</span>
+            <div v-if="storedClueModal.resultLines?.length" class="stored-clue-modal__result">
+              <strong>Hva fant vi ut?</strong>
+              <p v-for="line in storedClueModal.resultLines" :key="line">{{ line }}</p>
+            </div>
+            <div v-if="storedClueModal.logic" class="stored-clue-modal__result">
+              <strong>Forklaring</strong>
+              <p>{{ storedClueModal.logic }}</p>
+            </div>
+            <div v-if="storedClueModal.elimination" class="stored-clue-modal__elimination">
+              <strong>{{ storedClueModal.elimination === 'Ingen fjernes.' ? 'Mistenkte igjen' : 'Mistenkt eliminert' }}</strong>
+              <p>{{ storedClueModal.elimination }}</p>
+            </div>
+            <div v-if="storedClueModal.final" class="stored-clue-modal__elimination">
+              <strong>Endelig konklusjon</strong>
+              <p>{{ storedClueModal.final }}</p>
+            </div>
+            <strong class="stored-clue-modal__clue-label">Clue</strong>
             <p>{{ storedClueModal.clue }}</p>
           </article>
 
@@ -274,6 +291,7 @@ import StopSummary from '@/components/student/StopSummary.vue'
 import { useSound } from '@/composables/useSound'
 import AvatarPreview from '@/components/student/AvatarPreview.vue'
 import { useAudioStore } from '@/stores/audio'
+import { splitLines } from '@/utils/text'
 
 const { playCorrect, playWrong, playFanfare } = useSound()
 const audioStore = useAudioStore()
@@ -322,6 +340,11 @@ const classroomId = computed(() => {
 })
 const currentTask = computed(() => tasks.value[currentTaskIndex.value] ?? null)
 const stopName    = computed(() => tasks.value[0]?.stopName ?? 'Oppgaver')
+const taskMainClass = computed(() => {
+  if (currentTask.value?.taskType === 'LEARN') return 'task-view__main--clean'
+  if (currentTask.value?.taskType === 'CLUE_RIDDLE') return 'task-view__main--clue'
+  return 'cork-board-bg'
+})
 const arrestScenes = [
   {
     title: 'Tyven er arrestert!',
@@ -568,6 +591,10 @@ function maybeShowStoredClueModal(task, submitResult) {
 
   storedClueModal.value = {
     stopName: task.stopName ?? 'Nytt spor',
+    resultLines: splitLines(task.contentJson?.result),
+    logic: task.contentJson?.logic ?? '',
+    elimination: task.contentJson?.elimination ?? '',
+    final: task.contentJson?.final ?? '',
     clue: submitResult.clueText
       || submitResult.explanation
       || task.contentJson?.evidence
@@ -1049,6 +1076,43 @@ function goToMap() {
     linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
 }
 
+.task-view__main--clue {
+  min-height: calc(100vh - 54px);
+  padding: 0;
+  background: #070707;
+}
+
+.task-view__section--clue {
+  position: relative;
+  min-height: calc(100vh - 54px);
+}
+
+.task-view__section--clue .task-view__meta {
+  position: absolute;
+  top: 0.85rem;
+  left: 50%;
+  z-index: 8;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.42);
+  backdrop-filter: blur(8px);
+  transform: translateX(-50%);
+}
+
+.task-view__section--clue .task-view__replay-btn {
+  border-color: rgba(255, 235, 196, 0.32);
+  color: rgba(255, 235, 196, 0.8);
+}
+
+.task-view__section--clue .dot {
+  background: rgba(255, 235, 196, 0.28);
+}
+
+.task-view__section--clue .dot--current {
+  border-color: #f3c873;
+  background: #f3c873;
+}
+
 .task-view__state { text-align: center; padding: var(--space-8); color: var(--color-text); }
 .task-view__state--error { color: var(--color-danger); }
 
@@ -1142,8 +1206,8 @@ function goToMap() {
 }
 
 .stored-clue-modal {
-  width: min(32rem, 100%);
-  max-height: min(100%, 42rem);
+  width: min(46rem, 100%);
+  max-height: min(100%, 46rem);
   overflow-y: auto;
   padding: clamp(1.25rem, 4vw, 2rem);
   border: 4px solid #2f1a08;
@@ -1183,6 +1247,8 @@ function goToMap() {
 }
 
 .stored-clue-modal__card {
+  display: grid;
+  gap: var(--space-3);
   margin: var(--space-5) 0;
   padding: clamp(1rem, 3vw, 1.25rem);
   border: 3px dashed #b45309;
@@ -1192,7 +1258,6 @@ function goToMap() {
 
 .stored-clue-modal__card span {
   display: inline-block;
-  margin-bottom: var(--space-2);
   color: #92400e;
   font-size: var(--text-sm);
   font-weight: var(--font-bold);
@@ -1201,9 +1266,40 @@ function goToMap() {
 
 .stored-clue-modal__card p {
   margin: 0;
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   font-weight: var(--font-semibold);
   line-height: 1.45;
+}
+
+.stored-clue-modal__result,
+.stored-clue-modal__elimination {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: 8px;
+  background: rgba(146, 64, 14, 0.08);
+}
+
+.stored-clue-modal__result strong,
+.stored-clue-modal__elimination strong,
+.stored-clue-modal__clue-label {
+  color: #92400e;
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+}
+
+.stored-clue-modal__elimination {
+  border: 2px solid rgba(180, 83, 9, 0.45);
+  background: rgba(254, 243, 199, 0.82);
+}
+
+.stored-clue-modal__clue-label {
+  width: fit-content;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  background: #0f766e;
+  color: #fff;
 }
 
 .stored-clue-modal__actions {

@@ -217,7 +217,7 @@ class DataLoaderTest {
             .singleElement()
             .satisfies(task -> {
                 assertThat(task.getOrderIndex()).isEqualTo(5);
-                assertThat(task.getTitle()).isEqualTo("Gåtespor: Passordet i loggen");
+                assertThat(task.getTitle()).isEqualTo("Gåtespor: Siste spor");
             });
     }
 
@@ -256,7 +256,8 @@ class DataLoaderTest {
             .orElseThrow();
 
         JsonNode content = parseJson(clueTask.getContentJson());
-        assertThat(content.path("evidencePassword").asText()).isEqualTo("XooInnAdmin2019");
+        assertThat(content.path("evidencePassword").asText()).isEqualTo("Muserbest123");
+        assertThat(content.path("variant").asText()).isEqualTo("password");
     }
 
     @Test
