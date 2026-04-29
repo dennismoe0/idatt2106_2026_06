@@ -13,6 +13,8 @@ import no.ntnu.idatt2106.nettdetektivene.entity.TaskType;
 import no.ntnu.idatt2106.nettdetektivene.repository.MedalRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StopRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
@@ -29,6 +31,8 @@ import java.util.stream.Collectors;
 @Order(1)
 @RequiredArgsConstructor
 public class DataLoader implements ApplicationRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(DataLoader.class);
 
     private final StopRepository stopRepository;
     private final TaskRepository taskRepository;
@@ -712,7 +716,7 @@ public class DataLoader implements ApplicationRunner {
                     { "id": "c", "value": "Hei" },
                     { "id": "d", "value": "HalloPåDeg" }
                   ],
-                  "explanation": "H@iPÅD4g!021 er den beste varianten fordi den er lang og blander store og små bokstaver, tall og spesialtegn. En slik passordfrase er vanskelig å gjette eller knekke, siden den har så mange tilfeldige tegn og bokstaver."
+                  "explanation": "H@iPÅD4g!021 er den beste varianten her fordi den er lengre og blander store og små bokstaver, tall og spesialtegn. Samtidig bygger den fortsatt på en kjent frase, så et enda bedre passord ville vært mindre personlig og mer tilfeldig."
                 }
                 """,
                 "{\"selected\": \"b\"}"),
@@ -723,7 +727,7 @@ public class DataLoader implements ApplicationRunner {
                   "question": "Bygg et passord som er sterkt nok til å låse opp bankboksen",
                   "words": ["Tiger", "Måne", "Pizza", "Hund", "Sol", "Isbjørn", "Fjord"],
                   "symbols": ["!", "#", "@", "?", "&", "*"],
-                  "numbers": ["67", "420", "99", "3", "2026"],
+                  "numbers": ["67", "42", "99", "3", "2026"],
                   "maxLength": 24,
                   "minStrength": "STRONG",
                   "explanation": "Et sterkt passord er langt, bruker store og små bokstaver, tall og spesialtegn, og inneholder ikke personlig informasjon."
@@ -1115,7 +1119,11 @@ public class DataLoader implements ApplicationRunner {
         }
 
         Map<Integer, Stop> existingByOrderIndex = stopRepository.findAllByOrderByOrderIndexAsc().stream()
-            .collect(Collectors.toMap(Stop::getOrderIndex, Function.identity(), (left, right) -> left));
+            .collect(Collectors.toMap(Stop::getOrderIndex, Function.identity(), (left, right) -> {
+                log.warn("Duplicate stop seed key detected for orderIndex={}; keeping first id={} and ignoring id={}",
+                    left.getOrderIndex(), left.getId(), right.getId());
+                return left;
+            }));
 
         List<Stop> mergedStops = new ArrayList<>();
         for (Stop seededStop : seededStops) {
@@ -1144,7 +1152,11 @@ public class DataLoader implements ApplicationRunner {
         }
 
         Map<String, Task> existingByKey = taskRepository.findAll().stream()
-            .collect(Collectors.toMap(this::taskSeedKey, Function.identity(), (left, right) -> left));
+            .collect(Collectors.toMap(this::taskSeedKey, Function.identity(), (left, right) -> {
+                log.warn("Duplicate task seed key detected for key={}; keeping first id={} and ignoring id={}",
+                    taskSeedKey(left), left.getId(), right.getId());
+                return left;
+            }));
 
         List<Task> mergedTasks = new ArrayList<>();
         for (Task seededTask : seededTasks) {
@@ -1176,7 +1188,11 @@ public class DataLoader implements ApplicationRunner {
         }
 
         Map<String, Medal> existingByName = medalRepository.findAll().stream()
-            .collect(Collectors.toMap(Medal::getName, Function.identity(), (left, right) -> left));
+            .collect(Collectors.toMap(Medal::getName, Function.identity(), (left, right) -> {
+                log.warn("Duplicate medal seed key detected for name={}; keeping first id={} and ignoring id={}",
+                    left.getName(), left.getId(), right.getId());
+                return left;
+            }));
 
         List<Medal> mergedMedals = new ArrayList<>();
         for (Medal seededMedal : seededMedals) {
