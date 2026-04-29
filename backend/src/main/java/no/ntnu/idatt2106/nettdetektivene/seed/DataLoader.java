@@ -565,6 +565,7 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("delivery", "text", "utleveringsstedet", false, "At meldingen nevner utleveringsstedet er ganske vanlig i ekte pakkemeldinger. Det er ikke det som avslører svindelen her."),
                     new Clue("sender_name", "sender_name", "Posten", false, "Avsendernavnet kan se riktig ut selv når selve e-postadressen er falsk.")
                 ),
+                List.of("sender", "link1", "urgency", "deadline", "card", "greeting"),
                 "Dette ligner på en ekte pakkemelding, men både avsender og lenke er feil. Det lille gebyret og tidspresset er klassiske phishing-grep."
             ),
             phishingTask(
@@ -952,17 +953,17 @@ public class DataLoader implements ApplicationRunner {
                   {
                     "id": "wrong_domain",
                     "label": "Lenken går til kommune-sikkerhet.net i stedet for kommunens ekte domene, og det betyr at siden kan være laget for å stjele innloggingen din",
-                    "detail": "Et domene som bare ligner på det ekte er et av de tydeligste phishing-tegnene."
+                    "detail": "   "
                   },
                   {
                     "id": "no_emojis",
                     "label": "E-posten inneholder ingen emojier",
-                    "detail": "At en formell IT-melding ikke har emojier er ikke et phishing-tegn i seg selv."
+                    "detail": "   "
                   },
                   {
                     "id": "knows_name",
                     "label": "E-posten starter med Hei Kari",
-                    "detail": "Avsenderen vet hva brukeren heter"
+                    "detail": "   "
                   }
                 ]
                 """,
@@ -1197,13 +1198,28 @@ public class DataLoader implements ApplicationRunner {
         List<Clue> clues,
         String explanation
     ) {
-        Task task = baseTask(stop, orderIndex, title,
-            "Klikk på alle mistenkelige deler av e-posten.", TaskType.PHISHING_EMAIL);
-        task.setContentJson(phishingContentJson(fromName, fromEmail, subject, body, clues, explanation));
         List<String> requiredClueIds = clues.stream()
             .filter(Clue::isClue)
             .map(Clue::id)
             .toList();
+        return phishingTask(stop, orderIndex, title, fromName, fromEmail, subject, body, clues, requiredClueIds, explanation);
+    }
+
+    private Task phishingTask(
+        Stop stop,
+        int orderIndex,
+        String title,
+        String fromName,
+        String fromEmail,
+        String subject,
+        String body,
+        List<Clue> clues,
+        List<String> requiredClueIds,
+        String explanation
+    ) {
+        Task task = baseTask(stop, orderIndex, title,
+            "Klikk på alle mistenkelige deler av e-posten.", TaskType.PHISHING_EMAIL);
+        task.setContentJson(phishingContentJson(fromName, fromEmail, subject, body, clues, explanation));
         try {
             task.setCorrectAnswerJson(objectMapper.writeValueAsString(
                 objectMapper.createObjectNode().set("correctClueIds", objectMapper.valueToTree(requiredClueIds))

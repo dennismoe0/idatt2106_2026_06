@@ -551,12 +551,13 @@ public class GameService {
                 feedback.add(new PhishingClueFeedbackDto(
                     clue.path("id").asText(),
                     clue.path("label").asText(),
-                    clue.path("explanation").asText("")
+                    clue.path("explanation").asText(""),
+                    clue.path("isClue").asBoolean(false)
                 ));
             });
             return feedback;
         } catch (JsonProcessingException e) {
-            log.warn("[GameService] Failed to parse contentJson for phishing clue feedback taskId={}", task.getId(), e);
+            log.error("[GameService] Failed to parse contentJson for phishing clue feedback taskId={}", task.getId(), e);
             return List.of();
         }
     }

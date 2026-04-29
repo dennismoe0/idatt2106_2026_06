@@ -371,6 +371,8 @@ class GameServiceTest {
             .contains("sender", "urgency");
         assertThat(response.phishingClues()).extracting("explanation")
             .contains("Avsenderadressen bruker feil domene.", "Hastverk er et vanlig phishing-tegn.");
+        assertThat(response.phishingClues()).extracting("isClue")
+            .containsOnly(true);
         verify(studentProgressRepository).save(any(StudentProgress.class));
     }
 

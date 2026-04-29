@@ -170,10 +170,21 @@ const revealedClues = computed(() => {
       }
 
       if (wasFlagged) {
+        const clueFeedback = clueFeedbackById.value.get(c.id)
+        if (clueFeedback?.isClue) {
+          return {
+            id: c.id,
+            label: c.label,
+            explanation: clueFeedback.explanation,
+            icon: '💡',
+            iconClass: 'phishing-task__clue-icon--optional'
+          }
+        }
+
         return {
           id: c.id,
           label: c.label,
-          explanation: clueFeedbackById.value.get(c.id)?.explanation ?? '',
+          explanation: clueFeedback?.explanation ?? '',
           icon: '❌',
           iconClass: 'phishing-task__clue-icon--wrong'
         }
@@ -377,6 +388,7 @@ function submit() {
 .phishing-task__clue-icon--ok     { flex-shrink: 0; }
 .phishing-task__clue-icon--wrong  { flex-shrink: 0; }
 .phishing-task__clue-icon--missed { flex-shrink: 0; }
+.phishing-task__clue-icon--optional { flex-shrink: 0; }
 
 .next-btn {
   align-self: flex-start;
