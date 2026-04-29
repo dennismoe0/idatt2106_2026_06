@@ -134,7 +134,7 @@ class DataLoaderTest {
     }
 
     @Test
-    void run_seedsPasswordBuilderTaskWithPitfalls() throws Exception {
+    void run_seedsPasswordBuilderTaskWithoutPitfalls() throws Exception {
         List<Task> tasks = seededTasks();
 
         Task builderTask = tasks.stream()
@@ -144,10 +144,101 @@ class DataLoaderTest {
             .orElseThrow();
 
         JsonNode content = parseJson(builderTask.getContentJson());
-        assertThat(content.path("pitfalls").isArray()).isTrue();
-        assertThat(content.path("pitfalls"))
-            .extracting(JsonNode::asText)
-            .containsExactly("OlaErBest", "2005", "hund");
+        assertThat(content.has("pitfalls")).isFalse();
+    }
+
+    @Test
+    void run_seedsPasswordLearningQuizWithVariedCorrectOptionPositions() throws Exception {
+        List<Task> tasks = seededTasks();
+
+        Task learnTask = tasks.stream()
+            .filter(task -> "LEARN".equals(task.getTaskType().name()))
+            .filter(task -> task.getStop().getName().equals("Passordbanken"))
+            .findFirst()
+            .orElseThrow();
+
+        ArrayNode quiz = (ArrayNode) parseJson(learnTask.getContentJson()).path("quiz");
+
+        assertThat(correctOptionIndex(quiz.get(0))).isEqualTo(2);
+        assertThat(correctOptionIndex(quiz.get(1))).isEqualTo(1);
+        assertThat(correctOptionIndex(quiz.get(2))).isEqualTo(0);
+    }
+
+    @Test
+    void run_seedsPasswordBuilderTaskWithMaxLength() throws Exception {
+        List<Task> tasks = seededTasks();
+
+        Task builderTask = tasks.stream()
+            .filter(task -> "PASSWORD".equals(task.getTaskType().name()))
+            .filter(task -> parseJson(task.getContentJson()).path("type").asText().equals("BUILDER"))
+            .findFirst()
+            .orElseThrow();
+
+        JsonNode content = parseJson(builderTask.getContentJson());
+        assertThat(content.path("maxLength").asInt()).isEqualTo(24);
+    }
+
+    @Test
+    void run_seedsPasswordBankWithThreePasswordTasksAndFinalClueRiddle() throws Exception {
+        List<Task> tasks = seededTasks();
+
+        List<Task> passwordBankTasks = tasks.stream()
+            .filter(task -> task.getStop().getName().equals("Passordbanken"))
+            .toList();
+
+        assertThat(passwordBankTasks)
+            .filteredOn(task -> !"LEARN".equals(task.getTaskType().name()))
+            .hasSize(4);
+        assertThat(passwordBankTasks)
+            .filteredOn(task -> "PASSWORD".equals(task.getTaskType().name()))
+            .hasSize(3);
+        assertThat(passwordBankTasks)
+            .filteredOn(task -> "CLUE_RIDDLE".equals(task.getTaskType().name()))
+            .singleElement()
+            .satisfies(task -> {
+                assertThat(task.getOrderIndex()).isEqualTo(5);
+                assertThat(task.getTitle()).isEqualTo("Gåtespor: Passordet i loggen");
+            });
+    }
+
+    @Test
+    void run_seedsPasswordImprovementTaskWithUpdatedCorrectAnswerAndFeedback() throws Exception {
+        List<Task> tasks = seededTasks();
+
+        Task passwordImprovementTask = tasks.stream()
+            .filter(task -> task.getStop().getName().equals("Passordbanken"))
+            .filter(task -> task.getOrderIndex() == 3)
+            .findFirst()
+            .orElseThrow();
+
+        JsonNode content = parseJson(passwordImprovementTask.getContentJson());
+        JsonNode answer = parseJson(passwordImprovementTask.getCorrectAnswerJson());
+
+        assertThat(passwordImprovementTask.getTitle()).isEqualTo("Gjør passordet bedre");
+        assertThat(content.path("question").asText())
+            .isEqualTo("Noen har prøvd å gjøre passordet 'Sander2015' sterkere. Hvilken versjon er best?");
+        assertThat(content.path("options").get(3).path("value").asText()).isEqualTo("SolKatt!Fjord#22");
+        assertThat(answer.path("selected").asText()).isEqualTo("d");
+        assertThat(content.path("explanation").asText())
+            .contains("SolKatt!Fjord#22 er den beste varianten")
+            .contains("små bokstaver")
+            .contains("ikke inneholder noe personlig")
+            .doesNotContain("Ã")
+            .contains("gjette");
+    }
+
+    @Test
+    void run_seedsPasswordClueRiddleWithExplicitEvidencePassword() throws Exception {
+        List<Task> tasks = seededTasks();
+
+        Task clueTask = tasks.stream()
+            .filter(task -> task.getStop().getName().equals("Passordbanken"))
+            .filter(task -> "CLUE_RIDDLE".equals(task.getTaskType().name()))
+            .findFirst()
+            .orElseThrow();
+
+        JsonNode content = parseJson(clueTask.getContentJson());
+        assertThat(content.path("evidencePassword").asText()).isEqualTo("XooInnAdmin2019");
     }
 
     private List<Task> seededTasks() throws Exception {
@@ -175,5 +266,16 @@ class DataLoaderTest {
         } catch (Exception e) {
             throw new AssertionError("Failed to parse seeded JSON", e);
         }
+    }
+
+    private int correctOptionIndex(JsonNode question) {
+        String correct = question.path("correct").asText();
+        ArrayNode options = (ArrayNode) question.path("options");
+        for (int i = 0; i < options.size(); i++) {
+            if (options.get(i).asText().equals(correct)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

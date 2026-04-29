@@ -1,8 +1,8 @@
 <template>
   <main class="auth-page">
     <div class="auth-card">
-      <h1>Nettdetektivene</h1>
-      <p class="auth-subtitle">Logg inn for å fortsette</p>
+      <h1>Lærerinnlogging</h1>
+      <p class="auth-subtitle">Logg inn som lærer for å administrere klasser og elever.</p>
 
       <form @submit.prevent="handleSubmit" novalidate>
         <div class="field">
@@ -47,7 +47,7 @@
       <div class="auth-links">
         <RouterLink to="/register">Opprett lærerkonto</RouterLink>
         <span class="divider">·</span>
-        <RouterLink to="/student-login">Elev? Bli med i klasse</RouterLink>
+        <RouterLink to="/login">Elev? Gå til elevinnlogging</RouterLink>
       </div>
 
       <div v-if="isDev" class="dev-logins">
@@ -66,7 +66,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import BaseButton from '@/components/common/BaseButton.vue'
@@ -79,6 +79,11 @@ const errors = reactive({ email: '', password: '' })
 const serverError = ref('')
 const loading = ref(false)
 const isDev = import.meta.env.DEV || import.meta.env.VITE_SHOW_DEV_TOOLS === 'true'
+
+onMounted(() => {
+  if (!authStore.isAuthenticated) return
+  router.replace(authStore.isTeacher ? { name: 'Dashboard' } : { name: 'Home' })
+})
 
 function validate() {
   errors.email = ''

@@ -21,7 +21,9 @@ import no.ntnu.idatt2106.nettdetektivene.repository.StudentXpLogRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.AiPhotoTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.ClueRiddleTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.FakeNewsTaskAnswerChecker;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.LearningTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.MarketplaceTaskAnswerChecker;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.PasswordStrengthEvaluator;
 import no.ntnu.idatt2106.nettdetektivene.service.answer.PasswordTaskAnswerChecker;
@@ -85,10 +87,12 @@ class GameServiceTest {
             avatarService,
             List.of(
                 new FakeNewsTaskAnswerChecker(),
+                new LearningTaskAnswerChecker(),
                 new PhishingEmailTaskAnswerChecker(),
                 new AiPhotoTaskAnswerChecker(),
                 new MarketplaceTaskAnswerChecker(new ObjectMapper()),
-                new PasswordTaskAnswerChecker(new ObjectMapper(), new PasswordStrengthEvaluator()),
+                new ClueRiddleTaskAnswerChecker(),
+                new PasswordTaskAnswerChecker(new ObjectMapper(), new PasswordStrengthEvaluator()),   
                 new SocialMediaTaskAnswerChecker()
             )
         );
@@ -132,6 +136,22 @@ class GameServiceTest {
 
         assertThat(response.get(0).locked()).isFalse();
         assertThat(response.get(1).locked()).isTrue();
+    }
+
+    @Test
+    void getStops_marksStopCompleteWhenCompletedCountExceedsRequiredCount() {
+        Stop first = stop(1L, 1, "Nyhetskvartalet");
+        when(classroomRepository.existsById(CLASSROOM_ID)).thenReturn(true);
+        when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(first));
+        when(taskRepository.countByStop_IdAndTaskTypeNotIn(eq(1L), any())).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(
+            eq(STUDENT_ID), eq(1L), any())).thenReturn(3L);
+        when(studentXpLogRepository.findTopByStudent_IdAndStop_IdOrderByAwardedAtDesc(STUDENT_ID, 1L))
+            .thenReturn(Optional.empty());
+
+        var response = gameService.getStops(STUDENT_ID, CLASSROOM_ID);
+
+        assertThat(response.getFirst().completed()).isTrue();
     }
 
     @Test
@@ -239,6 +259,54 @@ class GameServiceTest {
     }
 
     @Test
+    void submitAnswer_alreadyCompletedNonClueTaskKeepsCompletionStateEvenOnWrongResubmit() {
+        Stop stop = stop(1L, 1, "Nyhetskvartalet");
+        Task task = fakeNewsTask(20L, stop);
+        StudentProgress progress = new StudentProgress();
+        progress.setCompleted(true);
+        progress.setScore(100);
+
+        when(taskRepository.findById(20L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 20L)).thenReturn(Optional.of(progress));
+        when(taskRepository.countByStop_IdAndTaskTypeNotIn(eq(1L), any())).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(eq(STUDENT_ID), eq(1L), any())).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            20L,
+            new SubmitAnswerRequest(Map.of("article_0", false, "article_1", true))
+        );
+
+        assertThat(response.correct()).isTrue();
+        assertThat(response.stopCompleted()).isTrue();
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_alreadyCompletedClueRiddleStillRejectsWrongAnswer() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task task = clueRiddleTask(27L, stop);
+        StudentProgress progress = new StudentProgress();
+        progress.setCompleted(true);
+        progress.setScore(100);
+
+        when(taskRepository.findById(27L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 27L)).thenReturn(Optional.of(progress));
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            27L,
+            new SubmitAnswerRequest(Map.of("selected", "random_strong"))
+        );
+
+        assertThat(response.correct()).isFalse();
+        assertThat(response.stopCompleted()).isFalse();
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
+    }
+
+    @Test
     void getTasks_lockedStop_throws() {
         Stop first = stop(1L, 1, "Nyhetskvartalet");
         Stop second = stop(2L, 2, "Postkontoret");
@@ -268,6 +336,20 @@ class GameServiceTest {
     }
 
     @Test
+    void getTask_regularTaskRequiresCompletedLearnTask() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task learnTask = learnTask(24L, stop);
+        Task regularTask = passwordChoiceTask(25L, stop);
+        when(taskRepository.findById(25L)).thenReturn(Optional.of(regularTask));
+        when(taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(4L)).thenReturn(List.of(learnTask, regularTask));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 24L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gameService.getTask(STUDENT_ID, CLASSROOM_ID, 25L))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Tutorial must be completed first");
+    }
+
+    @Test
     void getTask_phishingEmail_sanitizesAnswerFieldsFromContent() throws Exception {
         Stop stop = stop(2L, 1, "Postkontoret");
         Task task = phishingTask(21L, stop);
@@ -280,6 +362,8 @@ class GameServiceTest {
         assertThat(content.has("explanation")).isFalse();
         assertThat(content.path("email").has("correctAction")).isFalse();
         assertThat(content.path("email").has("suspiciousElements")).isTrue();
+        assertThat(content.path("email").path("clues").get(0).has("isClue")).isFalse();
+        assertThat(content.path("email").path("clues").get(0).has("explanation")).isFalse();
     }
 
     @Test
@@ -361,6 +445,12 @@ class GameServiceTest {
         );
 
         assertThat(response.correct()).isTrue();
+        assertThat(response.phishingClues()).extracting("id")
+            .contains("sender", "urgency", "logo");
+        assertThat(response.phishingClues()).extracting("explanation")
+            .contains("Avsenderadressen bruker feil domene.", "Hastverk er et vanlig phishing-tegn.", "Logo og avsendernavn alene er ikke nok.");
+        assertThat(response.phishingClues()).extracting("isClue")
+            .contains(true, false);
         verify(studentProgressRepository).save(any(StudentProgress.class));
     }
 
@@ -416,8 +506,8 @@ class GameServiceTest {
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
-        when(taskRepository.countByStop_IdAndTaskTypeNotIn(6L, any())).thenReturn(2L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(STUDENT_ID, 6L, any())).thenReturn(1L);
+        when(taskRepository.countByStop_IdAndTaskTypeNotIn(eq(6L), any())).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(eq(STUDENT_ID), eq(6L), any())).thenReturn(1L);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -460,8 +550,8 @@ class GameServiceTest {
         when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(user());
         when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(user()));
-        when(taskRepository.countByStop_IdAndTaskTypeNotIn(6L, any())).thenReturn(2L);
-        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(STUDENT_ID, 6L, any())).thenReturn(1L);
+        when(taskRepository.countByStop_IdAndTaskTypeNotIn(eq(6L), any())).thenReturn(2L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(eq(STUDENT_ID), eq(6L), any())).thenReturn(1L);
 
         var response = gameService.submitAnswer(
             STUDENT_ID,
@@ -536,7 +626,206 @@ class GameServiceTest {
         verify(studentProgressRepository).save(any(StudentProgress.class));
     }
 
+    @Test
+    void submitAnswer_passwordBuilder_rejectsPasswordExceedingConfiguredMaxLength() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task task = passwordBuilderTask(23L, stop);
+        when(taskRepository.findById(23L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 23L)).thenReturn(Optional.empty());
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            23L,
+            new SubmitAnswerRequest(Map.of("password", "TigerMånePizza42!#@2026Sol"))
+        );
+
+        assertThat(response.correct()).isFalse();
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_regularTaskRequiresCompletedLearnTask() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task learnTask = learnTask(24L, stop);
+        Task regularTask = passwordChoiceTask(25L, stop);
+        when(taskRepository.findById(25L)).thenReturn(Optional.of(regularTask));
+        when(taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(4L)).thenReturn(List.of(learnTask, regularTask));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 24L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            25L,
+            new SubmitAnswerRequest(Map.of("selected", "strong_password"))
+        ))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Tutorial must be completed first");
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_clueRiddleRequiresPreviousPasswordTasks() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task learnTask = learnTask(24L, stop);
+        Task firstPasswordTask = passwordChoiceTask(25L, stop);
+        Task clueTask = clueRiddleTask(27L, stop);
+        learnTask.setOrderIndex(1);
+        firstPasswordTask.setOrderIndex(2);
+        clueTask.setOrderIndex(5);
+        when(taskRepository.findById(27L)).thenReturn(Optional.of(clueTask));
+        when(taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(4L))
+            .thenReturn(List.of(learnTask, firstPasswordTask, clueTask));
+        StudentProgress learnProgress = new StudentProgress();
+        learnProgress.setCompleted(true);
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 24L))
+            .thenReturn(Optional.of(learnProgress));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L))
+            .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            27L,
+            new SubmitAnswerRequest(Map.of("selected", "cafe_admin"))
+        ))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("Previous tasks must be completed first");
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
+    }
+
+    @Test
+    void submitAnswer_learnTaskDoesNotCompleteStopReturnClueOrAwardXp() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        stop.setClueText("Spor: Reservekontoen peker mot Xoo Inn Cafe.");
+        Task task = learnTask(24L, stop);
+        User studentUser = student(STUDENT_ID);
+
+        when(taskRepository.findById(24L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 24L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(studentUser);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            24L,
+            new SubmitAnswerRequest(Map.of("quizPassed", true))
+        );
+
+        assertThat(response.correct()).isTrue();
+        assertThat(response.stopCompleted()).isFalse();
+        assertThat(response.clueText()).isNull();
+        assertThat(response.medalEarned()).isNull();
+        assertThat(response.starsEarned()).isEqualTo(0);
+        assertThat(response.xpEarned()).isEqualTo(0);
+        verify(notebookService, never()).createAutoClueIfNotExists(any(), any());
+        verify(studentXpLogRepository, never()).save(any());
+        verify(medalRepository, never()).findByStop_Id(any());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void submitAnswer_firstPasswordTaskDoesNotCompletePasswordStopWhenTasksRemain() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        stop.setTheme("PASSWORD");
+        stop.setClueText("Spor: Reservekontoen peker mot Xoo Inn Cafe.");
+        Task task = passwordChoiceTask(25L, stop);
+        User studentUser = student(STUDENT_ID);
+
+        when(taskRepository.findById(25L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(studentUser);
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
+        when(taskRepository.countByStop_IdAndTaskTypeNotIn(eq(4L), any())).thenReturn(4L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(eq(STUDENT_ID), eq(4L), any()))
+            .thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            25L,
+            new SubmitAnswerRequest(Map.of("selected", "d"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        assertThat(response.stopCompleted()).isFalse();
+        assertThat(response.clueText()).isNull();
+        assertThat(response.medalEarned()).isNull();
+        assertThat(response.showSuspectReveal()).isFalse();
+        verify(notebookService, never()).createAutoClueIfNotExists(any(), any());
+        verify(studentXpLogRepository, never()).save(any());
+    }
+
     // ─── submitAnswer — new tests ─────────────────────────────────────────────
+
+    @Test
+    void submitAnswer_clueRiddleCanRevealClueWithoutAwardingStopCompletionXp() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        stop.setTheme("PASSWORD");
+        stop.setClueText("Spor: Reservekontoen peker mot Xoo Inn Cafe.");
+        Task learnTask = learnTask(24L, stop);
+        Task passwordTask = passwordChoiceTask(25L, stop);
+        Task clueTask = clueRiddleTask(27L, stop);
+        learnTask.setOrderIndex(1);
+        passwordTask.setOrderIndex(2);
+        clueTask.setOrderIndex(5);
+        User studentUser = student(STUDENT_ID);
+        StudentProgress completedLearn = new StudentProgress();
+        completedLearn.setCompleted(true);
+        StudentProgress completedPassword = new StudentProgress();
+        completedPassword.setCompleted(true);
+
+        when(taskRepository.findById(27L)).thenReturn(Optional.of(clueTask));
+        when(taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(4L))
+            .thenReturn(List.of(learnTask, passwordTask, clueTask));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 24L))
+            .thenReturn(Optional.of(completedLearn));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L))
+            .thenReturn(Optional.of(completedPassword));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 27L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(studentUser);
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
+        when(taskRepository.countByStop_IdAndTaskTypeNotIn(eq(4L), any())).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(
+            eq(STUDENT_ID), eq(4L), any())).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            27L,
+            new SubmitAnswerRequest(Map.of("selected", "cafe_admin"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        assertThat(response.stopCompleted()).isTrue();
+        assertThat(response.clueText()).isEqualTo("Spor: Reservekontoen peker mot Xoo Inn Cafe.");
+        assertThat(response.showSuspectReveal()).isFalse();
+        assertThat(response.xpEarned()).isEqualTo(10);
+        assertThat(response.starsEarned()).isEqualTo(1);
+        assertThat(response.medalEarned()).isNull();
+        verify(notebookService).createAutoClueIfNotExists(STUDENT_ID, stop);
+        verify(studentXpLogRepository, never()).save(any());
+        verify(medalRepository, never()).findByStop_Id(any());
+    }
+
+    @Test
+    void submitAnswer_clueRiddleWrongOptionFails() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        Task task = clueRiddleTask(26L, stop);
+
+        when(taskRepository.findById(26L)).thenReturn(Optional.of(task));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 26L)).thenReturn(Optional.empty());
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            26L,
+            new SubmitAnswerRequest(Map.of("selected", "random_strong"))
+        );
+
+        assertThat(response.correct()).isFalse();
+        verify(studentProgressRepository, never()).save(any(StudentProgress.class));
+    }
 
     @Test
     void submitAnswer_awardsOneStarOnFirstCorrectAnswer() {
@@ -744,7 +1033,30 @@ class GameServiceTest {
                 "fromName": "DNB Kundeservice",
                 "fromEmail": "support@dnb-kundeservice.com",
                 "subject": "Viktig",
-                "body": "Klikk her",
+                "body": "Klikk her med en gang",
+                "clues": [
+                  {
+                    "id": "sender",
+                    "type": "sender",
+                    "label": "support@dnb-kundeservice.com",
+                    "isClue": true,
+                    "explanation": "Avsenderadressen bruker feil domene."
+                  },
+                  {
+                    "id": "urgency",
+                    "type": "text",
+                    "label": "med en gang",
+                    "isClue": true,
+                    "explanation": "Hastverk er et vanlig phishing-tegn."
+                  },
+                  {
+                    "id": "logo",
+                    "type": "branding",
+                    "label": "DNB Kundeservice",
+                    "isClue": false,
+                    "explanation": "Logo og avsendernavn alene er ikke nok."
+                  }
+                ],
                 "suspiciousElements": ["fromEmail"],
                 "correctAction": "REPORT"
               },
@@ -831,12 +1143,56 @@ class GameServiceTest {
               "words": ["Tiger", "Måne", "Pizza"],
               "symbols": ["!", "#", "@"],
               "numbers": ["7", "42", "99"],
+              "maxLength": 24,
               "minStrength": "STRONG",
               "explanation": "Et sterkt passord er langt og blander tegn."
             }
             """);
         task.setCorrectAnswerJson("""
             { "minStrength": "STRONG" }
+            """);
+        return task;
+    }
+
+    private Task learnTask(Long id, Stop stop) {
+        Task task = task(id, stop, TaskType.LEARN);
+        task.setContentJson("""
+            {
+              "slides": [],
+              "quiz": [],
+              "explanation": "Du har lært det grunnleggende."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            { "quizPassed": true }
+            """);
+        return task;
+    }
+
+    private Task clueRiddleTask(Long id, Stop stop) {
+        Task task = task(id, stop, TaskType.CLUE_RIDDLE);
+        task.setContentJson("""
+            {
+              "purpose": "Du bruker det du lærte om passord for å lese et siste digitalt spor.",
+              "evidence": "Reservekontoen brukte passordet XooInnAdmin2019.",
+              "question": "Hva forteller passordet oss?",
+              "options": [
+                {
+                  "id": "random_strong",
+                  "label": "Det er et sterkt tilfeldig passord",
+                  "detail": "Det er ikke tilfeldig: det inneholder sted, rolle og årstall."
+                },
+                {
+                  "id": "cafe_admin",
+                  "label": "Noen med admin-tilgang på Xoo Inn Cafe laget eller kjente kontoen",
+                  "detail": "Passordet peker mot stedet og en administratorrolle."
+                }
+              ],
+              "explanation": "Riktig. Passordet peker mot noen med admin-kobling til Xoo Inn Cafe."
+            }
+            """);
+        task.setCorrectAnswerJson("""
+            { "selected": "cafe_admin" }
             """);
         return task;
     }
