@@ -48,7 +48,7 @@ import DetectiveBar from '@/components/common/DetectiveBar.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import StopMarker from '@/components/student/StopMarker.vue'
 import MapIntroModal from '@/components/student/MapIntroModal.vue'
-import { MAP_INTRO_STORAGE_KEY, hasSeenMapIntro as getHasSeenMapIntro, shouldShowMapIntroPopup } from '@/utils/mapIntro'
+import { MAP_INTRO_STORAGE_KEY, shouldShowMapIntroPopup } from '@/utils/mapIntro'
 
 const route = useRoute()
 const router = useRouter()
@@ -61,7 +61,6 @@ const stops = computed(() => gameStore.stops)
 const lockedStopId = ref(null)
 const lockedMessage = ref(false)
 const showMapIntroPopup = ref(false)
-const hasSeenMapIntro = computed(() => getHasSeenMapIntro())
 let lockedTimer = null
 
 function switchToWorldMap() {
@@ -88,7 +87,7 @@ onMounted(async () => {
     return
   }
 
-  if (!hasSeenMapIntro.value && shouldShowMapIntroPopup(route)) {
+  if (shouldShowMapIntroPopup(route)) {
     console.log('[MapView] Showing first-time map intro popup')
     showMapIntroPopup.value = true
   }

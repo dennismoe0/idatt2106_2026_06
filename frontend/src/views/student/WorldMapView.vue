@@ -79,7 +79,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import PlayerHud from '@/components/common/PlayerHud.vue'
 import MapIntroModal from '@/components/student/MapIntroModal.vue'
 import { useNotebookStore } from '@/stores/notebook'
-import { MAP_INTRO_STORAGE_KEY, hasSeenMapIntro as getHasSeenMapIntro, shouldShowMapIntroPopup } from '@/utils/mapIntro'
+import { MAP_INTRO_STORAGE_KEY, shouldShowMapIntroPopup } from '@/utils/mapIntro'
 
 const route = useRoute()
 const router = useRouter()
@@ -98,7 +98,6 @@ const stops = computed(() => gameStore.stops)
 const shakingNodeIndex = ref(null)
 const lockedMessage = ref(false)
 const showMapIntroPopup = ref(false)
-const hasSeenMapIntro = computed(() => getHasSeenMapIntro())
 let lockedTimer = null
 
 // Portrait detection
@@ -174,7 +173,7 @@ onMounted(async () => {
     return
   }
 
-  if (!hasSeenMapIntro.value && shouldShowMapIntroPopup(route)) {
+  if (shouldShowMapIntroPopup(route)) {
     console.log('[WorldMapView] Showing first-time map intro popup')
     showMapIntroPopup.value = true
   }

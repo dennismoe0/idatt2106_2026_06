@@ -87,7 +87,7 @@ const slides = [
   {
     emoji: '🕵️‍♀️',
     title: 'Ordføreren trenger hjelp',
-    body: 'Pengene som skulle bygge den nye idrettsparken er stjålet fra bankkontoen til ordføreren.',
+    body: 'Pengene som skulle bygge den nye idrettsparken er stjålet fra prosjektkontoen til ordføreren.',
   },
   {
     emoji: '🌀',
@@ -144,7 +144,7 @@ function prev() {
   align-items: center;
   justify-content: center;
   padding: clamp(1rem, 3vw, 2rem);
-  background: rgba(255, 255, 255, 0.42);
+  background: var(--color-backdrop);
   backdrop-filter: blur(2px);
 }
 
@@ -157,8 +157,8 @@ function prev() {
   gap: clamp(1rem, 2.5vw, 1.5rem);
   padding: clamp(1.4rem, 3vw, 2.15rem);
   border-radius: 1.35rem;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+  background: var(--color-surface);
+  box-shadow: 0 18px 50px color-mix(in srgb, var(--color-text) 16%, transparent);
 }
 
 .map-intro-modal__close {
@@ -170,14 +170,14 @@ function prev() {
   border: none;
   border-radius: 999px;
   background: transparent;
-  color: rgba(30, 41, 59, 0.58);
+  color: var(--color-text-muted);
   font-size: 1.125rem;
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .map-intro-modal__close:hover {
-  background: rgba(148, 163, 184, 0.12);
+  background: color-mix(in srgb, var(--color-border-strong) 24%, transparent);
   color: var(--color-text);
 }
 
@@ -193,7 +193,7 @@ function prev() {
   height: 1rem;
   border: none;
   border-radius: 999px;
-  background: #dbe3ef;
+  background: var(--color-border);
   cursor: pointer;
   transition: transform var(--transition-fast), background-color var(--transition-fast);
 }
@@ -203,7 +203,7 @@ function prev() {
 }
 
 .map-intro-modal__dot--active {
-  background: #2f6fb5;
+  background: var(--color-primary);
 }
 
 .map-intro-modal__slide {
@@ -223,7 +223,7 @@ function prev() {
 
 .map-intro-modal__title {
   margin: 0;
-  color: #213b66;
+  color: var(--color-primary-dark);
   font-size: clamp(1.7rem, 3vw, 2.4rem);
   font-weight: 800;
   line-height: 1.1;
@@ -232,7 +232,7 @@ function prev() {
 .map-intro-modal__body {
   max-width: 32rem;
   margin: 0;
-  color: #1e293b;
+  color: var(--color-text);
   font-size: clamp(1rem, 1.7vw, 1.25rem);
   line-height: 1.55;
 }
@@ -243,7 +243,7 @@ function prev() {
   justify-content: space-between;
   gap: 1rem;
   padding-top: 1.15rem;
-  border-top: 1px solid #dbe4f0;
+  border-top: 1px solid var(--color-border);
 }
 
 .map-intro-modal__nav {
@@ -273,25 +273,25 @@ function prev() {
 }
 
 .map-intro-modal__nav--secondary {
-  background: #fff;
-  color: #cbd5e1;
-  border-color: #e2e8f0;
+  background: var(--color-surface);
+  color: var(--color-border-strong);
+  border-color: var(--color-border);
 }
 
 .map-intro-modal__nav--secondary:hover:not(:disabled) {
-  color: #94a3b8;
-  border-color: #cbd5e1;
+  color: var(--color-text-muted);
+  border-color: var(--color-border-strong);
 }
 
 .map-intro-modal__nav--primary {
-  background: #2f6fb5;
-  color: #fff;
-  box-shadow: 0 12px 26px rgba(47, 111, 181, 0.22);
+  background: var(--color-primary);
+  color: var(--color-text-on-dark);
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--color-primary) 22%, transparent);
 }
 
 .map-intro-modal__nav--primary:hover:not(:disabled) {
-  background: #255f9c;
-  box-shadow: 0 16px 30px rgba(47, 111, 181, 0.28);
+  background: var(--color-primary-dark);
+  box-shadow: 0 16px 30px color-mix(in srgb, var(--color-primary) 28%, transparent);
 }
 
 @media (max-width: 640px) {
