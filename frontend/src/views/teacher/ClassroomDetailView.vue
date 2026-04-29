@@ -38,7 +38,6 @@
           <span>Status</span>
           <span>Nåværende stopp</span>
           <span>Oppgaver fullført</span>
-          <span>Sist fullførte stopp</span>
           <span>Handlinger</span>
         </div>
 
@@ -66,14 +65,6 @@
           <span class="progress-cell">
             <template v-if="studentProgress(student)">
               <strong>{{ studentProgress(student).completedTasks }}</strong>
-            </template>
-            <span v-else class="cell-empty">—</span>
-          </span>
-
-          <!-- Last completed stop -->
-          <span class="stop-cell">
-            <template v-if="lastCompletedStop(student)">
-              {{ lastCompletedStop(student) }}
             </template>
             <span v-else class="cell-empty">—</span>
           </span>
@@ -362,7 +353,7 @@ async function copyCode() {
 .student-table__header,
 .student-table__row {
   display: grid;
-  grid-template-columns: 2fr 1fr 2fr 1.2fr 2fr 1.8fr;
+  grid-template-columns: 2fr 1fr 2fr 1.2fr 2fr;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
