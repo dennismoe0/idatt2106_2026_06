@@ -122,7 +122,7 @@ public class GameService {
                 s.getName(),
                 s.getOrderIndex(),
                 s.getTheme(),
-                Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNot(s.getId(), TaskType.LEARN))
+                Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNotIn(s.getId(), List.of(TaskType.LEARN)))
             ))
             .toList();
     }

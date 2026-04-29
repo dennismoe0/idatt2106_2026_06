@@ -1702,11 +1702,24 @@ public class DataLoader implements ApplicationRunner {
               "id": 0,
               "type": "FAKE_NEWS",
               "systemName": "Nyhetsfilter",
-              "description": "Stopp spredning av falske nyheter",
-              "failureExplanation": "Den virkelige artikkelen hadde troverdig kilde og rolig språk. Du må stanse artikkelen som prøver å skape panikk uten bevis.",
+              "description": "Stopp spredning av falsk nyhet om mobilforbud",
+              "failureExplanation": "Den ekte saken skiller tydelig mellom test og vedtak med konkret omfang. Falske saker mangler sporbar dokumentasjon og ber deg dele videre.",
+              "successExplanation": "Riktig! AtB-pressemeldingen er ekte — den skiller tydelig mellom test og beslutning. RuteNytt-saken mangler dokumentasjon og ber deg dele videre.",
               "articles": [
-                { "headline": "Pengene er funnet i utlandet", "source": "NRK.no", "body": "Politiet bekrefter at etterforskerne har sporet transaksjonen." },
-                { "headline": "AVSLØRT: Ordføreren stjal pengene SELV!!!!", "source": "SannNyhet.xyz", "body": "Anonym kilde sier at ordføreren er den egentlige tyven og at politiet dekker over det." }
+                {
+                  "headline": "AtB tester stille sone på utvalgte bussavganger i rushtiden",
+                  "ingress": "Et begrenset prøveprosjekt skal undersøke om passasjerer ønsker roligere bussavganger.",
+                  "source": "AtB pressemelding",
+                  "author": "Marius Heggli",
+                  "date": "2026-02-03"
+                },
+                {
+                  "headline": "NÅ KOMMER MOBILBOT: 1500 kroner hvis du ser på TikTok på bussen",
+                  "ingress": "Artikkelen viser til et internt notat om gebyr, men oppgir ikke hvor notatet kommer fra.",
+                  "source": "RuteNytt Trondheim",
+                  "author": "Nyhetsvakt",
+                  "date": "2026-02-03"
+                }
               ],
               "correctAnswer": { "article_0": true, "article_1": false }
             },
@@ -1714,30 +1727,42 @@ public class DataLoader implements ApplicationRunner {
               "id": 1,
               "type": "AI_PHOTO",
               "systemName": "Bildekontroll",
-              "description": "Stopp falske bevis",
-              "failureExplanation": "Se etter unaturlige detaljer. Bildet som skal stoppes er KI-laget og kan ikke brukes som ekte bevis.",
+              "description": "Finn det ekte bevisbildet av kanalen",
+              "failureExplanation": "Se etter naturlige kameradetaljer og variasjon. KI-genererte bilder har ofte et glattere, mer konstruert preg.",
+              "successExplanation": "Riktig! Det ekte kanalbildet har naturlig lys og kamerastøy. KI-bildet er kunstig laget og kan ikke brukes som bevis.",
               "images": [
-                { "src": "/tasks/ai-photo/boss-b.jpg", "alt": "Bilde av en person ved datamaskin", "label": "Bilde A" }
+                {
+                  "src": "/story_pictures/photographer-task-3-ai-canal.png",
+                  "alt": "Et KI-generert bilde av Miraflores Locks ved Panamakanalen",
+                  "label": "Bilde A"
+                },
+                {
+                  "src": "/story_pictures/photographer-task-3-real-canal.jpg",
+                  "alt": "Et ekte foto av Miraflores Locks ved Panamakanalen",
+                  "label": "Bilde B"
+                }
               ],
-              "correctAnswer": { "image_0": "AI_GENERATED" }
+              "correctAnswer": { "image_0": "AI_GENERATED", "image_1": "REAL" }
             },
             {
               "id": 2,
               "type": "PHISHING_EMAIL",
               "systemName": "E-postskjold",
-              "description": "Stopp nye phishing-forsøk",
-              "failureExplanation": "Dette er en falsk trusselmelding. Den tryggeste handlingen er å rapportere den som phishing, ikke å svare eller klikke.",
+              "description": "Stopp phishing-forsøket fra tyven",
+              "failureExplanation": "Avsenderen bruker ikke Posten sitt offisielle domene posten.no, og lenken går til en falsk side. Riktig svar er alltid å rapportere.",
+              "successExplanation": "Riktig! Dette er en falsk pakkemelding. Avsender og betalingslenke er falske — rapportering er alltid det tryggeste valget.",
               "email": {
-                "fromName": "Politiet",
-                "fromEmail": "politi@norge-sikkerhet.com",
-                "subject": "Du er mistenkt – svar umiddelbart",
-                "body": "For å unngå arrestasjon, send personnummeret ditt til dette nummeret innen 1 time."
+                "fromName": "Posten",
+                "fromEmail": "varsling@posten-levering.net",
+                "subject": "Pakken din er forsinket i terminal og trenger betaling",
+                "body": "Hei kunde! Vi forsøkte å sende pakken din videre, men sendingen er stoppet fordi det mangler et toll- og behandlingsgebyr på 19 kr. Betal i dag for å unngå retur. Lenke: posten-oppdatering.net/betaling"
               },
+              "question": "Hva er riktig å gjøre med denne e-posten?",
               "options": [
                 { "id": "DELETE", "text": "Slett e-posten" },
                 { "id": "REPORT", "text": "Rapporter som phishing" },
-                { "id": "REPLY",  "text": "Svar med informasjon" },
-                { "id": "OPEN",   "text": "Klikk på lenken" }
+                { "id": "REPLY",  "text": "Svar og spør om mer info" },
+                { "id": "PAY",    "text": "Betal gebyret via lenken" }
               ],
               "correctAnswer": { "action": "REPORT" }
             },
@@ -1745,37 +1770,49 @@ public class DataLoader implements ApplicationRunner {
               "id": 3,
               "type": "MARKETPLACE",
               "systemName": "Butikksjekk",
-              "description": "Stopp svindelside som samler data",
-              "failureExplanation": "Det tydeligste faresignalet er den falske nettadressen kombinert med utrygg betaling. Det er det som avslører svindelsiden.",
-              "question": "Hva er galt med denne nettsiden?",
-              "options": [
-                { "id": "a", "text": "Ingenting, den ser legitim ut" },
-                { "id": "b", "text": "URL-en er falsk og betalingsvalget er utrygt" },
-                { "id": "c", "text": "Kun prisen er for lav" }
+              "description": "Stopp svindelsiden som samler betalingsinfo",
+              "failureExplanation": "Domenet er ukjent og betalingsmåten (Western Union/gavekort) er klassiske svindeltegn. Merk disse to.",
+              "successExplanation": "Riktig! Ukjent domene og usikker betalingsmåte er de tydeligste faresignalene i denne annonsen.",
+              "mockup": {
+                "url": "sneaker-blitz.shop",
+                "image": "/marketplace/air-max-270.png",
+                "title": "Nike Air Max 270",
+                "price": "299 kr",
+                "seller": "Nordisk Butikk AS",
+                "payment": "Western Union / Gavekort"
+              },
+              "elements": [
+                { "id": "domain",   "label": "sneaker-blitz.shop" },
+                { "id": "payment",  "label": "Western Union / Gavekort" },
+                { "id": "price",    "label": "299 kr" },
+                { "id": "seller",   "label": "Nordisk Butikk AS" },
+                { "id": "shipping", "label": "Levering 2–4 virkedager" }
               ],
-              "correctAnswer": { "selected": "b" }
+              "correctAnswer": { "domain": "true", "payment": "true" }
             },
             {
               "id": 4,
               "type": "SOCIAL_MEDIA",
               "systemName": "Sosial signaljakt",
-              "description": "Stopp ryktespredning",
-              "failureExplanation": "Innlegget prøver å presse deg til å dele før du vet om det stemmer. Du må sjekke kilden før du gjør noe.",
+              "description": "Stopp ryktespredning om mobilforbud",
+              "failureExplanation": "Innlegget spiller på stress og rykter uten å vise til noen faktisk beskjed. Sjekk alltid kilden.",
+              "successExplanation": "Riktig! Du bør sjekke kilden før du deler. Slike innlegg bruker hastverk for å få deg til å reagere raskt.",
               "post": {
-                "username": "DataTyvenEr",
-                "handle": "@datatyven_er",
-                "avatar": "🕵️",
-                "content": "Nå vet vi HVEM som stjal pengene!! Del dette til alle FØR det slettes!!",
-                "likes": 45210,
-                "comments": 8832,
-                "timestamp": "12 min siden",
+                "username": "Maja 9B",
+                "handle": "@maja_9b",
+                "avatar": "📚",
+                "content": "DELE DETTE NÅ!!! Rektor skal visst forby alle mobiler fra mandag, også i storefri 😱 Kusina til venninna mi sier lærerne fikk beskjed i går kveld, men ingen voksne vil si noe ennå!!!",
+                "likes": 287,
+                "comments": 46,
+                "timestamp": "I dag kl. 08:14",
                 "verified": false
               },
-              "question": "Hva bør du gjøre?",
+              "question": "Hva er det tryggeste du bør gjøre?",
               "options": [
-                { "id": "SHARE",         "text": "Del videre med en gang" },
-                { "id": "CHECK_SOURCES", "text": "Sjekk kilden først" },
-                { "id": "IGNORE",        "text": "Ignorer innlegget" }
+                { "id": "SHARE",         "text": "Del det videre med en gang" },
+                { "id": "CHECK_SOURCES", "text": "Sjekk kilden og faktasjekk" },
+                { "id": "WAIT",          "text": "Vent og se om det bekreftes" },
+                { "id": "ASK_ADULT",     "text": "Spør en voksen" }
               ],
               "correctAnswer": { "selected": "CHECK_SOURCES" }
             },
@@ -1785,14 +1822,15 @@ public class DataLoader implements ApplicationRunner {
               "systemName": "Hovedlåsen",
               "description": "Lås opp den digitale safe og redd pengene",
               "failureExplanation": "Den digitale safen krever et langt og uforutsigbart passord. Velg alternativet som er vanskeligst å gjette.",
+              "successExplanation": "Riktig! F!sk3Taco#92 er sterkt fordi det er langt og blander store og små bokstaver, tall og spesialtegn uten personlig informasjon.",
               "question": "Hvilket passord er sterkt nok til å sikre den redde kontoen?",
               "options": [
-                { "id": "a", "value": "admin123" },
-                { "id": "b", "value": "Trondheim" },
-                { "id": "c", "value": "S0l!Bj0rn#77" },
-                { "id": "d", "value": "passord" }
+                { "id": "a", "value": "Ola123" },
+                { "id": "b", "value": "Australia2026" },
+                { "id": "c", "value": "Hei" },
+                { "id": "d", "value": "F!sk3Taco#92" }
               ],
-              "correctAnswer": { "selected": "c" }
+              "correctAnswer": { "selected": "d" }
             }
           ]
         }

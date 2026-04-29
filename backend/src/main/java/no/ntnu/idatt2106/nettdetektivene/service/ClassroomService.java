@@ -174,7 +174,7 @@ public class ClassroomService {
         // Required task count per stop (excluding LEARN tasks)
         Map<Long, Long> requiredPerStop = stops.stream().collect(Collectors.toMap(
             Stop::getId,
-            s -> taskRepository.countByStop_IdAndTaskTypeNot(s.getId(), TaskType.LEARN)
+            s -> taskRepository.countByStop_IdAndTaskTypeNotIn(s.getId(), List.of(TaskType.LEARN))
         ));
 
         return approved.stream().map(member -> {
@@ -187,8 +187,8 @@ public class ClassroomService {
                     long required = requiredPerStop.getOrDefault(stop.getId(), 0L);
                     if (required == 0) return false;
                     long done = studentProgressRepository
-                        .countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNot(
-                            studentId, stop.getId(), TaskType.LEARN);
+                        .countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(
+                            studentId, stop.getId(), List.of(TaskType.LEARN));
                     return done < required;
                 })
                 .findFirst()
