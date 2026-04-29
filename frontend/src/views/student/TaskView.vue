@@ -291,6 +291,7 @@ import StopSummary from '@/components/student/StopSummary.vue'
 import { useSound } from '@/composables/useSound'
 import AvatarPreview from '@/components/student/AvatarPreview.vue'
 import { useAudioStore } from '@/stores/audio'
+import { splitLines } from '@/utils/text'
 
 const { playCorrect, playWrong, playFanfare } = useSound()
 const audioStore = useAudioStore()
@@ -590,7 +591,7 @@ function maybeShowStoredClueModal(task, submitResult) {
 
   storedClueModal.value = {
     stopName: task.stopName ?? 'Nytt spor',
-    resultLines: splitClueLines(task.contentJson?.result),
+    resultLines: splitLines(task.contentJson?.result),
     logic: task.contentJson?.logic ?? '',
     elimination: task.contentJson?.elimination ?? '',
     final: task.contentJson?.final ?? '',
@@ -600,14 +601,6 @@ function maybeShowStoredClueModal(task, submitResult) {
       || 'Et nytt spor er lagret i sporbrettet.',
     requiresEndFlow: submitResult.showSuspectReveal === true,
   }
-}
-
-function splitClueLines(value) {
-  if (Array.isArray(value)) return value
-  return String(value ?? '')
-    .split('\n')
-    .map(line => line.trim())
-    .filter(Boolean)
 }
 
 function buildMockResult(task, answer) {

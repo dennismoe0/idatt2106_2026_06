@@ -188,6 +188,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { splitLines } from '@/utils/text'
 
 const props = defineProps({
   task: { type: Object, required: true },
@@ -217,6 +218,9 @@ const selectedOption = computed(() => {
 const resultMessage = computed(() => {
   if (!props.result) return ''
   if (props.result.correct) return props.result.explanation
+  if (selectionMode.value === 'multi') {
+    return 'Ikke helt. Sjekk alle alternativene — ett eller flere av valgene dine stemmer ikke.'
+  }
   return selectedOption.value?.detail
     ? `Ikke helt. ${selectedOption.value.detail}`
     : 'Ikke helt. Sjekk kilden, tidspunktet og hvilket spor som faktisk kan bekreftes.'
@@ -262,18 +266,63 @@ function resetAnswer() {
 function optionBadge(index) {
   return String.fromCharCode(65 + index)
 }
-
-function splitLines(value) {
-  if (Array.isArray(value)) return value
-  return String(value ?? '')
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-}
 </script>
 
 <style scoped>
 .clue-board {
+  --clue-text: #f7ead0;
+  --clue-label: #f3c873;
+  --clue-heading: #fff4dd;
+  --clue-body: #f1dec0;
+  --clue-panel-border: rgba(255, 238, 205, 0.38);
+  --clue-panel-bg: rgba(4, 5, 7, 0.66);
+  --clue-panel-shadow: rgba(0, 0, 0, 0.32);
+  --clue-card-border: rgba(73, 40, 22, 0.4);
+  --clue-card-bg: #ead4ad;
+  --clue-card-text: #2a1a10;
+  --clue-card-strong: #25180f;
+  --clue-card-muted: #5f4631;
+  --clue-card-pill-bg: rgba(45, 33, 23, 0.1);
+  --clue-card-hover-shadow: rgba(0, 0, 0, 0.36);
+  --clue-pin: #a5241f;
+  --clue-pin-shadow: rgba(0, 0, 0, 0.28);
+  --clue-badge-bg: #2d2117;
+  --clue-badge-text: #ffe4a3;
+  --clue-image-bg: #20150f;
+  --clue-chip-label: #d6b98a;
+  --clue-chip-border: rgba(255, 227, 179, 0.5);
+  --clue-chip-bg: rgba(255, 244, 221, 0.1);
+  --clue-btn: #f3c873;
+  --clue-btn-text: #22160e;
+  --clue-selected-border: #ffffff;
+  --clue-selected-overlay: rgba(17, 94, 89, 0.16);
+  --clue-selected-bg: #fff1c2;
+  --clue-selected-ring: #0f766e;
+  --clue-selected-ring-outer: rgba(255, 255, 255, 0.9);
+  --clue-selected-shadow: rgba(0, 0, 0, 0.42);
+  --clue-selected-inner-border: rgba(15, 118, 110, 0.9);
+  --clue-selected-badge-border: #ffffff;
+  --clue-selected-badge-bg: #0f766e;
+  --clue-selected-badge-text: #ffffff;
+  --clue-selected-badge-shadow: rgba(0, 0, 0, 0.32);
+  --clue-correct-border: rgba(133, 220, 150, 0.75);
+  --clue-wrong-border: rgba(255, 132, 112, 0.75);
+  --clue-result-bg: rgba(255, 244, 221, 0.1);
+  --clue-explanation-bg: rgba(255, 244, 221, 0.08);
+  --clue-elimination-border: rgba(255, 198, 105, 0.5);
+  --clue-elimination-bg: rgba(99, 57, 12, 0.34);
+  --clue-final-border: rgba(133, 220, 150, 0.72);
+  --clue-final-bg: rgba(12, 82, 43, 0.34);
+  --clue-reveal-border: rgba(133, 220, 150, 0.72);
+  --clue-reveal-bg: rgba(7, 58, 45, 0.58);
+  --clue-verified-bg: #d7f4db;
+  --clue-verified-text: #165822;
+  --clue-shade-left: rgba(0, 0, 0, 0.58);
+  --clue-shade-mid: rgba(0, 0, 0, 0.18);
+  --clue-shade-right: rgba(0, 0, 0, 0.5);
+  --clue-shade-top: rgba(0, 0, 0, 0.12);
+  --clue-shade-bottom: rgba(0, 0, 0, 0.44);
+
   position: relative;
   min-height: calc(100vh - 54px);
   overflow: hidden;
@@ -281,7 +330,7 @@ function splitLines(value) {
   background-image: var(--clue-board-bg);
   background-position: center;
   background-size: cover;
-  color: #f7ead0;
+  color: var(--clue-text);
   isolation: isolate;
 }
 
@@ -290,8 +339,8 @@ function splitLines(value) {
   inset: 0;
   z-index: -1;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.18) 46%, rgba(0, 0, 0, 0.5)),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.44));
+    linear-gradient(90deg, var(--clue-shade-left), var(--clue-shade-mid) 46%, var(--clue-shade-right)),
+    linear-gradient(180deg, var(--clue-shade-top), var(--clue-shade-bottom));
 }
 
 .clue-board__content {
@@ -311,7 +360,7 @@ function splitLines(value) {
 .case-explanation span,
 .clue-reveal > span {
   margin: 0;
-  color: #f3c873;
+  color: var(--clue-label);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0;
@@ -326,7 +375,7 @@ function splitLines(value) {
 
 .clue-board h2 {
   margin-bottom: 0.55rem;
-  color: #fff4dd;
+  color: var(--clue-heading);
   font-size: clamp(1.7rem, 3vw, 2.45rem);
   line-height: 1.1;
 }
@@ -334,7 +383,7 @@ function splitLines(value) {
 .clue-board__header p {
   max-width: 52rem;
   margin-bottom: 0;
-  color: #f1dec0;
+  color: var(--clue-body);
   font-size: 1rem;
   line-height: 1.55;
 }
@@ -349,10 +398,10 @@ function splitLines(value) {
 .case-file,
 .investigation-panel,
 .case-result {
-  border: 1px solid rgba(255, 238, 205, 0.38);
+  border: 1px solid var(--clue-panel-border);
   border-radius: 8px;
-  background: rgba(4, 5, 7, 0.66);
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.32);
+  background: var(--clue-panel-bg);
+  box-shadow: 0 18px 42px var(--clue-panel-shadow);
   backdrop-filter: blur(7px);
 }
 
@@ -364,7 +413,7 @@ function splitLines(value) {
 
 .case-file p {
   margin-bottom: 0;
-  color: #f7ead0;
+  color: var(--clue-text);
   line-height: 1.55;
 }
 
@@ -372,20 +421,20 @@ function splitLines(value) {
   display: grid;
   gap: 0.35rem;
   padding: 0.8rem;
-  border: 1px dashed rgba(255, 227, 179, 0.5);
+  border: 1px dashed var(--clue-chip-border);
   border-radius: 6px;
-  background: rgba(255, 244, 221, 0.1);
+  background: var(--clue-chip-bg);
 }
 
 .password-chip span {
-  color: #d6b98a;
+  color: var(--clue-chip-label);
   font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
 }
 
 .password-chip strong {
-  color: #fff4dd;
+  color: var(--clue-heading);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: clamp(1rem, 2vw, 1.3rem);
 }
@@ -406,12 +455,12 @@ function splitLines(value) {
 }
 
 .timeline span {
-  color: #f3c873;
+  color: var(--clue-label);
   font-weight: 800;
 }
 
 .timeline p {
-  color: #f1dec0;
+  color: var(--clue-body);
 }
 
 .investigation-panel {
@@ -426,7 +475,7 @@ function splitLines(value) {
 }
 
 .question-strip span {
-  color: #d6b98a;
+  color: var(--clue-chip-label);
   font-size: 0.8rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -434,7 +483,7 @@ function splitLines(value) {
 
 .question-strip h3 {
   margin-bottom: 0;
-  color: #fff4dd;
+  color: var(--clue-heading);
   font-size: clamp(1.25rem, 2.3vw, 1.75rem);
   line-height: 1.2;
 }
@@ -458,19 +507,19 @@ function splitLines(value) {
   align-content: start;
   gap: 0.65rem;
   padding: 1rem;
-  border: 2px solid rgba(73, 40, 22, 0.4);
+  border: 2px solid var(--clue-card-border);
   border-radius: 6px;
-  background: #ead4ad;
-  color: #2a1a10;
+  background: var(--clue-card-bg);
+  color: var(--clue-card-text);
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 12px 24px var(--clue-pin-shadow);
   transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
 .evidence-card:hover:not(:disabled) {
   transform: translateY(-3px) rotate(-0.25deg);
-  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.36);
+  box-shadow: 0 18px 34px var(--clue-card-hover-shadow);
 }
 
 .evidence-card:disabled {
@@ -478,22 +527,22 @@ function splitLines(value) {
 }
 
 .evidence-card--selected {
-  border-color: #ffffff;
+  border-color: var(--clue-selected-border);
   background:
-    linear-gradient(0deg, rgba(17, 94, 89, 0.16), rgba(17, 94, 89, 0.16)),
-    #fff1c2;
+    linear-gradient(0deg, var(--clue-selected-overlay), var(--clue-selected-overlay)),
+    var(--clue-selected-bg);
   transform: translateY(-4px);
   box-shadow:
-    0 0 0 5px #0f766e,
-    0 0 0 9px rgba(255, 255, 255, 0.9),
-    0 22px 42px rgba(0, 0, 0, 0.42);
+    0 0 0 5px var(--clue-selected-ring),
+    0 0 0 9px var(--clue-selected-ring-outer),
+    0 22px 42px var(--clue-selected-shadow);
 }
 
 .evidence-card--selected::after {
   content: "";
   position: absolute;
   inset: 0.45rem;
-  border: 3px solid rgba(15, 118, 110, 0.9);
+  border: 3px solid var(--clue-selected-inner-border);
   border-radius: 4px;
   pointer-events: none;
 }
@@ -508,14 +557,14 @@ function splitLines(value) {
   min-width: 4.6rem;
   min-height: 2rem;
   padding: 0.2rem 0.55rem;
-  border: 2px solid #fff;
+  border: 2px solid var(--clue-selected-badge-border);
   border-radius: 999px;
-  background: #0f766e;
-  color: #fff;
+  background: var(--clue-selected-badge-bg);
+  color: var(--clue-selected-badge-text);
   font-size: 0.78rem;
   font-weight: 900;
   text-transform: uppercase;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.32);
+  box-shadow: 0 6px 14px var(--clue-selected-badge-shadow);
 }
 
 .evidence-card__selected-mark::before {
@@ -530,8 +579,8 @@ function splitLines(value) {
   width: 0.8rem;
   height: 0.8rem;
   border-radius: 50%;
-  background: #a5241f;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.28);
+  background: var(--clue-pin);
+  box-shadow: 0 2px 0 var(--clue-pin-shadow);
 }
 
 .evidence-card__badge {
@@ -540,13 +589,13 @@ function splitLines(value) {
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background: #2d2117;
-  color: #ffe4a3;
+  background: var(--clue-badge-bg);
+  color: var(--clue-badge-text);
   font-weight: 900;
 }
 
 .evidence-card strong {
-  color: #25180f;
+  color: var(--clue-card-strong);
   font-size: 1rem;
   line-height: 1.3;
 }
@@ -560,14 +609,14 @@ function splitLines(value) {
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: 4px;
-  background: #20150f;
+  background: var(--clue-image-bg);
 }
 
 .evidence-card__image--placeholder {
   display: grid;
   place-items: center;
   padding: 1rem;
-  color: #ffe4a3;
+  color: var(--clue-badge-text);
   font-weight: 900;
 }
 
@@ -583,7 +632,7 @@ function splitLines(value) {
 .mail-card small,
 .shop-card__url,
 .social-card small {
-  color: #5f4631;
+  color: var(--clue-card-muted);
   font-size: 0.82rem;
   font-weight: 700;
 }
@@ -592,7 +641,7 @@ function splitLines(value) {
 .shop-card p,
 .social-card p {
   margin-bottom: 0;
-  color: #2a1a10;
+  color: var(--clue-card-text);
   line-height: 1.45;
 }
 
@@ -605,7 +654,7 @@ function splitLines(value) {
 .shop-card__meta span {
   padding: 0.28rem 0.45rem;
   border-radius: 4px;
-  background: rgba(45, 33, 23, 0.1);
+  background: var(--clue-card-pill-bg);
   font-weight: 800;
 }
 
@@ -622,8 +671,8 @@ function splitLines(value) {
   width: 2.4rem;
   height: 2.4rem;
   border-radius: 50%;
-  background: #2d2117;
-  color: #ffe4a3;
+  background: var(--clue-badge-bg);
+  color: var(--clue-badge-text);
   font-weight: 900;
 }
 
@@ -634,8 +683,8 @@ function splitLines(value) {
 .social-card mark {
   padding: 0.2rem 0.45rem;
   border-radius: 4px;
-  background: #d7f4db;
-  color: #165822;
+  background: var(--clue-verified-bg);
+  color: var(--clue-verified-text);
   font-size: 0.72rem;
   font-weight: 800;
 }
@@ -647,8 +696,8 @@ function splitLines(value) {
   padding: 0.75rem 1.15rem;
   border: 0;
   border-radius: 6px;
-  background: #f3c873;
-  color: #22160e;
+  background: var(--clue-btn);
+  color: var(--clue-btn-text);
   font-weight: 900;
   cursor: pointer;
 }
@@ -665,22 +714,22 @@ function splitLines(value) {
 }
 
 .case-result--correct {
-  border-color: rgba(133, 220, 150, 0.75);
+  border-color: var(--clue-correct-border);
 }
 
 .case-result--wrong {
-  border-color: rgba(255, 132, 112, 0.75);
+  border-color: var(--clue-wrong-border);
 }
 
 .case-result h3 {
   margin-bottom: 0.35rem;
-  color: #fff4dd;
+  color: var(--clue-heading);
   font-size: 1.35rem;
 }
 
 .case-result p {
   margin-bottom: 0;
-  color: #f1dec0;
+  color: var(--clue-body);
   line-height: 1.55;
 }
 
@@ -693,7 +742,7 @@ function splitLines(value) {
 .result-lines {
   padding: 0.85rem;
   border-radius: 6px;
-  background: rgba(255, 244, 221, 0.1);
+  background: var(--clue-result-bg);
 }
 
 .case-explanation {
@@ -706,30 +755,30 @@ function splitLines(value) {
   gap: 0.4rem;
   padding: 0.85rem;
   border-radius: 6px;
-  background: rgba(255, 244, 221, 0.08);
+  background: var(--clue-explanation-bg);
 }
 
 .case-explanation__elimination {
-  border: 1px solid rgba(255, 198, 105, 0.5);
-  background: rgba(99, 57, 12, 0.34) !important;
+  border: 1px solid var(--clue-elimination-border);
+  background: var(--clue-elimination-bg) !important;
 }
 
 .case-explanation__final {
-  border: 1px solid rgba(133, 220, 150, 0.72);
-  background: rgba(12, 82, 43, 0.34) !important;
+  border: 1px solid var(--clue-final-border);
+  background: var(--clue-final-bg) !important;
 }
 
 .clue-reveal {
   grid-template-columns: minmax(7rem, auto) 1fr;
   align-items: start;
-  border: 1px solid rgba(133, 220, 150, 0.72);
-  background: rgba(7, 58, 45, 0.58);
+  border: 1px solid var(--clue-reveal-border);
+  background: var(--clue-reveal-bg);
 }
 
 .clue-reveal strong {
   display: block;
   margin-bottom: 0.25rem;
-  color: #fff4dd;
+  color: var(--clue-heading);
 }
 
 .case-result__actions {

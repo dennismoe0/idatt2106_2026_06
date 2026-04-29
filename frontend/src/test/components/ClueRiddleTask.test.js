@@ -32,6 +32,21 @@ const TASK = {
   },
 }
 
+const MULTI_TASK = {
+  ...TASK,
+  id: 405,
+  contentJson: {
+    ...TASK.contentJson,
+    selectionMode: 'multi',
+    variant: 'photo',
+    options: [
+      { id: 'photo_a', label: 'Bilde A', imageUrl: '/a.png' },
+      { id: 'photo_b', label: 'Bilde B', imageUrl: '/b.png' },
+      { id: 'photo_c', label: 'Bilde C', imageUrl: '/c.png' },
+    ],
+  },
+}
+
 describe('ClueRiddleTask', () => {
   it('renders the password clue as highlighted evidence', () => {
     const wrapper = mount(ClueRiddleTask, { props: { task: TASK } })
@@ -66,5 +81,21 @@ describe('ClueRiddleTask', () => {
     expect(wrapper.text()).toContain('Ikke helt.')
     expect(wrapper.text()).toContain('det inneholder sted, rolle og årstall')
     expect(wrapper.text()).not.toContain('Riktig. Passordet peker mot noen med admin-kobling')
+  })
+
+  it('shows generic wrong-answer feedback for multi-select tasks', async () => {
+    const wrapper = mount(ClueRiddleTask, { props: { task: MULTI_TASK } })
+
+    await wrapper.findAll('.evidence-card')[0].trigger('click')
+    await wrapper.findAll('.evidence-card')[1].trigger('click')
+    await wrapper.setProps({
+      result: {
+        correct: false,
+        explanation: 'Riktig. Alle bildene er falske.',
+      },
+    })
+
+    expect(wrapper.text()).toContain('Ikke helt. Sjekk alle alternativene')
+    expect(wrapper.text()).not.toContain('Riktig. Alle bildene er falske.')
   })
 })
