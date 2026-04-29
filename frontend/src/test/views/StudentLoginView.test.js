@@ -8,7 +8,7 @@ import { useClassroomStore } from '@/stores/classroom'
 
 const TestHome = { template: '<div>Home</div>' }
 const TestIntro = { template: '<div>Intro</div>' }
-const TestLogin = { template: '<div>Login</div>' }
+const TestTeacherLogin = { template: '<div>Teacher login</div>' }
 const TestJoin = { template: '<div>Join</div>' }
 const TestWaiting = { template: '<div>Waiting</div>' }
 
@@ -16,10 +16,10 @@ function makeRouter() {
   return createRouter({
     history: createMemoryHistory(),
     routes: [
-      { path: '/student-login', name: 'StudentLogin', component: StudentLoginView },
+      { path: '/login', name: 'StudentLogin', component: StudentLoginView },
       { path: '/', name: 'Home', component: TestHome },
       { path: '/intro', name: 'Intro', component: TestIntro },
-      { path: '/login', name: 'Login', component: TestLogin },
+      { path: '/teacher-login', name: 'TeacherLogin', component: TestTeacherLogin },
       { path: '/join', name: 'JoinClassroom', component: TestJoin },
       { path: '/waiting', name: 'WaitingRoom', component: TestWaiting },
     ],
@@ -31,7 +31,7 @@ async function mountView() {
   setActivePinia(pinia)
 
   const router = makeRouter()
-  await router.push('/student-login')
+  await router.push('/login')
   await router.isReady()
 
   const wrapper = mount(StudentLoginView, {
@@ -60,6 +60,15 @@ describe('StudentLoginView', () => {
     await wrapper.find('form').trigger('submit')
 
     expect(wrapper.text()).toContain('Elevnavn er påkrevd')
+  })
+
+  it('shows a visible teacher login link', async () => {
+    const { wrapper } = await mountView()
+
+    const teacherLink = wrapper.get('.feide-teacher-link')
+
+    expect(teacherLink.text()).toContain('Gå til lærerinnlogging')
+    expect(teacherLink.attributes('href')).toBe('/teacher-login')
   })
 
   it('calls studentLogin with trimmed username', async () => {

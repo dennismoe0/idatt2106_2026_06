@@ -42,8 +42,11 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function logout() {
+    const destination = role.value === 'TEACHER'
+      ? { name: 'TeacherLogin' }
+      : { name: 'StudentLogin' }
     clearAuthState()
-    router.push('/login')
+    router.push(destination)
   }
 
   function decodeJwtPayload(t) {

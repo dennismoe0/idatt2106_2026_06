@@ -22,9 +22,9 @@ const router = useRouter()
 const classroomStore = useClassroomStore()
 
 const links = [
-  { path: '/login',         label: 'Login' },
+  { path: '/login',         label: 'Student Login' },
+  { path: '/teacher-login', label: 'Teacher Login' },
   { path: '/register',      label: 'Register' },
-  { path: '/student-login', label: 'Student Login' },
   { path: '/',              label: 'Home' },
   { path: '/intro',         label: 'Intro' },
   { path: '/join',          label: 'Join' },
