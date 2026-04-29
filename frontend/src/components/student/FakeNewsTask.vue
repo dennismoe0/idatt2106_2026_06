@@ -80,10 +80,24 @@ const chosenIndex    = ref(null)
 const shakingIndex   = ref(null)
 const bouncingIndex  = ref(null)
 const revealCorrect  = ref(null)
+const shuffledArticles = ref([])
 
-const articles = computed(() => props.task?.contentJson?.articles ?? [])
+const articles = computed(() => shuffledArticles.value)
+
+function shuffleWithOriginalIndex(rawArticles) {
+  const entries = (rawArticles ?? []).map((article, index) => ({
+    ...article,
+    originalIndex: index
+  }))
+  for (let i = entries.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[entries[i], entries[j]] = [entries[j], entries[i]]
+  }
+  return entries
+}
 
 watch(() => props.task?.id, () => {
+  shuffledArticles.value = shuffleWithOriginalIndex(props.task?.contentJson?.articles)
   chosenIndex.value   = null
   shakingIndex.value  = null
   bouncingIndex.value = null
@@ -104,9 +118,11 @@ watch(() => props.result, (r) => {
 
 function getCorrectIndex(r) {
   // Prefer an explicit index from the server (future-proof)
-  if (typeof r?.correctArticleIndex === 'number') return r.correctArticleIndex
+  if (typeof r?.correctArticleIndex === 'number') {
+    return articles.value.findIndex(article => article.originalIndex === r.correctArticleIndex)
+  }
   // Fallback: the fake article has value false in the answer map
-  return articles.value.findIndex((_, index) => r?.[`article_${index}`] === false)
+  return articles.value.findIndex(article => r?.[`article_${article.originalIndex}`] === false)
 }
 
 function articleClass(index) {
@@ -140,9 +156,11 @@ function formatEdition(date) {
 function pickCard(index) {
   if (props.result) return
   chosenIndex.value = index
+  const chosenArticle = articles.value[index]
+  if (!chosenArticle) return
   const answer = {}
-  articles.value.forEach((_, i) => {
-    answer[`article_${i}`] = i !== index  // chosen card = false (fake), others = true (real)
+  articles.value.forEach((article) => {
+    answer[`article_${article.originalIndex}`] = article.originalIndex !== chosenArticle.originalIndex
   })
   console.log('[FakeNewsTask] Card picked index:', index, 'answer:', answer)
   emit('submitted', answer)
