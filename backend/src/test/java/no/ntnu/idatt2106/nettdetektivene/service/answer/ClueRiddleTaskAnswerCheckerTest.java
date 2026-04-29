@@ -5,6 +5,7 @@ import no.ntnu.idatt2106.nettdetektivene.entity.TaskType;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +39,20 @@ class ClueRiddleTaskAnswerCheckerTest {
         var correct = mapper.readTree("{\"selected\":\"cafe_admin\"}");
 
         assertThat(checker.isCorrect(null, correct, Map.of())).isFalse();
+    }
+
+    @Test
+    void matchingMultipleSelectedOptions_passesInAnyOrder() throws Exception {
+        var correct = mapper.readTree("{\"selected\":[\"photo_a\",\"photo_b\",\"photo_c\"]}");
+
+        assertThat(checker.isCorrect(null, correct, Map.of("selected", List.of("photo_c", "photo_a", "photo_b")))).isTrue();
+    }
+
+    @Test
+    void missingMultipleSelectedOption_fails() throws Exception {
+        var correct = mapper.readTree("{\"selected\":[\"photo_a\",\"photo_b\",\"photo_c\"]}");
+
+        assertThat(checker.isCorrect(null, correct, Map.of("selected", List.of("photo_a", "photo_b")))).isFalse();
     }
 
     @Test
