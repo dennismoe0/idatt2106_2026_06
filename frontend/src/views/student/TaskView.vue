@@ -111,6 +111,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="result = null"
                 @back-to-map="goToMap"
               />
 
@@ -121,6 +122,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="result = null"
                 @back-to-map="goToMap"
               />
 
@@ -131,6 +133,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="result = null"
               />
 
               <PasswordTask
@@ -150,6 +153,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="result = null"
               />
 
               <MarketplaceTask
@@ -159,6 +163,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="result = null"
               />
 
               <ClueRiddleTask
@@ -575,9 +580,28 @@ async function handleSubmit(answer) {
       maybeShowStoredClueModal(submittedTask, result.value)
       isMockMode.value = true
     } else {
-      error.value = 'Kunne ikke sende svar. Prøv igjen.'
+      error.value = describeSubmitError(apiError)
     }
   }
+}
+
+function describeSubmitError(apiError) {
+  const status = apiError?.response?.status
+  const message = apiError?.response?.data?.error
+
+  if (status === 403) {
+    if (message === 'Tutorial must be completed first') {
+      return 'Du må fullføre læringsoppgaven først før du kan svare på denne oppgaven.'
+    }
+    if (message === 'Previous tasks must be completed first') {
+      return 'Du må løse den forrige oppgaven riktig før du kan gå videre.'
+    }
+    if (message === 'Stop is locked') {
+      return 'Dette stoppet er låst akkurat nå. Fullfør det forrige stoppet først.'
+    }
+  }
+
+  return 'Kunne ikke sende svar. Prøv igjen.'
 }
 
 function maybeShowStoredClueModal(task, submitResult) {
@@ -995,6 +1019,11 @@ function handlePeekOut(e) {
 function goNext() {
   if (result.value && currentTask.value) {
     taskResults.value[currentTask.value.id] = result.value
+  }
+  if (result.value && !result.value.correct) {
+    console.warn('[TaskView] Blocking advance after wrong answer for task', currentTask.value?.id)
+    result.value = null
+    return
   }
   if (shouldShowArrestScene()) {
     arrestSceneStep.value = 0

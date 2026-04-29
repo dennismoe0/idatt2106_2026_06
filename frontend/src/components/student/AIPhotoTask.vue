@@ -144,7 +144,10 @@
           🎉 Du fullførte Fotografen!
         </p>
         <div class="inline-result__actions">
-          <button class="next-btn" @click="$emit('next')">
+          <button v-if="!result.correct" class="next-btn" @click="$emit('retry')">
+            Prøv igjen
+          </button>
+          <button v-else class="next-btn" @click="$emit('next')">
             {{ isLastTask ? 'Videre til sammendrag →' : 'Neste oppgave →' }}
           </button>
         </div>
@@ -168,7 +171,7 @@ const props = defineProps({
   isLastTask: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['submitted', 'next'])
+const emit = defineEmits(['submitted', 'next', 'retry'])
 
 const content  = computed(() => props.task?.contentJson ?? {})
 const subtype  = computed(() => (content.value.type ?? '').toUpperCase())
