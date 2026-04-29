@@ -716,7 +716,7 @@ public class DataLoader implements ApplicationRunner {
                     { "id": "c", "value": "S@nder_2015#" },
                     { "id": "d", "value": "SolKatt!Fjord#22" }
                   ],
-                  "explanation": "SolKatt!Fjord#22 er det beste valget fordi det er langt, blander store og små bokstaver, tall og spesialtegn, og ikke bruker navnet eller årstallet fra det svake passordet. Slike personlige spor gjør passord lettere å gjette."
+                  "explanation": "SolKatt!Fjord#22 er den beste varianten fordi den ikke inneholder noe personlig, er lang og blander store og små bokstaver, tall og spesialtegn. En slik passordfrase er vanskelig å gjette, selv om noen kjenner deg."
                 }
                 """,
                 "{\"selected\": \"d\"}"),

@@ -61,7 +61,11 @@ public class GameService {
     private static final int CORRECT_SCORE = 100;
     private static final int XP_PER_TASK = 10;
     private static final int XP_PER_STOP = 30;
-    private static final Set<TaskType> COMPLETION_EXCLUDED_TASK_TYPES = EnumSet.of(TaskType.LEARN, TaskType.CLUE_RIDDLE);
+    private static final int SUSPECT_REVEAL_STOP_ORDER = 6;
+    private static final Set<TaskType> COMPLETION_EXCLUDED_TASK_TYPES = EnumSet.of(
+        TaskType.LEARN,
+        TaskType.CLUE_RIDDLE
+    );
 
     private final StopRepository stopRepository;
     private final TaskRepository taskRepository;
@@ -189,7 +193,7 @@ public class GameService {
                     ? fakeNewsCorrectIndex(task) : null;
                 return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, correctArticleIndex, null, false);
             }
-            boolean stopCompleted = canCompleteStop(task) && isStopComplete(studentId, task.getStop().getId());
+            boolean stopCompleted = canReturnStopCompletion(task) && isStopComplete(studentId, task.getStop().getId());
             String clueText = stopCompleted ? task.getStop().getClueText() : null;
             List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
                 ? correctClueIdsFor(task) : List.of();
@@ -244,16 +248,18 @@ public class GameService {
             student.setXp(student.getXp() + XP_PER_TASK);
         }
 
-        boolean stopCompleted = canCompleteStop(task) && isStopComplete(studentId, task.getStop().getId());
+        boolean stopCompleted = canReturnStopCompletion(task) && isStopComplete(studentId, task.getStop().getId());
+        boolean awardStopCompletion = canCompleteStop(task) && stopCompleted;
         int xpEarned = earnsTaskReward ? XP_PER_TASK : 0;
         String clueText = stopCompleted ? task.getStop().getClueText() : null;
-        boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
+        boolean showSuspectReveal = stopCompleted
+            && task.getTaskType() == TaskType.CLUE_RIDDLE
+            && shouldShowSuspectReveal(task.getStop());
 
-        if (stopCompleted) {
+        if (awardStopCompletion) {
             log.info("[GameService] stop completed studentId={} stopId={}", studentId, task.getStop().getId());
             student.setXp(student.getXp() + XP_PER_STOP);
             xpEarned += XP_PER_STOP;
-            notebookService.createAutoClueIfNotExists(studentId, task.getStop());
             int taskCount = Math.toIntExact(requiredTaskCount(task.getStop().getId()));
             StudentXpLog xpLog = new StudentXpLog();
             xpLog.setStudent(student);
@@ -262,13 +268,16 @@ public class GameService {
             xpLog.setAwardedAt(LocalDateTime.now());
             studentXpLogRepository.save(xpLog);
         }
+        if (shouldStoreClue(task, stopCompleted, awardStopCompletion)) {
+            notebookService.createAutoClueIfNotExists(studentId, task.getStop());
+        }
         if (student != null) {
             userRepository.save(student);
         }
         int starsEarned = earnsTaskReward ? 1 : 0;
         log.info("[GameService] awarded starsEarned={} xpEarned={} studentId={} taskId={}", starsEarned, xpEarned, studentId, taskId);
 
-        MedalDto medalEarned = stopCompleted
+        MedalDto medalEarned = awardStopCompletion
             ? checkAndAwardMedal(studentId, task.getStop().getId()).map(this::toMedalDto).orElse(null)
             : null;
 
@@ -698,16 +707,30 @@ public class GameService {
     }
 
     private long requiredTaskCount(Long stopId) {
-        // CLUE_RIDDLE intentionally remains required: solving it unlocks the dossier clue.
+        // LEARN and CLUE_RIDDLE are excluded: LEARN is introductory, CLUE_RIDDLE is a bonus clue.
         return taskRepository.countByStop_IdAndTaskTypeNotIn(stopId, COMPLETION_EXCLUDED_TASK_TYPES);
     }
 
     private boolean shouldShowSuspectReveal(Stop stop) {
-        return Integer.valueOf(6).equals(stop.getOrderIndex());
+        return Integer.valueOf(SUSPECT_REVEAL_STOP_ORDER).equals(stop.getOrderIndex());
     }
 
     private boolean canCompleteStop(Task task) {
         return !COMPLETION_EXCLUDED_TASK_TYPES.contains(task.getTaskType());
+    }
+
+    private boolean canReturnStopCompletion(Task task) {
+        return task.getTaskType() != TaskType.LEARN;
+    }
+
+    private boolean shouldStoreClue(Task task, boolean stopCompleted, boolean awardStopCompletion) {
+        if (!stopCompleted) {
+            return false;
+        }
+        if (task.getTaskType() == TaskType.CLUE_RIDDLE) {
+            return true;
+        }
+        return awardStopCompletion && !taskRepository.existsByStop_IdAndTaskType(task.getStop().getId(), TaskType.CLUE_RIDDLE);
     }
 
     private String extractExplanation(Task task) {

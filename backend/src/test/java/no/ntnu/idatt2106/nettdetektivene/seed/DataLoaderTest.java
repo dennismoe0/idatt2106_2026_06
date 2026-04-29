@@ -220,9 +220,9 @@ class DataLoaderTest {
         assertThat(content.path("options").get(3).path("value").asText()).isEqualTo("SolKatt!Fjord#22");
         assertThat(answer.path("selected").asText()).isEqualTo("d");
         assertThat(content.path("explanation").asText())
-            .contains("SolKatt!Fjord#22 er det beste valget")
+            .contains("SolKatt!Fjord#22 er den beste varianten")
             .contains("små bokstaver")
-            .contains("ikke bruker navnet eller årstallet")
+            .contains("ikke inneholder noe personlig")
             .doesNotContain("Ã")
             .contains("gjette");
     }
