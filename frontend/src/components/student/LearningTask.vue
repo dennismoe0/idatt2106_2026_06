@@ -1284,13 +1284,13 @@ function scrollToLearningTop() {
 
 .news-domains__bar--safe {
   background: color-mix(in srgb, var(--color-success-light) 75%, white);
-  color: #1f5d3a;
+  color: var(--color-success-dark);
   border: 1px solid color-mix(in srgb, var(--color-success) 35%, transparent);
 }
 
 .news-domains__bar--risky {
   background: color-mix(in srgb, var(--color-danger-light) 70%, white);
-  color: #7a1f1f;
+  color: var(--color-danger-dark);
   border: 1px solid color-mix(in srgb, var(--color-danger) 35%, transparent);
 }
 
@@ -1432,7 +1432,7 @@ function scrollToLearningTop() {
 }
 
 .news-search__hit--risky .news-search__title {
-  color: #7a1f1f;
+  color: var(--color-danger-dark);
 }
 
 .news-search__snippet {

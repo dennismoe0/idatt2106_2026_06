@@ -23,10 +23,12 @@
 
   --color-danger:        #E53E3E;
   --color-danger-light:  color-mix(in srgb, #E53E3E 40%, white);
+  --color-danger-dark:   color-mix(in srgb, #E53E3E 55%, black);
   --color-warning:       #DD6B20;
   --color-warning-light: color-mix(in srgb, #DD6B20 20%, white);
   --color-success:       #38A169;
   --color-success-light: color-mix(in srgb, #38A169 40%, white);
+  --color-success-dark:  color-mix(in srgb, #38A169 55%, black);
   --color-confetti-1:    #ED8936;
   --color-confetti-2:    #2B6CB0;
   --color-confetti-3:    #38A169;

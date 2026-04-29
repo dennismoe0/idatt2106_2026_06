@@ -200,14 +200,8 @@ function extractDomainOrName(input) {
 
 .fake-news-task__instruction {
   max-width: var(--article-grid-max);
-  margin: 0 auto;
-  width: 100%;
-  align-self: stretch;
-}
-
-.fake-news-task__instruction {
-  margin: 0 auto;
   width: min(100%, 560px);
+  margin: 0 auto;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -217,19 +211,14 @@ function extractDomainOrName(input) {
   font-weight: 700;
   line-height: 1.25;
   text-align: center;
+  align-self: stretch;
   box-shadow: none;
 }
 
 .fake-news-task__guidance {
   max-width: var(--article-grid-max);
-  margin: 0 auto;
-  width: 100%;
-  align-self: stretch;
-}
-
-.fake-news-task__guidance {
-  margin: 0 auto;
   width: min(100%, 620px);
+  margin: 0 auto;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -239,6 +228,7 @@ function extractDomainOrName(input) {
   font-weight: 700;
   line-height: 1.35;
   text-align: center;
+  align-self: stretch;
   box-shadow: none;
 }
 

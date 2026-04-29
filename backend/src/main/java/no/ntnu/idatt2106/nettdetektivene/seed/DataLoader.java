@@ -550,8 +550,6 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("signature", "text", "DNB Kundeservice", false, "Navn og signatur kan kopieres. De blir først nyttige når domenet og lenken også stemmer."),
                     new Clue("bankid", "text", "logge inn med BankID", true, "Phishing prøver ofte å få deg til å oppgi innlogging eller BankID på en falsk side."),
                     new Clue("threat", "text", "kortet og kontoen din bli midlertidig låst", true, "Trusler om sperring eller låsing brukes for å skape panikk."),
-                    new Clue("greeting", "text", "Hei Oliver,", false, "At meldingen bruker navnet ditt betyr ikke at den er ekte. Navn kan være lett å finne eller gjette."),
-                    new Clue("merchant", "text", "Steam Market", false, "Et kjent navn eller sted i meldingen er ikke i seg selv bevis på svindel. Det er avsender, lenke og presset som avslører mest her."),
                     new Clue("logo", "branding", "DNB Kundeservice", false, "Logo og avsendernavn alene er ikke nok. Svindlere kopierer ofte kjente merkevarer for å se troverdige ut.")
                 ),
                 "E-posten ser profesjonell ut, men avsenderen og lenken er falske. Tidspresset er laget for å stresse deg til å gi fra deg BankID-opplysninger."
