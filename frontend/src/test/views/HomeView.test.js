@@ -10,7 +10,7 @@ const router = createRouter({
   routes: [
     { path: '/',             name: 'Home',           component: HomeView },
     { path: '/map',          name: 'Map',            component: { template: '<div>Map</div>' } },
-    { path: '/worldmap',     name: 'WorldMap',       component: { template: '<div>WorldMap</div>' } },
+    { path: '/world-map',    name: 'WorldMap',       component: { template: '<div>WorldMap</div>' } },
     { path: '/medals',       name: 'Medals',         component: { template: '<div>Medals</div>' } },
     { path: '/notebook',     name: 'Notebook',       component: { template: '<div>Notebook</div>' } },
     { path: '/profile',      name: 'Profile',        component: { template: '<div>Profile</div>' } },
@@ -60,7 +60,7 @@ describe('HomeView', () => {
     const wrapper = mountHomeView()
     const mapCard = wrapper.get('.home__note--hero')
 
-    expect(mapCard.attributes('href')).toBe('/worldmap?showMapIntro=1')
+    expect(mapCard.attributes('href')).toBe('/world-map?showMapIntro=1')
   })
 
   it('does not add the map intro query after the popup has been seen', () => {
@@ -69,7 +69,7 @@ describe('HomeView', () => {
     const wrapper = mountHomeView()
     const mapCard = wrapper.get('.home__note--hero')
 
-    expect(mapCard.attributes('href')).toBe('/worldmap')
+    expect(mapCard.attributes('href')).toBe('/world-map')
   })
 
   it('shows Kommer snart on locked notes when present', () => {

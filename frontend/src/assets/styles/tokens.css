@@ -45,6 +45,7 @@
   --color-surface:      #FFFFFF;
   --color-surface-soft: #F6F8FF;
   --color-surface-soft-alt: #EEF3FF;
+  --color-backdrop:     color-mix(in srgb, var(--color-surface) 42%, transparent);
   --color-text:         #1A202C;
   --color-text-muted:   #718096;
   --color-text-on-dark: #FFFFFF;
