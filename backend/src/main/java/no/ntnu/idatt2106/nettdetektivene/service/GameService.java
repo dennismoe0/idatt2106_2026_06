@@ -816,6 +816,12 @@ public class GameService {
         if (!correctAnswer.path("action").isMissingNode()) {
             return correctAnswer.path("action").asText();
         }
+        if (correctAnswer.path("acceptedSelected").isArray() && !correctAnswer.path("acceptedSelected").isEmpty()) {
+            return correctAnswer.path("acceptedSelected").get(0).asText();
+        }
+        if (correctAnswer.path("acceptedActions").isArray() && !correctAnswer.path("acceptedActions").isEmpty()) {
+            return correctAnswer.path("acceptedActions").get(0).asText();
+        }
         return null;
     }
 
