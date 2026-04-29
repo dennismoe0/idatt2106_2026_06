@@ -90,7 +90,10 @@
           v-for="notification in recentNotifications"
           :key="notification.id"
           class="notification-card"
-          :class="{ unread: !notification.isRead }"
+          :class="{
+            unread: !notification.isRead,
+            'notification-card--handled': handledActions[notification.id]
+          }"
         >
           <div class="notification-main">
             <span class="type-label">{{ typeLabel(notification.type) }}</span>
@@ -100,22 +103,31 @@
 
           <div class="notification-actions">
             <template v-if="notification.type === 'STUDENT_JOIN_REQUEST'">
-              <button
-                class="btn btn-primary btn-sm"
-                :data-testid="`approve-notification-${notification.id}`"
-                :disabled="actionLoading"
-                @click="handleJoinRequest(notification, 'APPROVED')"
+              <span
+                v-if="handledActions[notification.id]"
+                class="handled-badge"
+                :class="handledActions[notification.id] === 'APPROVED' ? 'handled-badge--approved' : 'handled-badge--denied'"
               >
-                Godkjenn
-              </button>
-              <button
-                class="btn btn-danger btn-sm"
-                :data-testid="`deny-notification-${notification.id}`"
-                :disabled="actionLoading"
-                @click="handleJoinRequest(notification, 'KICKED')"
-              >
-                Avvis
-              </button>
+                {{ handledActions[notification.id] === 'APPROVED' ? '✓ Godkjent' : '✗ Avvist' }}
+              </span>
+              <template v-else>
+                <button
+                  class="btn btn-primary btn-sm"
+                  :data-testid="`approve-notification-${notification.id}`"
+                  :disabled="actionLoading"
+                  @click="handleJoinRequest(notification, 'APPROVED')"
+                >
+                  Godkjenn
+                </button>
+                <button
+                  class="btn btn-danger btn-sm"
+                  :data-testid="`deny-notification-${notification.id}`"
+                  :disabled="actionLoading"
+                  @click="handleJoinRequest(notification, 'KICKED')"
+                >
+                  Avvis
+                </button>
+              </template>
             </template>
 
             <button
@@ -194,6 +206,7 @@ const classroomStore = useClassroomStore()
 const authStore = useAuthStore()
 const schoolStore = useSchoolStore()
 const actionLoading = ref(false)
+const handledActions = ref({}) // { [notificationId]: 'APPROVED' | 'KICKED' }
 
 // Notifications older than 8 hours are considered stale
 const STALE_MS = 8 * 60 * 60 * 1000
@@ -284,6 +297,7 @@ async function handleJoinRequest(notification, status) {
   try {
     await classroomStore.updateStudentStatus(notification.classroomId, studentId, status)
     await notificationStore.markAsRead(notification.id)
+    handledActions.value = { ...handledActions.value, [notification.id]: status }
   } finally {
     actionLoading.value = false
   }
@@ -530,6 +544,37 @@ function viewMystery(notification) {
 
 .notification-card--old:hover {
   opacity: 0.65;
+}
+
+/* Handled (approved/denied) notifications */
+.notification-card--handled {
+  opacity: 0.5;
+  border-color: transparent !important;
+  box-shadow: none;
+  transition: opacity var(--transition-fast);
+}
+
+.notification-card--handled:hover {
+  opacity: 0.7;
+}
+
+.handled-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.handled-badge--approved {
+  background: var(--color-success-light, #dcfce7);
+  color: var(--color-success, #16a34a);
+}
+
+.handled-badge--denied {
+  background: var(--color-danger-light, #fee2e2);
+  color: var(--color-danger);
 }
 
 .old-divider {
