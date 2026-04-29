@@ -240,7 +240,7 @@ const mockupContent = computed(() => {
     productImageUrl:
       mockup.productImageUrl ??
       contentJson.value.productImageUrl ??
-      '/marketplace/air-max-270.png',
+      '',
     badges,
     notice:
       mockup.notice ??
@@ -744,16 +744,16 @@ function hasDisplayValue(value) {
   line-height: 1.45;
 }
 .cs-result-item--correct {
-  border-color: #3b82f6;
-  background: #eff6ff;
+  border-color: var(--color-info);
+  background: var(--color-info-light);
 }
 .cs-result-item--wrong {
   border-color: var(--color-danger);
   background: var(--color-danger-light);
 }
 .cs-result-item--missed {
-  border-color: #93c5fd;
-  background: #f0f7ff;
+  border-color: var(--color-info-soft);
+  background: var(--color-info-bg);
 }
 .cs-result-item--ok {
   opacity: 0.75;

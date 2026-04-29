@@ -42,7 +42,8 @@ public class MarketplaceTaskAnswerChecker implements TaskAnswerChecker {
         correctAnswer.path("correctElementIds").forEach(n -> correct.add(n.asText()));
 
         // Temporary compatibility guard for already-seeded tasks in older environments
-        // where correctElementIds may be empty in DB. Remove after data is backfilled.
+        // where correctElementIds may be empty in DB.
+        // TODO(#309): remove once marketplace task data is backfilled in all environments.
         if (correct.isEmpty() && task != null && task.getContentJson() != null) {
             log.warn("[MarketplaceTaskAnswerChecker] correctElementIds empty — falling back to contentJson.elements");
             try {

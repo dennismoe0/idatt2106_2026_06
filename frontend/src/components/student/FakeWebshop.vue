@@ -1,9 +1,11 @@
 <template>
   <article class="fake-shop">
     <div class="fake-shop__browser">
-      <span class="fake-shop__browser-dot fake-shop__browser-dot--red" />
-      <span class="fake-shop__browser-dot fake-shop__browser-dot--yellow" />
-      <span class="fake-shop__browser-dot fake-shop__browser-dot--green" />
+      <div class="fake-shop__browser-dots" aria-hidden="true">
+        <span class="fake-shop__browser-dot fake-shop__browser-dot--red" />
+        <span class="fake-shop__browser-dot fake-shop__browser-dot--yellow" />
+        <span class="fake-shop__browser-dot fake-shop__browser-dot--green" />
+      </div>
       <div class="fake-shop__nav">
         <span class="fake-shop__nav-lock" aria-hidden="true">🔒</span>
         <component
@@ -238,15 +240,23 @@ function handleToggle(id) {
 }
 
 .fake-shop__browser {
-  display: grid;
-  grid-template-columns: auto auto auto minmax(0, 1fr);
-  gap: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: var(--space-2);
+}
+
+.fake-shop__browser-dots {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 0 auto;
 }
 
 .fake-shop__browser-dot {
   width: 11px;
   height: 11px;
+  flex: 0 0 11px;
   border-radius: var(--radius-full);
   background: var(--color-border-strong);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
@@ -260,6 +270,7 @@ function handleToggle(id) {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  flex: 1 1 0;
   min-width: 0;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
@@ -347,7 +358,7 @@ function handleToggle(id) {
   aspect-ratio: 1 / 1;
   object-fit: contain;
   border-radius: var(--radius-md);
-  background: #ffffff;
+  background: var(--color-bg);
   border: 1px solid var(--color-border);
   padding: var(--space-2);
 }
@@ -535,12 +546,8 @@ function handleToggle(id) {
 }
 
 @media (max-width: 680px) {
-  .fake-shop__browser {
-    grid-template-columns: auto auto auto;
-  }
-
   .fake-shop__nav {
-    grid-column: 1 / -1;
+    flex: 1 1 100%;
   }
 
   .fake-shop__product {
