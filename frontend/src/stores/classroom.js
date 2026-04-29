@@ -10,6 +10,7 @@ export const useClassroomStore = defineStore('classroom', () => {
   const pendingJoin = ref(null)
   const displayName = ref(null)
   const approvalStatus = ref(null)
+  const musicMuted = ref(false)
 
   async function fetchMyClassrooms() {
     console.log('[classroom] Fetching my classrooms')
@@ -152,6 +153,7 @@ export const useClassroomStore = defineStore('classroom', () => {
     try {
       const { data } = await classroomService.getMyStatus(classroomId)
       approvalStatus.value = data.status
+      musicMuted.value = data.musicMuted ?? false
       localStorage.setItem('classroomStatus', data.status)
       if (pendingJoin.value?.classroomId === classroomId) {
         pendingJoin.value = {
@@ -159,7 +161,7 @@ export const useClassroomStore = defineStore('classroom', () => {
           status: data.status
         }
       }
-      console.log('[classroom] My status is:', data.status)
+      console.log('[classroom] My status is:', data.status, '— musicMuted:', data.musicMuted)
       return data.status
     } catch (err) {
       console.error('[classroom] Failed to fetch my status:', err)
@@ -182,7 +184,7 @@ export const useClassroomStore = defineStore('classroom', () => {
   }
 
   return {
-    classrooms, currentClassroom, students, currentClassroomId, pendingJoin, displayName, approvalStatus,
+    classrooms, currentClassroom, students, currentClassroomId, pendingJoin, displayName, approvalStatus, musicMuted,
     fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents, fetchMyStatus, updateStudentStatus, fetchMyClassroom, updateMyDisplayName, rehydrate, reset
   }
 })

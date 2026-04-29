@@ -9,6 +9,14 @@
           <button class="copy-btn" @click="copyCode">{{ codeCopied ? 'Kopiert!' : 'Kopier' }}</button>
         </div>
       </div>
+      <button
+        class="mute-all-btn"
+        :class="{ 'mute-all-btn--active': musicMuted }"
+        :title="musicMuted ? 'Slå på lyd for alle elever' : 'Demp lyd for alle elever'"
+        @click="toggleMusicMuted"
+      >
+        {{ musicMuted ? '🔇 Lyd av (alle)' : '🔊 Demp alle' }}
+      </button>
       <RouterLink
         :to="{ name: 'WeeklyMysteryManage', params: { classroomId } }"
         class="mysterium-link"
@@ -78,6 +86,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useClassroomStore } from '@/stores/classroom'
+import { classroomService } from '@/services/classroomService'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
@@ -91,6 +100,7 @@ const loading = ref(false)
 const error = ref('')
 const kickTarget = ref(null)
 const codeCopied = ref(false)
+const musicMuted = ref(false)
 let pollInterval = null
 
 const students = computed(() => classroomStore.students)
@@ -157,6 +167,17 @@ async function kick(studentId) {
   }
 }
 
+async function toggleMusicMuted() {
+  const next = !musicMuted.value
+  try {
+    await classroomService.setMusicMuted(classroomId, next)
+    musicMuted.value = next
+    console.log('[ClassroomDetailView] Music muted set to', next)
+  } catch (err) {
+    console.error('[ClassroomDetailView] Failed to set music muted:', err)
+  }
+}
+
 async function copyCode() {
   const code = classroom.value?.joinCode ?? ''
   try {
@@ -184,6 +205,27 @@ async function copyCode() {
   flex-wrap: wrap;
   gap: var(--space-3);
 }
+.mute-all-btn {
+  align-self: center;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.mute-all-btn:hover { background: var(--color-border); }
+.mute-all-btn--active {
+  background: var(--color-danger);
+  color: var(--color-text-on-dark);
+  border-color: var(--color-danger);
+}
+.mute-all-btn--active:hover { opacity: 0.85; }
+
 .mysterium-link {
   align-self: center;
   font-size: var(--text-sm);

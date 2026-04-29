@@ -8,6 +8,7 @@ import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.SchoolLeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.MusicMutedRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.UpdateDisplayNameRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.UpdateStudentStatusRequest;
@@ -164,6 +165,19 @@ public class ClassroomController {
         Long studentId = currentUserId(userDetails);
         log.info("[ClassroomController] GET /api/classrooms/{}/my-status studentId={}", id, studentId);
         return ResponseEntity.ok(classroomService.getMyStatus(studentId, id));
+    }
+
+    @PutMapping("/{id}/music-muted")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> setMusicMuted(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id,
+        @RequestBody MusicMutedRequest request
+    ) {
+        Long teacherId = currentUserId(userDetails);
+        log.info("[ClassroomController] PUT /api/classrooms/{}/music-muted teacherId={} muted={}", id, teacherId, request.musicMuted());
+        classroomService.setMusicMuted(teacherId, id, request.musicMuted());
+        return ResponseEntity.ok().build();
     }
 
     private Long currentUserId(UserDetails userDetails) {

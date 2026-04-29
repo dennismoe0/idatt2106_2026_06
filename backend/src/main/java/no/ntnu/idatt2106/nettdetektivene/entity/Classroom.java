@@ -28,6 +28,9 @@ public class Classroom {
     @Column(nullable = false)
     private boolean isActive = true;
 
+    @Column(nullable = false)
+    private boolean musicMuted = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
