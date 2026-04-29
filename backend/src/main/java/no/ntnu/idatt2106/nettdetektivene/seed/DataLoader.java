@@ -378,7 +378,7 @@ public class DataLoader implements ApplicationRunner {
                 newsStop,
                 2,
                 "Vinterstengte skoler",
-                "Finn den ekte saken blant fire artikler om snøkaos og skolehverdag.",
+                "Finn den falske saken blant fire artikler om snøkaos og skolehverdag.",
                 """
                     {
                       "articles": [
@@ -398,7 +398,7 @@ public class DataLoader implements ApplicationRunner {
                           "source": "ViktigeSkoleNytt24.xyz",
                           "author": "Admin",
                           "date": "2026-01-14",
-                          "isReal": false
+                          "isReal": true
                         },
                         {
                           "headline": "Foreldre raser etter snøkaos, men eksperter advarer mot å stole på skjermbilder alene",
@@ -407,7 +407,7 @@ public class DataLoader implements ApplicationRunner {
                           "source": "TrondheimVarsel.blog",
                           "author": "Nyhetsdesk",
                           "date": "2026-01-14",
-                          "isReal": false
+                          "isReal": true
                         },
                         {
                           "headline": "Forskere: Ny snøspray over byen gjør at skolegårder blir helt isfrie på fem sekunder",
@@ -419,7 +419,7 @@ public class DataLoader implements ApplicationRunner {
                           "isReal": false
                         }
                       ],
-                      "explanation": "Den ekte saken har tydelig avsender, konkret tiltak og etterprøvbar informasjon. De falske sakene mangler navngitte kilder, vedtak eller faglig dokumentasjon, selv når de høres aktuelle ut."
+                      "explanation": "Den falske saken mangler navngitte kilder, vedtak og faglig dokumentasjon. De ekte sakene har tydeligere avsender og mer etterprøvbar informasjon."
                     }
                     """
             ),
@@ -447,7 +447,7 @@ public class DataLoader implements ApplicationRunner {
                           "source": "RuteNytt Trondheim",
                           "author": "Nyhetsvakt",
                           "date": "2026-02-03",
-                          "isReal": false
+                          "isReal": true
                         },
                         {
                           "headline": "AtB vurderer strengere mobilregler etter passasjerklager",
@@ -456,7 +456,7 @@ public class DataLoader implements ApplicationRunner {
                           "source": "Midtbyen Tidende",
                           "author": "Signe Dahl",
                           "date": "2026-02-03",
-                          "isReal": false
+                          "isReal": true
                         },
                         {
                           "headline": "Pilotprosjekt: app skal automatisk dempe mobillyd på buss i rushtiden",
@@ -468,7 +468,7 @@ public class DataLoader implements ApplicationRunner {
                           "isReal": false
                         }
                       ],
-                      "explanation": "Den ekte saken skiller tydelig mellom test og vedtak, med konkret omfang og rammer. De falske sakene mangler sporbar dokumentasjon og bruker uklare eller anonyme kilder, selv om de kan høres troverdige ut."
+                      "explanation": "Den falske saken mangler sporbar dokumentasjon og bruker uklare eller anonyme kilder. De ekte sakene skiller tydeligere mellom forslag, test og vedtak."
                     }
                     """
             ),
@@ -496,7 +496,7 @@ public class DataLoader implements ApplicationRunner {
                           "source": "Nordic Esport Desk",
                           "author": "LiveDesk",
                           "date": "2026-03-08",
-                          "isReal": false
+                          "isReal": true
                         },
                         {
                           "headline": "Community-arrangør deler kode for gratis skins til nye spillere denne helgen",
@@ -505,7 +505,7 @@ public class DataLoader implements ApplicationRunner {
                           "source": "Community Hub Norge",
                           "author": "Aina Berg",
                           "date": "2026-03-08",
-                          "isReal": false
+                          "isReal": true
                         },
                         {
                           "headline": "Supportstrøm lover kompensasjonspakker etter serverfeil - krever verifisering av konto",
@@ -517,7 +517,7 @@ public class DataLoader implements ApplicationRunner {
                           "isReal": false
                         }
                       ],
-                      "explanation": "Den ekte saken forklarer tydelig hvordan verifiserte kampanjer faktisk publiseres. De falske sakene mangler offisielle referanser, ber om unødvendig informasjon eller leder brukeren utenfor kjente kanaler."
+                      "explanation": "Den falske saken mangler offisielle referanser og leder brukeren ut av verifiserte kanaler. De ekte sakene holder seg til tryggere og mer sporbar informasjon."
                     }
                     """
             ),

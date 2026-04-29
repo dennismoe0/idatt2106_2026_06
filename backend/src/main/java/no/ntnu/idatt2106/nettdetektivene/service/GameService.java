@@ -548,7 +548,7 @@ public class GameService {
             Iterator<Map.Entry<String, JsonNode>> fields = correct.fields();
             while (fields.hasNext()) {
                 Map.Entry<String, JsonNode> entry = fields.next();
-                if (entry.getValue().asBoolean()) {
+                if (!entry.getValue().asBoolean()) {
                     return Integer.parseInt(entry.getKey().replace("article_", ""));
                 }
             }
