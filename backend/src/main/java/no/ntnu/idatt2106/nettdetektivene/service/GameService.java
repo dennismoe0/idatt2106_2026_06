@@ -201,9 +201,7 @@ public class GameService {
                 ? correctClueIdsFor(task) : List.of();
             List<PhishingClueFeedbackDto> phishingClues = task.getTaskType() == TaskType.PHISHING_EMAIL
                 ? phishingCluesFor(task) : List.of();
-            boolean currentAnswerCorrect = task.getTaskType() == TaskType.PHISHING_EMAIL
-                ? checkAnswer(task, req == null ? null : req.answer())
-                : true;
+            boolean currentAnswerCorrect = checkAnswer(task, req == null ? null : req.answer());
             return new SubmitAnswerResponse(
                 currentAnswerCorrect,
                 existingProgress.get().getScore(),

@@ -13,6 +13,8 @@ import no.ntnu.idatt2106.nettdetektivene.entity.TaskType;
 import no.ntnu.idatt2106.nettdetektivene.repository.MedalRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StopRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
@@ -21,11 +23,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @Order(1)
 @RequiredArgsConstructor
 public class DataLoader implements ApplicationRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(DataLoader.class);
 
     private final StopRepository stopRepository;
     private final TaskRepository taskRepository;
@@ -35,14 +42,7 @@ public class DataLoader implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        if (stopRepository.count() > 0) {
-            return;
-        }
-
-
-        // data loader methods
-
-        List<Stop> stops = stopRepository.saveAll(List.of(
+        List<Stop> stops = syncStops(List.of(
             stop("Nyhetskvartalet",
                  "Noen prøver å spre kaos etter at penger som skulle gå til den nye idrettsparken plutselig forsvant fra ordførerens prosjektkonto. Nå dukker det opp dramatiske artikler som peker i alle retninger, og folk i byen begynner å skylde på feil personer.\n\nHvis vi skal finne ut hva som faktisk skjedde med ordføreren og pengene, må vi først lære å skille ekte nyheter fra falske. Klarer du å stoppe løgnene før de blir til \"sannheten\" alle tror på?",
                  "FAKE_NEWS", 1, false,
@@ -741,7 +741,7 @@ public class DataLoader implements ApplicationRunner {
                     { "id": "c", "value": "Hei" },
                     { "id": "d", "value": "HalloPåDeg" }
                   ],
-                  "explanation": "H@iPÅD4g!021 er den beste varianten fordi den er lang og blander store og små bokstaver, tall og spesialtegn. En slik passordfrase er vanskelig å gjette eller knekke, siden den har så mange tilfeldige tegn og bokstaver."
+                  "explanation": "H@iPÅD4g!021 er den beste varianten her fordi den er lengre og blander store og små bokstaver, tall og spesialtegn. Samtidig bygger den fortsatt på en kjent frase, så et enda bedre passord ville vært mindre personlig og mer tilfeldig."
                 }
                 """,
                 "{\"selected\": \"b\"}"),
@@ -752,7 +752,7 @@ public class DataLoader implements ApplicationRunner {
                   "question": "Bygg et passord som er sterkt nok til å låse opp bankboksen",
                   "words": ["Tiger", "Måne", "Pizza", "Hund", "Sol", "Isbjørn", "Fjord"],
                   "symbols": ["!", "#", "@", "?", "&", "*"],
-                  "numbers": ["67", "420", "99", "3", "2026"],
+                  "numbers": ["67", "42", "99", "3", "2026"],
                   "maxLength": 24,
                   "minStrength": "STRONG",
                   "explanation": "Et sterkt passord er langt, bruker store og små bokstaver, tall og spesialtegn, og inneholder ikke personlig informasjon."
@@ -1126,9 +1126,9 @@ public class DataLoader implements ApplicationRunner {
                 "Riktig. Passordet peker mot noen med admin-kobling til Xoo Inn Cafe. Dette er det siste sporet før Datasenteret."
             )
         ));
-        taskRepository.saveAll(tasks);
+        syncTasks(tasks);
 
-        medalRepository.saveAll(List.of(
+        syncMedals(List.of(
             medal("Nyhetsjeger", "Fullfør Nyhetskvartalet.", stops.get(0)),
             medal("Bildegransker", "Fullfør Fotografen.", stops.get(1)),
             medal("E-postetterforsker", "Fullfør Postkontoret.", stops.get(2)),
@@ -1139,6 +1139,106 @@ public class DataLoader implements ApplicationRunner {
             medal("Ukens detektiv", "Fullførte sitt første ukentlige mysterium"),
             medal("Mysterium-mester", "Fullførte fem ukentlige mysterier riktig")
         ));
+    }
+
+    private List<Stop> syncStops(List<Stop> seededStops) {
+        if (stopRepository.count() == 0) {
+            return stopRepository.saveAll(seededStops);
+        }
+
+        Map<Integer, Stop> existingByOrderIndex = stopRepository.findAllByOrderByOrderIndexAsc().stream()
+            .collect(Collectors.toMap(Stop::getOrderIndex, Function.identity(), (left, right) -> {
+                log.warn("Duplicate stop seed key detected for orderIndex={}; keeping first id={} and ignoring id={}",
+                    left.getOrderIndex(), left.getId(), right.getId());
+                return left;
+            }));
+
+        List<Stop> mergedStops = new ArrayList<>();
+        for (Stop seededStop : seededStops) {
+            Stop existingStop = existingByOrderIndex.get(seededStop.getOrderIndex());
+            if (existingStop == null) {
+                mergedStops.add(seededStop);
+                continue;
+            }
+
+            existingStop.setName(seededStop.getName());
+            existingStop.setDescription(seededStop.getDescription());
+            existingStop.setTheme(seededStop.getTheme());
+            existingStop.setFinalBoss(seededStop.isFinalBoss());
+            existingStop.setAutoTip(seededStop.getAutoTip());
+            existingStop.setClueText(seededStop.getClueText());
+            mergedStops.add(existingStop);
+        }
+
+        return stopRepository.saveAll(mergedStops);
+    }
+
+    private void syncTasks(List<Task> seededTasks) {
+        if (taskRepository.count() == 0) {
+            taskRepository.saveAll(seededTasks);
+            return;
+        }
+
+        Map<String, Task> existingByKey = taskRepository.findAll().stream()
+            .collect(Collectors.toMap(this::taskSeedKey, Function.identity(), (left, right) -> {
+                throw new IllegalStateException("Duplicate taskSeedKey in seed data: '" + taskSeedKey(left) + "'");
+            }));
+
+        List<Task> mergedTasks = new ArrayList<>();
+        for (Task seededTask : seededTasks) {
+            Task existingTask = existingByKey.get(taskSeedKey(seededTask));
+            if (existingTask == null) {
+                mergedTasks.add(seededTask);
+                continue;
+            }
+
+            existingTask.setStop(seededTask.getStop());
+            existingTask.setTitle(seededTask.getTitle());
+            existingTask.setDescription(seededTask.getDescription());
+            existingTask.setDifficulty(seededTask.getDifficulty());
+            existingTask.setTaskType(seededTask.getTaskType());
+            existingTask.setContentJson(seededTask.getContentJson());
+            existingTask.setCorrectAnswerJson(seededTask.getCorrectAnswerJson());
+            existingTask.setGuidanceText(seededTask.getGuidanceText());
+            existingTask.setOrderIndex(seededTask.getOrderIndex());
+            mergedTasks.add(existingTask);
+        }
+
+        taskRepository.saveAll(mergedTasks);
+    }
+
+    private void syncMedals(List<Medal> seededMedals) {
+        if (medalRepository.count() == 0) {
+            medalRepository.saveAll(seededMedals);
+            return;
+        }
+
+        Map<String, Medal> existingByName = medalRepository.findAll().stream()
+            .collect(Collectors.toMap(Medal::getName, Function.identity(), (left, right) -> {
+                log.warn("Duplicate medal seed key detected for name={}; keeping first id={} and ignoring id={}",
+                    left.getName(), left.getId(), right.getId());
+                return left;
+            }));
+
+        List<Medal> mergedMedals = new ArrayList<>();
+        for (Medal seededMedal : seededMedals) {
+            Medal existingMedal = existingByName.get(seededMedal.getName());
+            if (existingMedal == null) {
+                mergedMedals.add(seededMedal);
+                continue;
+            }
+
+            existingMedal.setDescription(seededMedal.getDescription());
+            existingMedal.setStop(seededMedal.getStop());
+            existingMedal.setImageUrl(seededMedal.getImageUrl());
+            mergedMedals.add(existingMedal);
+        }
+
+        medalRepository.saveAll(mergedMedals);
+    }
+
+    private String taskSeedKey(Task task) {
+        return task.getStop().getOrderIndex() + "|" + task.getOrderIndex() + "|" + task.getTaskType().name();
     }
 
     private Stop stop(String name, String description, String theme, int orderIndex, boolean finalBoss, String autoTip, String clueText) {

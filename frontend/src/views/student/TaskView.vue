@@ -140,6 +140,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="result = null"
               />
 
               <SocialMediaTask
@@ -471,7 +472,7 @@ async function loadTasks() {
 }
 
 function firstIncompleteTaskIndex(loadedTasks) {
-  const index = loadedTasks.findIndex(task => !task.completed)
+  const index = loadedTasks.findIndex(task => !(task.alreadyCompleted ?? task.completed))
   return index >= 0 ? index : 0
 }
 
