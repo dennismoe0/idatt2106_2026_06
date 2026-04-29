@@ -84,6 +84,26 @@
                   </li>
                 </ul>
               </div>
+              <div
+                v-else-if="photoVisualFor(currentSlideIndex)"
+                class="photo-compare"
+                :class="{ 'photo-compare--single': photoVisualFor(currentSlideIndex).length === 1 }"
+              >
+                <article
+                  v-for="image in photoVisualFor(currentSlideIndex)"
+                  :key="image.key"
+                  class="photo-compare__item"
+                >
+                  <div class="photo-compare__image-wrap">
+                    <img class="photo-compare__image" :src="image.src" :alt="image.alt" />
+                  </div>
+                  <div class="photo-compare__content">
+                    <p class="photo-compare__eyebrow">{{ image.eyebrow }}</p>
+                    <h4 class="photo-compare__title">{{ image.title }}</h4>
+                    <p class="photo-compare__body">{{ image.body }}</p>
+                  </div>
+                </article>
+              </div>
               <div v-else-if="socialMediaVisualFor(currentSlideIndex)" class="social-learn">
                 <article
                   v-for="card in socialMediaVisualFor(currentSlideIndex)"
@@ -502,6 +522,37 @@ const SOCIAL_MEDIA_VISUAL_EXAMPLES = {
   ],
 }
 
+const PHOTO_VISUAL_EXAMPLES = {
+  1: [
+    {
+      key: 'ai-generated',
+      src: '/story_pictures/photographer-ai-paris-cafe.png',
+      eyebrow: 'KI-generert bilde',
+      title: 'Et bilde kan se ekte ut uten å være tatt med kamera',
+      body: 'KI kan lage realistiske scener med mennesker, steder og lys som virker troverdige ved første blikk. Legg merke til hånden som holder koppen - fingrene ser ikke naturlige ut. Ansiktene i bakgrunnen er også uklare og merkelige, noe som er typisk for KI-genererte bilder.',
+      alt: 'Et KI-generert bilde av en mann på en kafé i Paris med Eiffeltårnet i bakgrunnen.',
+    },
+  ],
+  2: [
+    {
+      key: 'real',
+      src: '/story_pictures/photographer-real-playground.jpg',
+      eyebrow: 'Ekte bilde',
+      title: 'Ekte bilder viser en virkelig hendelse',
+      body: 'Dette er et vanlig foto fra stedet. Det kan være justert i farger, men innholdet er ikke endret.',
+      alt: 'Et ekte foto av to barn på en lekeplass der en person henger fra en metallstang.',
+    },
+    {
+      key: 'manipulated',
+      src: '/story_pictures/photographer-manipulated-playground.png',
+      eyebrow: 'Manipulert bilde',
+      title: 'Personer er lagt til i etterkant',
+      body: 'Bildet bygger på den samme scenen, men flere mennesker er lagt inn. Da kan bildet gi et annet inntrykk av hva som faktisk skjedde. Ser vi nøye etter, er ansiktene til noen av personene merkelige.',
+      alt: 'Et manipulert foto fra samme lekeplass der flere personer er lagt til rundt personen som henger fra metallstangen.',
+    },
+  ],
+}
+
 watch(() => props.task?.id, () => {
   phase.value         = 'LEARN'
   submittedOnce.value = false
@@ -600,6 +651,10 @@ function buildNewsExample(examples = []) {
 
 function marketplaceVisualFor(index) {
   return props.task?.stopTheme === 'MARKETPLACE' ? MARKETPLACE_VISUAL_EXAMPLES[index] ?? null : null
+}
+
+function photoVisualFor(index) {
+  return props.task?.stopTheme === 'AI_PHOTO' ? PHOTO_VISUAL_EXAMPLES[index] ?? null : null
 }
 
 function socialMediaVisualFor(index) {
@@ -959,6 +1014,72 @@ function scrollToLearningTop() {
 .marketplace-visual {
   display: grid;
   gap: var(--space-3);
+}
+
+.photo-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.photo-compare--single {
+  grid-template-columns: 1fr;
+}
+
+.photo-compare__item {
+  display: grid;
+  gap: var(--space-3);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: 0 12px 28px rgba(20, 30, 48, 0.08);
+}
+
+.photo-compare__image-wrap {
+  aspect-ratio: 4 / 3;
+  background: var(--color-surface-soft);
+  overflow: hidden;
+}
+
+.photo-compare__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-compare__content {
+  display: grid;
+  gap: var(--space-2);
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.photo-compare__eyebrow,
+.photo-compare__title,
+.photo-compare__body {
+  margin: 0;
+}
+
+.photo-compare__eyebrow {
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.photo-compare__title {
+  font-size: var(--text-base);
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--color-heading);
+}
+
+.photo-compare__body {
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--color-text);
 }
 
 .social-learn {
@@ -1733,7 +1854,8 @@ function scrollToLearningTop() {
     width: 100%;
   }
 
-  .marketplace-compare {
+  .marketplace-compare,
+  .photo-compare {
     grid-template-columns: 1fr;
   }
 }
