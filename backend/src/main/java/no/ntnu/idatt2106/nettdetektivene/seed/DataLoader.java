@@ -39,6 +39,9 @@ public class DataLoader implements ApplicationRunner {
             return;
         }
 
+
+        // data loader methods
+
         List<Stop> stops = stopRepository.saveAll(List.of(
             stop("Nyhetskvartalet",
                  "Noen prøver å spre kaos etter at penger som skulle gå til den nye idrettsparken plutselig forsvant fra ordførerens prosjektkonto. Nå dukker det opp dramatiske artikler som peker i alle retninger, og folk i byen begynner å skylde på feil personer.\n\nHvis vi skal finne ut hva som faktisk skjedde med ordføreren og pengene, må vi først lære å skille ekte nyheter fra falske. Klarer du å stoppe løgnene før de blir til \"sannheten\" alle tror på?",
