@@ -262,6 +262,68 @@ describe('TaskView', () => {
     expect(wrapper.find('.password-stub').exists()).toBe(true)
   })
 
+  it('starts at the first incomplete Passordbanken task when API returns alreadyCompleted', async () => {
+    localStorage.setItem('mystery_seen_stop_6', '1')
+    const gameStore = useGameStore()
+    gameStore.fetchTasks.mockResolvedValue([
+      {
+        id: 400,
+        taskType: 'LEARN',
+        alreadyCompleted: true,
+        stopId: 6,
+        stopName: 'Passordbanken',
+        stopTheme: 'PASSWORD',
+        stopOrderIndex: 6,
+        stopDescription: 'Tyven er nesten tatt.',
+        contentJson: { slides: [], quiz: [] },
+      },
+      {
+        id: 401,
+        taskType: 'PASSWORD',
+        alreadyCompleted: false,
+        stopId: 6,
+        stopName: 'Passordbanken',
+        stopTheme: 'PASSWORD',
+        stopOrderIndex: 6,
+        stopDescription: 'Tyven er nesten tatt.',
+        contentJson: { type: 'CHOICE', question: 'Velg det sterkeste passordet.', options: [] },
+      },
+    ])
+
+    const wrapper = mount(TaskView, {
+      global: {
+        plugins: [router],
+        stubs: {
+          DetectiveBar: true,
+          StopMysteryScreen: true,
+          TutorialScreen: true,
+          LearningTask: {
+            template: '<div class="learn-stub">learn</div>',
+          },
+          PasswordTask: {
+            template: '<div class="password-stub">password</div>',
+          },
+          ClueRiddleTask: true,
+          FakeNewsTask: true,
+          AIPhotoTask: true,
+          SocialMediaTask: true,
+          MarketplaceTask: true,
+          PhishingEmailTask: true,
+          FinalBossTask: true,
+          ConfettiOverlay: true,
+          MedalToast: true,
+          StopSummary: true,
+          AvatarPreview: true,
+        },
+      },
+    })
+
+    await flushPromises()
+
+    expect(wrapper.find('.learn-stub').exists()).toBe(false)
+    expect(wrapper.find('.password-stub').exists()).toBe(true)
+  })
+
   it('does not show stored clue modal after learning task completion', async () => {
     const gameStore = useGameStore()
     gameStore.fetchTasks.mockResolvedValue([
