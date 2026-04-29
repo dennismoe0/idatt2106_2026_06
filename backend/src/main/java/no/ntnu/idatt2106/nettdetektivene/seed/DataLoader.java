@@ -697,11 +697,11 @@ public class DataLoader implements ApplicationRunner {
                   "question": "Hvilket passord er tryggest?",
                   "options": [
                     { "id": "a", "value": "Ola123" },
-                    { "id": "b", "value": "Emma2014" },
-                    { "id": "c", "value": "Katt" },
+                    { "id": "b", "value": "Australia2026" },
+                    { "id": "c", "value": "Hei" },
                     { "id": "d", "value": "F!sk3Taco#92" }
                   ],
-                  "explanation": "F!sk3Taco#92 er sterkest fordi det er langt og blander store og små bokstaver, tall og spesialtegn. Navn og årstall er svake."
+                  "explanation": "F!sk3Taco#92 er sterkest fordi det er langt og blander store og små bokstaver, tall og spesialtegn. Navn, årstall og annen personlig informasjon er svakt."
                 }
                 """,
                 "{\"selected\": \"d\"}"),
@@ -709,17 +709,17 @@ public class DataLoader implements ApplicationRunner {
                 """
                 {
                   "type": "CHOICE",
-                  "question": "Noen har prøvd å gjøre passordet 'Sander2015' sterkere. Hvilken versjon er best?",
+                  "question": "Noen har prøvd å gjøre passordet 'HeiPåDeg' sterkere. Hvilken versjon er best?",
                   "options": [
-                    { "id": "a", "value": "sander2015" },
-                    { "id": "b", "value": "Sander2015!" },
-                    { "id": "c", "value": "S@nder_2015#" },
-                    { "id": "d", "value": "SolKatt!Fjord#22" }
+                    { "id": "a", "value": "HeiPåDeg123" },
+                    { "id": "b", "value": "H@iPÅD4g!021" },
+                    { "id": "c", "value": "Hei" },
+                    { "id": "d", "value": "HalloPåDeg" }
                   ],
-                  "explanation": "SolKatt!Fjord#22 er den beste varianten fordi den ikke inneholder noe personlig, er lang og blander store og små bokstaver, tall og spesialtegn. En slik passordfrase er vanskelig å gjette, selv om noen kjenner deg."
+                  "explanation": "H@iPÅD4g!021 er den beste varianten fordi den er lang og blander store og små bokstaver, tall og spesialtegn. En slik passordfrase er vanskelig å gjette eller knekke, siden den har så mange tilfeldige tegn og bokstaver."
                 }
                 """,
-                "{\"selected\": \"d\"}"),
+                "{\"selected\": \"b\"}"),
             passwordTask(pwdStop, 4, "Bygg et sterkt passord", "Bruk brikkene til å lage et passord som er sterkt nok.",
                 """
                 {
@@ -727,7 +727,7 @@ public class DataLoader implements ApplicationRunner {
                   "question": "Bygg et passord som er sterkt nok til å låse opp bankboksen",
                   "words": ["Tiger", "Måne", "Pizza", "Hund", "Sol", "Isbjørn", "Fjord"],
                   "symbols": ["!", "#", "@", "?", "&", "*"],
-                  "numbers": ["7", "42", "99", "3", "2026"],
+                  "numbers": ["67", "420", "99", "3", "2026"],
                   "maxLength": 24,
                   "minStrength": "STRONG",
                   "explanation": "Et sterkt passord er langt, bruker store og små bokstaver, tall og spesialtegn, og inneholder ikke personlig informasjon."
