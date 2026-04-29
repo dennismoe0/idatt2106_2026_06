@@ -1181,9 +1181,7 @@ public class DataLoader implements ApplicationRunner {
 
         Map<String, Task> existingByKey = taskRepository.findAll().stream()
             .collect(Collectors.toMap(this::taskSeedKey, Function.identity(), (left, right) -> {
-                log.warn("Duplicate task seed key detected for key={}; keeping first id={} and ignoring id={}",
-                    taskSeedKey(left), left.getId(), right.getId());
-                return left;
+                throw new IllegalStateException("Duplicate taskSeedKey in seed data: '" + taskSeedKey(left) + "'");
             }));
 
         List<Task> mergedTasks = new ArrayList<>();
