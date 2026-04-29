@@ -9,12 +9,14 @@ import { useRoute, useRouter } from 'vue-router'
 import DevNav from '@/components/common/DevNav.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useClassroomStore } from '@/stores/classroom'
+import { useAudioStore } from '@/stores/audio'
 
 const isDev = import.meta.env.DEV
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const classroomStore = useClassroomStore()
+const audioStore = useAudioStore()
 
 let kickPollInterval = null
 
@@ -48,11 +50,18 @@ watch(
   ([isStudent, classroomId]) => {
     if (isStudent && classroomId) {
       startKickPolling(classroomId)
+      audioStore.startGlobal()
     } else {
       stopKickPolling()
+      audioStore.stopGlobal()
     }
   },
   { immediate: true }
+)
+
+watch(
+  () => classroomStore.musicMuted,
+  (muted) => audioStore.setTeacherMuted(muted)
 )
 
 onUnmounted(stopKickPolling)

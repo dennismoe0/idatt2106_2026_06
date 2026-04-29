@@ -7,6 +7,7 @@
         <p class="home__eyebrow">Nettdetektivene · Saksmappe</p>
         <h1 class="home__name">Detektiv {{ studentName }}</h1>
       </div>
+      <SoundControls class="home__sound" />
       <button class="home__logout" @click="handleLogout">Logg ut</button>
     </header>
 
@@ -78,7 +79,9 @@ import { computed, onMounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useClassroomStore } from '@/stores/classroom'
+import SoundControls from '@/components/common/SoundControls.vue'
 import { buildMapIntroRoute, hasSeenMapIntro as getHasSeenMapIntro } from '@/utils/mapIntro'
+
 
 const authStore = useAuthStore()
 const classroomStore = useClassroomStore()

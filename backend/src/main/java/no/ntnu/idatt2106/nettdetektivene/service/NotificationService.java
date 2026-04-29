@@ -13,6 +13,7 @@ import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -20,6 +21,8 @@ import java.util.List;
 public class NotificationService {
     public static final String STUDENT_JOIN_REQUEST = "STUDENT_JOIN_REQUEST";
     public static final String MYSTERY_SUBMITTED = "MYSTERY_SUBMITTED";
+
+    private static final long STALE_HOURS = 8;
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
@@ -74,6 +77,18 @@ public class NotificationService {
             .filter(notification -> !notification.isRead())
             .forEach(notification -> notification.setRead(true));
         notificationRepository.saveAll(notifications);
+    }
+
+    @Transactional
+    public void deleteNotification(Long teacherId, Long notificationId) {
+        Notification notification = getTeacherNotification(teacherId, notificationId);
+        notificationRepository.delete(notification);
+    }
+
+    @Transactional
+    public int deleteOldNotifications(Long teacherId) {
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(STALE_HOURS);
+        return notificationRepository.deleteByTeacher_IdAndCreatedAtBefore(teacherId, cutoff);
     }
 
     private Notification getTeacherNotification(Long teacherId, Long notificationId) {

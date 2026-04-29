@@ -8,9 +8,12 @@ import no.ntnu.idatt2106.nettdetektivene.dto.classroom.JoinClassroomRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.LeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.SchoolLeaderboardEntryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentInClassroomResponse;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.MusicMutedRequest;
+import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentProgressSummaryDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.StudentStatusResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.UpdateDisplayNameRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.classroom.UpdateStudentStatusRequest;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.StopResponse;
 import no.ntnu.idatt2106.nettdetektivene.service.ClassroomService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +96,26 @@ public class ClassroomController {
         return classroomService.getStudents(currentUserId(userDetails), id);
     }
 
+    @GetMapping("/{id}/student-progress")
+    @PreAuthorize("hasRole('TEACHER')")
+    public List<StudentProgressSummaryDto> getStudentProgress(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+        log.info("[ClassroomController] GET /api/classrooms/{}/student-progress teacherId={}", id, currentUserId(userDetails));
+        return classroomService.getStudentProgressSummaries(currentUserId(userDetails), id);
+    }
+
+    @GetMapping("/{id}/stops")
+    @PreAuthorize("hasRole('TEACHER')")
+    public List<StopResponse> getStopsForClassroom(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+        log.info("[ClassroomController] GET /api/classrooms/{}/stops teacherId={}", id, currentUserId(userDetails));
+        return classroomService.getStopsForClassroom(currentUserId(userDetails), id);
+    }
+
     @PutMapping("/{id}/students/{sid}")
     @PreAuthorize("hasRole('TEACHER')")
     public StudentInClassroomResponse updateStudentStatus(
@@ -164,6 +187,19 @@ public class ClassroomController {
         Long studentId = currentUserId(userDetails);
         log.info("[ClassroomController] GET /api/classrooms/{}/my-status studentId={}", id, studentId);
         return ResponseEntity.ok(classroomService.getMyStatus(studentId, id));
+    }
+
+    @PutMapping("/{id}/music-muted")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> setMusicMuted(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id,
+        @RequestBody MusicMutedRequest request
+    ) {
+        Long teacherId = currentUserId(userDetails);
+        log.info("[ClassroomController] PUT /api/classrooms/{}/music-muted teacherId={} muted={}", id, teacherId, request.musicMuted());
+        classroomService.setMusicMuted(teacherId, id, request.musicMuted());
+        return ResponseEntity.ok().build();
     }
 
     private Long currentUserId(UserDetails userDetails) {

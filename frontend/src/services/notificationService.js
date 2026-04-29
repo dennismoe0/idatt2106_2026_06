@@ -12,4 +12,10 @@ export const notificationService = {
 
   markAllAsRead: () =>
     api.put('/api/notifications/read-all'),
+
+  deleteNotification: (id) =>
+    api.delete(`/api/notifications/${id}`),
+
+  deleteOldNotifications: () =>
+    api.delete('/api/notifications/old'),
 }
