@@ -398,28 +398,28 @@ public class DataLoader implements ApplicationRunner {
                           "source": "ViktigeSkoleNytt24.xyz",
                           "author": "Admin",
                           "date": "2026-01-14",
-                          "isReal": true
+                          "isReal": false
                         },
                         {
-                          "headline": "Foreldre raser etter snøkaos, men eksperter advarer mot å stole på skjermbilder alene",
-                          "ingress": "Saken viser til delte skjermbilder og sterke reaksjoner, men gir få muligheter for etterprøving.",
-                          "body": "Artikkelen viser til skjermbilder fra foreldrenettverk og en lokal ekspert, men oppgir verken fullt navn, tidspunkt eller hvilken skole uttalelsene gjelder. Den omtaler kommunen indirekte, men uten sitat eller lenke til faktisk melding.",
-                          "source": "TrondheimVarsel.blog",
-                          "author": "Nyhetsdesk",
+                          "headline": "Flere bussavganger forsinket etter snøfall - skolene holder åpent",
+                          "ingress": "AtB melder om forsinkelser i morgenrushet, men kommunen opprettholder vanlig skoledag.",
+                          "body": "AtB opplyser om forsinkelser på flere ruter i Trondheim torsdag morgen etter nattens snøfall. Trondheim kommune sier til NRK Trøndelag at skolene holder åpent som normalt, men ber elever og foresatte beregne ekstra reisetid og følge oppdateringer fra skole og kollektivtrafikk.",
+                          "source": "NRK Trondelag",
+                          "author": "Maria Lind",
                           "date": "2026-01-14",
                           "isReal": true
                         },
                         {
-                          "headline": "Forskere: Ny snøspray over byen gjør at skolegårder blir helt isfrie på fem sekunder",
-                          "ingress": "Bloggen påstår at en hemmelig spray løser hele vinterproblemet på sekunder.",
-                          "body": "Saken hevder at kommunen testet en ny spray natt til tirsdag, men oppgir ingen forskningsmiljøer, rapporter eller teststeder. Påstandene om varig effekt i minusgrader støttes ikke av målinger eller uttalelser fra fagpersoner.",
-                          "source": "VinterFakta.info",
-                          "author": "Maks Nyhet",
+                          "headline": "Skolene ber elever bruke brodder på glatte skoleveier",
+                          "ingress": "Flere skoler sender ut vinterråd og minner om trygg ferdsel på vei til skolen.",
+                          "body": "Flere skoler i Trondheim har sendt melding til foresatte om glatte skoleveier etter temperatursvingninger. Kommunens driftsenhet opplyser at det strøs fortløpende ved innganger og gangfelt, og anbefaler brodder der det er ekstra glatt.",
+                          "source": "Adresseavisen",
+                          "author": "Eirik Haugen",
                           "date": "2026-01-13",
-                          "isReal": false
+                          "isReal": true
                         }
                       ],
-                      "explanation": "Den falske saken mangler navngitte kilder, vedtak og faglig dokumentasjon. De ekte sakene har tydeligere avsender og mer etterprøvbar informasjon."
+                      "explanation": "Den falske saken bruker et mistenkelig domene og mangler etterprovbare kilder. De ekte sakene bruker kjente avsendere og konkrete, verifiserbare opplysninger."
                     }
                     """
             ),
@@ -447,28 +447,28 @@ public class DataLoader implements ApplicationRunner {
                           "source": "RuteNytt Trondheim",
                           "author": "Nyhetsvakt",
                           "date": "2026-02-03",
-                          "isReal": true
+                          "isReal": false
                         },
                         {
-                          "headline": "AtB vurderer strengere mobilregler etter passasjerklager",
-                          "ingress": "Saken virker troverdig, men blander påstander om forslag, vedtak og gjennomføring.",
-                          "body": "Artikkelen skriver at AtB vurderer mobilfrie soner i hele bussen, men omtaler samtidig ordningen som om den allerede er besluttet. Den viser ikke til styresak, høringsdokument eller dato for behandling, og kildene omtales kun som ansatte i kollektivmiljøet.",
-                          "source": "Midtbyen Tidende",
+                          "headline": "AtB vurderer utvidelse av stille soner etter passasjerklager",
+                          "ingress": "Selskapet bekrefter at erfaringer fra pilot avgjør om ordningen blir større.",
+                          "body": "AtB opplyser at de samler inn tilbakemeldinger fra passasjerer etter pilot med stille sone i rushtiden. Ifølge selskapet skal resultatene behandles i et åpent statusmøte før eventuell utvidelse, og det er ikke vedtatt nye gebyrer eller forbud.",
+                          "source": "Adresseavisen",
                           "author": "Signe Dahl",
                           "date": "2026-02-03",
                           "isReal": true
                         },
                         {
-                          "headline": "Pilotprosjekt: app skal automatisk dempe mobillyd på buss i rushtiden",
-                          "ingress": "Artikkelen beskriver en teknisk løsning, men gir ingen detaljer om personvern eller frivillighet.",
-                          "body": "Saken hevder at passasjerer blir med i et lydfilter automatisk når de går om bord. Den forklarer ikke hvordan samtykke innhentes, hvilke linjer som deltar eller hvem som er ansvarlig for løsningen. Ingen lenker til prosjektbeskrivelse eller personvernerklæring er oppgitt.",
-                          "source": "KollektivForum",
-                          "author": "TekTeam",
+                          "headline": "Pilotprosjekt: frivillig app varsler om stille sone på utvalgte busser",
+                          "ingress": "Løsningen skal testes i liten skala med samtykke fra passasjerer som melder seg på.",
+                          "body": "AtB opplyser at en frivillig testapp skal varsle brukere når de går inn i stille sone på utvalgte avganger i rushtiden. Pilotprosjektet beskrives som et informasjonstiltak uten krav om innlogging, og personvernvilkår er publisert sammen med prosjektbeskrivelsen.",
+                          "source": "AtB.no",
+                          "author": "Kommunikasjonsavdelingen",
                           "date": "2026-02-02",
-                          "isReal": false
+                          "isReal": true
                         }
                       ],
-                      "explanation": "Den falske saken mangler sporbar dokumentasjon og bruker uklare eller anonyme kilder. De ekte sakene skiller tydeligere mellom forslag, test og vedtak."
+                      "explanation": "Den falske saken bruker dramatisk språk og viser ikke til sporbar dokumentasjon. De ekte sakene har tydelige avsendere, konkrete rammer for pilot/prosess og skiller mellom forslag og vedtak."
                     }
                     """
             ),
@@ -490,34 +490,34 @@ public class DataLoader implements ApplicationRunner {
                           "isReal": true
                         },
                         {
-                          "headline": "Nordisk turnering åpner for bonusvaluta til seere som kobler konto før finalen",
-                          "ingress": "Saken virker troverdig, men beskriver belønning uten å vise til offisielle turneringssider.",
-                          "body": "Artikkelen hevder at seere får bonusvaluta gjennom en partnerkampanje under finalen, men oppgir ikke hvilken arrangør som står bak eller hvor reglene finnes. For å delta må brukeren koble konto via en ekstern side, uten at spillselskapet er sitert direkte.",
-                          "source": "Nordic Esport Desk",
+                          "headline": "Nordisk turnering åpner for bonusvaluta til seere via offisiell belønningsside",
+                          "ingress": "Arrangøren publiserer regler, tidsrom og lenke til verifisert kampanjeside.",
+                          "body": "Turneringsarrangøren opplyser at seere kan hente bonusvaluta i en tidsbegrenset kampanje under finalen. Reglene ligger på den offisielle turneringssiden, og spillselskapet bekrefter at belønningen bare deles ut via innlogging i spillets egne systemer.",
+                          "source": "Nordic Masters Official",
                           "author": "LiveDesk",
                           "date": "2026-03-08",
                           "isReal": true
                         },
                         {
-                          "headline": "Community-arrangør deler kode for gratis skins til nye spillere denne helgen",
-                          "ingress": "Saken bruker kjent miljøspråk, men blander fan-initiativ med påstått offisiell kampanje.",
-                          "body": "Innlegget sier at en community-arrangør deler ut kodepakker på vegne av studioet, men kampanjen finnes ikke i studioets nyheter eller sosiale kanaler. Teksten ber spillere registrere e-post og telefonnummer for å få forhåndstilgang til kodene, uten å forklare hvorfor opplysningene trengs.",
-                          "source": "Community Hub Norge",
+                          "headline": "Frivillig mentorhelg gir nye spillere startpakker med kosmetiske gjenstander",
+                          "ingress": "En lokal community-gruppe sier de samarbeider med studioet om utdeling, men uten offisiell bekreftelse.",
+                          "body": "Innlegget hevder at en norsk community-gruppe har fått tilgang til kampanjekoder fra studioet for å hjelpe nye spillere i gang. Det vises til et samarbeid, men verken studioets nyhetsside, statusside eller verifiserte sosiale kanaler omtaler kampanjen. Deltakere blir bedt om å registrere e-post og telefonnummer i et eksternt skjema for å få kode.",
+                          "source": "SpillerMentor Norge",
                           "author": "Aina Berg",
                           "date": "2026-03-08",
-                          "isReal": true
+                          "isReal": false
                         },
                         {
-                          "headline": "Supportstrøm lover kompensasjonspakker etter serverfeil - krever verifisering av konto",
-                          "ingress": "Saken ser hjelpsom ut, men krever innlogging i et skjema utenfor spillets egne systemer.",
-                          "body": "Artikkelen hevder at support deler ut kompensasjon etter ustabile servere, men ber brukere sende brukernavn, passord og engangskode i et eget verifiseringsskjema. Ingen offisiell supportside ber om slike opplysninger, og det finnes ingen referanse til saksnummer eller driftsmelding.",
-                          "source": "Supportkanalen LIVE",
-                          "author": "AK Gamer",
+                          "headline": "Support varsler kompensasjon etter serverfeil via meldingsboksen i spillet",
+                          "ingress": "Selskapet opplyser at berørte spillere får automatisk kompensasjon uten ekstra innlogging.",
+                          "body": "I driftsmeldingen skriver spillselskapet at spillere som var pålogget under feilen får kompensasjon sendt direkte til meldingsboksen i spillet. Meldingen presiserer at support aldri ber om passord eller engangskoder for slike utbetalinger, og viser til referansenummer i den offisielle statusloggen.",
+                          "source": "Spillstudioets driftsblogg",
+                          "author": "Drift og support",
                           "date": "2026-03-07",
-                          "isReal": false
+                          "isReal": true
                         }
                       ],
-                      "explanation": "Den falske saken mangler offisielle referanser og leder brukeren ut av verifiserte kanaler. De ekte sakene holder seg til tryggere og mer sporbar informasjon."
+                      "explanation": "Den falske saken ser realistisk ut, men mangler offisiell bekreftelse og ber om registrering i ekstern kanal. De ekte sakene viser til verifiserte avsendere og trygg fremgangsmåte i spillets egne systemer."
                     }
                     """
             ),
