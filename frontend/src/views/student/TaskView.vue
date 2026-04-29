@@ -111,6 +111,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="result = null"
                 @back-to-map="goToMap"
               />
 
