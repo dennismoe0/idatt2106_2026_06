@@ -10,6 +10,7 @@ const TASK = {
     purpose: 'Du bruker det du lærte om passord for å lese et siste digitalt spor. Et lekket passord kan avsløre både vaner og hvem kontoen er knyttet til.',
     evidence: 'Reservekontoen brukte passordet XooInnAdmin2019.',
     evidencePassword: 'XooInnAdmin2019',
+    variant: 'password',
     question: 'Hva forteller passordet oss?',
     options: [
       {
@@ -35,19 +36,18 @@ describe('ClueRiddleTask', () => {
   it('renders the password clue as highlighted evidence', () => {
     const wrapper = mount(ClueRiddleTask, { props: { task: TASK } })
 
-    expect(wrapper.find('.clue-riddle__evidence-password').text()).toBe('XooInnAdmin2019')
-    expect(wrapper.text()).toContain('Reservekonto logg')
+    expect(wrapper.find('.password-chip strong').text()).toBe('XooInnAdmin2019')
+    expect(wrapper.text()).toContain('Bevismappe')
     expect(wrapper.text()).toContain('Et lekket passord kan avsløre både vaner og hvem kontoen er knyttet til.')
-    expect(wrapper.text()).toContain('De fant passordet til brukeren, og det kan være koblet til noe personlig')
     expect(wrapper.text()).toContain('Reservekontoen brukte passordet XooInnAdmin2019.')
-    expect(wrapper.find('.clue-riddle__question-head h3').text()).toBe('Hva forteller passordet oss?')
+    expect(wrapper.find('.question-strip h3').text()).toBe('Hva forteller passordet oss?')
   })
 
   it('emits the selected option id on submit', async () => {
     const wrapper = mount(ClueRiddleTask, { props: { task: TASK } })
 
-    await wrapper.findAll('.clue-riddle__option')[1].trigger('click')
-    await wrapper.find('.clue-riddle__submit').trigger('click')
+    await wrapper.findAll('.evidence-card')[1].trigger('click')
+    await wrapper.find('.submit-btn').trigger('click')
 
     expect(wrapper.emitted('submitted')[0][0]).toEqual({ selected: 'cafe_admin' })
   })
@@ -55,7 +55,7 @@ describe('ClueRiddleTask', () => {
   it('does not show the backend success explanation when the answer is wrong', async () => {
     const wrapper = mount(ClueRiddleTask, { props: { task: TASK } })
 
-    await wrapper.findAll('.clue-riddle__option')[0].trigger('click')
+    await wrapper.findAll('.evidence-card')[0].trigger('click')
     await wrapper.setProps({
       result: {
         correct: false,
