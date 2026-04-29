@@ -1,9 +1,9 @@
 <template>
   <article class="fake-shop">
     <div class="fake-shop__browser">
-      <span class="fake-shop__browser-dot" />
-      <span class="fake-shop__browser-dot" />
-      <span class="fake-shop__browser-dot" />
+      <span class="fake-shop__browser-dot fake-shop__browser-dot--red" />
+      <span class="fake-shop__browser-dot fake-shop__browser-dot--yellow" />
+      <span class="fake-shop__browser-dot fake-shop__browser-dot--green" />
       <div class="fake-shop__nav">
         <span class="fake-shop__nav-lock" aria-hidden="true">🔒</span>
         <component
@@ -234,6 +234,7 @@ function handleToggle(id) {
   border-radius: var(--radius-lg);
   background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-bg) 100%);
   border: 1px solid var(--color-border);
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
 }
 
 .fake-shop__browser {
@@ -244,11 +245,16 @@ function handleToggle(id) {
 }
 
 .fake-shop__browser-dot {
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
   border-radius: var(--radius-full);
   background: var(--color-border-strong);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
 }
+
+.fake-shop__browser-dot--red    { background: #ff5f57; }
+.fake-shop__browser-dot--yellow { background: #febc2e; }
+.fake-shop__browser-dot--green  { background: #28c840; }
 
 .fake-shop__nav {
   display: flex;
@@ -311,8 +317,9 @@ function handleToggle(id) {
   align-items: center;
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-full);
-  background: var(--color-success-light);
-  color: var(--color-heading);
+  background: var(--color-surface-soft, var(--color-bg));
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
 }
@@ -337,7 +344,12 @@ function handleToggle(id) {
   display: block;
   width: 100%;
   height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
   border-radius: var(--radius-md);
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  padding: var(--space-2);
 }
 
 .fake-shop__img-placeholder {

@@ -46,6 +46,7 @@
           v-for="el in csElements"
           :key="el.id"
           class="cs-result-list__item"
+          :class="`cs-result-item--${elementResultState(el)}`"
         >
           <span :class="elementResultIcon(el)">{{ elementResultEmoji(el) }}</span>
           <span><strong>{{ el.label }}</strong>: {{ el.explanation }}</span>
@@ -268,15 +269,36 @@ function elementLabel(id) {
   return csElements.value.find(e => e.id === id)?.label ?? id
 }
 
-const correctIds = computed(() => new Set(props.result?.correctElementIds ?? []))
+const correctIds = computed(() => {
+  // Prefer ids from the response if backend provides them, else derive from
+  // the task's own elements (each carries an `isSuspicious` flag).
+  const fromResult = props.result?.correctElementIds
+  if (Array.isArray(fromResult) && fromResult.length > 0) {
+    return new Set(fromResult)
+  }
+  return new Set(
+    csElements.value
+      .filter(el => el?.isSuspicious === true)
+      .map(el => el.id),
+  )
+})
 
 function elementResultEmoji(el) {
   if (!props.result) return ''
   const wasFlagged = flagged.has(el.id)
   if (wasFlagged && correctIds.value.has(el.id)) return '✅'
   if (wasFlagged && !correctIds.value.has(el.id)) return '❌'
-  if (!wasFlagged && correctIds.value.has(el.id)) return '🔍'
+  if (!wasFlagged && correctIds.value.has(el.id)) return '⚠️'
   return '✓'
+}
+
+function elementResultState(el) {
+  if (!props.result) return 'ok'
+  const wasFlagged = flagged.has(el.id)
+  if (wasFlagged && correctIds.value.has(el.id)) return 'correct'
+  if (wasFlagged && !correctIds.value.has(el.id)) return 'wrong'
+  if (!wasFlagged && correctIds.value.has(el.id)) return 'missed'
+  return 'ok'
 }
 
 function elementResultIcon(el) {
@@ -713,13 +735,37 @@ function hasDisplayValue(value) {
 .cs-result-list__item {
   display: flex;
   gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   font-size: var(--text-sm);
   color: var(--color-text);
+  line-height: 1.45;
+}
+.cs-result-item--correct {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+.cs-result-item--wrong {
+  border-color: var(--color-danger);
+  background: var(--color-danger-light);
+}
+.cs-result-item--missed {
+  border-color: #93c5fd;
+  background: #f0f7ff;
+}
+.cs-result-item--ok {
+  opacity: 0.75;
+}
+.cs-icon--correct,
+.cs-icon--wrong,
+.cs-icon--missed,
+.cs-icon--ok {
+  flex-shrink: 0;
+  font-size: 1.1em;
   line-height: 1.4;
 }
-.cs-icon--correct { flex-shrink: 0; }
-.cs-icon--wrong   { flex-shrink: 0; }
-.cs-icon--missed  { flex-shrink: 0; }
-.cs-icon--ok      { flex-shrink: 0; opacity: 0.4; }
+.cs-icon--ok { opacity: 0.55; }
 
 </style>

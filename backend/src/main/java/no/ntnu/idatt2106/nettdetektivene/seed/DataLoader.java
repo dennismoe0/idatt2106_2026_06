@@ -277,50 +277,50 @@ public class DataLoader implements ApplicationRunner {
                     new Quiz("q3", "Hva er en passordfrase?", new String[]{"Et langt ord", "En rekke tilfeldige ord som danner et langt passord", "Passordet til telefonen"}, "En rekke tilfeldige ord som danner et langt passord")
                 )
             ),
-            learnTask(marketStop, 1, "Lær om nettsvindel", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
+            learnTask(marketStop, 1, "Lær om nettsvindel", "Les kortene og tren på å finne mistenkelige felt før du går videre.",
                 learnContentJson(
                     new Slide(
                         "",
-                        "Hvordan ser nettsvindel ut?",
-                        "En falsk nettbutikk prøver å få deg til å kjøpe noe raskt før du rekker å tenke deg om. Derfor bruker den ofte kjempestore rabatter og ord som \"kun i dag\" eller \"bare 2 igjen\".",
+                  "Hva trener du på i Markedsplassen?",
+                  "I Markedsplassen skal du klikke på feltene som faktisk er mistenkelige i en nettbutikk-mockup. Du trener på å lese informasjonen kritisk, ikke på å gjette ut fra design alene.",
                         new String[]{
-                            "Produktside: \"Vinterjakke før 2 499 kr - nå 199 kr - bare 2 igjen!\" er et klassisk lokketilbud.",
-                            "Banner: \"SALGET SLUTTER OM 10 MINUTTER\" som kommer tilbake hver gang du åpner siden, er et dårlig tegn."
+                    "Eksempel: Butikken gadget-garagen.shop selger trådløse ørepropper til ekstrem rabatt og ber deg betale raskt.",
+                    "Du vurderer felt som nettadresse, betaling, retur og kontaktinfo før du markerer noe."
                         },
                         new String[]{
-                            "Hvis tilbudet virker altfor godt, er det ofte fordi noe er galt.",
-                            "Svindlere prøver å få deg til å skynde deg."
+                    "Målet er å markere mistenkelige felt i selve nettbutikken.",
+                    "Se etter konkrete faresignaler, ikke bare en følelse av at noe er rart."
                         }
                     ),
                     new Slide(
                         "",
-                        "Hvilke røde flagg bør du se etter?",
-                        "Se på domenet, kontaktinformasjonen og betalingsmåten. Ekte butikker vil vanligvis vise hvem de er, hvordan du kan kontakte dem, og bruke normale betalingsløsninger.",
+                  "Hvilke varselsignaler går igjen?",
+                  "Se ekstra nøye på domene, betalingsmåte og kontaktinfo. Noen ganger er prisen normal, men betalingen utrygg. Andre ganger er kontaktfeltet det tydeligste problemet.",
                         new String[]{
-                            "Butikknavn: komplett.no og elkjop.no virker mer troverdige enn billig-ps5.cc eller supertilbud-now.xyz.",
-                            "Betaling: \"Send beløpet med gavekortkode\" eller \"betal til privat konto\" er mistenkelig."
+                    "På retrohub-deals.net kan betaling se vanlig ut, men kontaktfeltet mangler både e-post, adresse og organisasjonsnummer.",
+                    "På trendfunn-market.biz kan kontakt se grei ut, men butikken krever gavekort eller bankoverføring til privat konto."
                         },
                         new String[]{
-                            "Ukjent domene er et tegn du bør merke deg.",
-                            "Rare betalingsmåter er ofte et stort varselsignal."
+                    "Røde flagg kan variere fra oppgave til oppgave.",
+                    "Lav pris alene er ikke alltid nok til å markere et felt."
                         }
                     ),
                     new Slide(
                         "",
-                        "Hvordan handler du tryggere?",
-                        "Ta deg tid før du kjøper. Søk opp butikken, se om andre har erfaringer med den, og sjekk om kontaktinformasjonen faktisk ser ekte ut.",
+                  "Slik får du riktig i klikk-oppgaven",
+                  "For å få riktig må du markere alle mistenkelige felt og unngå ekstra klikk på felt som ikke er mistenkelige. Tenk gjennom hvert felt før du sender.",
                         new String[]{
-                            "Se etter telefonnummer, ekte e-post og organisasjonsnavn.",
-                            "Kortbetaling er tryggere enn gavekort fordi du lettere kan klage hvis noe går galt."
+                    "Hvis domene og kontaktinfo er mistenkelige, klikker du bare de to feltene.",
+                    "Hvis du i tillegg markerer returfeltet uten grunn, blir svaret feil."
                         },
                         new String[]{
-                            "Sjekk før du betaler.",
-                            "Det er lov å vente litt før du bestemmer deg."
+                    "Spør deg selv: Er dette feltet faktisk et varselsignal i denne oppgaven?",
+                    "Send først når du har både alle riktige og ingen ekstra markeringer."
                         }
                     ),
-                    new Quiz("q1", "Hva er et varseltegn på en useriøs nettbutikk?", new String[]{"De har mange produkter", "De krever betaling med gavekort", "De tilbyr gratis frakt"}, "De krever betaling med gavekort"),
-                    new Quiz("q2", "Hva gjør betaling med gavekort risikabelt?", new String[]{"Det er saktere", "Pengene er nesten umulige å spore og få tilbake", "Du får ikke kvittering"}, "Pengene er nesten umulige å spore og få tilbake"),
-                    new Quiz("q3", "Hva bør du gjøre om en nettbutikk virker mistenkelig?", new String[]{"Kjøp og håp det ordner seg", "Be venner handle der først", "Søk opp butikken og les anmeldelser"}, "Søk opp butikken og les anmeldelser")
+                new Quiz("q1", "Hva er målet i Markedsplassen-oppgaven?", new String[]{"Klikke på alle produkter med lav pris", "Klikke på feltene som virker mistenkelige", "Skrive en tekst om hvorfor butikken er falsk"}, "Klikke på feltene som virker mistenkelige"),
+                new Quiz("q2", "Hvilken påstand stemmer best?", new String[]{"Lav pris betyr alltid at feltet skal markeres", "Du må vurdere hvert felt i kontekst", "Hvis designet er fint, er butikken trygg"}, "Du må vurdere hvert felt i kontekst"),
+                new Quiz("q3", "Når blir svaret riktig i CLICK_SUSPICIOUS?", new String[]{"Når du markerer minst ett felt", "Når du markerer alle og bare de mistenkelige feltene", "Når du markerer de samme feltene som vennen din"}, "Når du markerer alle og bare de mistenkelige feltene")
                 )
             ),
             learnTask(socialStop, 1, "Lær om sosiale medier", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
