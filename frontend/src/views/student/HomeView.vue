@@ -82,6 +82,7 @@ import { useClassroomStore } from '@/stores/classroom'
 import SoundControls from '@/components/common/SoundControls.vue'
 import { buildMapIntroRoute, hasSeenMapIntro as getHasSeenMapIntro } from '@/utils/mapIntro'
 
+
 const authStore = useAuthStore()
 const classroomStore = useClassroomStore()
 const router = useRouter()
