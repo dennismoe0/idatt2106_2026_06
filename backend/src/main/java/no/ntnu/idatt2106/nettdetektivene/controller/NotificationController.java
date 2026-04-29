@@ -49,6 +49,7 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotification(
         @AuthenticationPrincipal UserDetails userDetails,
@@ -58,6 +59,7 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @DeleteMapping("/old")
     public ResponseEntity<Void> deleteOldNotifications(@AuthenticationPrincipal UserDetails userDetails) {
         notificationService.deleteOldNotifications(currentUserId(userDetails));
