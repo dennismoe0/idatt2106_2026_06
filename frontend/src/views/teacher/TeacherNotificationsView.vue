@@ -92,7 +92,7 @@
           class="notification-card"
           :class="{
             unread: !notification.isRead,
-            'notification-card--handled': handledActions[notification.id]
+            'notification-card--handled': notification.isRead
           }"
         >
           <div class="notification-main">
@@ -106,15 +106,15 @@
               <span
                 v-if="handledActions[notification.id]"
                 class="handled-badge"
-                :class="handledActions[notification.id] === 'APPROVED' ? 'handled-badge--approved' : 'handled-badge--denied'"
+                :class="handledActions[notification.id] === 'KICKED' ? 'handled-badge--denied' : 'handled-badge--approved'"
               >
-                {{ handledActions[notification.id] === 'APPROVED' ? '✓ Godkjent' : '✗ Avvist' }}
+                {{ handledActions[notification.id] === 'KICKED' ? '✗ Avvist' : '✓ Godkjent' }}
               </span>
               <template v-else>
                 <button
                   class="btn btn-primary btn-sm"
                   :data-testid="`approve-notification-${notification.id}`"
-                  :disabled="actionLoading"
+                  :disabled="actionLoading || notification.isRead"
                   @click="handleJoinRequest(notification, 'APPROVED')"
                 >
                   Godkjenn
@@ -122,7 +122,7 @@
                 <button
                   class="btn btn-danger btn-sm"
                   :data-testid="`deny-notification-${notification.id}`"
-                  :disabled="actionLoading"
+                  :disabled="actionLoading || notification.isRead"
                   @click="handleJoinRequest(notification, 'KICKED')"
                 >
                   Avvis
