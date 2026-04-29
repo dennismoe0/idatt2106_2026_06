@@ -409,6 +409,51 @@ class DataLoaderTest {
         assertThat(savedPasswordMedal.getStop().getOrderIndex()).isEqualTo(6);
     }
 
+    @Test
+    void run_throwsWhenExistingTasksContainDuplicateTaskSeedKey() {
+        StopRepository stopRepository = mock(StopRepository.class);
+        TaskRepository taskRepository = mock(TaskRepository.class);
+        MedalRepository medalRepository = mock(MedalRepository.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        DataLoader loader = new DataLoader(stopRepository, taskRepository, medalRepository, objectMapper);
+
+        Stop passwordStop = new Stop();
+        passwordStop.setId(6L);
+        passwordStop.setName("Passordbanken");
+        passwordStop.setOrderIndex(6);
+        passwordStop.setTheme("PASSWORD");
+
+        Task first = new Task();
+        first.setId(201L);
+        first.setStop(passwordStop);
+        first.setOrderIndex(2);
+        first.setTaskType(TaskType.PASSWORD);
+        first.setTitle("first");
+        first.setContentJson("{\"type\":\"CHOICE\"}");
+        first.setCorrectAnswerJson("{\"selected\":\"a\"}");
+
+        Task second = new Task();
+        second.setId(202L);
+        second.setStop(passwordStop);
+        second.setOrderIndex(2);
+        second.setTaskType(TaskType.PASSWORD);
+        second.setTitle("second");
+        second.setContentJson("{\"type\":\"CHOICE\"}");
+        second.setCorrectAnswerJson("{\"selected\":\"b\"}");
+
+        when(stopRepository.count()).thenReturn(1L);
+        when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(passwordStop));
+        when(stopRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(taskRepository.count()).thenReturn(2L);
+        when(taskRepository.findAll()).thenReturn(List.of(first, second));
+        when(medalRepository.count()).thenReturn(0L);
+        when(medalRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        assertThatThrownBy(() -> loader.run(new DefaultApplicationArguments()))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Duplicate taskSeedKey");
+    }
+
     private List<Task> seededTasks() throws Exception {
         StopRepository stopRepository = mock(StopRepository.class);
         TaskRepository taskRepository = mock(TaskRepository.class);
