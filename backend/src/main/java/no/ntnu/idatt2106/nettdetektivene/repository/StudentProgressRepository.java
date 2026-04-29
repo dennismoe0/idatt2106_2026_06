@@ -25,4 +25,5 @@ public interface StudentProgressRepository extends JpaRepository<StudentProgress
     long countDistinctCompletedStops(@Param("studentId") Long studentId);
 
     long countByStudent_IdAndCompletedTrue(Long studentId);
+
 }

@@ -61,6 +61,10 @@ export const useNotificationStore = defineStore('notification', () => {
     notifications.value = notifications.value.filter(n => n.id !== id)
   }
 
+  async function deleteOldNotifications() {
+    await notificationService.deleteOldNotifications()
+  }
+
   return {
     notifications,
     unreadCount,
@@ -70,6 +74,7 @@ export const useNotificationStore = defineStore('notification', () => {
     fetchUnreadCount,
     markAsRead,
     markAllAsRead,
-    deleteNotification
+    deleteNotification,
+    deleteOldNotifications
   }
 })
