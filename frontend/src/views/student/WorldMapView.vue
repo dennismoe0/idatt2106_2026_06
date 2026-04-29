@@ -54,14 +54,20 @@
           Start bane
         </button>
       </div>
+
     </template>
+
+    <MapIntroModal
+      :model-value="showMapIntroPopup"
+      @dismiss="dismissMapIntroPopup"
+    />
 
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { useClassroomStore } from '@/stores/classroom'
 import { useAvatarStore } from '@/stores/avatar'
@@ -71,8 +77,11 @@ import WorldMapCanvas from '@/components/student/WorldMapCanvas.vue'
 import DetectiveBar from '@/components/common/DetectiveBar.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import PlayerHud from '@/components/common/PlayerHud.vue'
+import MapIntroModal from '@/components/student/MapIntroModal.vue'
 import { useNotebookStore } from '@/stores/notebook'
+import { MAP_INTRO_STORAGE_KEY, shouldShowMapIntroPopup } from '@/utils/mapIntro'
 
+const route = useRoute()
 const router = useRouter()
 const gameStore = useGameStore()
 const classroomStore = useClassroomStore()
@@ -88,6 +97,7 @@ const error = ref(null)
 const stops = computed(() => gameStore.stops)
 const shakingNodeIndex = ref(null)
 const lockedMessage = ref(false)
+const showMapIntroPopup = ref(false)
 let lockedTimer = null
 
 // Portrait detection
@@ -135,6 +145,11 @@ function switchToSimpleMap() {
   router.push({ name: 'Map' })
 }
 
+function dismissMapIntroPopup() {
+  localStorage.setItem(MAP_INTRO_STORAGE_KEY, 'true')
+  showMapIntroPopup.value = false
+}
+
 function handleEnter() {
   if (!currentStop.value || currentStop.value.locked) return
   console.log('[WorldMapView] Entering stop:', currentStop.value.id, currentStop.value.name)
@@ -156,6 +171,11 @@ onMounted(async () => {
     console.warn('[WorldMapView] No classroomId — redirecting to join')
     router.push({ name: 'JoinClassroom' })
     return
+  }
+
+  if (shouldShowMapIntroPopup(route)) {
+    console.log('[WorldMapView] Showing first-time map intro popup')
+    showMapIntroPopup.value = true
   }
 
   loading.value = true

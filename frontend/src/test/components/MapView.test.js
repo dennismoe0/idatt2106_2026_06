@@ -36,6 +36,8 @@ const router = createRouter({ history: createMemoryHistory(), routes: [
 describe('MapView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    localStorage.clear()
+    localStorage.setItem('mapView', 'simple')
   })
 
   it('renders a StopMarker for each stop', async () => {
@@ -49,5 +51,35 @@ describe('MapView', () => {
     await flushPromises()
     expect(wrapper.text()).toContain('Nyhetskvartalet')
     expect(wrapper.text()).toContain('Postkontoret')
+  })
+
+  it('shows and dismisses the first-time map intro popup', async () => {
+    await router.push('/map?showMapIntro=1')
+    await router.isReady()
+
+    const wrapper = mount(MapView, {
+      global: {
+        plugins: [router],
+        stubs: { teleport: true },
+      },
+    })
+
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Ordføreren trenger hjelp')
+    expect(wrapper.text()).toContain('Pengene som skulle bygge den nye idrettsparken er stjålet')
+
+    await wrapper.get('.map-intro-modal__dot:nth-child(3)').trigger('click')
+    expect(wrapper.text()).toContain('Som nettdetektiv må du utforske kartet')
+
+    await wrapper.get('.map-intro-modal__nav--secondary').trigger('click')
+    expect(wrapper.text()).toContain('Hele Internettbyen peker i forskjellige retninger')
+
+    await wrapper.get('.map-intro-modal__nav--primary').trigger('click')
+    await wrapper.get('.map-intro-modal__nav--primary').trigger('click')
+    await wrapper.get('.map-intro-modal__nav--primary').trigger('click')
+
+    expect(localStorage.getItem('hasSeenMapIntro')).toBe('true')
+    expect(wrapper.text()).not.toContain('Ordføreren trenger hjelp')
   })
 })

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
 import { defineComponent } from 'vue'
-import DetectiveBar from './DetectiveBar.vue'
+import DetectiveBar from '@/components/common/DetectiveBar.vue'
 
 const RouterLinkStub = defineComponent({ template: '<a><slot /></a>', props: ['to'] })
 
