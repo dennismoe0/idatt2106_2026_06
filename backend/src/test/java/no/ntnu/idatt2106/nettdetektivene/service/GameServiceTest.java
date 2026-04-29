@@ -259,7 +259,7 @@ class GameServiceTest {
     }
 
     @Test
-    void submitAnswer_alreadyCompletedNonClueTaskKeepsCompletionStateEvenOnWrongResubmit() {
+    void submitAnswer_alreadyCompletedNonClueTaskRejectsWrongResubmitButKeepsCompletionState() {
         Stop stop = stop(1L, 1, "Nyhetskvartalet");
         Task task = fakeNewsTask(20L, stop);
         StudentProgress progress = new StudentProgress();
@@ -278,7 +278,7 @@ class GameServiceTest {
             new SubmitAnswerRequest(Map.of("article_0", false, "article_1", true))
         );
 
-        assertThat(response.correct()).isTrue();
+        assertThat(response.correct()).isFalse();
         assertThat(response.stopCompleted()).isTrue();
         verify(studentProgressRepository, never()).save(any(StudentProgress.class));
     }
