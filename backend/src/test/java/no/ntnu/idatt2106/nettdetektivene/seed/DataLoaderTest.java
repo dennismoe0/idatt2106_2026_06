@@ -13,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.boot.DefaultApplicationArguments;
 
 import java.util.List;
+import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -216,13 +217,12 @@ class DataLoaderTest {
 
         assertThat(passwordImprovementTask.getTitle()).isEqualTo("Gjør passordet bedre");
         assertThat(content.path("question").asText())
-            .isEqualTo("Noen har prøvd å gjøre passordet 'Sander2015' sterkere. Hvilken versjon er best?");
-        assertThat(content.path("options").get(3).path("value").asText()).isEqualTo("SolKatt!Fjord#22");
-        assertThat(answer.path("selected").asText()).isEqualTo("d");
+            .contains("Hei").contains("Hvilken versjon er best?");
+        assertThat(content.path("options").get(1).path("value").asText()).contains("H@iP").contains("021");
+        assertThat(answer.path("selected").asText()).isEqualTo("b");
         assertThat(content.path("explanation").asText())
-            .contains("SolKatt!Fjord#22 er den beste varianten")
+            .contains("den beste varianten")
             .contains("små bokstaver")
-            .contains("ikke inneholder noe personlig")
             .doesNotContain("Ã")
             .contains("gjette");
     }
@@ -239,6 +239,70 @@ class DataLoaderTest {
 
         JsonNode content = parseJson(clueTask.getContentJson());
         assertThat(content.path("evidencePassword").asText()).isEqualTo("XooInnAdmin2019");
+    }
+
+    @Test
+    void run_updatesExistingSeededTasksWhenDatabaseAlreadyContainsStops() throws Exception {
+        List<Task> seededTasks = seededTasks();
+        Map<Integer, String> expectedAnswersByOrder = seededTasks.stream()
+            .filter(task -> task.getStop().getName().equals("Passordbanken"))
+            .filter(task -> "PASSWORD".equals(task.getTaskType().name()))
+            .collect(java.util.stream.Collectors.toMap(Task::getOrderIndex, Task::getCorrectAnswerJson));
+
+        StopRepository stopRepository = mock(StopRepository.class);
+        TaskRepository taskRepository = mock(TaskRepository.class);
+        MedalRepository medalRepository = mock(MedalRepository.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        DataLoader loader = new DataLoader(stopRepository, taskRepository, medalRepository, objectMapper);
+
+        Stop passwordStop = new Stop();
+        passwordStop.setId(6L);
+        passwordStop.setName("Passordbanken");
+        passwordStop.setOrderIndex(6);
+        passwordStop.setTheme("PASSWORD");
+
+        Task order2 = new Task();
+        order2.setId(102L);
+        order2.setStop(passwordStop);
+        order2.setOrderIndex(2);
+        order2.setTaskType(no.ntnu.idatt2106.nettdetektivene.entity.TaskType.PASSWORD);
+        order2.setTitle("Velg det tryggeste passordet");
+        order2.setCorrectAnswerJson("{\"selected\":\"legacy\"}");
+        order2.setContentJson("{\"type\":\"CHOICE\",\"question\":\"old\"}");
+
+        Task order3 = new Task();
+        order3.setId(103L);
+        order3.setStop(passwordStop);
+        order3.setOrderIndex(3);
+        order3.setTaskType(no.ntnu.idatt2106.nettdetektivene.entity.TaskType.PASSWORD);
+        order3.setTitle("GjÃ¸r passordet bedre");
+        order3.setCorrectAnswerJson("{\"selected\":\"legacy\"}");
+        order3.setContentJson("{\"type\":\"CHOICE\",\"question\":\"old\"}");
+
+        when(stopRepository.count()).thenReturn(1L);
+        when(stopRepository.findAllByOrderByOrderIndexAsc()).thenReturn(List.of(passwordStop));
+        when(stopRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(taskRepository.count()).thenReturn(2L);
+        when(taskRepository.findAll()).thenReturn(List.of(order2, order3));
+        when(taskRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(medalRepository.count()).thenReturn(0L);
+        when(medalRepository.findAll()).thenReturn(List.of());
+        when(medalRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        loader.run(new DefaultApplicationArguments());
+
+        ArgumentCaptor<List<Task>> tasksCaptor = ArgumentCaptor.forClass(List.class);
+        org.mockito.Mockito.verify(taskRepository).saveAll(tasksCaptor.capture());
+
+        Map<Integer, Task> passwordTasksByOrder = tasksCaptor.getValue().stream()
+            .filter(task -> "Passordbanken".equals(task.getStop().getName()))
+            .filter(task -> "PASSWORD".equals(task.getTaskType().name()))
+            .collect(java.util.stream.Collectors.toMap(Task::getOrderIndex, task -> task));
+
+        assertThat(passwordTasksByOrder.get(2).getCorrectAnswerJson()).isEqualTo(expectedAnswersByOrder.get(2));
+        assertThat(passwordTasksByOrder.get(3).getCorrectAnswerJson()).isEqualTo(expectedAnswersByOrder.get(3));
+        assertThat(passwordTasksByOrder.get(2).getId()).isEqualTo(102L);
+        assertThat(passwordTasksByOrder.get(3).getId()).isEqualTo(103L);
     }
 
     private List<Task> seededTasks() throws Exception {
