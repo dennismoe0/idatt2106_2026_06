@@ -104,7 +104,7 @@
           <div class="notification-actions">
             <template v-if="notification.type === 'STUDENT_JOIN_REQUEST'">
               <span
-                v-if="handledActions[notification.id]"
+                v-if="notification.status && notification.status !== 'PENDING'"
                 class="handled-badge"
                 :class="handledActions[notification.id] === 'KICKED' ? 'handled-badge--denied' : 'handled-badge--approved'"
               >
@@ -114,7 +114,7 @@
                 <button
                   class="btn btn-primary btn-sm"
                   :data-testid="`approve-notification-${notification.id}`"
-                  :disabled="actionLoading || notification.isRead"
+                  :disabled="actionLoading || handledActions[notification.id]"
                   @click="handleJoinRequest(notification, 'APPROVED')"
                 >
                   Godkjenn
@@ -122,7 +122,7 @@
                 <button
                   class="btn btn-danger btn-sm"
                   :data-testid="`deny-notification-${notification.id}`"
-                  :disabled="actionLoading || notification.isRead"
+                  :disabled="actionLoading || handledActions[notification.id]"
                   @click="handleJoinRequest(notification, 'KICKED')"
                 >
                   Avvis
@@ -159,12 +159,10 @@
           </div>
         </article>
 
-        <!-- Divider if there are old notifications -->
         <div v-if="oldNotifications.length > 0" class="old-divider">
           <span>Eldre varsler</span>
         </div>
 
-        <!-- Old / stale notifications — grayed out, read, moved to bottom -->
         <article
           v-for="notification in oldNotifications"
           :key="notification.id"
@@ -234,11 +232,18 @@ const oldNotifications = computed(() =>
 // Auto-delete old notifications every 8 hours
 let autoCleanupInterval = null
 
+let pollInterval = null
+
 onMounted(async () => {
   await Promise.all([
     notificationStore.fetchNotifications(),
     notificationStore.fetchUnreadCount()
   ])
+
+  pollInterval = setInterval(async () => {
+    await notificationStore.fetchNotifications()
+    await notificationStore.fetchUnreadCount()
+  }, 5000)
 
   // Run once on mount, then every 8 hours
   purgeOldNotifications()
@@ -247,6 +252,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   clearInterval(autoCleanupInterval)
+  clearInterval(pollInterval)
 })
 
 async function purgeOldNotifications() {
