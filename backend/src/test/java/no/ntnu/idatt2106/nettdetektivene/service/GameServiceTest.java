@@ -759,6 +759,56 @@ class GameServiceTest {
     // ─── submitAnswer — new tests ─────────────────────────────────────────────
 
     @Test
+    void submitAnswer_clueRiddleCanRevealClueWithoutAwardingStopCompletionXp() {
+        Stop stop = stop(4L, 1, "Passordbanken");
+        stop.setTheme("PASSWORD");
+        stop.setClueText("Spor: Reservekontoen peker mot Xoo Inn Cafe.");
+        Task learnTask = learnTask(24L, stop);
+        Task passwordTask = passwordChoiceTask(25L, stop);
+        Task clueTask = clueRiddleTask(27L, stop);
+        learnTask.setOrderIndex(1);
+        passwordTask.setOrderIndex(2);
+        clueTask.setOrderIndex(5);
+        User studentUser = student(STUDENT_ID);
+        StudentProgress completedLearn = new StudentProgress();
+        completedLearn.setCompleted(true);
+        StudentProgress completedPassword = new StudentProgress();
+        completedPassword.setCompleted(true);
+
+        when(taskRepository.findById(27L)).thenReturn(Optional.of(clueTask));
+        when(taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(4L))
+            .thenReturn(List.of(learnTask, passwordTask, clueTask));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 24L))
+            .thenReturn(Optional.of(completedLearn));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 25L))
+            .thenReturn(Optional.of(completedPassword));
+        when(studentProgressRepository.findByStudent_IdAndTask_Id(STUDENT_ID, 27L)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(STUDENT_ID)).thenReturn(studentUser);
+        when(userRepository.findById(STUDENT_ID)).thenReturn(Optional.of(studentUser));
+        when(taskRepository.countByStop_IdAndTaskTypeNotIn(eq(4L), any())).thenReturn(1L);
+        when(studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(
+            eq(STUDENT_ID), eq(4L), any())).thenReturn(1L);
+
+        var response = gameService.submitAnswer(
+            STUDENT_ID,
+            CLASSROOM_ID,
+            27L,
+            new SubmitAnswerRequest(Map.of("selected", "cafe_admin"))
+        );
+
+        assertThat(response.correct()).isTrue();
+        assertThat(response.stopCompleted()).isTrue();
+        assertThat(response.clueText()).isEqualTo("Spor: Reservekontoen peker mot Xoo Inn Cafe.");
+        assertThat(response.showSuspectReveal()).isFalse();
+        assertThat(response.xpEarned()).isEqualTo(10);
+        assertThat(response.starsEarned()).isEqualTo(1);
+        assertThat(response.medalEarned()).isNull();
+        verify(notebookService).createAutoClueIfNotExists(STUDENT_ID, stop);
+        verify(studentXpLogRepository, never()).save(any());
+        verify(medalRepository, never()).findByStop_Id(any());
+    }
+
+    @Test
     void submitAnswer_clueRiddleWrongOptionFails() {
         Stop stop = stop(4L, 1, "Passordbanken");
         Task task = clueRiddleTask(26L, stop);

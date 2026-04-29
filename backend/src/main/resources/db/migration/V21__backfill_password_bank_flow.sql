@@ -38,11 +38,11 @@ SELECT
       JSON_OBJECT('id', 'c', 'value', 'S@nder_2015#'),
       JSON_OBJECT('id', 'd', 'value', 'SolKatt!Fjord#22')
     ),
-    'explanation', 'S@nder_2015# er den beste forbedringen av alternativene fordi det blander store og små bokstaver og legger til et spesialtegn. Det er fortsatt ikke et ideelt passord, siden navnet og årstallet fortsatt kan være lette å gjette.'
+    'explanation', 'SolKatt!Fjord#22 er den beste varianten fordi den ikke inneholder noe personlig, er lang og blander store og små bokstaver, tall og spesialtegn. En slik passordfrase er vanskelig å gjette, selv om noen kjenner deg.'
   ),
   'Tenk på lengde, variasjon og om passordet inneholder personlig informasjon.',
   3,
-  JSON_OBJECT('selected', 'c')
+  JSON_OBJECT('selected', 'd')
 FROM stops s
 WHERE s.theme = 'PASSWORD'
   AND NOT EXISTS (
@@ -68,9 +68,9 @@ SET
       JSON_OBJECT('id', 'c', 'value', 'S@nder_2015#'),
       JSON_OBJECT('id', 'd', 'value', 'SolKatt!Fjord#22')
     ),
-    'explanation', 'S@nder_2015# er den beste forbedringen av alternativene fordi det blander store og små bokstaver og legger til et spesialtegn. Det er fortsatt ikke et ideelt passord, siden navnet og årstallet fortsatt kan være lette å gjette.'
+    'explanation', 'SolKatt!Fjord#22 er den beste varianten fordi den ikke inneholder noe personlig, er lang og blander store og små bokstaver, tall og spesialtegn. En slik passordfrase er vanskelig å gjette, selv om noen kjenner deg.'
   ),
-  t.correct_answer_json = JSON_OBJECT('selected', 'c'),
+  t.correct_answer_json = JSON_OBJECT('selected', 'd'),
   t.guidance_text = 'Tenk på lengde, variasjon og om passordet inneholder personlig informasjon.'
 WHERE s.theme = 'PASSWORD'
   AND t.order_index = 3;
