@@ -288,8 +288,7 @@ function elementResultEmoji(el) {
   const wasFlagged = flagged.has(el.id)
   if (wasFlagged && correctIds.value.has(el.id)) return '✅'
   if (wasFlagged && !correctIds.value.has(el.id)) return '❌'
-  if (!wasFlagged && correctIds.value.has(el.id)) return '⚠️'
-  return '✓'
+  return ''
 }
 
 function elementResultState(el) {
@@ -718,8 +717,8 @@ function hasDisplayValue(value) {
   background: var(--color-danger);
   color: #fff;
   border-radius: var(--radius-full);
-  padding: 2px 10px;
-  font-size: var(--text-xs);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-base);
   font-weight: 600;
 }
 
@@ -744,28 +743,32 @@ function hasDisplayValue(value) {
   line-height: 1.45;
 }
 .cs-result-item--correct {
-  border-color: var(--color-info);
-  background: var(--color-info-light);
+  border-color: var(--color-success);
+  background: var(--color-success-light);
 }
 .cs-result-item--wrong {
   border-color: var(--color-danger);
   background: var(--color-danger-light);
 }
 .cs-result-item--missed {
-  border-color: var(--color-info-soft);
-  background: var(--color-info-bg);
+  border-color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 20%, white);
 }
 .cs-result-item--ok {
-  opacity: 0.75;
+  border-color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 20%, white);
 }
 .cs-icon--correct,
 .cs-icon--wrong,
 .cs-icon--missed,
 .cs-icon--ok {
   flex-shrink: 0;
-  font-size: 1.1em;
+  font-size: 1.15em;
   line-height: 1.4;
 }
-.cs-icon--ok { opacity: 0.55; }
+.cs-icon--correct { color: var(--color-success-dark); }
+.cs-icon--wrong   { color: var(--color-danger-dark); }
+.cs-icon--missed  { color: color-mix(in srgb, var(--color-success) 70%, black); }
+.cs-icon--ok      { color: color-mix(in srgb, var(--color-danger) 70%, black); }
 
 </style>

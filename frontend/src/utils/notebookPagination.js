@@ -9,11 +9,11 @@ export const RESERVED_REPORT_COUNT = 7
 
 export const RESERVED_REPORT_TITLES = {
   1: 'Et spor i nyhetsstrømmen',
-  2: 'Ukjent avsender',
-  3: 'Bildet lyver',
-  4: 'Passordlekkasje',
-  5: 'Svindel på nett',
-  6: 'Falsk venn',
+  2: 'Bildet lyver',
+  3: 'Ukjent avsender',
+  4: 'Svindel på nett',
+  5: 'Falsk venn',
+  6: 'Passordlekkasje',
   7: 'Datasenteret er hacket'
 }
 
