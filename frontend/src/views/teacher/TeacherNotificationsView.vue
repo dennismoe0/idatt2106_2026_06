@@ -25,11 +25,6 @@
             </router-link>
           </li>
           <li>
-            <a href="#" class="nav-link">
-              <span class="nav-icon">🕯️</span> Ukens mysterium
-            </a>
-          </li>
-          <li>
             <router-link
               to="/teacher/notifications"
               class="nav-link active"
