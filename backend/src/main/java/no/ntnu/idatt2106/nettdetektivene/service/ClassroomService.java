@@ -275,7 +275,17 @@ public class ClassroomService {
                 return new ResourceNotFoundException("Student not in classroom");
             });
         log.info("[ClassroomService] Student {} status: {}", studentId, entry.getStatus());
-        return new StudentStatusResponse(entry.getStatus().name());
+        boolean musicMuted = entry.getClassroom().isMusicMuted();
+        return new StudentStatusResponse(entry.getStatus().name(), musicMuted);
+    }
+
+    @Transactional
+    public void setMusicMuted(Long teacherId, Long classroomId, boolean musicMuted) {
+        log.info("[ClassroomService] setMusicMuted classroomId={} musicMuted={}", classroomId, musicMuted);
+        Classroom classroom = getClassroomForTeacher(teacherId, classroomId);
+        classroom.setMusicMuted(musicMuted);
+        classroomRepository.save(classroom);
+        log.info("[ClassroomService] Music muted updated for classroom {}", classroomId);
     }
 
     private Classroom getClassroomForTeacher(Long teacherId, Long classroomId) {

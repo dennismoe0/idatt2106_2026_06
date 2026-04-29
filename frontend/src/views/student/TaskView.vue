@@ -249,7 +249,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { useClassroomStore } from '@/stores/classroom'
@@ -272,8 +272,10 @@ import MedalToast from '@/components/common/MedalToast.vue'
 import StopSummary from '@/components/student/StopSummary.vue'
 import { useSound } from '@/composables/useSound'
 import AvatarPreview from '@/components/student/AvatarPreview.vue'
+import { useAudioStore } from '@/stores/audio'
 
 const { playCorrect, playWrong, playFanfare } = useSound()
+const audioStore = useAudioStore()
 
 const route          = useRoute()
 const router         = useRouter()
@@ -301,6 +303,14 @@ let medalTimer    = null
 let peekOutTimer  = null
 
 const preferredMap = computed(() => localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap')
+
+const inTaskMode = computed(() =>
+  !showMystery.value && !showTutorial.value && !showSummary.value && tasks.value.length > 0
+)
+watch(inTaskMode, active => {
+  if (active) audioStore.startStage()
+  else audioStore.stopStage()
+}, { immediate: true })
 
 const stopId = computed(() => Number(route.query.stopId ?? 0) || null)
 const classroomId = computed(() => {

@@ -24,4 +24,7 @@ export const classroomService = {
 
   updateMyDisplayName: (classroomId, displayName) =>
     api.put(`/api/classrooms/${classroomId}/my-displayname`, { displayName }),
+
+  setMusicMuted: (classroomId, musicMuted) =>
+    api.put(`/api/classrooms/${classroomId}/music-muted`, { musicMuted }),
 }
