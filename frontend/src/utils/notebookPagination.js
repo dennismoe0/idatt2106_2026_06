@@ -276,7 +276,7 @@ export function buildGeneralPages(notes) {
     kind: 'general',
     eyebrow: 'Frie notater',
     title: 'Løse tråder og raske tanker',
-    subtitle: 'Her samler du alt som ikke passer andre steder.',
+    subtitle: null,
     partLabel: pages.length > 1 ? `Del ${index + 1} av ${pages.length}` : null,
     blocks: pageBlocks,
     showComposer: index === pages.length - 1,
