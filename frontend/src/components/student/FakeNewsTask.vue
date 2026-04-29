@@ -24,7 +24,11 @@
           <span class="newspaper__brand">{{ mastheadBrand(article).toUpperCase() }}</span>
         </header>
         <h3 class="newspaper__headline">{{ article.headline.toUpperCase() }}</h3>
-        <p class="newspaper__byline">Kilde: {{ article.source }}</p>
+        <p v-if="article.ingress" class="newspaper__ingress">{{ article.ingress }}</p>
+        <p class="newspaper__byline">
+          Kilde: {{ article.source }}
+          <span v-if="article.date"> · {{ article.date }}</span>
+        </p>
         <div class="newspaper__body">
           <p class="newspaper__lede">{{ article.body }}</p>
         </div>
@@ -168,28 +172,63 @@ function extractDomainOrName(input) {
 
 <style scoped>
 .fake-news-task {
+  --article-card-width: 500px;
+  --article-grid-gap: var(--space-3);
+  --article-grid-max: calc((var(--article-card-width) * 2) + var(--article-grid-gap));
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
 .fake-news-task__instruction {
-  margin: 0;
-  font-weight: 700;
-  font-size: var(--text-base);
+  max-width: var(--article-grid-max);
+  margin: 0 auto;
+  width: 100%;
+  align-self: stretch;
+}
+
+.fake-news-task__instruction {
+  margin: 0 auto;
+  width: min(100%, 560px);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--color-wood);
+  font-size: clamp(1.17rem, 1.95vw, 1.36rem);
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  box-shadow: none;
 }
 
 .fake-news-task__guidance {
-  margin: 0;
+  max-width: var(--article-grid-max);
+  margin: 0 auto;
+  width: 100%;
+  align-self: stretch;
+}
+
+.fake-news-task__guidance {
+  margin: 0 auto;
+  width: min(100%, 620px);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--color-cork-dark);
-  font-weight: 600;
+  font-size: clamp(1.27rem, 2.08vw, 1.46rem);
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  box-shadow: none;
 }
 
 .fake-news-task__articles {
   display: grid;
-  gap: var(--space-6);
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--article-grid-gap);
+  grid-template-columns: repeat(2, minmax(0, var(--article-card-width)));
+  justify-content: center;
 }
 
 .article-card {
@@ -267,7 +306,8 @@ function extractDomainOrName(input) {
   color: var(--ink);
   box-shadow: 2px 3px 10px rgba(0,0,0,0.25);
   transform: rotate(var(--card-rotate, 0deg));
-  max-width: 36ch;
+  width: 100%;
+  max-width: 500px;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -283,7 +323,7 @@ function extractDomainOrName(input) {
 .newspaper__brand {
   font-family: Georgia, "Times New Roman", serif;
   font-weight: 800;
-  font-size: clamp(18px, 2.6vw, 22px);
+  font-size: clamp(16px, 2vw, 19px);
   text-transform: uppercase;
   color: var(--masthead-ink);
 }
@@ -291,14 +331,23 @@ function extractDomainOrName(input) {
 .newspaper__headline {
   margin: 6px 0 4px 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0.2px;
-  line-height: 1.15;
-  font-size: clamp(18px, 3vw, 24px);
+  line-height: 1.2;
+  font-size: clamp(16px, 2.1vw, 20px);
   text-transform: uppercase;
   overflow-wrap: anywhere;
   word-break: break-word;
   hyphens: auto;
+}
+
+.newspaper__ingress {
+  margin: 0 0 8px 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--ink);
 }
 
 .newspaper__byline {
@@ -342,6 +391,19 @@ function extractDomainOrName(input) {
 .newspaper.article-card--muted {
   opacity: 0.55;
   filter: grayscale(30%);
+}
+
+@media (max-width: 900px) {
+  .fake-news-task__instruction,
+  .fake-news-task__guidance {
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .fake-news-task__articles {
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+  }
 }
 
 </style>
