@@ -56,7 +56,7 @@
     <main class="notifications-page">
       <header class="notifications-header">
         <div>
-          <RouterLink to="/teacher" class="back-link">Tilbake til dashboard</RouterLink>
+          <RouterLink to="/teacher" class="btn btn-outline btn-sm back-btn">← Tilbake til dashboard</RouterLink>
           <h1>Varsler</h1>
           <p>{{ notificationStore.unreadCount }} uleste varsler</p>
         </div>
@@ -71,9 +71,9 @@
           <button
             class="btn btn-danger"
             :disabled="sortedNotifications.length === 0 || actionLoading"
-            @click="deleteAllOld"
+            @click="deleteAll"
           >
-            Slett gamle varsler
+            Slett alle varsler
           </button>
         </div>
       </header>
@@ -266,10 +266,17 @@ async function deleteNotification(id) {
   }
 }
 
-async function deleteAllOld() {
+async function deleteAll() {
   actionLoading.value = true
   try {
-    await purgeOldNotifications()
+    const all = [...(notificationStore.notifications ?? [])]
+    for (const n of all) {
+      try {
+        await notificationStore.deleteNotification(n.id)
+      } catch (err) {
+        console.warn('[TeacherNotificationsView] Failed to delete notification', n.id, err)
+      }
+    }
   } finally {
     actionLoading.value = false
   }
@@ -500,11 +507,9 @@ function viewMystery(notification) {
   align-items: center;
 }
 
-.back-link {
-  color: var(--color-primary);
-  font-size: var(--text-sm);
-  font-weight: 800;
-  text-decoration: none;
+.back-btn {
+  align-self: flex-start;
+  margin-bottom: var(--space-2);
 }
 
 .notifications-list {
