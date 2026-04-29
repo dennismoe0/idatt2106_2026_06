@@ -1388,7 +1388,8 @@ public class DataLoader implements ApplicationRunner {
             question,
             optionsJson,
             correctOptionId,
-            explanation
+            explanation,
+            null
         );
     }
 
@@ -1403,26 +1404,31 @@ public class DataLoader implements ApplicationRunner {
         String question,
         String optionsJson,
         String correctOptionId,
-        String explanation
+        String explanation,
+        String supplementalContentJson
     ) {
         Task task = baseTask(stop, orderIndex, title, description, TaskType.CLUE_RIDDLE);
-        task.setContentJson("""
-            {
-              "purpose": %s,
-              "evidence": %s,
-              "evidencePassword": %s,
-              "question": %s,
-              "options": %s,
-              "explanation": %s
+        ObjectNode content = objectMapper.createObjectNode();
+        content.put("purpose", purpose);
+        content.put("evidence", evidence);
+        if (evidencePassword != null) {
+            content.put("evidencePassword", evidencePassword);
+        } else {
+            content.putNull("evidencePassword");
+        }
+        content.put("question", question);
+        content.set("options", readJsonNode(optionsJson, "clue riddle options"));
+        content.put("explanation", explanation);
+
+        if (supplementalContentJson != null && !supplementalContentJson.isBlank()) {
+            JsonNode supplementalNode = readJsonNode(supplementalContentJson, "clue riddle supplemental content");
+            if (!supplementalNode.isObject()) {
+                throw new IllegalStateException("Clue riddle supplemental content must be a JSON object");
             }
-            """.formatted(
-                toJsonString(purpose),
-                toJsonString(evidence),
-                toJsonString(evidencePassword),
-                toJsonString(question),
-                optionsJson,
-                toJsonString(explanation)
-            ));
+            supplementalNode.fields().forEachRemaining(entry -> content.set(entry.getKey(), entry.getValue()));
+        }
+
+        task.setContentJson(writeJson(content, "Failed to encode clue riddle content"));
         task.setCorrectAnswerJson("""
             {
               "selected": %s

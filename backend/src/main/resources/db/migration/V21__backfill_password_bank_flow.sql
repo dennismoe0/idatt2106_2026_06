@@ -35,10 +35,10 @@ SELECT
     'options', JSON_ARRAY(
       JSON_OBJECT('id', 'a', 'value', 'sander2015'),
       JSON_OBJECT('id', 'b', 'value', 'Sander2015!'),
-      JSON_OBJECT('id', 'c', 'value', 'S@nder_2015#'),
+      JSON_OBJECT('id', 'c', 'value', 'S@nder_2O15#'),
       JSON_OBJECT('id', 'd', 'value', 'SolKatt!Fjord#22')
     ),
-    'explanation', 'SolKatt!Fjord#22 er den beste varianten fordi den ikke inneholder noe personlig, er lang og blander store og små bokstaver, tall og spesialtegn. En slik passordfrase er vanskelig å gjette, selv om noen kjenner deg.'
+    'explanation', 'SolKatt!Fjord#22 er sterkest fordi det ikke inneholder personlig informasjon, er langt og blander tegn godt.'
   ),
   'Tenk på lengde, variasjon og om passordet inneholder personlig informasjon.',
   3,
@@ -65,10 +65,10 @@ SET
     'options', JSON_ARRAY(
       JSON_OBJECT('id', 'a', 'value', 'sander2015'),
       JSON_OBJECT('id', 'b', 'value', 'Sander2015!'),
-      JSON_OBJECT('id', 'c', 'value', 'S@nder_2015#'),
+      JSON_OBJECT('id', 'c', 'value', 'S@nder_2O15#'),
       JSON_OBJECT('id', 'd', 'value', 'SolKatt!Fjord#22')
     ),
-    'explanation', 'SolKatt!Fjord#22 er den beste varianten fordi den ikke inneholder noe personlig, er lang og blander store og små bokstaver, tall og spesialtegn. En slik passordfrase er vanskelig å gjette, selv om noen kjenner deg.'
+    'explanation', 'SolKatt!Fjord#22 er sterkest fordi det ikke inneholder personlig informasjon, er langt og blander tegn godt.'
   ),
   t.correct_answer_json = JSON_OBJECT('selected', 'd'),
   t.guidance_text = 'Tenk på lengde, variasjon og om passordet inneholder personlig informasjon.'
@@ -89,6 +89,7 @@ SELECT
     'words', JSON_ARRAY('Tiger', 'Måne', 'Pizza', 'Hund', 'Sol', 'Isbjørn', 'Fjord'),
     'symbols', JSON_ARRAY('!', '#', '@', '?', '&', '*'),
     'numbers', JSON_ARRAY('7', '42', '99', '3', '2026'),
+    'pitfalls', JSON_ARRAY('OlaErBest', '2005', 'hund'),
     'maxLength', 24,
     'minStrength', 'STRONG',
     'explanation', 'Et sterkt passord er langt, bruker store og små bokstaver, tall og spesialtegn, og inneholder ikke personlig informasjon.'
@@ -118,6 +119,7 @@ SET
     'words', JSON_ARRAY('Tiger', 'Måne', 'Pizza', 'Hund', 'Sol', 'Isbjørn', 'Fjord'),
     'symbols', JSON_ARRAY('!', '#', '@', '?', '&', '*'),
     'numbers', JSON_ARRAY('7', '42', '99', '3', '2026'),
+    'pitfalls', JSON_ARRAY('OlaErBest', '2005', 'hund'),
     'maxLength', 24,
     'minStrength', 'STRONG',
     'explanation', 'Et sterkt passord er langt, bruker store og små bokstaver, tall og spesialtegn, og inneholder ikke personlig informasjon.'
@@ -136,9 +138,8 @@ SELECT
   1,
   'CLUE_RIDDLE',
   JSON_OBJECT(
-    'purpose', 'Du bruker det du lærte om passord for å lese et siste digitalt spor. Et lekket passord kan avsløre både vaner og hvem kontoen er knyttet til.',
+    'purpose', 'Du bruker det du lærte om passord: svake passord inneholder ofte sted, rolle eller årstall. Det kan avsløre hvem som lagde kontoen.',
     'evidence', 'Reservekontoen brukte passordet XooInnAdmin2019.',
-    'evidencePassword', 'XooInnAdmin2019',
     'question', 'Hva forteller passordet oss?',
     'options', JSON_ARRAY(
       JSON_OBJECT('id', 'random_strong', 'label', 'Det er et sterkt tilfeldig passord', 'detail', 'Det er ikke tilfeldig: det inneholder sted, rolle og årstall.'),
@@ -167,9 +168,8 @@ SET
   t.difficulty = 1,
   t.task_type = 'CLUE_RIDDLE',
   t.content_json = JSON_OBJECT(
-    'purpose', 'Du bruker det du lærte om passord for å lese et siste digitalt spor. Et lekket passord kan avsløre både vaner og hvem kontoen er knyttet til.',
+    'purpose', 'Du bruker det du lærte om passord: svake passord inneholder ofte sted, rolle eller årstall. Det kan avsløre hvem som lagde kontoen.',
     'evidence', 'Reservekontoen brukte passordet XooInnAdmin2019.',
-    'evidencePassword', 'XooInnAdmin2019',
     'question', 'Hva forteller passordet oss?',
     'options', JSON_ARRAY(
       JSON_OBJECT('id', 'random_strong', 'label', 'Det er et sterkt tilfeldig passord', 'detail', 'Det er ikke tilfeldig: det inneholder sted, rolle og årstall.'),
