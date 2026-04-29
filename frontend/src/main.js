@@ -10,7 +10,12 @@ const pinia = createPinia()
 
 app.use(pinia)
 app.use(router)
-setUnauthorizedHandler(() => router.push('/login'))
+setUnauthorizedHandler(() => {
+  const target = router.currentRoute.value.meta?.role === 'TEACHER'
+    ? { name: 'TeacherLogin' }
+    : { name: 'StudentLogin' }
+  router.push(target)
+})
 
 import { useAuthStore } from './stores/auth'
 const authStore = useAuthStore()

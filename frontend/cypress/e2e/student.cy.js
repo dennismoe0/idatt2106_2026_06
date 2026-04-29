@@ -11,6 +11,20 @@ function setupStudentAuth() {
   }).as('studentLogin')
 }
 
+function setupStudentMembership(body, alias = 'myClassroom') {
+  cy.intercept('GET', '**/api/classrooms/mine', {
+    statusCode: 200,
+    body
+  }).as(alias)
+}
+
+function setupNoStudentMembership(alias = 'myClassroom') {
+  cy.intercept('GET', '**/api/classrooms/mine', {
+    statusCode: 404,
+    body: { error: 'No classroom' }
+  }).as(alias)
+}
+
 function setupGameStops(locked = false) {
   cy.intercept('GET', '**/api/game/stops**', {
     statusCode: 200,
@@ -24,12 +38,14 @@ function setupGameStops(locked = false) {
 describe('Student login flow', () => {
   it('logs in with a username and lands on intro (first visit)', () => {
     setupStudentAuth()
+    setupStudentMembership({ classroomId: CLASSROOM_ID, displayName: 'Agent Nora', status: 'APPROVED' })
     localStorage.removeItem('hasSeenIntro')
 
-    cy.visit('/student-login')
+    cy.visit('/login')
     cy.get('input').type('agent.nora')
     cy.contains('button', 'Logg inn').click()
     cy.wait('@studentLogin')
+    cy.wait('@myClassroom')
 
     cy.url().should('include', '/intro')
     cy.contains('Velkommen, detektiv').should('be.visible')
@@ -37,13 +53,15 @@ describe('Student login flow', () => {
 
   it('logs in and lands on home if intro already seen', () => {
     setupStudentAuth()
-    cy.visit('/student-login', {
+    setupStudentMembership({ classroomId: CLASSROOM_ID, displayName: 'Agent Nora', status: 'APPROVED' })
+    cy.visit('/login', {
       onBeforeLoad(win) { win.localStorage.setItem('hasSeenIntro', 'true') }
     })
 
     cy.get('input').type('agent.nora')
     cy.contains('button', 'Logg inn').click()
     cy.wait('@studentLogin')
+    cy.wait('@myClassroom')
 
     cy.url().should('eq', Cypress.config().baseUrl + '/')
   })
@@ -52,17 +70,16 @@ describe('Student login flow', () => {
 describe('Student join classroom flow', () => {
   beforeEach(() => {
     // Pre-populate auth so the student is logged in
-    cy.intercept('POST', '**/api/auth/student-login', {
-      statusCode: 200,
-      body: { token: STUDENT_TOKEN, role: 'STUDENT', userId: 2, email: 'agent.nora@student.local' }
-    }).as('studentLogin')
+    setupStudentAuth()
+    setupNoStudentMembership()
 
-    cy.visit('/student-login', {
+    cy.visit('/login', {
       onBeforeLoad(win) { win.localStorage.setItem('hasSeenIntro', 'true') }
     })
     cy.get('input').type('agent.nora')
     cy.contains('button', 'Logg inn').click()
     cy.wait('@studentLogin')
+    cy.wait('@myClassroom')
   })
 
   it('joins a classroom and reaches waiting room', () => {
@@ -112,12 +129,10 @@ describe('Student join classroom flow', () => {
 describe('Student game flow', () => {
   beforeEach(() => {
     // Log in as student with classroomId already in localStorage
-    cy.intercept('POST', '**/api/auth/student-login', {
-      statusCode: 200,
-      body: { token: STUDENT_TOKEN, role: 'STUDENT', userId: 2, email: 'agent.nora@student.local' }
-    }).as('studentLogin')
+    setupStudentAuth()
+    setupStudentMembership({ classroomId: CLASSROOM_ID, displayName: 'Agent Nora', status: 'APPROVED' })
 
-    cy.visit('/student-login', {
+    cy.visit('/login', {
       onBeforeLoad(win) {
         win.localStorage.setItem('hasSeenIntro', 'true')
         win.localStorage.setItem('classroomId', String(CLASSROOM_ID))
@@ -126,6 +141,7 @@ describe('Student game flow', () => {
     cy.get('input').type('agent.nora')
     cy.contains('button', 'Logg inn').click()
     cy.wait('@studentLogin')
+    cy.wait('@myClassroom')
   })
 
   it('sees the map with stops and navigates to a task', () => {

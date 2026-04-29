@@ -16,4 +16,13 @@ describe('router meta', () => {
     expect(route.path).toBe('/teacher/notifications')
     expect(route.meta.role).toBe('TEACHER')
   })
+
+  it('uses the student login as the default public login route', () => {
+    expect(router.resolve('/login').name).toBe('StudentLogin')
+    expect(router.resolve('/student-login').name).toBe('StudentLogin')
+  })
+
+  it('keeps a dedicated teacher login route', () => {
+    expect(router.resolve('/teacher-login').name).toBe('TeacherLogin')
+  })
 })
