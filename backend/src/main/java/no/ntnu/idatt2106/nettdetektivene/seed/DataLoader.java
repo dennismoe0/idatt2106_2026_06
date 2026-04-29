@@ -320,9 +320,9 @@ public class DataLoader implements ApplicationRunner {
                     "Send først når du har både alle riktige og ingen ekstra markeringer."
                         }
                     ),
-                new Quiz("q1", "Hva er målet i Markedsplassen-oppgaven?", new String[]{"Klikke på alle produkter med lav pris", "Klikke på feltene som virker mistenkelige", "Skrive en tekst om hvorfor butikken er falsk"}, "Klikke på feltene som virker mistenkelige"),
-                new Quiz("q2", "Hvilken påstand stemmer best?", new String[]{"Lav pris betyr alltid at feltet skal markeres", "Du må vurdere hvert felt i kontekst", "Hvis designet er fint, er butikken trygg"}, "Du må vurdere hvert felt i kontekst"),
-                new Quiz("q3", "Når blir svaret riktig i CLICK_SUSPICIOUS?", new String[]{"Når du markerer minst ett felt", "Når du markerer alle og bare de mistenkelige feltene", "Når du markerer de samme feltene som vennen din"}, "Når du markerer alle og bare de mistenkelige feltene")
+                    new Quiz("q1", "Hva er et varseltegn på en useriøs nettbutikk?", new String[]{"De har mange produkter", "De krever betaling med gavekort", "De tilbyr gratis frakt"}, "De krever betaling med gavekort"),
+                    new Quiz("q2", "Hva gjør betaling med gavekort risikabelt?", new String[]{"Det er saktere", "Pengene er nesten umulige å spore og få tilbake", "Du får ikke kvittering"}, "Pengene er nesten umulige å spore og få tilbake"),
+                    new Quiz("q3", "Hva bør du gjøre om en nettbutikk virker mistenkelig?", new String[]{"Kjøp og håp det ordner seg", "Be venner handle der først", "Søk opp butikken og les anmeldelser"}, "Søk opp butikken og les anmeldelser")
                 )
             ),
             learnTask(socialStop, 1, "Lær om sosiale medier", "Les kortene og svar riktig på alle spørsmål for å gå videre.",

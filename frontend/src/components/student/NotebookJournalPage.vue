@@ -47,10 +47,25 @@
         <template v-for="block in page.blocks" :key="block.key">
           <article v-if="block.type === 'tip'" class="journal-entry-card journal-entry-card--tip">
             <p class="journal-entry-card__label">{{ block.label }}</p>
-            <p class="journal-entry-card__text">{{ block.content }}</p>
-            <p v-if="block.continuedFromPrevious || block.continuesToNext" class="journal-entry-card__continuation">
-              {{ continuationText(block) }}
+            <div class="journal-entry-card__scroll">
+              <p class="journal-entry-card__text">{{ block.content }}</p>
+              <p v-if="block.continuedFromPrevious || block.continuesToNext" class="journal-entry-card__continuation">
+                {{ continuationText(block) }}
+              </p>
+            </div>
+          </article>
+
+          <article v-else-if="block.type === 'clue'" class="journal-entry-card journal-entry-card--clue">
+            <p class="journal-entry-card__label journal-entry-card__label--clue">
+              <span class="journal-entry-card__clue-icon" aria-hidden="true">🔎</span>
+              {{ block.label }}
             </p>
+            <div class="journal-entry-card__scroll">
+              <p class="journal-entry-card__text">{{ block.content }}</p>
+              <p v-if="block.continuedFromPrevious || block.continuesToNext" class="journal-entry-card__continuation">
+                {{ continuationText(block) }}
+              </p>
+            </div>
           </article>
 
           <article v-else-if="block.type === 'reflection'" class="journal-entry-card">
@@ -157,13 +172,13 @@ function formatDate(isoString) {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: clamp(0.45rem, 1.2vh, 1rem);
   height: 100%;
-  /* Increase bottom padding so composer/footer buttons don't overlap page number */
-  padding: 1.35rem 1.2rem 3rem;
+  padding: clamp(0.7rem, 2vh, 1.35rem) clamp(0.6rem, 2vw, 1.2rem) clamp(1.4rem, 4vh, 3rem);
   color: var(--color-journal-ink);
   font-family: Georgia, 'Times New Roman', serif;
   overflow: hidden;
+  container-type: inline-size;
 }
 
 .journal-page-content::before {
@@ -269,13 +284,24 @@ function formatDate(isoString) {
 .journal-page-content__body {
   position: relative;
   z-index: 1;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
-  padding: 0 0.65rem;
-  overflow: visible;
+  gap: clamp(0.45rem, 1.2vh, 0.9rem);
+  padding: 0 clamp(0.35rem, 1.2vw, 0.65rem);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 85, 33, 0.35) transparent;
+}
+
+.journal-page-content__body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.journal-page-content__body::-webkit-scrollbar-thumb {
+  background: rgba(124, 85, 33, 0.3);
+  border-radius: 999px;
 }
 
 .journal-page-content__body--report {
@@ -287,12 +313,11 @@ function formatDate(isoString) {
 }
 
 .journal-page-content__blocks {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: clamp(0.4rem, 1vh, 0.8rem);
   min-height: 0;
-  overflow: hidden;
 }
 
 .journal-stamp {
@@ -313,7 +338,7 @@ function formatDate(isoString) {
 
 .journal-report-card,
 .journal-entry-card {
-  padding: 0.88rem 0.96rem;
+  padding: clamp(0.55rem, 1.3vw, 0.88rem) clamp(0.6rem, 1.5vw, 0.96rem);
   border-radius: 14px;
   background: rgba(255, 250, 242, 0.42);
   border: 1px solid rgba(138, 96, 44, 0.18);
@@ -324,26 +349,14 @@ function formatDate(isoString) {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  max-height: 16rem;
+  /* Cards size to their content; the page body scrolls if the total overflows */
+  flex: 0 0 auto;
+  max-height: none;
 }
 
 .journal-entry-card__scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  padding-right: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(124, 85, 33, 0.35) transparent;
-}
-
-.journal-entry-card__scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.journal-entry-card__scroll::-webkit-scrollbar-thumb {
-  background: rgba(124, 85, 33, 0.3);
-  border-radius: 999px;
+  flex: 0 0 auto;
+  overflow: visible;
 }
 
 .journal-report-card--locked {
@@ -352,6 +365,28 @@ function formatDate(isoString) {
 
 .journal-entry-card--tip {
   background: rgba(242, 233, 217, 0.5);
+}
+
+.journal-entry-card--clue {
+  background:
+    linear-gradient(135deg, rgba(255, 235, 196, 0.55), rgba(244, 215, 165, 0.45));
+  border-color: rgba(168, 102, 36, 0.42);
+  box-shadow:
+    0 4px 12px rgba(118, 88, 39, 0.08),
+    inset 0 0 0 1px rgba(255, 244, 215, 0.5);
+}
+
+.journal-entry-card__label--clue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-journal-stamp, #8b3a1a);
+  font-weight: 800;
+}
+
+.journal-entry-card__clue-icon {
+  font-size: 0.9rem;
+  line-height: 1;
 }
 
 .journal-report-card__label,
@@ -366,8 +401,8 @@ function formatDate(isoString) {
 .journal-report-card__text,
 .journal-entry-card__text {
   margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.6;
+  font-size: clamp(0.78rem, 1.1vw + 0.55rem, 0.92rem);
+  line-height: 1.55;
   /* Wrap normally; only break unbroken strings (e.g. 500x "M") via overflow-wrap. */
   overflow-wrap: anywhere;
   word-break: normal;
