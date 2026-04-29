@@ -31,18 +31,26 @@
         🔒 Spill de tidligere stoppene for å låse opp denne!
       </p>
     </Transition>
+
+    <MapIntroModal
+      :model-value="showMapIntroPopup"
+      @dismiss="dismissMapIntroPopup"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { useClassroomStore } from '@/stores/classroom'
 import DetectiveBar from '@/components/common/DetectiveBar.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import StopMarker from '@/components/student/StopMarker.vue'
+import MapIntroModal from '@/components/student/MapIntroModal.vue'
+import { MAP_INTRO_STORAGE_KEY, hasSeenMapIntro as getHasSeenMapIntro, shouldShowMapIntroPopup } from '@/utils/mapIntro'
 
+const route = useRoute()
 const router = useRouter()
 const gameStore = useGameStore()
 const classroomStore = useClassroomStore()
@@ -52,11 +60,18 @@ const error = ref(null)
 const stops = computed(() => gameStore.stops)
 const lockedStopId = ref(null)
 const lockedMessage = ref(false)
+const showMapIntroPopup = ref(false)
+const hasSeenMapIntro = computed(() => getHasSeenMapIntro())
 let lockedTimer = null
 
 function switchToWorldMap() {
   localStorage.setItem('mapView', 'world')
   router.push({ name: 'WorldMap' })
+}
+
+function dismissMapIntroPopup() {
+  localStorage.setItem(MAP_INTRO_STORAGE_KEY, 'true')
+  showMapIntroPopup.value = false
 }
 
 onMounted(async () => {
@@ -71,6 +86,11 @@ onMounted(async () => {
     console.warn('[MapView] No classroomId — redirecting to join')
     router.push({ name: 'JoinClassroom' })
     return
+  }
+
+  if (!hasSeenMapIntro.value && shouldShowMapIntroPopup(route)) {
+    console.log('[MapView] Showing first-time map intro popup')
+    showMapIntroPopup.value = true
   }
 
   loading.value = true

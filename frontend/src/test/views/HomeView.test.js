@@ -54,6 +54,24 @@ describe('HomeView', () => {
     expect(wrapper.text()).toContain('Ukas Mysterium')
   })
 
+  it('adds the map intro query the first time the map card is opened', () => {
+    localStorage.removeItem('hasSeenMapIntro')
+
+    const wrapper = mountHomeView()
+    const mapCard = wrapper.get('.home__note--hero')
+
+    expect(mapCard.attributes('href')).toBe('/worldmap?showMapIntro=1')
+  })
+
+  it('does not add the map intro query after the popup has been seen', () => {
+    localStorage.setItem('hasSeenMapIntro', 'true')
+
+    const wrapper = mountHomeView()
+    const mapCard = wrapper.get('.home__note--hero')
+
+    expect(mapCard.attributes('href')).toBe('/worldmap')
+  })
+
   it('shows Kommer snart on locked notes when present', () => {
     const wrapper = mountHomeView()
     const lockedNotes = wrapper.findAll('.home__note--locked')

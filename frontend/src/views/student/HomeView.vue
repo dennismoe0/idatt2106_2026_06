@@ -29,7 +29,7 @@
       <nav class="home__grid" aria-label="Studentmeny">
 
         <!-- Hero: Map -->
-        <RouterLink :to="{ name: preferredMap }" class="home__note home__note--hero">
+        <RouterLink :to="mapEntryRoute" class="home__note home__note--hero">
           <span class="home__pin home__pin--gold" aria-hidden="true"></span>
           <span class="home__note-badge" aria-hidden="true">AKTIV SAK</span>
           <span class="home__note-icon" aria-hidden="true">🗺️</span>
@@ -78,12 +78,21 @@ import { computed, onMounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useClassroomStore } from '@/stores/classroom'
+import { buildMapIntroRoute, hasSeenMapIntro as getHasSeenMapIntro } from '@/utils/mapIntro'
 
 const authStore = useAuthStore()
 const classroomStore = useClassroomStore()
 const router = useRouter()
 
-const preferredMap = localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap'
+const preferredMap = computed(() => (
+  localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap'
+))
+const hasSeenMapIntro = computed(() => getHasSeenMapIntro())
+const mapEntryRoute = computed(() => (
+  hasSeenMapIntro.value
+    ? { name: preferredMap.value }
+    : buildMapIntroRoute(preferredMap.value)
+))
 
 const studentName = computed(() =>
   classroomStore.displayName || formatDisplayName(authStore.email)
