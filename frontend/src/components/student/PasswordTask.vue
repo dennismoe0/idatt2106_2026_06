@@ -93,7 +93,6 @@
       >
         <p class="inline-result__label">{{ result.correct ? '✅ Riktig!' : '❌ Ikke helt riktig' }}</p>
         <p class="inline-result__explanation">{{ result.explanation }}</p>
-        <p v-if="result.stopCompleted" class="inline-result__stop">🎉 Du fullførte Passordbanken!</p>
         <div class="inline-result__actions">
           <button v-if="!result.correct" class="retry-btn" @click="retry">
             Prøv igjen
