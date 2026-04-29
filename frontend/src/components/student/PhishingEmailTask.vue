@@ -80,8 +80,8 @@
         <!-- Per-clue explanations -->
         <ul v-if="revealedClues.length" class="phishing-task__clue-list">
           <li v-for="clue in revealedClues" :key="clue.id" class="phishing-task__clue-item">
-            <span :class="clue.wasCorrect ? 'phishing-task__clue-icon--ok' : 'phishing-task__clue-icon--missed'">
-              {{ clue.wasCorrect ? '✅' : '🔍' }}
+            <span :class="clue.iconClass">
+              {{ clue.icon }}
             </span>
             <strong>{{ clue.label }}</strong>: {{ clue.explanation }}
           </li>
@@ -112,6 +112,10 @@ const flagged = reactive(new Set())
 const email     = computed(() => props.task?.contentJson?.email ?? {})
 const allClues  = computed(() => email.value.clues ?? [])
 const senderClue = computed(() => allClues.value.find(c => c.type === 'sender') ?? null)
+const clueFeedbackById = computed(() => {
+  const entries = props.result?.phishingClues ?? []
+  return new Map(entries.map(clue => [clue.id, clue]))
+})
 
 watch(() => props.task?.id, () => { flagged.clear() }, { immediate: true })
 
@@ -150,13 +154,50 @@ function isFeedbackMissed(id) {
 const revealedClues = computed(() => {
   if (!props.result) return []
   return allClues.value
-    .filter(c => c.isClue !== false && (correctClueIds.value.has(c.id) || flagged.has(c.id)))
-    .map(c => ({
-      id: c.id,
-      label: c.label,
-      explanation: c.explanation ?? '',
-      wasCorrect: flagged.has(c.id) && correctClueIds.value.has(c.id)
-    }))
+    .filter(c => correctClueIds.value.has(c.id) || flagged.has(c.id))
+    .map(c => {
+      const isCorrectClue = correctClueIds.value.has(c.id)
+      const wasFlagged = flagged.has(c.id)
+
+      if (isCorrectClue && wasFlagged) {
+        return {
+          id: c.id,
+          label: c.label,
+          explanation: clueFeedbackById.value.get(c.id)?.explanation ?? '',
+          icon: '✅',
+          iconClass: 'phishing-task__clue-icon--ok'
+        }
+      }
+
+      if (wasFlagged) {
+        const clueFeedback = clueFeedbackById.value.get(c.id)
+        if (clueFeedback?.isClue) {
+          return {
+            id: c.id,
+            label: c.label,
+            explanation: clueFeedback.explanation,
+            icon: '💡',
+            iconClass: 'phishing-task__clue-icon--optional'
+          }
+        }
+
+        return {
+          id: c.id,
+          label: c.label,
+          explanation: clueFeedback?.explanation ?? '',
+          icon: '❌',
+          iconClass: 'phishing-task__clue-icon--wrong'
+        }
+      }
+
+      return {
+        id: c.id,
+        label: c.label,
+        explanation: clueFeedbackById.value.get(c.id)?.explanation ?? '',
+        icon: '🔎',
+        iconClass: 'phishing-task__clue-icon--missed'
+      }
+    })
 })
 
 function toggleClue(id) {
@@ -345,7 +386,9 @@ function submit() {
   line-height: 1.4;
 }
 .phishing-task__clue-icon--ok     { flex-shrink: 0; }
+.phishing-task__clue-icon--wrong  { flex-shrink: 0; }
 .phishing-task__clue-icon--missed { flex-shrink: 0; }
+.phishing-task__clue-icon--optional { flex-shrink: 0; }
 
 .next-btn {
   align-self: flex-start;

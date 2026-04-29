@@ -11,6 +11,7 @@ public record SubmitAnswerResponse(
     int starsEarned,
     int xpEarned,
     List<String> correctClueIds,
+    List<PhishingClueFeedbackDto> phishingClues,
     Integer correctArticleIndex,
     String clueText,
     boolean showSuspectReveal

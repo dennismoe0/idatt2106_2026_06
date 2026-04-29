@@ -30,8 +30,10 @@
         <span class="builder__password" :aria-label="`Bygget passord: ${builtPassword || 'tomt'}`">
           {{ builtPassword || '—' }}
         </span>
+        <p v-if="maxLength" class="builder__limit" aria-live="polite">
+          {{ builtPassword.length }}/{{ maxLength }} tegn
+        </p>
         <div
-          v-if="result"
           class="builder__strength"
           :class="`builder__strength--${strengthKey}`"
           aria-label="Passordstyrke"
@@ -47,19 +49,22 @@
         <button
           v-for="w in content.words" :key="'w_' + w"
           class="tile tile--word"
-          :disabled="!!result"
+          :disabled="!!result || !canAddPart(w)"
+          :aria-label="tileAriaLabel(w)"
           @click="addPart(w)"
         >{{ w }}</button>
         <button
           v-for="n in content.numbers" :key="'n_' + n"
           class="tile tile--number"
-          :disabled="!!result"
+          :disabled="!!result || !canAddPart(n)"
+          :aria-label="tileAriaLabel(n)"
           @click="addPart(n)"
         >{{ n }}</button>
         <button
           v-for="s in content.symbols" :key="'s_' + s"
           class="tile tile--symbol"
-          :disabled="!!result"
+          :disabled="!!result || !canAddPart(s)"
+          :aria-label="tileAriaLabel(s)"
           @click="addPart(s)"
         >{{ s }}</button>
       </div>
@@ -90,7 +95,10 @@
         <p class="inline-result__explanation">{{ result.explanation }}</p>
         <p v-if="result.stopCompleted" class="inline-result__stop">🎉 Du fullførte Passordbanken!</p>
         <div class="inline-result__actions">
-          <button class="next-btn" @click="$emit('next')">
+          <button v-if="!result.correct" class="retry-btn" @click="retry">
+            Prøv igjen
+          </button>
+          <button v-else class="next-btn" @click="$emit('next')">
             {{ isLastTask ? 'Videre til sammendrag →' : 'Neste oppgave →' }}
           </button>
         </div>
@@ -107,13 +115,18 @@ const props = defineProps({
   result:     { type: Object,  default: null },
   isLastTask: { type: Boolean, default: false },
 })
-const emit = defineEmits(['submitted', 'next'])
+const emit = defineEmits(['submitted', 'next', 'retry'])
 
 const selected = ref(null)
 const parts    = ref([])
 
 const content = computed(() => props.task?.contentJson ?? {})
 const type    = computed(() => content.value.type ?? 'CHOICE')
+const maxLength = computed(() => {
+  const configured = Number(content.value.maxLength ?? 0)
+  return Number.isFinite(configured) && configured > 0 ? configured : null
+})
+const requiredStrength = computed(() => String(content.value.minStrength ?? 'STRONG').toUpperCase())
 
 watch(() => props.task?.id, () => {
   selected.value = null
@@ -121,6 +134,10 @@ watch(() => props.task?.id, () => {
 }, { immediate: true })
 
 const builtPassword = computed(() => parts.value.join(''))
+const hasBuiltPassword = computed(() => builtPassword.value.length > 0)
+const remainingCharacters = computed(() => maxLength.value
+  ? Math.max(maxLength.value - builtPassword.value.length, 0)
+  : Infinity)
 
 function evaluateStrength(pw) {
   if (!pw) return 'WEAK'
@@ -137,16 +154,43 @@ function evaluateStrength(pw) {
   return 'STRONG'
 }
 
-const strengthKey   = computed(() => evaluateStrength(builtPassword.value).toLowerCase())
-const strengthLabel = computed(() => ({ weak: 'Svakt', medium: 'Middels', strong: 'Sterkt' }[strengthKey.value]))
-const strengthWidth = computed(() => ({ weak: '33%', medium: '66%', strong: '100%' }[strengthKey.value]))
+function strengthLevel(level) {
+  switch (String(level).toUpperCase()) {
+    case 'STRONG':
+      return 3
+    case 'MEDIUM':
+      return 2
+    default:
+      return 1
+  }
+}
+
+const strengthKey   = computed(() => hasBuiltPassword.value ? evaluateStrength(builtPassword.value).toLowerCase() : 'idle')
+const strengthLabel = computed(() => ({ idle: 'Bygg passord', weak: 'Svakt', medium: 'Middels', strong: 'Sterkt' }[strengthKey.value]))
+const strengthWidth = computed(() => ({ idle: '0%', weak: '33%', medium: '66%', strong: '100%' }[strengthKey.value]))
+const builderMeetsRequirement = computed(() =>
+  hasBuiltPassword.value
+  && strengthLevel(strengthKey.value) >= strengthLevel(requiredStrength.value)
+)
 
 const isReady = computed(() => {
-  if (type.value === 'BUILDER') return builtPassword.value.length >= 1
+  if (type.value === 'BUILDER') return builderMeetsRequirement.value
   return !!selected.value
 })
 
-function addPart(p) { parts.value = [...parts.value, p] }
+function canAddPart(p) {
+  return !maxLength.value || builtPassword.value.length + String(p).length <= maxLength.value
+}
+
+function tileAriaLabel(p) {
+  if (canAddPart(p)) return `Legg til ${p}`
+  return `Kan ikke legge til ${p}. Maks ${maxLength.value} tegn, ${remainingCharacters.value} tegn igjen.`
+}
+
+function addPart(p) {
+  if (!canAddPart(p)) return
+  parts.value = [...parts.value, p]
+}
 
 function submit() {
   if (!isReady.value) return
@@ -155,6 +199,12 @@ function submit() {
     : { selected: selected.value }
   console.log('[PasswordTask] Submitting:', answer)
   emit('submitted', answer)
+}
+
+function retry() {
+  selected.value = null
+  parts.value = []
+  emit('retry')
 }
 </script>
 
@@ -222,6 +272,13 @@ function submit() {
   min-height: 1.6em;
 }
 
+.builder__limit {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+}
+
 .builder__strength { display: flex; align-items: center; gap: var(--space-2); }
 .builder__strength-bar {
   flex: 1;
@@ -239,6 +296,7 @@ function submit() {
 .builder__strength--weak   .builder__strength-fill { background: var(--color-danger); }
 .builder__strength--medium .builder__strength-fill { background: var(--color-warning); }
 .builder__strength--strong .builder__strength-fill { background: var(--color-success); }
+.builder__strength--idle .builder__strength-fill { background: transparent; }
 .builder__strength-label {
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
@@ -247,6 +305,7 @@ function submit() {
 .builder__strength--weak   .builder__strength-label { color: var(--color-danger); }
 .builder__strength--medium .builder__strength-label { color: var(--color-warning); }
 .builder__strength--strong .builder__strength-label { color: var(--color-success); }
+.builder__strength--idle .builder__strength-label { color: var(--color-text-muted); }
 
 .builder__tiles {
   display: flex;
@@ -271,15 +330,23 @@ function submit() {
 
 .clear-btn {
   justify-self: start;
-  background: transparent;
-  border: 1px solid var(--color-danger);
-  color: var(--color-danger);
+  min-height: 44px;
+  background: var(--color-danger-soft);
+  border: 2px solid var(--color-danger);
+  color: var(--color-dossier-danger);
   border-radius: var(--radius-md);
-  padding: var(--space-1) var(--space-3);
+  padding: 0.7rem 1rem;
   cursor: pointer;
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
+  font-weight: var(--font-bold);
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 .clear-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.clear-btn:hover:not(:disabled) {
+  background: var(--color-danger-light);
+  border-color: var(--color-dossier-danger);
+  color: var(--color-dossier-danger);
+}
 
 /* ── Submit ── */
 .submit-btn {
@@ -323,6 +390,17 @@ function submit() {
 }
 .next-btn:hover  { background: var(--color-btn-primary-hover); }
 .next-btn:active { transform: scale(0.98); }
+
+.retry-btn {
+  background: var(--color-surface);
+  color: var(--color-danger);
+  border: 2px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-6);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-base);
+  cursor: pointer;
+}
 
 .result-slide-enter-active { transition: transform 0.3s ease, opacity 0.3s ease; }
 .result-slide-enter-from   { transform: translateY(-12px); opacity: 0; }

@@ -11,4 +11,5 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByStop_IdOrderByOrderIndexAscIdAsc(Long stopId);
     long countByStop_Id(Long stopId);
     long countByStop_IdAndTaskTypeNotIn(Long stopId, Collection<TaskType> taskTypes);
+    boolean existsByStop_IdAndTaskType(Long stopId, TaskType taskType);
 }

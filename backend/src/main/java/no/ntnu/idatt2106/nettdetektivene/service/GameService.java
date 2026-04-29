@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ClaimXpResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.MedalDto;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.PhishingClueFeedbackDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.PlayerProfileDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ProgressResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.StopResponse;
@@ -60,7 +61,11 @@ public class GameService {
     private static final int CORRECT_SCORE = 100;
     private static final int XP_PER_TASK = 10;
     private static final int XP_PER_STOP = 30;
-    private static final Set<TaskType> COMPLETION_EXCLUDED_TASK_TYPES = EnumSet.of(TaskType.LEARN, TaskType.CLUE_RIDDLE);
+    private static final int SUSPECT_REVEAL_STOP_ORDER = 6;
+    private static final Set<TaskType> COMPLETION_EXCLUDED_TASK_TYPES = EnumSet.of(
+        TaskType.LEARN,
+        TaskType.CLUE_RIDDLE
+    );
 
     private final StopRepository stopRepository;
     private final TaskRepository taskRepository;
@@ -150,6 +155,7 @@ public class GameService {
                 return new ResourceNotFoundException("Task not found");
             });
         requireUnlocked(studentId, classroomId, task.getStop());
+        requireTaskSequenceAvailable(studentId, task);
         return toTaskResponse(studentId, classroomId, task);
     }
 
@@ -172,27 +178,45 @@ public class GameService {
                 return new ResourceNotFoundException("Task not found");
             });
         requireUnlocked(studentId, classroomId, task.getStop());
+        requireTaskSequenceAvailable(studentId, task);
 
         String explanation = extractExplanation(task);
         Optional<StudentProgress> existingProgress = studentProgressRepository
             .findByStudent_IdAndTask_Id(studentId, taskId);
 
         if (existingProgress.map(StudentProgress::isCompleted).orElse(false)) {
-            boolean stopCompleted = isStopComplete(studentId, task.getStop().getId());
+            if (task.getTaskType() == TaskType.CLUE_RIDDLE && !checkAnswer(task, req == null ? null : req.answer())) {
+                log.info("[GameService] wrong answer on already completed task studentId={} taskId={}", studentId, taskId);
+                List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
+                    ? correctClueIdsFor(task) : List.of();
+                List<PhishingClueFeedbackDto> phishingClues = task.getTaskType() == TaskType.PHISHING_EMAIL
+                    ? phishingCluesFor(task) : List.of();
+                Integer correctArticleIndex = task.getTaskType() == TaskType.FAKE_NEWS
+                    ? fakeNewsCorrectIndex(task) : null;
+                return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, phishingClues, correctArticleIndex, null, false);
+            }
+            boolean stopCompleted = canReturnStopCompletion(task) && isStopComplete(studentId, task.getStop().getId());
             String clueText = stopCompleted ? task.getStop().getClueText() : null;
-            boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
+            List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? correctClueIdsFor(task) : List.of();
+            List<PhishingClueFeedbackDto> phishingClues = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? phishingCluesFor(task) : List.of();
+            boolean currentAnswerCorrect = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? checkAnswer(task, req == null ? null : req.answer())
+                : true;
             return new SubmitAnswerResponse(
-                true,
+                currentAnswerCorrect,
                 existingProgress.get().getScore(),
                 explanation,
                 stopCompleted,
                 null,
                 0,
                 0,
-                List.of(),
+                correctClueIds,
+                phishingClues,
                 null,
                 clueText,
-                showSuspectReveal
+                false
             );
         }
 
@@ -200,9 +224,11 @@ public class GameService {
             log.info("[GameService] wrong answer studentId={} taskId={}", studentId, taskId);
             List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
                 ? correctClueIdsFor(task) : List.of();
+            List<PhishingClueFeedbackDto> phishingClues = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? phishingCluesFor(task) : List.of();
             Integer correctArticleIndex = task.getTaskType() == TaskType.FAKE_NEWS
                 ? fakeNewsCorrectIndex(task) : null;
-            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, correctArticleIndex, null, false);
+            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, phishingClues, correctArticleIndex, null, false);
         }
 
         StudentProgress progress = existingProgress.orElseGet(StudentProgress::new);
@@ -215,28 +241,28 @@ public class GameService {
         progress.setCompletedAt(LocalDateTime.now());
         studentProgressRepository.save(progress);
 
-        // Award XP (and 1 star only for non-LEARN tasks)
-        User student = userRepository.findById(studentId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        if (task.getTaskType() != TaskType.LEARN) {
+        boolean earnsTaskReward = task.getTaskType() != TaskType.LEARN;
+        User student = earnsTaskReward
+            ? userRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException("User not found"))
+            : null;
+        if (earnsTaskReward) {
             student.setStarBalance(student.getStarBalance() + 1);
+            student.setXp(student.getXp() + XP_PER_TASK);
         }
-        student.setXp(student.getXp() + XP_PER_TASK);
 
-        boolean stopCompleted = isStopComplete(studentId, task.getStop().getId());
-        int xpEarned = XP_PER_TASK;
+        boolean stopCompleted = canReturnStopCompletion(task) && isStopComplete(studentId, task.getStop().getId());
+        boolean awardStopCompletion = canCompleteStop(task) && stopCompleted;
+        int xpEarned = earnsTaskReward ? XP_PER_TASK : 0;
         String clueText = stopCompleted ? task.getStop().getClueText() : null;
-        boolean showSuspectReveal = stopCompleted && shouldShowSuspectReveal(task.getStop());
+        boolean showSuspectReveal = stopCompleted
+            && task.getTaskType() == TaskType.CLUE_RIDDLE
+            && shouldShowSuspectReveal(task.getStop());
 
-        if (stopCompleted) {
+        if (awardStopCompletion) {
             log.info("[GameService] stop completed studentId={} stopId={}", studentId, task.getStop().getId());
             student.setXp(student.getXp() + XP_PER_STOP);
             xpEarned += XP_PER_STOP;
-            notebookService.createAutoClueIfNotExists(studentId, task.getStop());
-            int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNotIn(
-                task.getStop().getId(),
-                COMPLETION_EXCLUDED_TASK_TYPES
-            ));
+            int taskCount = Math.toIntExact(requiredTaskCount(task.getStop().getId()));
             StudentXpLog xpLog = new StudentXpLog();
             xpLog.setStudent(student);
             xpLog.setStop(task.getStop());
@@ -244,16 +270,23 @@ public class GameService {
             xpLog.setAwardedAt(LocalDateTime.now());
             studentXpLogRepository.save(xpLog);
         }
-        userRepository.save(student);
-        int starsEarned = task.getTaskType() != TaskType.LEARN ? 1 : 0;
+        if (shouldStoreClue(task, stopCompleted, awardStopCompletion)) {
+            notebookService.createAutoClueIfNotExists(studentId, task.getStop());
+        }
+        if (student != null) {
+            userRepository.save(student);
+        }
+        int starsEarned = earnsTaskReward ? 1 : 0;
         log.info("[GameService] awarded starsEarned={} xpEarned={} studentId={} taskId={}", starsEarned, xpEarned, studentId, taskId);
 
-        MedalDto medalEarned = stopCompleted
+        MedalDto medalEarned = awardStopCompletion
             ? checkAndAwardMedal(studentId, task.getStop().getId()).map(this::toMedalDto).orElse(null)
             : null;
 
         List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
             ? correctClueIdsFor(task) : List.of();
+        List<PhishingClueFeedbackDto> phishingClues = task.getTaskType() == TaskType.PHISHING_EMAIL
+            ? phishingCluesFor(task) : List.of();
 
         return new SubmitAnswerResponse(
             true,
@@ -261,9 +294,10 @@ public class GameService {
             explanation,
             stopCompleted,
             medalEarned,
-            1,
+            starsEarned,
             xpEarned,
             correctClueIds,
+            phishingClues,
             null,
             clueText,
             showSuspectReveal
@@ -309,10 +343,7 @@ public class GameService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "XP already claimed for this stop within the last 7 days");
         }
 
-        int taskCount = Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNotIn(
-            stopId,
-            COMPLETION_EXCLUDED_TASK_TYPES
-        ));
+        int taskCount = Math.toIntExact(requiredTaskCount(stopId));
         int xpEarned = XP_PER_TASK * taskCount + XP_PER_STOP;
 
         User student = userRepository.findById(studentId)
@@ -349,7 +380,7 @@ public class GameService {
 
     private boolean isStopComplete(Long studentId, Long stopId) {
         long taskCount = requiredTaskCount(stopId);
-        return taskCount > 0 && completedTaskCount(studentId, stopId) == taskCount;
+        return taskCount > 0 && completedTaskCount(studentId, stopId) >= taskCount;
     }
 
     private Optional<Medal> checkAndAwardMedal(Long studentId, Long stopId) {
@@ -524,6 +555,30 @@ public class GameService {
         }
     }
 
+    private List<PhishingClueFeedbackDto> phishingCluesFor(Task task) {
+        try {
+            JsonNode clues = objectMapper.readTree(task.getContentJson()).path("email").path("clues");
+            if (!clues.isArray()) {
+                return List.of();
+            }
+
+            List<PhishingClueFeedbackDto> feedback = new ArrayList<>();
+            clues.forEach(clue -> {
+                if (!clue.isObject()) return;
+                feedback.add(new PhishingClueFeedbackDto(
+                    clue.path("id").asText(),
+                    clue.path("label").asText(),
+                    clue.path("explanation").asText(""),
+                    clue.path("isClue").asBoolean(false)
+                ));
+            });
+            return feedback;
+        } catch (JsonProcessingException e) {
+            log.error("[GameService] Failed to parse contentJson for phishing clue feedback taskId={}", task.getId(), e);
+            return List.of();
+        }
+    }
+
     private Boolean asBoolean(Object value) {
         if (value instanceof Boolean booleanValue) {
             return booleanValue;
@@ -610,9 +665,39 @@ public class GameService {
         }
     }
 
+    private void requireTaskSequenceAvailable(Long studentId, Task task) {
+        if (task.getTaskType() == TaskType.LEARN) {
+            return;
+        }
+
+        List<Task> stopTasks = taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(task.getStop().getId());
+        boolean tutorialComplete = stopTasks.stream()
+            .filter(candidate -> candidate.getTaskType() == TaskType.LEARN)
+            .allMatch(candidate -> studentProgressRepository
+                .findByStudent_IdAndTask_Id(studentId, candidate.getId())
+                .map(StudentProgress::isCompleted)
+                .orElse(false));
+
+        if (!tutorialComplete) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tutorial must be completed first");
+        }
+
+        boolean previousRequiredTasksComplete = stopTasks.stream()
+            .filter(candidate -> !COMPLETION_EXCLUDED_TASK_TYPES.contains(candidate.getTaskType()))
+            .filter(candidate -> candidate.getOrderIndex() < task.getOrderIndex())
+            .allMatch(candidate -> studentProgressRepository
+                .findByStudent_IdAndTask_Id(studentId, candidate.getId())
+                .map(StudentProgress::isCompleted)
+                .orElse(false));
+
+        if (!previousRequiredTasksComplete) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Previous tasks must be completed first");
+        }
+    }
+
     private boolean allTasksCompleted(Long studentId, Long stopId) {
         long taskCount = requiredTaskCount(stopId);
-        return taskCount > 0 && completedTaskCount(studentId, stopId) == taskCount;
+        return taskCount > 0 && completedTaskCount(studentId, stopId) >= taskCount;
     }
 
     private long completedTaskCount(Long studentId, Long stopId) {
@@ -624,12 +709,30 @@ public class GameService {
     }
 
     private long requiredTaskCount(Long stopId) {
-        // CLUE_RIDDLE intentionally remains required: solving it unlocks the dossier clue.
+        // LEARN and CLUE_RIDDLE are excluded: LEARN is introductory, CLUE_RIDDLE is a bonus clue.
         return taskRepository.countByStop_IdAndTaskTypeNotIn(stopId, COMPLETION_EXCLUDED_TASK_TYPES);
     }
 
     private boolean shouldShowSuspectReveal(Stop stop) {
-        return Integer.valueOf(4).equals(stop.getOrderIndex());
+        return Integer.valueOf(SUSPECT_REVEAL_STOP_ORDER).equals(stop.getOrderIndex());
+    }
+
+    private boolean canCompleteStop(Task task) {
+        return !COMPLETION_EXCLUDED_TASK_TYPES.contains(task.getTaskType());
+    }
+
+    private boolean canReturnStopCompletion(Task task) {
+        return task.getTaskType() != TaskType.LEARN;
+    }
+
+    private boolean shouldStoreClue(Task task, boolean stopCompleted, boolean awardStopCompletion) {
+        if (!stopCompleted) {
+            return false;
+        }
+        if (task.getTaskType() == TaskType.CLUE_RIDDLE) {
+            return true;
+        }
+        return awardStopCompletion && !taskRepository.existsByStop_IdAndTaskType(task.getStop().getId(), TaskType.CLUE_RIDDLE);
     }
 
     private String extractExplanation(Task task) {
@@ -712,6 +815,12 @@ public class GameService {
         }
         if (!correctAnswer.path("action").isMissingNode()) {
             return correctAnswer.path("action").asText();
+        }
+        if (correctAnswer.path("acceptedSelected").isArray() && !correctAnswer.path("acceptedSelected").isEmpty()) {
+            return correctAnswer.path("acceptedSelected").get(0).asText();
+        }
+        if (correctAnswer.path("acceptedActions").isArray() && !correctAnswer.path("acceptedActions").isEmpty()) {
+            return correctAnswer.path("acceptedActions").get(0).asText();
         }
         return null;
     }

@@ -62,11 +62,11 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
         }
 
         String password = String.valueOf(submittedPassword);
-        if (containsPitfall(content.path("pitfalls"), password)) {
-            log.info("[PasswordTaskAnswerChecker] PASSWORD BUILDER rejected due to configured pitfall");
+        int maxLength = content.path("maxLength").asInt(0);
+        if (maxLength > 0 && password.length() > maxLength) {
+            log.info("[PasswordTaskAnswerChecker] PASSWORD BUILDER rejected due to maxLength={} submittedLength={}", maxLength, password.length());
             return false;
         }
-
         String strength = passwordStrengthEvaluator.evaluate(password);
         log.info(
             "[PasswordTaskAnswerChecker] PASSWORD BUILDER submitted strength={} required={}",
@@ -77,20 +77,5 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
         int submitted = passwordStrengthEvaluator.strengthLevel(strength);
         int required = passwordStrengthEvaluator.strengthLevel(requiredStrength);
         return submitted >= required;
-    }
-
-    private boolean containsPitfall(JsonNode pitfalls, String password) {
-        if (!pitfalls.isArray()) {
-            return false;
-        }
-
-        String normalizedPassword = password.toLowerCase();
-        for (JsonNode pitfall : pitfalls) {
-            String value = pitfall.asText("");
-            if (!value.isBlank() && normalizedPassword.contains(value.toLowerCase())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

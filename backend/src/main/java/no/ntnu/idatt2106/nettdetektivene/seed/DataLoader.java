@@ -39,6 +39,9 @@ public class DataLoader implements ApplicationRunner {
             return;
         }
 
+
+        // data loader methods
+
         List<Stop> stops = stopRepository.saveAll(List.of(
             stop("Nyhetskvartalet",
                  "Noen prøver å spre kaos etter at penger som skulle gå til den nye idrettsparken plutselig forsvant fra ordførerens prosjektkonto. Nå dukker det opp dramatiske artikler som peker i alle retninger, og folk i byen begynner å skylde på feil personer.\n\nHvis vi skal finne ut hva som faktisk skjedde med ordføreren og pengene, må vi først lære å skille ekte nyheter fra falske. Klarer du å stoppe løgnene før de blir til \"sannheten\" alle tror på?",
@@ -178,9 +181,9 @@ public class DataLoader implements ApplicationRunner {
                             "Sjekk i en kanal du vet er ekte."
                         }
                     ),
-                    new Quiz("q1", "Hva er phishing?", new String[]{"Å prøve mange passord automatisk", "E-poster som later som å komme fra pålitelige kilder for å stjele informasjon", "Spam-reklame"}, "E-poster som later som å komme fra pålitelige kilder for å stjele informasjon"),
-                    new Quiz("q2", "Hva er et varseltegn i en e-post?", new String[]{"Avsenderen er på norsk", "Hasteord og lenker til ukjente sider", "E-posten har et bilde"}, "Hasteord og lenker til ukjente sider"),
-                    new Quiz("q3", "Hva bør du gjøre med en mistenkelig e-post?", new String[]{"Svare og spørre om det er ekte", "Slette den og gå direkte til nettstedet selv", "Videresende til venner"}, "Slette den og gå direkte til nettstedet selv")
+                    new Quiz("q1", "Hva menes det med phishing når du får en e-post eller melding som ser viktig ut?", new String[]{"At noen prøver mange passord automatisk på en konto", "At en falsk melding later som den kommer fra noen du stoler på for å lure deg til å gi fra deg informasjon eller klikke", "At en nettbutikk er utsolgt for varer", "At du får vanlig reklame fra en ekte avsender"}, "At en falsk melding later som den kommer fra noen du stoler på for å lure deg til å gi fra deg informasjon eller klikke"),
+                    new Quiz("q2", "Hvilken kombinasjon av tegn gjør at en e-post bør føles ekstra mistenkelig før du gjør noe?", new String[]{"E-posten er kort og høflig, og du kjenner avsenderen", "Den bruker tidspress, ber deg klikke raskt og har en lenke eller adresse som ligner på noe ekte uten å være helt riktig", "Den har skolens farger og en logo", "Den kommer på dagtid når mange er på skolen"}, "Den bruker tidspress, ber deg klikke raskt og har en lenke eller adresse som ligner på noe ekte uten å være helt riktig"),
+                    new Quiz("q3", "Hvis du får en mistenkelig melding om banken, pakken eller skolekontoen din, hva er det tryggeste første steget?", new String[]{"Svare på meldingen og spørre om den er ekte", "Trykke på lenken raskt for å sjekke hva som har skjedd", "Slette meldingen eller rapportere den, og gå til den ekte nettsiden eller appen selv hvis du må sjekke noe", "Sende meldingen videre til venner så de også får se den"}, "Slette meldingen eller rapportere den, og gå til den ekte nettsiden eller appen selv hvis du må sjekke noe")
                 )
             ),
             learnTask(photoStop, 1, "Lær om KI-bilder", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
@@ -190,8 +193,7 @@ public class DataLoader implements ApplicationRunner {
                         "Hva er et KI-bilde?",
                         "Et KI-bilde er laget av et dataprogram. Det kan se ekte ut ved første øyekast, men det viser ofte mennesker eller situasjoner som aldri har eksistert på ordentlig.",
                         new String[]{
-                            "Bildebeskrivelse: \"Vaktkamera viser tyven utenfor rådhuset kl. 22.14\" kan være falskt hvis personen eller stedet aldri har eksistert slik på bildet.",
-                            "Bevislinje: \"Dette bildet beviser hvem som tok pengene\" er ikke nok i seg selv hvis bildet egentlig er laget av KI."
+                        
                         },
                         new String[]{
                             "Et bilde kan se ekte ut uten å være ekte.",
@@ -214,20 +216,20 @@ public class DataLoader implements ApplicationRunner {
                     ),
                     new Slide(
                         "",
-                        "Hva er forskjellen på KI og manipulering?",
-                        "Et manipulert bilde starter ofte som et ekte bilde som noen har endret etterpå. Et KI-bilde er vanligvis laget helt fra bunnen av, og da kan mange ting i hele bildet se litt rare ut samtidig.",
+                        "Hva er forskjellen på ekte og manipulert?",
+                        "Et manipulert bilde kan starte som et ekte foto, men noen har endret innholdet etterpå, for eksempel ved å legge til personer, fjerne ting eller flytte detaljer.",
                         new String[]{
-                            "Manipulert: Et ekte klassebilde der noen har byttet ansiktet til en elev.",
-                            "KI-generert: Et helt nytt bilde av en hendelse som aldri skjedde."
+                            "Ekte: Bildet viser bare personene som faktisk var i scenen da bildet ble tatt.",
+                            "Manipulert: Flere personer er lagt inn i samme scene etterpå, slik at bildet forteller en annen historie."
                         },
                         new String[]{
-                            "Begge deler kan brukes for å lure deg.",
-                            "Spør alltid om bildet kan sjekkes andre steder."
+                            "Se etter om nye elementer passer med lys, skygger og skarphet.",
+                            "Spør om bildet finnes i en original versjon."
                         }
                     ),
-                    new Quiz("q1", "Hva er vanlige feil i KI-genererte bilder?", new String[]{"For mange farger", "Merkelige hender og urealistisk glatt hud", "For lav bildekvalitet"}, "Merkelige hender og urealistisk glatt hud"),
-                    new Quiz("q2", "Hva skiller et KI-generert bilde fra et manipulert bilde?", new String[]{"KI-bilder er alltid svart-hvitt", "KI-bilder er laget av AI, manipulerte er ekte bilder som er endret", "Manipulerte bilder har alltid bedre kvalitet"}, "KI-bilder er laget av AI, manipulerte er ekte bilder som er endret"),
-                    new Quiz("q3", "Hva bør du gjøre om du er usikker på et bilde?", new String[]{"Dele det for å få andres mening", "Bruke omvendt bildesøk for å sjekke opprinnelsen", "Ignorere det"}, "Bruke omvendt bildesøk for å sjekke opprinnelsen")
+                    new Quiz("q1", "Hva er et KI-bilde?", new String[]{"Et bilde med for mange farger", "Et bilde laget av et dataprogram", "Bilde redigert på PC-en"}, "Et bilde laget av et dataprogram"),
+                    new Quiz("q2", "Hva er vanlige feil i KI og manipulerte bilder?", new String[]{"For mange farger", "Merkelige hender og urealistisk glatt hud", "For lav bildekvalitet"}, "Merkelige hender og urealistisk glatt hud"),
+                    new Quiz("q3", "Hva kan avsløre at et ekte bilde er manipulert etterpå?", new String[]{"Nye ting passer ikke med lys og skygger", "Bildet har farger", "Bildet er tatt ute"}, "Nye ting passer ikke med lys og skygger")
                 )
             ),
             learnTask(pwdStop, 1, "Lær om passord", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
@@ -235,7 +237,7 @@ public class DataLoader implements ApplicationRunner {
                     new Slide(
                         "",
                         "Hva gjør et passord sterkt?",
-                        "Et sterkt passord er langt og vanskelig å gjette. Det skal helst være noe som ikke handler om deg, så andre ikke kan finne det ut bare ved å kjenne navnet ditt, laget du spiller på eller fødselsåret ditt.",
+                        "Et sterkt passord er langt, unikt og vanskelig å gjette. Lengde betyr mye fordi hvert ekstra tegn gir angripere flere muligheter å prøve. Det bør også være laget av en blanding av store og små bokstaver, tall og tegn, eller av flere tilfeldige ord som ikke handler om deg. Det viktigste er at passordet ikke inneholder navn, brukernavn, lag, skole, kjæledyr eller årstall andre kan finne ut.",
                         new String[]{
                             "Innlogging: Oliver2014 er svakt fordi det ligner på navn + årstall.",
                             "Innlogging: Fotball123 er svakt fordi mange kunne ha gjettet det.",
@@ -249,7 +251,7 @@ public class DataLoader implements ApplicationRunner {
                     new Slide(
                         "",
                         "Hvorfor er enkle passord farlige?",
-                        "Hackere bruker programmer som prøver masse vanlige passord veldig fort. Hvis passordet ditt ligner på noe mange andre også bruker, kan det knekkes mye raskere enn du tror.",
+                        "Svake passord er farlige fordi angripere ikke trenger å gjette som mennesker. De bruker programmer som prøver tusenvis av vanlige passord, navn, årstall og mønstre på kort tid. Hvis du bruker samme passord flere steder, kan ett datainnbrudd også gi tilgang til andre kontoer. Et svakt passord kan derfor åpne døren videre, selv om bare én konto blir avslørt.",
                         new String[]{
                             "Vanlige dårlige passord: passord123, 123456, qwerty",
                             "Også dårlige: Emma2013 eller Liverpool10, fordi de er lette å gjette"
@@ -262,7 +264,7 @@ public class DataLoader implements ApplicationRunner {
                     new Slide(
                         "",
                         "Hva er en passordfrase?",
-                        "En passordfrase er flere ord satt sammen med tall eller tegn. Den kan være lettere å huske enn en rotete kode, men samtidig mye tryggere hvis du velger ord som ikke handler om deg.",
+                        "En passordfrase er et langt passord laget av flere ord, ofte med tall eller tegn mellom eller rundt ordene. Den kan være lettere å huske enn en kort og rotete kode, men fortsatt sterk fordi den blir lang. Gode passordfraser bruker tilfeldige ord som ikke forteller noe om deg, for eksempel ord som ikke hører naturlig sammen. Ikke bruk en kjent sangtekst, et sitat eller en setning andre kan gjette.",
                         new String[]{
                             "Eksempel: Hest!Maanelys42Fjord",
                             "Ikke så bra: Oliver!Trondheim2014 fordi det handler om deg"
@@ -272,9 +274,9 @@ public class DataLoader implements ApplicationRunner {
                             "Bruk forskjellig passord på forskjellige kontoer."
                         }
                     ),
-                    new Quiz("q1", "Hva gjør et passord sterkest?", new String[]{"Det er enkelt å huske", "Det er langt og bruker ulike tegn uten personlig info", "Det inneholder navn og fødselsdato"}, "Det er langt og bruker ulike tegn uten personlig info"),
+                    new Quiz("q1", "Hva gjør et passord sterkest?", new String[]{"Det er enkelt å huske", "Det inneholder navn og fødselsdato", "Det er langt og bruker ulike tegn uten personlig info"}, "Det er langt og bruker ulike tegn uten personlig info"),
                     new Quiz("q2", "Hvilket av disse er et svakt passord?", new String[]{"Sol!Fjord#42Hest", "Ola2010", "hX9!wP$3mQ"}, "Ola2010"),
-                    new Quiz("q3", "Hva er en passordfrase?", new String[]{"Et langt ord", "En rekke tilfeldige ord som danner et langt passord", "Passordet til telefonen"}, "En rekke tilfeldige ord som danner et langt passord")
+                    new Quiz("q3", "Hva er en passordfrase?", new String[]{"En rekke tilfeldige ord som danner et langt passord", "Et langt ord", "Passordet til telefonen"}, "En rekke tilfeldige ord som danner et langt passord")
                 )
             ),
             learnTask(marketStop, 1, "Lær om nettsvindel", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
@@ -525,13 +527,15 @@ public class DataLoader implements ApplicationRunner {
                 "Bankvarsel",
                 "DNB",
                 "kundevarsling@dnb-kundeservice.com",
-                "Vi har satt betalingen din på pause",
+                "Viktig sikkerhetsvarsel: Vi har satt betalingen din på pause",
                 """
                 Hei Oliver,
 
                 Vi oppdaget et uvanlig forsøk på å gjennomføre en betaling fra kortet ditt på 4 890 kr til Steam Market. Dersom dette ikke ble gjort av deg, må du bekrefte kontoen din innen 30 minutter for å unngå midlertidig sperring av nettbanken.
 
-                Kontroller opplysningene dine her: dnb-kontroll.com/bekreft
+                For å stoppe betalingen må du logge inn med BankID og kontrollere opplysningene dine her: dnb-kontroll.com/bekreft
+
+                Hvis du ikke gjør dette i tide, kan kortet og kontoen din bli midlertidig låst av sikkerhetsavdelingen.
 
                 Med vennlig hilsen
                 DNB Kundeservice
@@ -543,7 +547,12 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("greeting", "text", "Hei Oliver,", false, "En personlig hilsen kan virke troverdig, men er ikke nok alene. Sjekk alltid avsenderadresse og lenke."),
                     new Clue("amount", "text", "4 890 kr", false, "Beløpet alene beviser ikke at e-posten er falsk. Det er kombinasjonen av feil domene, lenke og tidspress som avslører svindelen."),
                     new Clue("merchant", "text", "Steam Market", false, "Navnet på en kjent tjeneste kan brukes i både ekte og falske varsler. Ikke vurder tjenesten alene."),
-                    new Clue("signature", "text", "DNB Kundeservice", false, "Navn og signatur kan kopieres. De blir først nyttige når domenet og lenken også stemmer.")
+                    new Clue("signature", "text", "DNB Kundeservice", false, "Navn og signatur kan kopieres. De blir først nyttige når domenet og lenken også stemmer."),
+                    new Clue("bankid", "text", "logge inn med BankID", true, "Phishing prøver ofte å få deg til å oppgi innlogging eller BankID på en falsk side."),
+                    new Clue("threat", "text", "kortet og kontoen din bli midlertidig låst", true, "Trusler om sperring eller låsing brukes for å skape panikk."),
+                    new Clue("greeting", "text", "Hei Oliver,", false, "At meldingen bruker navnet ditt betyr ikke at den er ekte. Navn kan være lett å finne eller gjette."),
+                    new Clue("merchant", "text", "Steam Market", false, "Et kjent navn eller sted i meldingen er ikke i seg selv bevis på svindel. Det er avsender, lenke og presset som avslører mest her."),
+                    new Clue("logo", "branding", "DNB Kundeservice", false, "Logo og avsendernavn alene er ikke nok. Svindlere kopierer ofte kjente merkevarer for å se troverdige ut.")
                 ),
                 "E-posten ser profesjonell ut, men avsenderen og lenken er falske. Tidspresset er laget for å stresse deg til å gi fra deg BankID-opplysninger."
             ),
@@ -553,13 +562,17 @@ public class DataLoader implements ApplicationRunner {
                 "Pakkemelding",
                 "Posten",
                 "varsling@posten-levering.net",
-                "Pakken din er forsinket i terminal",
+                "Pakken din er forsinket i terminal og trenger betaling",
                 """
-                Hei!
+                Hei kunde!
 
                 Vi forsøkte å sende pakken din videre til utleveringsstedet, men sendingen er stoppet fordi det mangler et lite toll- og behandlingsgebyr på 19 kr. Betal i dag for å unngå at pakken blir sendt i retur til avsender.
 
+                Pakken vil bli slettet fra systemet hvis betalingen ikke registreres innen kl. 23.00.
+
                 Betal gebyret her: posten-oppdatering.net/betaling
+
+                Ha bankkort klart når du åpner lenken, så går behandlingen raskere.
 
                 Hilsen Posten
                 """,
@@ -570,8 +583,15 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("delivery_place", "text", "utleveringsstedet", false, "Et vanlig leveringsord er ikke mistenkelig i seg selv. Det viktige er hvor lenken peker."),
                     new Clue("fee", "text", "19 kr", false, "Et lite beløp er ikke farlig i seg selv. Svindlere bruker det fordi det får betalingen til å virke ufarlig."),
                     new Clue("return_sender", "text", "sendt i retur til avsender", false, "Retur til avsender kan skje i ekte pakkemeldinger også. Se etter feil domene og betalingslenke."),
-                    new Clue("signature", "text", "Hilsen Posten", false, "En vanlig signatur kan kopieres og er ikke nok til å bevise at e-posten er ekte.")
+                    new Clue("signature", "text", "Hilsen Posten", false, "En vanlig signatur kan kopieres og er ikke nok til å bevise at e-posten er ekte."),
+                    new Clue("deadline", "text", "innen kl. 23.00", true, "En kort tidsfrist er laget for å få deg til å reagere før du tenker deg om."),
+                    new Clue("card", "text", "Ha bankkort klart", true, "Meldingen prøver å få deg klar til å oppgi betalingsinformasjon på en ukjent side."),
+                    new Clue("greeting", "text", "Hei kunde!", true, "En veldig generell hilsen kan være et tegn på at meldingen er sendt ut til mange uten å vite hvem du er."),
+                    new Clue("delivery", "text", "utleveringsstedet", false, "At meldingen nevner utleveringsstedet er ganske vanlig i ekte pakkemeldinger. Det er ikke det som avslører svindelen her."),
+                    new Clue("sender_name", "sender_name", "Posten", false, "Avsendernavnet kan se riktig ut selv når selve e-postadressen er falsk.")
+
                 ),
+                List.of("sender", "link1", "urgency", "deadline", "card", "greeting"),
                 "Dette ligner på en ekte pakkemelding, men både avsender og lenke er feil. Det lille gebyret og tidspresset er klassiske phishing-grep."
             ),
             phishingTask(
@@ -580,13 +600,17 @@ public class DataLoader implements ApplicationRunner {
                 "Skolekonto",
                 "IT-support VGS",
                 "it-support@skole-login.com",
-                "Kontoen din mister tilgang til Teams i dag",
+                "Kontoen din mister tilgang til Teams og Canvas i dag",
                 """
-                Hei,
+                Hei elev,
 
                 Vi oppdaterer innloggingen for elever etter flere feilforsøk mot skolekontoer denne uka. For å beholde tilgang til Teams, Canvas og skolemail må du logge inn og bekrefte brukeren din før kl. 14.00 i dag.
 
+                Bruk skolepassordet ditt på nytt i portalen for å unngå at kontoen blir deaktivert automatisk.
+
                 Gå til elevportalen her: skole-login.com/verify
+
+                Du kan ikke bruke vanlige skoleapper igjen før dette er gjort.
 
                 Mvh
                 IT-support
@@ -598,7 +622,13 @@ public class DataLoader implements ApplicationRunner {
                     new Clue("greeting", "text", "Hei,", false, "En vanlig hilsen er ikke i seg selv et tegn på svindel. Du må se på domenet og lenken også."),
                     new Clue("failed_attempts", "text", "flere feilforsøk", false, "Feilforsøk kan være en ekte grunn til et varsel. Her er problemet at e-posten sender deg til et ukjent domene."),
                     new Clue("school_tools", "text", "Teams, Canvas og skolemail", false, "Kjente skoletjenester kan nevnes i ekte meldinger også. Det er lenken og avsenderdomenet som avgjør her."),
-                    new Clue("signature", "text", "IT-support", false, "Signaturen alene forteller ikke om meldingen er ekte. Svindlere kan skrive samme signatur som skolen.")
+                    new Clue("signature", "text", "IT-support", false, "Signaturen alene forteller ikke om meldingen er ekte. Svindlere kan skrive samme signatur som skolen."),
+                    new Clue("password", "text", "Bruk skolepassordet ditt på nytt", true, "Det er mistenkelig når en e-post ber deg skrive inn passordet ditt via en lenke."),
+                    new Clue("deactivated", "text", "kontoen blir deaktivert automatisk", true, "Trussel om å miste tilgang brukes for å stresse deg til å handle raskt."),
+                    new Clue("apps", "text", "Du kan ikke bruke vanlige skoleapper igjen før dette er gjort.", true, "Meldingen prøver å skremme deg med konsekvenser for å få deg til å klikke."),
+                    new Clue("greeting", "text", "Hei elev,", true, "En generell hilsen i stedet for navnet ditt kan være et tegn på at meldingen er masseutsendt phishing."),
+                    new Clue("services", "text", "Teams, Canvas og skolemail", false, "At meldingen nevner ekte tjenester du bruker gjør den ikke automatisk farlig. Det avgjørende er det falske domenet og presset om å logge inn."),
+                    new Clue("signature", "text", "Mvh", false, "En vanlig avslutning gjør ikke meldingen trygg. Du må fortsatt sjekke avsender og lenke.")
                 ),
                 "Meldingen ser ut som en vanlig IT-beskjed, men domenet er feil og haster unødvendig. Slike e-poster bør alltid sjekkes i skolens offisielle kanaler før du klikker."
             ),
@@ -611,77 +641,77 @@ public class DataLoader implements ApplicationRunner {
                   "images": [
                     {
                       "id": "image_0",
-                      "src": "",
-                      "alt": "En person sitter på en benk i en park. Hånden som holder mobilen har unaturlige fingre, og kanten på jakken flyter litt inn i bakgrunnen.",
+                      "src": "/story_pictures/photographer-task-1-manipulated-beach.png",
+                      "alt": "Barn leker på en strand med flere personer og hus i bakgrunnen. Bildet er manipulert med KI.",
                       "label": "Bilde A",
-                      "explanation": "Legg merke til hånden rundt mobilen: fingrene flyter sammen og får en form som ikke ser menneskelig ut. Jakken og benken glir også litt inn i hverandre ved kanten, noe som er typisk for KI-genererte bilder."
+                      "explanation": "Dette bildet er manipulert med KI. Det kan se ut som et vanlig strandfoto, men innholdet er endret slik at scenen ikke er et pålitelig bevis på hva som faktisk skjedde."
                     },
                     {
                       "id": "image_1",
-                      "src": "",
-                      "alt": "Utsikt over en by tatt fra et vindu. Bildet har naturlige refleksjoner, vanlig støy og realistiske linjer i bygningene.",
+                      "src": "/story_pictures/photographer-task-1-ai-beach.png",
+                      "alt": "En strandpromenade med palmer, vei, strand og mennesker. Bildet er KI-generert.",
                       "label": "Bilde B",
-                      "explanation": "Dette bildet har vanlige mobilkamerategn som litt støy i himmelen og naturlige refleksjoner i glasset. Linjene i bygningene og detaljene i bakgrunnen holder seg konsistente hele veien."
+                      "explanation": "Dette bildet er KI-generert. Hele scenen er laget kunstig, selv om lys, strand og bygninger kan virke realistiske ved første blikk."
                     }
                   ],
                   "question": "Sorter hvert bilde: er det ekte, KI-generert eller manipulert?"
                 }
                 """,
-                "{\"image_0\": \"AI_GENERATED\", \"image_1\": \"REAL\"}"),
+                "{\"image_0\": \"MANIPULATED\", \"image_1\": \"AI_GENERATED\"}"),
             aiPhotoTask(photoStop, 3, "Bytorget", "Finn hvilket bilde som er ekte og kan brukes som bevis.",
                 """
                 {
                   "images": [
                     {
                       "id": "image_0",
-                      "src": "",
-                      "alt": "En person står på et bytorg. Flere vinduer og personer i bakgrunnen ser nesten identiske ut.",
+                      "src": "/story_pictures/photographer-task-2-real-taj.jpg",
+                      "alt": "Et ekte foto av Taj Mahal med hage, vannløp, besøkende og blå himmel.",
                       "label": "Bilde A",
-                      "explanation": "Bakgrunnen gjentar de samme mønstrene flere steder, særlig i vinduene og menneskene bak personen. Slike kopierte detaljer er et vanlig tegn på at bildet er generert av KI."
+                      "explanation": "Dette er det ekte bildet. Det har naturlige kameradetaljer, vanlige variasjoner i mennesker og omgivelser, og scenen virker konsistent uten ekstra elementer som er lagt inn."
                     },
                     {
                       "id": "image_1",
-                      "src": "",
-                      "alt": "Et mobilbilde av samme torg med naturlig lys, vanlige skygger og litt uskarphet i bevegelse.",
+                      "src": "/story_pictures/photographer-task-2-manipulated-taj.png",
+                      "alt": "Taj Mahal med ekstra elementer som luftballong, helikopter, fugler, kamel og elefant lagt inn i scenen.",
                       "label": "Bilde B",
-                      "explanation": "Her oppfører lyset seg naturlig, og små ting som bevegelsesuskarphet og skjeve skygger ser ekte ut. Ingenting i ansikter, klær eller bygninger bryter mønsteret vi forventer fra et vanlig mobilbilde."
+                      "explanation": "Dette bildet er manipulert. Det bygger på den samme scenen, men flere elementer er lagt til etterpå, som luftballong, helikopter, dyr og ekstra personer."
                     },
                     {
                       "id": "image_2",
-                      "src": "",
-                      "alt": "Et portrett på torget der huden er veldig glatt, og ansiktet virker retusjert sammenlignet med resten av bildet.",
+                      "src": "/story_pictures/photographer-task-2-ai-taj.png",
+                      "alt": "Et KI-generert bilde av Taj Mahal med et glattere og mer kunstig uttrykk.",
                       "label": "Bilde C",
-                      "explanation": "Ansiktet er unaturlig glatt og nesten uten hudtekstur, mens resten av bildet fortsatt har støy og detaljer. Det tyder på at bildet er ekte i bunn, men at personen er manipulert etterpå."
+                      "explanation": "Dette bildet er KI-generert. Det ligner på et fotografi, men hele scenen er laget kunstig og har et glattere, mer konstruert preg enn originalfotoet."
                     }
                   ],
                   "question": "Sorter hvert bilde: ekte, KI-generert eller manipulert?"
                 }
                 """,
-                "{\"image_0\": \"AI_GENERATED\", \"image_1\": \"REAL\", \"image_2\": \"MANIPULATED\"}"),
+                "{\"image_0\": \"REAL\", \"image_1\": \"MANIPULATED\", \"image_2\": \"AI_GENERATED\"}"),
             aiPhotoTask(photoStop, 4, "Bevisbildet", "Kun ett bilde kan brukes som ekte bevis. Finn det.",
                 """
                 {
                   "images": [
                     {
                       "id": "image_0",
-                      "src": "",
-                      "alt": "Et bilde fra en gangvei der skyggen til personen faller i én retning, mens lyset på bakken tilsier en annen.",
+                      "src": "/story_pictures/photographer-task-3-manipulated-canal.png",
+                      "alt": "Panamakanalen med Miraflores Locks, cruiseskip, vann og mange mennesker. Bildet er manipulert.",
                       "label": "Bilde A",
-                      "explanation": "Skyggene peker i forskjellige retninger selv om scenen bare ser ut til å ha én lyskilde. Når lys og skygge ikke henger sammen, er bildet ofte manipulert."
+                      "explanation": "Dette bildet er manipulert. Det bygger på en realistisk scene, men innholdet er endret slik at bildet ikke kan brukes som et sikkert bevis alene."
                     },
                     {
                       "id": "image_1",
-                      "src": "",
-                      "alt": "Et bilde med skilt og tekst i bakgrunnen der bokstavene er rare, skeive og delvis uleselige.",
+                      "src": "/story_pictures/photographer-task-3-ai-canal.png",
+                      "alt": "Et KI-generert bilde av Miraflores Locks ved Panamakanalen med skip, bygning, vann og åser.",
                       "label": "Bilde B",
-                      "explanation": "Tekst er noe KI ofte sliter med, og her blir bokstavene uklare og meningsløse når du ser nærmere. Det gjør bildet lite troverdig som bevis."
+                      "explanation": "Dette bildet er KI-generert. Det prøver å ligne et ekte foto fra samme sted, men hele scenen er kunstig laget."
                     },
                     {
                       "id": "image_2",
-                      "src": "",
-                      "alt": "Et klart mobilbilde fra samme sted med naturlige skygger, leselige skilt og vanlige detaljer i klær og ansikter.",
+                      "src": "/story_pictures/photographer-task-3-real-canal.jpg",
+                      "alt": "Et ekte foto av Miraflores Locks ved Panamakanalen med et cruiseskip og naturlige kameradetaljer.",
                       "label": "Bilde C",
-                      "explanation": "Her er både tekst, skygger og små detaljer konsistente gjennom hele bildet. Det er akkurat slike naturlige feil og variasjoner vi forventer i et ekte mobilfoto."
+                      "explanation": "Dette er det ekte bildet. Det har naturlig lys, kamerastøy og små uperfekte detaljer som passer sammen gjennom hele scenen."
                     }
                   ],
                   "question": "Hvilket bilde kan vi stole på som ekte bevis?"
@@ -711,10 +741,10 @@ public class DataLoader implements ApplicationRunner {
                   "options": [
                     { "id": "a", "value": "sander2015" },
                     { "id": "b", "value": "Sander2015!" },
-                    { "id": "c", "value": "S@nder_2O15#" },
+                    { "id": "c", "value": "S@nder_2015#" },
                     { "id": "d", "value": "SolKatt!Fjord#22" }
                   ],
-                  "explanation": "SolKatt!Fjord#22 er sterkest fordi det ikke inneholder personlig informasjon, er langt og blander tegn godt."
+                  "explanation": "SolKatt!Fjord#22 er den beste varianten fordi den ikke inneholder noe personlig, er lang og blander store og små bokstaver, tall og spesialtegn. En slik passordfrase er vanskelig å gjette, selv om noen kjenner deg."
                 }
                 """,
                 "{\"selected\": \"d\"}"),
@@ -726,7 +756,7 @@ public class DataLoader implements ApplicationRunner {
                   "words": ["Tiger", "Måne", "Pizza", "Hund", "Sol", "Isbjørn", "Fjord"],
                   "symbols": ["!", "#", "@", "?", "&", "*"],
                   "numbers": ["7", "42", "99", "3", "2026"],
-                  "pitfalls": ["OlaErBest", "2005", "hund"],
+                  "maxLength": 24,
                   "minStrength": "STRONG",
                   "explanation": "Et sterkt passord er langt, bruker store og små bokstaver, tall og spesialtegn, og inneholder ikke personlig informasjon."
                 }
@@ -887,6 +917,7 @@ public class DataLoader implements ApplicationRunner {
                 "Tyven prøver å forvirre byen med en falsk artikkel. Finn artikkelen som ikke tåler kildekritikk.",
                 "Du bruker det du lærte om falske nyheter: sjekk kilde, språk og om påstanden kan bekreftes andre steder. Riktig valg gir første spor til Datasenteret.",
                 "Politiet fant tre artikler som ble delt like etter tyveriet. Én av dem ble laget av tyven for å peke mot feil sted.",
+                null,
                 "Hvilken artikkel er falsk?",
                 """
                 [
@@ -917,6 +948,7 @@ public class DataLoader implements ApplicationRunner {
                 "Noen har sendt inn tre bilder fra Xoo Inn Cafe. Finn bildet som faktisk kan brukes som bevis.",
                 "Du bruker det du lærte om KI og manipulering: se etter rare hender, uleselig tekst, gjentatte mønstre og skygger som ikke stemmer.",
                 "Overvåkingssystemet ved Xoo Inn Cafe tok bilder samme kveld som den falske nyheten ble delt.",
+                null,
                 "Hvilket bilde er mest troverdig som ekte bevis?",
                 """
                 [
@@ -947,28 +979,40 @@ public class DataLoader implements ApplicationRunner {
                 "En ansatt i kommunen fikk en e-post før pengene forsvant. Finn tegnet som avslører at den er phishing.",
                 "Du bruker det du lærte om phishing: sjekk avsender, lenke og kunstig hastverk. Riktig valg viser hvordan tyven kom inn i systemet.",
                 "E-posten ba mottakeren bekrefte kontoen sin etter en påstått sikkerhetsfeil.",
+                null,
                 "Hva er det sterkeste phishing-sporet?",
                 """
                 [
                   {
                     "id": "wrong_domain",
-                    "label": "Lenken går til kommune-sikkerhet.net i stedet for kommunens ekte domene",
-                    "detail": "Lenken ser offisiell ut, men domenet er feil."
+                    "label": "Lenken går til kommune-sikkerhet.net i stedet for kommunens ekte domene, og det betyr at siden kan være laget for å stjele innloggingen din",
+                    "detail": ""
                   },
                   {
-                    "id": "normal_logo",
-                    "label": "E-posten har kommunens logo øverst",
-                    "detail": "Logoer kan kopieres og er ikke nok alene."
+                    "id": "no_emojis",
+                    "label": "E-posten inneholder ingen emojier",
+                    "detail": ""
                   },
                   {
-                    "id": "polite_greeting",
-                    "label": "E-posten starter med Hei",
-                    "detail": "En vanlig hilsen er ikke et faresignal."
+                    "id": "knows_name",
+                    "label": "E-posten starter med Hei Kari",
+                    "detail": ""
                   }
                 ]
                 """,
                 "wrong_domain",
-                "Riktig. Feil domene er et tydelig phishing-spor. Loggene viser at lenken ble åpnet fra nettverket til Xoo Inn Cafe."
+                "Riktig. Feil domene er et tydelig phishing-spor, fordi svindlere ofte lager nettsider som ligner på ekte innlogginger. Loggene viser at lenken ble åpnet fra nettverket til Xoo Inn Cafe."
+                ,
+                """
+                {
+                  "email": {
+                    "fromName": "Trondheim kommune IT",
+                    "fromEmail": "varsling@kommune-sikkerhet.net",
+                    "subject": "Viktig: kontoen din må sikres i dag",
+                    "body": "Hei Kari,\\n\\nVi har registrert en sikkerhetsfeil på kontoen din etter uvanlig aktivitet i natt. For å beholde tilgang til e-post og lønnssystem må du bekrefte brukeren din før kl. 13.00 i dag.\\n\\nLogg inn her: kommune-sikkerhet.net/bekreft\\n\\nHilsen IT-avdelingen"
+                  }
+                }
+                """
             ),
             clueRiddleTask(
                 marketStop,
@@ -977,6 +1021,7 @@ public class DataLoader implements ApplicationRunner {
                 "Tyven brukte en falsk nettbutikk som lokkemiddel. Finn sporene som avslører hvor siden ble laget.",
                 "Du bruker det du lærte om nettsvindel: sjekk domene, kontaktinfo og betaling. Riktig valg kobler svindelsiden til etterforskningen.",
                 "Den falske butikken solgte idrettspark-effekter med enorm rabatt og ba folk betale før varen fantes.",
+                null,
                 "Hva er det viktigste tekniske sporet?",
                 """
                 [
@@ -1005,8 +1050,9 @@ public class DataLoader implements ApplicationRunner {
                 5,
                 "Gåtespor: Falsk konto",
                 "En falsk konto prøvde å få elever til å dele rykter. Finn detaljen som avslører hvor kontoen ble laget.",
-                "Du løser denne oppgaven ved å bruke det du har lært fra denne seksjonen: sjekk profil, språk, hastverk og hva kontoen prøver å få deg til å gjøre.",
-                "",
+                "Du bruker det du lærte om sosiale medier: sjekk profil, språk, hastverk og hva kontoen prøver å få deg til å gjøre.",
+                "Kontoen skrev: 'Jeg vet hvem tyven er, del før politiet sletter bevisene!'",
+                null,
                 "Hva er det viktigste sporet fra kontoen?",
                 """
                 [
@@ -1053,8 +1099,9 @@ public class DataLoader implements ApplicationRunner {
                 5,
                 "Gåtespor: Passordet i loggen",
                 "Det siste sporet handler om passordet tyven brukte på en reservekonto.",
-                "Du bruker det du lærte om passord: svake passord inneholder ofte sted, rolle eller årstall. Det kan avsløre hvem som lagde kontoen.",
+                "Du bruker det du lærte om passord for å lese et siste digitalt spor. Et lekket passord kan avsløre både vaner og hvem kontoen er knyttet til.",
                 "Reservekontoen brukte passordet XooInnAdmin2019.",
+                "XooInnAdmin2019",
                 "Hva forteller passordet oss?",
                 """
                 [
@@ -1187,13 +1234,28 @@ public class DataLoader implements ApplicationRunner {
         List<Clue> clues,
         String explanation
     ) {
-        Task task = baseTask(stop, orderIndex, title,
-            "Klikk på alle mistenkelige deler av e-posten.", TaskType.PHISHING_EMAIL);
-        task.setContentJson(phishingContentJson(fromName, fromEmail, subject, body, clues, explanation));
         List<String> requiredClueIds = clues.stream()
             .filter(Clue::isClue)
             .map(Clue::id)
             .toList();
+        return phishingTask(stop, orderIndex, title, fromName, fromEmail, subject, body, clues, requiredClueIds, explanation);
+    }
+
+    private Task phishingTask(
+        Stop stop,
+        int orderIndex,
+        String title,
+        String fromName,
+        String fromEmail,
+        String subject,
+        String body,
+        List<Clue> clues,
+        List<String> requiredClueIds,
+        String explanation
+    ) {
+        Task task = baseTask(stop, orderIndex, title,
+            "Klikk på alle mistenkelige deler av e-posten.", TaskType.PHISHING_EMAIL);
+        task.setContentJson(phishingContentJson(fromName, fromEmail, subject, body, clues, explanation));
         try {
             task.setCorrectAnswerJson(objectMapper.writeValueAsString(
                 objectMapper.createObjectNode().set("correctClueIds", objectMapper.valueToTree(requiredClueIds))
@@ -1337,6 +1399,7 @@ public class DataLoader implements ApplicationRunner {
         String description,
         String purpose,
         String evidence,
+        String evidencePassword,
         String question,
         String optionsJson,
         String correctOptionId,
@@ -1349,11 +1412,12 @@ public class DataLoader implements ApplicationRunner {
             description,
             purpose,
             evidence,
+            evidencePassword,
             question,
             optionsJson,
             correctOptionId,
             explanation,
-            ""
+            null
         );
     }
 
@@ -1364,29 +1428,35 @@ public class DataLoader implements ApplicationRunner {
         String description,
         String purpose,
         String evidence,
+        String evidencePassword,
         String question,
         String optionsJson,
         String correctOptionId,
         String explanation,
-        String extraFieldsJson
+        String supplementalContentJson
     ) {
         Task task = baseTask(stop, orderIndex, title, description, TaskType.CLUE_RIDDLE);
         ObjectNode content = objectMapper.createObjectNode();
         content.put("purpose", purpose);
         content.put("evidence", evidence);
+        if (evidencePassword != null) {
+            content.put("evidencePassword", evidencePassword);
+        } else {
+            content.putNull("evidencePassword");
+        }
         content.put("question", question);
-        content.set("options", readJsonNode(optionsJson, "clue-riddle options"));
+        content.set("options", readJsonNode(optionsJson, "clue riddle options"));
         content.put("explanation", explanation);
 
-        if (extraFieldsJson != null && !extraFieldsJson.isBlank()) {
-            JsonNode extraFields = readJsonNode(extraFieldsJson, "clue-riddle extra fields");
-            if (!extraFields.isObject()) {
-                throw new IllegalStateException("Clue-riddle extra fields must be a JSON object");
+        if (supplementalContentJson != null && !supplementalContentJson.isBlank()) {
+            JsonNode supplementalNode = readJsonNode(supplementalContentJson, "clue riddle supplemental content");
+            if (!supplementalNode.isObject()) {
+                throw new IllegalStateException("Clue riddle supplemental content must be a JSON object");
             }
-            content.setAll((ObjectNode) extraFields);
+            supplementalNode.fields().forEachRemaining(entry -> content.set(entry.getKey(), entry.getValue()));
         }
 
-        task.setContentJson(writeJson(content, "Failed to encode clue-riddle task content"));
+        task.setContentJson(writeJson(content, "Failed to encode clue riddle content"));
         task.setCorrectAnswerJson("""
             {
               "selected": %s

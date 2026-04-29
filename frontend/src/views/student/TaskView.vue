@@ -101,6 +101,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="result = null"
               />
 
               <FakeNewsTask
@@ -229,7 +230,12 @@
             <button type="button" class="stored-clue-modal__primary" @click="continueAfterStoredClue">
               Fortsett
             </button>
-            <button type="button" class="stored-clue-modal__secondary" @click="openClueBoard">
+            <button
+              v-if="!storedClueModal.requiresEndFlow"
+              type="button"
+              class="stored-clue-modal__secondary"
+              @click="openClueBoard"
+            >
               Åpne sporbrett
             </button>
           </div>
@@ -446,6 +452,7 @@ async function loadTasks() {
   try {
     tasks.value = (await gameStore.fetchTasks(stopId.value, classroomId.value))
       .map(t => ({ ...t, contentJson: typeof t.contentJson === 'string' ? JSON.parse(t.contentJson) : t.contentJson }))
+    currentTaskIndex.value = firstIncompleteTaskIndex(tasks.value)
     console.log('[TaskView] Loaded', tasks.value.length, 'tasks from API')
     isMockMode.value = false
   } catch (apiError) {
@@ -461,6 +468,11 @@ async function loadTasks() {
     loading.value = false
     checkMystery()
   }
+}
+
+function firstIncompleteTaskIndex(loadedTasks) {
+  const index = loadedTasks.findIndex(task => !task.completed)
+  return index >= 0 ? index : 0
 }
 
 function checkMystery() {
@@ -485,17 +497,21 @@ function checkTutorial() {
   if (!stopId.value || !tasks.value.length) return
   const taskType = tasks.value[0]?.taskType
   if (!taskType) return
-  const key = `tutorial_seen_stop_${stopId.value}`
+  const key = tutorialSeenKey()
   if (!localStorage.getItem(key)) {
     showTutorial.value = true
   }
 }
 
 function startTasks() {
-  const key = `tutorial_seen_stop_${stopId.value}`
+  const key = tutorialSeenKey()
   localStorage.setItem(key, '1')
   showTutorial.value = false
   console.log('[TaskView] Tutorial dismissed for stop', stopId.value)
+}
+
+function tutorialSeenKey() {
+  return `tutorial_seen_classroom_${classroomId.value}_stop_${stopId.value}`
 }
 
 function replayIntro() {
@@ -545,20 +561,27 @@ function maybeShowStoredClueModal(task, submitResult) {
       || submitResult.explanation
       || task.contentJson?.evidence
       || 'Et nytt spor er lagret i sporbrettet.',
+    requiresEndFlow: submitResult.showSuspectReveal === true,
   }
 }
 
 function buildMockResult(task, answer) {
-  const expected = task.mockCorrectAnswer ?? {}
-  const keys = Object.keys(expected)
-  const correct = keys.every(key => answer[key] === expected[key])
+  const expected = task.mockCorrectAnswer ?? null
+  const keys = expected ? Object.keys(expected) : []
+  const correct = keys.length > 0 && keys.every(key => answer[key] === expected[key])
   return {
     correct,
     score: correct ? 100 : 40,
     starsEarned: correct ? 1 : 0,
     xpEarned: correct ? 20 : 0,
-    explanation: task.mockExplanation ?? 'Sammenlign svaret ditt med trygg kildekritikk.',
+    explanation: correct
+      ? (task.mockExplanation ?? 'Bra jobbet.')
+      : (task.mockWrongExplanation ?? 'Dette stemmer ikke med sporet. Prøv igjen og se nærmere på beviset.'),
     stopCompleted: currentTaskIndex.value === tasks.value.length - 1,
+    showSuspectReveal: correct
+      && currentTaskIndex.value === tasks.value.length - 1
+      && task.taskType === 'CLUE_RIDDLE'
+      && task.stopTheme === 'PASSWORD',
     medalEarned: currentTaskIndex.value === tasks.value.length - 1
       ? { id: 1, name: 'Nyhetsdetektiv', description: 'Du fullførte stoppet i mock-modus.' }
       : null
@@ -676,6 +699,37 @@ function buildMockTasks() {
       },
       mockCorrectAnswer: { selected: 'd' },
       mockExplanation: 'F!sk3Taco#92 er sterkest fordi det er langt og blander store og små bokstaver, tall og spesialtegn.'
+    },
+    {
+      id: 4002,
+      stopId: 6,
+      taskType: 'CLUE_RIDDLE',
+      guidanceText: 'Bruk passordsporet til å finne den beste forklaringen.',
+      contentJson: {
+        purpose: 'Svake passord kan avsløre både sted, rolle og vaner. Det hjelper deg å koble kontoen til riktig miljø.',
+        evidence: 'Reservekontoen brukte passordet XooInnAdmin2019.',
+        question: 'Hva forteller passordet oss?',
+        options: [
+          {
+            id: 'random_strong',
+            label: 'Det er et sterkt tilfeldig passord',
+            detail: 'Det er ikke tilfeldig: det inneholder sted, rolle og årstall.',
+          },
+          {
+            id: 'cafe_admin',
+            label: 'Noen med admin-tilgang på Xoo Inn Cafe laget eller kjente kontoen',
+            detail: 'Passordet peker mot stedet og en administratorrolle.',
+          },
+          {
+            id: 'no_clue',
+            label: 'Passord gir aldri etterforskningsspor',
+            detail: 'Passord kan ofte avsløre vaner og koblinger.',
+          },
+        ],
+      },
+      mockCorrectAnswer: { selected: 'cafe_admin' },
+      mockExplanation: 'Riktig. Passordet peker mot noen med admin-kobling til Xoo Inn Cafe.',
+      mockWrongExplanation: 'Se etter hva i passordet som peker direkte mot både stedet og rollen.',
     },
     {
       id: 6001,
@@ -865,7 +919,8 @@ function handleCelebration(submitResult) {
 function shouldShowArrestScene() {
   return result.value?.correct
     && result.value?.stopCompleted
-    && currentTask.value?.stopTheme === 'PASSWORD'
+    && result.value?.showSuspectReveal
+    && currentTask.value?.taskType === 'CLUE_RIDDLE'
 }
 
 async function advanceArrestScene() {
@@ -873,29 +928,8 @@ async function advanceArrestScene() {
     arrestSceneStep.value += 1
     return
   }
-
-  let nextStopId = gameStore.stops.find((stop) => stop.orderIndex === 7 || stop.theme === 'FINAL_BOSS')?.id
-  if (!nextStopId && classroomId.value) {
-    try {
-      const stops = await gameStore.fetchStops(classroomId.value)
-      nextStopId = stops.find((stop) => stop.orderIndex === 7 || stop.theme === 'FINAL_BOSS')?.id
-    } catch (fetchError) {
-      console.error('[TaskView] Failed to resolve Datasenteret stop id.', fetchError)
-    }
-  }
-
   arrestSceneStep.value = -1
-  if (!nextStopId) {
-    router.push({ name: preferredMap.value })
-    return
-  }
-  router.push({
-    name: 'Task',
-    query: {
-      stopId: String(nextStopId),
-      classroomId: String(classroomId.value),
-    },
-  })
+  router.push({ name: preferredMap.value })
 }
 
 onBeforeUnmount(() => {
@@ -1091,13 +1125,16 @@ function goToMap() {
   z-index: 210;
   display: grid;
   place-items: center;
-  padding: var(--space-4);
+  padding: clamp(1rem, 4vw, 2rem);
   background: rgba(26, 14, 4, 0.78);
+  overflow-y: auto;
 }
 
 .stored-clue-modal {
-  width: min(34rem, 100%);
-  padding: clamp(1rem, 4vw, 1.5rem);
+  width: min(32rem, 100%);
+  max-height: min(100%, 42rem);
+  overflow-y: auto;
+  padding: clamp(1.25rem, 4vw, 2rem);
   border: 4px solid #2f1a08;
   border-radius: 10px;
   background:
@@ -1130,13 +1167,13 @@ function goToMap() {
 .stored-clue-modal__intro {
   margin: 0;
   color: #4b341b;
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   line-height: 1.45;
 }
 
 .stored-clue-modal__card {
-  margin: var(--space-4) 0;
-  padding: var(--space-4);
+  margin: var(--space-5) 0;
+  padding: clamp(1rem, 3vw, 1.25rem);
   border: 3px dashed #b45309;
   border-radius: 8px;
   background: #fffbeb;
@@ -1161,10 +1198,11 @@ function goToMap() {
 .stored-clue-modal__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .stored-clue-modal__actions button {
+  flex: 1 1 12rem;
   min-height: 44px;
   padding: var(--space-2) var(--space-5);
   border-radius: 8px;
@@ -1215,6 +1253,10 @@ function goToMap() {
 
   .task-view__layout { flex-direction: column; align-items: center; }
   .task-view__avatar { width: 72px; height: 72px; }
+  .stored-clue-modal {
+    box-shadow: 0 10px 0 rgba(0, 0, 0, 0.24);
+  }
+
   .stored-clue-modal__actions { display: grid; }
 }
 
