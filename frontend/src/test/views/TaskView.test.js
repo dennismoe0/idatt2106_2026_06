@@ -14,6 +14,13 @@ vi.mock('@/composables/useSound', () => ({
   }),
 }))
 
+vi.mock('@/stores/audio', () => ({
+  useAudioStore: () => ({
+    startStage: vi.fn(),
+    stopStage: vi.fn(),
+  }),
+}))
+
 vi.mock('@/components/common/ConfettiOverlay.vue', () => ({
   default: { template: '<div class="confetti-overlay-stub" />' },
 }))
@@ -438,8 +445,8 @@ describe('TaskView', () => {
     await flushPromises()
     await wrapper.get('.next-password').trigger('click')
     await flushPromises()
-    await wrapper.findAll('.clue-riddle__option')[0].trigger('click')
-    await wrapper.get('.clue-riddle__submit').trigger('click')
+    await wrapper.findAll('.evidence-card')[0].trigger('click')
+    await wrapper.get('.submit-btn').trigger('click')
     await flushPromises()
 
     expect(wrapper.text()).toContain('Ikke helt')
@@ -511,5 +518,71 @@ describe('TaskView', () => {
     await wrapper.get('.retry-answer').trigger('click')
     await flushPromises()
     expect(wrapper.find('.submit-answer').exists()).toBe(true)
+  })
+
+  it('does not store a wrong result when next is pressed after a failed submission', async () => {
+    localStorage.setItem('mystery_seen_stop_6', '1')
+    const gameStore = useGameStore()
+    gameStore.fetchTasks.mockResolvedValue([
+      {
+        id: 401,
+        taskType: 'PASSWORD',
+        alreadyCompleted: false,
+        stopId: 6,
+        stopName: 'Passordbanken',
+        stopTheme: 'PASSWORD',
+        stopOrderIndex: 6,
+        stopDescription: 'Tyven er nesten tatt.',
+        contentJson: { type: 'CHOICE', question: 'Velg det sterkeste passordet.', options: [] },
+      },
+    ])
+    gameStore.submitAnswer.mockResolvedValue({
+      correct: false,
+      explanation: 'Feil svar.',
+      stopCompleted: false,
+      showSuspectReveal: false,
+      medalEarned: null,
+    })
+
+    const wrapper = mount(TaskView, {
+      global: {
+        plugins: [router],
+        stubs: {
+          DetectiveBar: true,
+          StopMysteryScreen: true,
+          TutorialScreen: true,
+          PasswordTask: {
+            props: ['result'],
+            template: `
+              <div>
+                <button v-if="!result" class="submit-answer" @click="$emit('submitted', { selected: 'wrong' })">submit</button>
+                <button v-else class="next-answer" @click="$emit('next')">next</button>
+              </div>
+            `,
+          },
+          LearningTask: true,
+          ClueRiddleTask: true,
+          FakeNewsTask: true,
+          AIPhotoTask: true,
+          SocialMediaTask: true,
+          MarketplaceTask: true,
+          PhishingEmailTask: true,
+          FinalBossTask: true,
+          ConfettiOverlay: true,
+          MedalToast: true,
+          StopSummary: true,
+          AvatarPreview: true,
+        },
+      },
+    })
+
+    await flushPromises()
+    await wrapper.get('.submit-answer').trigger('click')
+    await flushPromises()
+    await wrapper.get('.next-answer').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('.submit-answer').exists()).toBe(true)
+    expect(wrapper.find('.dot--wrong').exists()).toBe(false)
   })
 })
