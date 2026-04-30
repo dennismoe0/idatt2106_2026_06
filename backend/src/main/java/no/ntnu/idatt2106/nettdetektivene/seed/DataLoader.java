@@ -49,9 +49,9 @@ public class DataLoader implements ApplicationRunner {
                  "Falske nyheter bruker gjerne skremmende overskrifter og anonyme kilder. Sjekk alltid hvem som har skrevet saken: er nettadressen til et kjent mediehus? Søk opp saken på andre seriøse nettsteder for å se om historien stemmer. Overdrevne påstander uten dokumentasjon er et varseltegn.",
                  "Basser Gravling var ikke aktiv på noen systemer da nyheten ble publisert."),
             stop("Fotografen",
-                 "Nå hevder flere at de har funnet \"bevisbildet\" som viser hvem som sto ved rådhuset den kvelden pengene forsvant. Problemet er at bildet som deles kan være manipulert, eller til og med laget av KI.\n\nHvis vi skal komme nærmere tyven, må vi vite om bildet er ekte eller bare et nytt forsøk på å villede etterforskningen. Dette oppdraget handler om å lære å se forskjell på ekte spor og falske bevis.",
+                 "Nå hevder flere at de har funnet \"bevisbildet\" som viser hvem som sto ved rådhuset den kvelden pengene forsvant. Problemet er at bildet som deles kan være endret med KI, eller til og med laget helt av KI.\n\nHvis vi skal komme nærmere tyven, må vi vite om bildet er ekte eller bare et nytt forsøk på å villede etterforskningen. Dette oppdraget handler om å lære å se forskjell på ekte spor og falske bevis.",
                  "AI_PHOTO", 2, false,
-                 "Bilder kan manipuleres og AI kan lage realistiske falske bilder. Se etter unaturlige detaljer: rare fingre, jevne bakgrunner og uskarp tekst er vanlige feil. Du kan bruke omvendt bildesøk til å sjekke om et bilde er tatt ut av en helt annen sammenheng enn det påstår.",
+                 "KI kan både endre ekte bilder og lage realistiske falske bilder. Se etter unaturlige detaljer: rare fingre, jevne bakgrunner og uskarp tekst er vanlige feil. Du kan bruke omvendt bildesøk til å sjekke om et bilde er tatt ut av en helt annen sammenheng enn det påstår.",
                  "Hoppesprett var på cafeen, men hun var ikke aktiv på nettet. Hun var på cafeen med venner."),
             stop("Postkontoret",
                  "Et nytt spor har dukket opp: noen i kommunen fikk en e-post som så helt ekte ut, klikket på lenken og mistet kontroll over kontoen sin. Det kan være akkurat slik tyven kom seg inn i systemene rundt ordførerens prosjekt.\n\nFor å komme videre i saken må vi forstå hvordan phishing faktisk fungerer. Hvis du lærer å avsløre falske e-poster, kan du finne ut hvordan tyven åpnet døren innenfra.",
@@ -216,11 +216,11 @@ public class DataLoader implements ApplicationRunner {
                     ),
                     new Slide(
                         "",
-                        "Hva er forskjellen på ekte og manipulert?",
-                        "Et manipulert bilde kan starte som et ekte foto, men noen har endret innholdet etterpå, for eksempel ved å legge til personer, fjerne ting eller flytte detaljer.",
+                        "Hva er forskjellen på ekte og KI-generert?",
+                        "Et ekte bilde viser en virkelig scene. Et KI-generert bilde kan enten være laget helt kunstig eller være et ekte bilde der KI har lagt til, fjernet eller flyttet detaljer.",
                         new String[]{
                             "Ekte: Bildet viser bare personene som faktisk var i scenen da bildet ble tatt.",
-                            "Manipulert: Flere personer er lagt inn i samme scene etterpå, slik at bildet forteller en annen historie."
+                            "KI-generert: Personer eller detaljer kan være lagt inn etterpå, slik at bildet forteller en annen historie."
                         },
                         new String[]{
                             "Se etter om nye elementer passer med lys, skygger og skarphet.",
@@ -228,8 +228,8 @@ public class DataLoader implements ApplicationRunner {
                         }
                     ),
                     new Quiz("q1", "Hva er et KI-bilde?", new String[]{"Et bilde med for mange farger", "Et bilde laget av et dataprogram", "Bilde redigert på PC-en"}, "Et bilde laget av et dataprogram"),
-                    new Quiz("q2", "Hva er vanlige feil i KI og manipulerte bilder?", new String[]{"For mange farger", "Merkelige hender og urealistisk glatt hud", "For lav bildekvalitet"}, "Merkelige hender og urealistisk glatt hud"),
-                    new Quiz("q3", "Hva kan avsløre at et ekte bilde er manipulert etterpå?", new String[]{"Nye ting passer ikke med lys og skygger", "Bildet har farger", "Bildet er tatt ute"}, "Nye ting passer ikke med lys og skygger")
+                    new Quiz("q2", "Hva er vanlige feil i KI-genererte bilder?", new String[]{"For mange farger", "Merkelige hender og urealistisk glatt hud", "For lav bildekvalitet"}, "Merkelige hender og urealistisk glatt hud"),
+                    new Quiz("q3", "Hva kan avsløre at KI har endret et ekte bilde?", new String[]{"Nye ting passer ikke med lys og skygger", "Bildet har farger", "Bildet er tatt ute"}, "Nye ting passer ikke med lys og skygger")
                 )
             ),
             learnTask(pwdStop, 1, "Lær om passord", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
@@ -632,16 +632,16 @@ public class DataLoader implements ApplicationRunner {
             finalBossTask(stops.get(6))
         ));
         tasks.addAll(List.of(
-            aiPhotoTask(photoStop, 2, "Parkbilder", "Er bildet ekte, KI-generert eller manipulert?",
+            aiPhotoTask(photoStop, 2, "Parkbilder", "Er bildet ekte eller KI-generert?",
                 """
                 {
                   "images": [
                     {
                       "id": "image_0",
                       "src": "/story_pictures/photographer-task-1-manipulated-beach.png",
-                      "alt": "Barn leker på en strand med flere personer og hus i bakgrunnen. Bildet er manipulert med KI.",
+                      "alt": "Barn leker på en strand med flere personer og hus i bakgrunnen. Bildet er endret med KI.",
                       "label": "Bilde A",
-                      "correctType": "MANIPULATED",
+                      "correctType": "AI_GENERATED",
                       "wrongFeedback": "Feil, se på barna i bakgrunnen. Er det noe rart her?",
                       "correctFeedback": "Riktig! Barna i bildet er satt inn i bildet, mens resten av bildet er ekte."
                     },
@@ -655,11 +655,11 @@ public class DataLoader implements ApplicationRunner {
                       "correctFeedback": "Riktig! Bygninger, landskap og mennesker har mange feil. Dette bildet er helt KI-generert."
                     }
                   ],
-                  "question": "Sorter hvert bilde: er det ekte, KI-generert eller manipulert?",
+                  "question": "Sorter hvert bilde: er det ekte eller KI-generert?",
                   "explanation": "Se forklaringene under hvert bilde for hvorfor klassifiseringen stemmer."
                 }
                 """,
-                "{\"image_0\": \"MANIPULATED\", \"image_1\": \"AI_GENERATED\"}"),
+                "{\"image_0\": \"AI_GENERATED\", \"image_1\": \"AI_GENERATED\"}"),
             aiPhotoTask(photoStop, 3, "Bytorget", "Finn hvilket bilde som er ekte og kan brukes som bevis.",
                 """
                 {
@@ -678,9 +678,9 @@ public class DataLoader implements ApplicationRunner {
                       "src": "/story_pictures/photographer-task-2-manipulated-taj.png",
                       "alt": "Taj Mahal med ekstra elementer som luftballong, helikopter, fugler, kamel og elefant lagt inn i scenen.",
                       "label": "Bilde B",
-                      "correctType": "MANIPULATED",
+                      "correctType": "AI_GENERATED",
                       "wrongFeedback": "Feil, se etter ting som ikke hører naturlig hjemme i scenen. Er det lagt til noe ekstra?",
-                      "correctFeedback": "Riktig! Bildet er manipulert. Luftballong, helikopter og dyr er lagt inn i et ellers realistisk bilde."
+                      "correctFeedback": "Riktig! Bildet er endret med KI. Luftballong, helikopter og dyr er lagt inn i et ellers realistisk bilde."
                     },
                     {
                       "id": "image_2",
@@ -692,11 +692,11 @@ public class DataLoader implements ApplicationRunner {
                       "correctFeedback": "Riktig! Hele scenen er KI-generert, med glatte detaljer og et kunstig preg."
                     }
                   ],
-                  "question": "Sorter hvert bilde: ekte, KI-generert eller manipulert?",
+                  "question": "Sorter hvert bilde: ekte eller KI-generert?",
                   "explanation": "Se forklaringene under hvert bilde for hvorfor klassifiseringen stemmer."
                 }
                 """,
-                "{\"image_0\": \"REAL\", \"image_1\": \"MANIPULATED\", \"image_2\": \"AI_GENERATED\"}"),
+                "{\"image_0\": \"REAL\", \"image_1\": \"AI_GENERATED\", \"image_2\": \"AI_GENERATED\"}"),
             aiPhotoTask(photoStop, 4, "Bevisbildet", "Kun ett bilde kan brukes som ekte bevis. Finn det.",
                 """
                 {
@@ -704,11 +704,11 @@ public class DataLoader implements ApplicationRunner {
                     {
                       "id": "image_0",
                       "src": "/story_pictures/photographer-task-3-manipulated-canal.png",
-                      "alt": "Panamakanalen med Miraflores Locks, cruiseskip, vann og mange mennesker. Bildet er manipulert.",
+                      "alt": "Panamakanalen med Miraflores Locks, cruiseskip, vann og mange mennesker. Bildet er endret med KI.",
                       "label": "Bilde A",
-                      "correctType": "MANIPULATED",
+                      "correctType": "AI_GENERATED",
                       "wrongFeedback": "Feil, se på menneskemengden og detaljene rundt skipet. Er alt naturlig plassert?",
-                      "correctFeedback": "Riktig! Bildet er manipulert. Scenen bygger på et ekte sted, men innhold er endret og kan ikke brukes som sikkert bevis."
+                      "correctFeedback": "Riktig! Bildet er endret med KI. Scenen bygger på et ekte sted, men innhold er endret og kan ikke brukes som sikkert bevis."
                     },
                     {
                       "id": "image_1",
@@ -733,7 +733,7 @@ public class DataLoader implements ApplicationRunner {
                   "explanation": "Se forklaringene under hvert bilde for hvorfor klassifiseringen stemmer."
                 }
                 """,
-                "{\"image_0\": \"MANIPULATED\", \"image_1\": \"AI_GENERATED\", \"image_2\": \"REAL\"}"),
+                "{\"image_0\": \"AI_GENERATED\", \"image_1\": \"AI_GENERATED\", \"image_2\": \"REAL\"}"),
             passwordTask(pwdStop, 2, "Velg det tryggeste passordet", "Finn ut hvilket passord som er best.",
                 """
                 {

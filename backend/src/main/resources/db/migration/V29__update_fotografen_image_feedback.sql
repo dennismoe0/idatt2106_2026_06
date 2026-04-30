@@ -4,9 +4,9 @@ SET content_json = '{
     {
       "id": "image_0",
       "src": "/story_pictures/photographer-task-1-manipulated-beach.png",
-      "alt": "Barn leker på en strand med flere personer og hus i bakgrunnen. Bildet er manipulert med KI.",
+      "alt": "Barn leker på en strand med flere personer og hus i bakgrunnen. Bildet er endret med KI.",
       "label": "Bilde A",
-      "correctType": "MANIPULATED",
+      "correctType": "AI_GENERATED",
       "wrongFeedback": "Feil, se på barna i bakgrunnen. Er det noe rart her?",
       "correctFeedback": "Riktig! Barna i bildet er satt inn i bildet, mens resten av bildet er ekte."
     },
@@ -20,10 +20,10 @@ SET content_json = '{
       "correctFeedback": "Riktig! Bygninger, landskap og mennesker har mange feil. Dette bildet er helt KI-generert."
     }
   ],
-  "question": "Sorter hvert bilde: er det ekte, KI-generert eller manipulert?",
+  "question": "Sorter hvert bilde: er det ekte eller KI-generert?",
   "explanation": "Se forklaringene under hvert bilde for hvorfor klassifiseringen stemmer."
 }',
-    correct_answer_json = '{"image_0": "MANIPULATED", "image_1": "AI_GENERATED"}'
+    correct_answer_json = '{"image_0": "AI_GENERATED", "image_1": "AI_GENERATED"}'
 WHERE stop_id = (SELECT id FROM stops WHERE name = 'Fotografen')
   AND order_index = 2;
 
@@ -44,9 +44,9 @@ SET content_json = '{
       "src": "/story_pictures/photographer-task-2-manipulated-taj.png",
       "alt": "Taj Mahal med ekstra elementer som luftballong, helikopter, fugler, kamel og elefant lagt inn i scenen.",
       "label": "Bilde B",
-      "correctType": "MANIPULATED",
+      "correctType": "AI_GENERATED",
       "wrongFeedback": "Feil, se etter ting som ikke hører naturlig hjemme i scenen. Er det lagt til noe ekstra?",
-      "correctFeedback": "Riktig! Bildet er manipulert. Luftballong, helikopter og dyr er lagt inn i et ellers realistisk bilde."
+      "correctFeedback": "Riktig! Bildet er endret med KI. Luftballong, helikopter og dyr er lagt inn i et ellers realistisk bilde."
     },
     {
       "id": "image_2",
@@ -58,10 +58,10 @@ SET content_json = '{
       "correctFeedback": "Riktig! Hele scenen er KI-generert, med glatte detaljer og et kunstig preg."
     }
   ],
-  "question": "Sorter hvert bilde: ekte, KI-generert eller manipulert?",
+  "question": "Sorter hvert bilde: ekte eller KI-generert?",
   "explanation": "Se forklaringene under hvert bilde for hvorfor klassifiseringen stemmer."
 }',
-    correct_answer_json = '{"image_0": "REAL", "image_1": "MANIPULATED", "image_2": "AI_GENERATED"}'
+    correct_answer_json = '{"image_0": "REAL", "image_1": "AI_GENERATED", "image_2": "AI_GENERATED"}'
 WHERE stop_id = (SELECT id FROM stops WHERE name = 'Fotografen')
   AND order_index = 3;
 
@@ -71,11 +71,11 @@ SET content_json = '{
     {
       "id": "image_0",
       "src": "/story_pictures/photographer-task-3-manipulated-canal.png",
-      "alt": "Panamakanalen med Miraflores Locks, cruiseskip, vann og mange mennesker. Bildet er manipulert.",
+      "alt": "Panamakanalen med Miraflores Locks, cruiseskip, vann og mange mennesker. Bildet er endret med KI.",
       "label": "Bilde A",
-      "correctType": "MANIPULATED",
+      "correctType": "AI_GENERATED",
       "wrongFeedback": "Feil, se på menneskemengden og detaljene rundt skipet. Er alt naturlig plassert?",
-      "correctFeedback": "Riktig! Bildet er manipulert. Scenen bygger på et ekte sted, men innhold er endret og kan ikke brukes som sikkert bevis."
+      "correctFeedback": "Riktig! Bildet er endret med KI. Scenen bygger på et ekte sted, men innhold er endret og kan ikke brukes som sikkert bevis."
     },
     {
       "id": "image_1",
@@ -99,6 +99,6 @@ SET content_json = '{
   "question": "Hvilket bilde kan vi stole på som ekte bevis?",
   "explanation": "Se forklaringene under hvert bilde for hvorfor klassifiseringen stemmer."
 }',
-    correct_answer_json = '{"image_0": "MANIPULATED", "image_1": "AI_GENERATED", "image_2": "REAL"}'
+    correct_answer_json = '{"image_0": "AI_GENERATED", "image_1": "AI_GENERATED", "image_2": "REAL"}'
 WHERE stop_id = (SELECT id FROM stops WHERE name = 'Fotografen')
   AND order_index = 4;
