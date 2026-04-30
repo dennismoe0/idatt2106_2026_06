@@ -126,7 +126,7 @@ onMounted(async () => {
   font-size: var(--text-sm);
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  opacity: 0.85;
+  opacity: 0.95;
 }
 
 .detective-bar__hud {
