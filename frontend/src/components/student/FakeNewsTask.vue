@@ -211,12 +211,12 @@ function extractDomainOrName(input) {
 
 <style scoped>
 .fake-news-task {
-  --article-card-width: 500px;
-  --article-grid-gap: var(--space-3);
+  --article-card-width: 432px;
+  --article-grid-gap: 0.55rem;
   --article-grid-max: calc((var(--article-card-width) * 2) + var(--article-grid-gap));
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-2);
 }
 
 .fake-news-task__instruction {
@@ -228,7 +228,7 @@ function extractDomainOrName(input) {
   border-radius: 0;
   background: transparent;
   color: var(--color-wood);
-  font-size: clamp(1.17rem, 1.95vw, 1.36rem);
+  font-size: clamp(1.04rem, 1.54vw, 1.17rem);
   font-weight: 700;
   line-height: 1.25;
   text-align: center;
@@ -245,9 +245,9 @@ function extractDomainOrName(input) {
   border-radius: 0;
   background: transparent;
   color: var(--color-cork-dark);
-  font-size: clamp(1.27rem, 2.08vw, 1.46rem);
+  font-size: clamp(1.04rem, 1.6vw, 1.19rem);
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.3;
   text-align: center;
   align-self: stretch;
   box-shadow: none;
@@ -338,14 +338,14 @@ function extractDomainOrName(input) {
     linear-gradient(var(--paper-bg), var(--paper-bg-2));
   border: 1px solid rgba(27, 27, 27, 0.18);
   border-radius: 0;
-  padding: clamp(16px, 2vw, 22px) clamp(16px, 2.2vw, 24px);
+  padding: clamp(11px, 1.32vw, 13px) clamp(11px, 1.32vw, 13px);
   color: var(--ink);
   box-shadow:
     0 1px 0 rgba(0,0,0,0.05),
     2px 3px 10px rgba(0,0,0,0.22);
   transform: rotate(var(--card-rotate, 0deg));
   width: 100%;
-  max-width: 500px;
+  max-width: 432px;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -360,7 +360,7 @@ function extractDomainOrName(input) {
 .newspaper-clipping__brand {
   font-family: "Playfair Display", Georgia, "Times New Roman", serif;
   font-weight: 900;
-  font-size: clamp(20px, 2.6vw, 26px);
+  font-size: clamp(15px, 1.8vw, 19px);
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: var(--ink);
@@ -368,14 +368,14 @@ function extractDomainOrName(input) {
 .newspaper-clipping__edition {
   font-family: Georgia, "Times New Roman", serif;
   font-style: italic;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink-soft);
   white-space: nowrap;
 }
 
 /* Classic double rule under the nameplate */
 .newspaper-clipping__rule {
-  margin: 6px 0 10px 0;
+  margin: 4px 0 7px 0;
   border-top: 2px solid var(--rule);
   border-bottom: 1px solid var(--rule);
   height: 4px;
@@ -383,9 +383,9 @@ function extractDomainOrName(input) {
 
 /* Small uppercase category line above headline */
 .newspaper-clipping__kicker {
-  margin: 0 0 4px 0;
+  margin: 0 0 3px 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 2.4px;
   text-transform: uppercase;
@@ -393,12 +393,12 @@ function extractDomainOrName(input) {
 }
 
 .newspaper-clipping__headline {
-  margin: 0 0 6px 0;
+  margin: 0 0 3px 0;
   font-family: "Playfair Display", Georgia, "Times New Roman", serif;
   font-weight: 800;
   letter-spacing: 0.1px;
-  line-height: 1.15;
-  font-size: clamp(20px, 2.4vw, 26px);
+  line-height: 1.12;
+  font-size: clamp(15px, 1.7vw, 19px);
   color: var(--ink);
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -407,23 +407,23 @@ function extractDomainOrName(input) {
 
 /* Standfirst / dek (ingress) */
 .newspaper-clipping__standfirst {
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
   font-family: Georgia, "Times New Roman", serif;
   font-style: italic;
   font-weight: 600;
-  font-size: 14.5px;
-  line-height: 1.4;
+  font-size: 12.6px;
+  line-height: 1.3;
   color: var(--ink);
 }
 
 /* Byline rule */
 .newspaper-clipping__byline {
-  margin: 0 0 10px 0;
-  padding: 6px 0;
+  margin: 0 0 5px 0;
+  padding: 3px 0;
   border-top: 1px solid var(--rule-soft);
   border-bottom: 1px solid var(--rule-soft);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 11.5px;
+  font-size: 10.1px;
   letter-spacing: 0.4px;
   text-transform: uppercase;
   color: var(--ink-soft);
@@ -435,8 +435,8 @@ function extractDomainOrName(input) {
 .newspaper-clipping__lede {
   margin: 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 12.1px;
+  line-height: 1.3;
   text-align: justify;
   hyphens: auto;
   color: var(--ink);
@@ -444,10 +444,10 @@ function extractDomainOrName(input) {
 .newspaper-clipping__lede::first-letter {
   font-family: "Playfair Display", Georgia, "Times New Roman", serif;
   font-weight: 800;
-  font-size: 2.4em;
+  font-size: 1.9em;
   line-height: 0.9;
   float: left;
-  margin: 4px 6px 0 0;
+  margin: 2px 4px 0 0;
   color: var(--ink);
 }
 
