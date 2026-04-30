@@ -74,7 +74,7 @@ defineEmits(['copy-code'])
   flex-wrap: wrap;
 }
 
-.school-label { font-size: var(--text-xs); opacity: 0.75; font-weight: var(--font-semibold); }
+.school-label { font-size: var(--text-xs); opacity: 0.95; font-weight: var(--font-semibold); }
 .school-name  { font-size: var(--text-xl); font-weight: var(--font-bold); }
 
 .school-code {
@@ -85,7 +85,7 @@ defineEmits(['copy-code'])
   border-radius: var(--radius-lg);
   padding: var(--space-2) var(--space-4);
 }
-.code-label { font-size: var(--text-xs); opacity: 0.75; }
+.code-label { font-size: var(--text-xs); opacity: 0.95; }
 .code-value {
   font-family: monospace;
   font-size: var(--text-lg);

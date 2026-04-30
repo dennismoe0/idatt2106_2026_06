@@ -244,7 +244,7 @@ function extractDomainOrName(input) {
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--color-cork-dark);
+  color: var(--color-text);
   font-size: clamp(1.04rem, 1.6vw, 1.19rem);
   font-weight: 700;
   line-height: 1.3;

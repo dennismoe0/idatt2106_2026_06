@@ -294,7 +294,7 @@ onMounted(async () => {
   border-bottom: 1px solid rgba(255,255,255,0.12);
 }
 .logo-icon { font-size: 28px; }
-.logo-title { font-size: var(--text-sm); font-weight: 900; }
+.logo-title { font-size: var(--text-base); font-weight: 600; }
 .logo-sub   { font-size: var(--text-xs); opacity: 0.65; font-weight: 600; }
 .sidebar-user {
   display: flex;
@@ -310,8 +310,8 @@ onMounted(async () => {
   display: flex; align-items: center; justify-content: center;
   font-size: 20px; flex-shrink: 0;
 }
-.user-name   { font-size: var(--text-sm); font-weight: 800; }
-.user-school { font-size: var(--text-xs); opacity: 0.65; }
+.user-name   { font-size: var(--text-sm); font-weight: 600; }
+.user-school { font-size: var(--text-xs); opacity: 0.85; }
 .sidebar-nav { padding: var(--space-3) 0; flex: 1; }
 .sidebar-nav ul { list-style: none; margin: 0; padding: 0; }
 .nav-link {

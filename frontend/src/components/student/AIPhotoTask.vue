@@ -275,7 +275,7 @@ function submit() {
 
 .guidance {
   margin: 0;
-  color: var(--color-text-muted);
+  color: var(--color-text);
 }
 
 .question {

@@ -187,10 +187,10 @@ defineEmits(['accept', 'back'])
   max-width: 680px;
 }
 
-/* No-image fallback: use parchment tone instead of stark white */
+/* No-image fallback: white text on dark gradient background */
 .mystery-screen:not(.mystery-screen--img) .mystery-content__title {
-  color: var(--color-mystery-parchment);
-  text-shadow: none;
+  color: #ffffff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
 }
 
 /* ── Dashed gold divider ── */
@@ -217,7 +217,7 @@ defineEmits(['accept', 'back'])
 }
 
 .mystery-screen:not(.mystery-screen--img) .mystery-content__scenario {
-  color: var(--color-mystery-text);
+  color: rgba(255, 255, 255, 0.92);
   text-shadow: none;
 }
 

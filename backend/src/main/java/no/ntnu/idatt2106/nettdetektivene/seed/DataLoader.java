@@ -181,9 +181,9 @@ public class DataLoader implements ApplicationRunner {
                             "Sjekk i en kanal du vet er ekte."
                         }
                     ),
-                    new Quiz("q1", "Hva menes det med phishing når du får en e-post eller melding som ser viktig ut?", new String[]{"At noen prøver mange passord automatisk på en konto", "At en falsk melding later som den kommer fra noen du stoler på for å lure deg til å gi fra deg informasjon eller klikke", "At en nettbutikk er utsolgt for varer", "At du får vanlig reklame fra en ekte avsender"}, "At en falsk melding later som den kommer fra noen du stoler på for å lure deg til å gi fra deg informasjon eller klikke"),
-                    new Quiz("q2", "Hvilken kombinasjon av tegn gjør at en e-post bør føles ekstra mistenkelig før du gjør noe?", new String[]{"E-posten er kort og høflig, og du kjenner avsenderen", "Den bruker tidspress, ber deg klikke raskt og har en lenke eller adresse som ligner på noe ekte uten å være helt riktig", "Den har skolens farger og en logo", "Den kommer på dagtid når mange er på skolen"}, "Den bruker tidspress, ber deg klikke raskt og har en lenke eller adresse som ligner på noe ekte uten å være helt riktig"),
-                    new Quiz("q3", "Hvis du får en mistenkelig melding om banken, pakken eller skolekontoen din, hva er det tryggeste første steget?", new String[]{"Svare på meldingen og spørre om den er ekte", "Trykke på lenken raskt for å sjekke hva som har skjedd", "Slette meldingen eller rapportere den, og gå til den ekte nettsiden eller appen selv hvis du må sjekke noe", "Sende meldingen videre til venner så de også får se den"}, "Slette meldingen eller rapportere den, og gå til den ekte nettsiden eller appen selv hvis du må sjekke noe")
+                    new Quiz("q1", "Hva menes det med phishing når du får en e-post eller melding som ser viktig ut?", new String[]{"At noen sender en falsk melding som ser ekte ut for å få deg til å klikke eller dele informasjon", "At noen oppdaterer kontoen din automatisk etter at du har åpnet en melding fra en kjent avsender", "At noen flytter meldingen din til søppelpost fordi systemet tror at den inneholder noe farlig", "At noen sender mange vanlige tilbud og varsler samtidig for å minne deg på å sjekke kontoen din"}, "At noen sender en falsk melding som ser ekte ut for å få deg til å klikke eller dele informasjon"),
+                    new Quiz("q2", "Hvilken kombinasjon av tegn gjør at en e-post bør føles ekstra mistenkelig før du gjør noe?", new String[]{"Den bruker tidspress og vil at du klikker på en lenke som bare ligner litt på en ekte adresse", "Den har tydelig avsender, vanlig språk og viser til noe du allerede vet at skolen har sendt ut", "Den kommer på et kjent tidspunkt og forklarer rolig hva som skjer videre hvis du venter litt", "Den bruker logo, fullt navn og en vanlig hilsen som ligner på andre meldinger du har fått før"}, "Den bruker tidspress og vil at du klikker på en lenke som bare ligner litt på en ekte adresse"),
+                    new Quiz("q3", "Hvis du får en mistenkelig melding om banken, pakken eller skolekontoen din, hva er det tryggeste første steget?", new String[]{"Slette eller rapportere meldingen og heller gå til den ekte nettsiden eller appen selv hvis du må sjekke noe", "Åpne meldingen og lese alt en gang til før du bestemmer deg for om det virker farlig eller bare litt rart", "Svare avsenderen med et kort spørsmål og vente litt for å se om tonen i svaret virker ekte nok", "Sende skjermbilde til en venn først og høre om de synes meldingen ser vanlig eller alvorlig ut"}, "Slette eller rapportere meldingen og heller gå til den ekte nettsiden eller appen selv hvis du må sjekke noe")
                 )
             ),
             learnTask(photoStop, 1, "Lær om KI-bilder", "Les kortene og svar riktig på alle spørsmål for å gå videre.",
@@ -1741,7 +1741,7 @@ public class DataLoader implements ApplicationRunner {
 
     private static final String FINAL_BOSS_CONTENT_JSON = """
         {
-          "intro": "Backup-planen har startet! Du har 6 sikkerhetssystemer å stoppe.",
+          "intro": "For å finne Millie Mus må vi finne ut hvor hun har gjemt seg i datasenteret, bruk det du har lært til å finne ut hvor!",
           "challenges": [
             {
               "id": 0,
@@ -1818,13 +1818,14 @@ public class DataLoader implements ApplicationRunner {
               "description": "Stopp svindelsiden som samler betalingsinfo",
               "failureExplanation": "Domenet er ukjent og betalingsmåten (Western Union/gavekort) er klassiske svindeltegn. Merk disse to.",
               "successExplanation": "Riktig! Ukjent domene og usikker betalingsmåte er de tydeligste faresignalene i denne annonsen.",
+              "siteName": "sneaker-blitz.shop",
               "mockup": {
-                "url": "sneaker-blitz.shop",
-                "image": "/marketplace/air-max-270.png",
-                "title": "Nike Air Max 270",
+                "headline": "Nike Air Max 270",
+                "productName": "Nike Air Max 270",
                 "price": "299 kr",
-                "seller": "Nordisk Butikk AS",
-                "payment": "Western Union / Gavekort"
+                "paymentText": "Western Union / Gavekort",
+                "contactText": "Nordisk Butikk AS",
+                "productImageUrl": "/marketplace/air-max-270.png"
               },
               "elements": [
                 { "id": "domain",   "label": "sneaker-blitz.shop" },
@@ -1833,7 +1834,7 @@ public class DataLoader implements ApplicationRunner {
                 { "id": "seller",   "label": "Nordisk Butikk AS" },
                 { "id": "shipping", "label": "Levering 2–4 virkedager" }
               ],
-              "correctAnswer": { "domain": "true", "payment": "true" }
+              "correctAnswer": { "flaggedElementIds": ["domain", "payment"] }
             },
             {
               "id": 4,
@@ -1866,16 +1867,15 @@ public class DataLoader implements ApplicationRunner {
               "type": "PASSWORD",
               "systemName": "Hovedlåsen",
               "description": "Lås opp den digitale safe og redd pengene",
-              "failureExplanation": "Den digitale safen krever et langt og uforutsigbart passord. Velg alternativet som er vanskeligst å gjette.",
-              "successExplanation": "Riktig! F!sk3Taco#92 er sterkt fordi det er langt og blander store og små bokstaver, tall og spesialtegn uten personlig informasjon.",
-              "question": "Hvilket passord er sterkt nok til å sikre den redde kontoen?",
-              "options": [
-                { "id": "a", "value": "Ola123" },
-                { "id": "b", "value": "Australia2026" },
-                { "id": "c", "value": "Hei" },
-                { "id": "d", "value": "F!sk3Taco#92" }
-              ],
-              "correctAnswer": { "selected": "d" }
+              "failureExplanation": "Den digitale safen krever et sterkt passord. Kombiner ord, tall og spesialtegn for å gjøre det vanskelig å gjette.",
+              "successExplanation": "Riktig! Et langt passord med tall og spesialtegn er vanskelig å knekke for en datamaskin.",
+              "question": "Bygg et sterkt passord for å låse systemet",
+              "builderType": "BUILDER",
+              "minStrength": "STRONG",
+              "words": ["Sjøhest", "Kaktus", "Fjord", "Robot"],
+              "numbers": ["42", "99", "7", "2026"],
+              "symbols": ["!", "#", "@", "?"],
+              "correctAnswer": {}
             }
           ]
         }
@@ -1892,9 +1892,9 @@ public class DataLoader implements ApplicationRunner {
                   "challenge_0": { "article_0": true, "article_1": false },
                   "challenge_1": { "image_0": "AI_GENERATED", "image_1": "REAL" },
                   "challenge_2": { "action": "REPORT" },
-                  "challenge_3": { "domain": "true", "payment": "true" },
+                  "challenge_3": { "flaggedElementIds": ["domain", "payment"] },
                   "challenge_4": { "selected": "CHECK_SOURCES" },
-                  "challenge_5": { "selected": "d" }
+                  "challenge_5": {}
                 }
                 """)));
         } catch (JsonProcessingException e) {

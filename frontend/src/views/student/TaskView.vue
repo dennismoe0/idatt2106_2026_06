@@ -351,6 +351,7 @@ const currentTask = computed(() => tasks.value[currentTaskIndex.value] ?? null)
 const stopName    = computed(() => tasks.value[0]?.stopName ?? 'Oppgaver')
 const taskMainClass = computed(() => {
   if (currentTask.value?.taskType === 'LEARN') return 'task-view__main--clean'
+  if (currentTask.value?.taskType === 'FINAL_BOSS') return 'task-view__main--clean'
   if (currentTask.value?.taskType === 'CLUE_RIDDLE') return 'task-view__main--clue'
   return 'cork-board-bg'
 })
@@ -1213,12 +1214,12 @@ function goToMap() {
 
 .task-view__replay-btn {
   background: none;
-  border: 1px solid rgba(30, 41, 59, 0.18);
+  border: 1px solid rgba(30, 41, 59, 0.35);
   border-radius: var(--radius-full);
   padding: 2px var(--space-3);
   font-size: var(--text-xs);
   font-weight: 600;
-  color: var(--color-text-muted);
+  color: var(--color-text);
   cursor: pointer;
   transition: color var(--transition-fast), border-color var(--transition-fast);
   white-space: nowrap;
@@ -1317,7 +1318,7 @@ function goToMap() {
 
 .stored-clue-modal__intro {
   margin: 0;
-  color: #4b341b;
+  color: var(--color-text);
   font-size: var(--text-base);
   line-height: 1.45;
 }

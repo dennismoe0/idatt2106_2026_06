@@ -123,16 +123,16 @@ onMounted(async () => {
 .detective-bar__title {
   flex: 1;
   text-align: center;
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  opacity: 0.55;
+  opacity: 0.95;
 }
 
 .detective-bar__hud {
   display: flex;
   gap: var(--space-3);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   opacity: 0.75;
   white-space: nowrap;
 }

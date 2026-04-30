@@ -14,12 +14,12 @@
 @theme {
   /* Brand */
   --color-primary:       #2B6CB0;
-  --color-primary-light: color-mix(in srgb, #2B6CB0 40%, white);
+  --color-primary-light: color-mix(in srgb, #2B6CB0 15%, white);
   --color-primary-dark:  color-mix(in srgb, #2B6CB0 60%, black);
 
   --color-accent:        #ED8936;
   --color-accent-light:  color-mix(in srgb, #ED8936 40%, white);
-  --color-accent-dark:   color-mix(in srgb, #ED8936 60%, black);
+  --color-accent-dark:   color-mix(in srgb, #ED8936 40%, black);
 
   --color-danger:        #E53E3E;
   --color-danger-light:  color-mix(in srgb, #E53E3E 40%, white);
@@ -47,14 +47,14 @@
   --color-surface-soft-alt: #EEF3FF;
   --color-backdrop:     color-mix(in srgb, var(--color-surface) 42%, transparent);
   --color-text:         #1A202C;
-  --color-text-muted:   #718096;
+  --color-text-muted:   #4C5467;
   --color-text-on-dark: #FFFFFF;
   --color-border:       #E2E8F0;
   --color-border-strong: #CBD5E0;
   --color-focus:        #ED8936;
   --color-primary-soft: color-mix(in srgb, var(--color-primary) 14%, white);
   --color-primary-soft-strong: color-mix(in srgb, var(--color-primary) 22%, white);
-  --color-accent-soft: color-mix(in srgb, var(--color-accent) 20%, white);
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 15%, white);
   --color-success-soft: color-mix(in srgb, var(--color-success) 12%, white);
   --color-danger-soft: color-mix(in srgb, var(--color-danger) 12%, white);
   --color-surface-glass: color-mix(in srgb, var(--color-surface) 88%, var(--color-bg));
@@ -142,7 +142,7 @@
   --color-note-wrong-bg:   #FFF5F5;
 
   /* Ink — text on cork/note backgrounds */
-  --color-ink:       #3B1F08;
+  --color-ink:       #0D0702;
   --color-ink-body:  #333333;
   --color-ink-subtle: #555555;
   --color-ink-faint:  #777777;
@@ -287,11 +287,11 @@
   --color-medals-meter-fill: linear-gradient(90deg, #efb45c 0%, #ffd76a 52%, #fff0ab 100%);
   --color-medals-meter-glow: rgba(255, 206, 84, 0.45);
   --color-medals-room-bg: linear-gradient(
-      180deg,
-      rgba(68, 38, 12, 0.2) 0%,
-      rgba(68, 38, 12, 0.08) 100%
-    ),
-    linear-gradient(135deg, rgba(255, 248, 229, 0.1), rgba(255, 232, 179, 0.02));
+    180deg,
+    rgba(68, 38, 12, 0.2) 0%,
+    rgba(68, 38, 12, 0.08) 100%
+  ),
+  linear-gradient(135deg, rgba(255, 248, 229, 0.1), rgba(255, 232, 179, 0.02));
   --color-medals-room-border: rgba(255, 230, 168, 0.16);
   --color-medals-room-inner-border: rgba(255, 248, 229, 0.06);
   --color-medals-room-note: rgba(255, 244, 218, 0.82);
@@ -335,7 +335,7 @@
   --color-medals-locker-icon-shadow: rgba(0, 0, 0, 0.15);
   --color-medals-locker-date-bg: rgba(56, 161, 105, 0.14);
   --color-medals-locker-hint-bg: rgba(107, 114, 128, 0.14);
-  --color-medals-locker-hint-text: #6b7280;
+  --color-medals-locker-hint-text: #4F545F;
   --color-medals-success-text: #205329;
 
   /* Button semantic tokens */
