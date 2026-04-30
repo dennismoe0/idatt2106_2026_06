@@ -112,4 +112,48 @@ describe('PhishingEmailTask', () => {
     expect(clueItems.some(text => text.includes('💡') && text.includes('Hei kunde'))).toBe(true)
     expect(clueItems.some(text => text.includes('❌') && text.includes('Hei kunde'))).toBe(false)
   })
+
+  it('shows counts for correct, wrong and missed clues instead of listing missed clues', async () => {
+    const task = {
+      ...TASK,
+      contentJson: {
+        email: {
+          ...TASK.contentJson.email,
+          body: 'Hei kunde, klikk umiddelbart her.',
+          clues: [
+            { id: 'sender', type: 'sender', label: 'support@dnb-kundeservice.com', isClue: true, explanation: 'Falskt domene.' },
+            { id: 'urgency', type: 'text', label: 'umiddelbart', isClue: true, explanation: 'Hastverk.' },
+            { id: 'greeting', type: 'text', label: 'Hei kunde', isClue: true, explanation: 'Generell hilsen.' },
+            { id: 'signature', type: 'text', label: 'her', isClue: false, explanation: 'Ikke et faresignal alene.' }
+          ]
+        }
+      }
+    }
+
+    const wrapper = mount(PhishingEmailTask, { props: { task } })
+    const clueBtns = wrapper.findAll('.clue-btn')
+
+    await clueBtns[0].trigger('click')
+    await clueBtns[3].trigger('click')
+    await wrapper.setProps({
+      result: {
+        correct: false,
+        explanation: 'Forklaring',
+        correctClueIds: ['sender', 'urgency', 'greeting'],
+        phishingClues: [
+          { id: 'sender', label: 'support@dnb-kundeservice.com', explanation: 'Falskt domene.', isClue: true },
+          { id: 'urgency', label: 'umiddelbart', explanation: 'Hastverk.', isClue: true },
+          { id: 'greeting', label: 'Hei kunde', explanation: 'Generell hilsen.', isClue: true },
+          { id: 'signature', label: 'her', explanation: 'Ikke et faresignal alene.', isClue: false }
+        ]
+      }
+    })
+
+    const stats = wrapper.findAll('.phishing-task__stat').map(item => item.text())
+    expect(stats).toContain('1riktig valg')
+    expect(stats).toContain('1feil valg')
+    expect(stats).toContain('2riktige valg manglet')
+    expect(wrapper.text()).not.toContain('🔎')
+    expect(wrapper.text()).not.toContain('umiddelbart: Hastverk.')
+  })
 })
