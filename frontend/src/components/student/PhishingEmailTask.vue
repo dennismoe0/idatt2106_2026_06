@@ -135,7 +135,7 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, reactive, watch } from 'vue'
 
 const props = defineProps({
   task:       { type: Object,  required: true },
@@ -228,7 +228,6 @@ const revealedClues = computed(() => {
         }
       }
     })
-    .filter(Boolean)
 })
 
 const resultStats = computed(() => {
@@ -347,7 +346,7 @@ function submit() {
   border: 2px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
-  box-shadow: 0 14px 28px rgba(47, 106, 255, 0.08);
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--color-primary-focus-ring) 20%, transparent);
 }
 
 .phishing-task__brief,
@@ -394,7 +393,7 @@ function submit() {
   padding: var(--space-4);
   border: 2px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, #fffdfa 0%, #f8f5ed 100%);
+  background: var(--color-surface);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
@@ -410,7 +409,7 @@ function submit() {
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  background: #d7cfbe;
+  background: var(--color-border-strong);
 }
 
 .phishing-task__window-title {
@@ -446,7 +445,7 @@ function submit() {
 
 .phishing-task__subject-row span:last-child {
   font-weight: 600;
-  color: #333;
+  color: var(--color-ink-body);
 }
 
 .phishing-task__body {
@@ -457,8 +456,8 @@ function submit() {
 
 .clue-btn {
   display: inline;
-  background: #f3ede1;
-  border: 2px solid #d8cfbf;
+  background: var(--color-clue-bg);
+  border: 2px solid var(--color-clue-border);
   border-radius: 8px;
   padding: 2px 7px;
   color: inherit;
@@ -467,9 +466,9 @@ function submit() {
   transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 .clue-btn:hover:not(:disabled) {
-  background: #fff4db;
+  background: var(--color-clue-hover-bg);
   border-color: var(--color-primary);
-  box-shadow: 0 8px 18px rgba(47, 106, 255, 0.12);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--color-primary-focus-ring) 25%, transparent);
   transform: translateY(-1px);
 }
 .clue-btn:focus-visible {
@@ -477,19 +476,19 @@ function submit() {
   outline-offset: 2px;
 }
 .clue-btn--flagged {
-  background: #ffe1de;
+  background: var(--color-clue-flagged-bg);
   border-color: var(--color-danger);
-  color: #7f1d1d;
+  color: var(--color-clue-flagged-text);
   font-weight: 600;
 }
 .clue-btn--correct {
-  background: #e2f6e8;
+  background: var(--color-clue-correct-bg);
   border-color: var(--color-success);
-  color: #166534;
+  color: var(--color-clue-correct-text);
 }
 .clue-btn--missed {
-  background: #fff3cf;
-  border-color: #d9a300;
+  background: var(--color-clue-missed-bg);
+  border-color: var(--color-clue-missed-border);
   animation: clue-pulse 0.6s ease-out;
 }
 @keyframes clue-pulse {
@@ -503,9 +502,9 @@ function submit() {
   gap: var(--space-2);
 }
 .phishing-task__chip {
-  background: #fff1ef;
-  color: #8a1c1c;
-  border: 1px solid #f0bbb4;
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+  border: 1px solid var(--color-danger);
   border-radius: var(--radius-full);
   padding: 5px 10px;
   font-size: var(--text-xs);
@@ -515,7 +514,7 @@ function submit() {
 .phishing-task__submit {
   align-self: flex-start;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-text-on-dark);
   border: 0;
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-6);
@@ -525,7 +524,7 @@ function submit() {
   min-height: 44px;
   transition: background var(--transition-fast), transform var(--transition-fast);
 }
-.phishing-task__submit:hover:not(:disabled) { background: #2456d3; transform: translateY(-1px); }
+.phishing-task__submit:hover:not(:disabled) { background: var(--color-primary-dark); transform: translateY(-1px); }
 .phishing-task__submit:disabled { opacity: 0.5; cursor: not-allowed; }
 .phishing-task__submit:focus-visible { outline: 3px solid var(--color-primary-soft-strong); outline-offset: 2px; }
 
@@ -577,21 +576,21 @@ function submit() {
 }
 
 .phishing-task__stat--correct {
-  color: #166534;
-  background: #e8f8ed;
-  border-color: #b9e5c5;
+  color: var(--color-success-dark);
+  background: var(--color-success-light);
+  border-color: var(--color-success);
 }
 
 .phishing-task__stat--wrong {
-  color: #8a1c1c;
-  background: #fff1ef;
-  border-color: #f0bbb4;
+  color: var(--color-danger-dark);
+  background: var(--color-danger-light);
+  border-color: var(--color-danger);
 }
 
 .phishing-task__stat--missed {
-  color: #8a6500;
-  background: #fff7df;
-  border-color: #ebd38a;
+  color: var(--color-warning);
+  background: var(--color-warning-light);
+  border-color: var(--color-warning);
 }
 
 .phishing-task__clue-list {
@@ -617,7 +616,7 @@ function submit() {
 .next-btn {
   align-self: flex-start;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-text-on-dark);
   border: none;
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-6);
@@ -627,7 +626,7 @@ function submit() {
   min-height: 44px;
   transition: background var(--transition-fast), transform var(--transition-fast);
 }
-.next-btn:hover  { background: #2456d3; }
+.next-btn:hover  { background: var(--color-primary-dark); }
 .next-btn:active { transform: scale(0.98); }
 .next-btn:focus-visible { outline: 3px solid var(--color-primary-soft-strong); outline-offset: 2px; }
 
