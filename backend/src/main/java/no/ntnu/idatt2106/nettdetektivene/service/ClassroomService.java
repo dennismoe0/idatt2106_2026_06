@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ClassroomService {
     private static final Logger log = LoggerFactory.getLogger(ClassroomService.class);
+    private static final EnumSet<TaskType> LEARN_EXCLUDED_TASK_TYPES = EnumSet.of(TaskType.LEARN);
 
     private final ClassroomRepository classroomRepository;
     private final ClassroomStudentRepository classroomStudentRepository;
@@ -174,7 +176,7 @@ public class ClassroomService {
         // Required task count per stop (excluding LEARN tasks)
         Map<Long, Long> requiredPerStop = stops.stream().collect(Collectors.toMap(
             Stop::getId,
-            s -> taskRepository.countByStop_IdAndTaskTypeNotIn(s.getId(), List.of(TaskType.LEARN))
+            s -> taskRepository.countByStop_IdAndTaskTypeNotIn(s.getId(), LEARN_EXCLUDED_TASK_TYPES)
         ));
 
         return approved.stream().map(member -> {
@@ -188,7 +190,7 @@ public class ClassroomService {
                     if (required == 0) return false;
                     long done = studentProgressRepository
                         .countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(
-                            studentId, stop.getId(), List.of(TaskType.LEARN));
+                            studentId, stop.getId(), LEARN_EXCLUDED_TASK_TYPES);
                     return done < required;
                 })
                 .findFirst()

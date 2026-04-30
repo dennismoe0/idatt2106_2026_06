@@ -14,6 +14,13 @@ vi.mock('@/composables/useSound', () => ({
   }),
 }))
 
+vi.mock('@/stores/audio', () => ({
+  useAudioStore: () => ({
+    startStage: vi.fn(),
+    stopStage: vi.fn(),
+  }),
+}))
+
 vi.mock('@/components/common/ConfettiOverlay.vue', () => ({
   default: { template: '<div class="confetti-overlay-stub" />' },
 }))
@@ -535,6 +542,7 @@ describe('TaskView', () => {
         stopName: 'Passordbanken',
         stopTheme: 'PASSWORD',
         stopOrderIndex: 6,
+
         contentJson: { type: 'CHOICE', question: 'Velg det sterkeste passordet.', options: [] },
       },
     ])
@@ -556,6 +564,7 @@ describe('TaskView', () => {
             template: '<button class="submit-answer" @click="$emit(\'submitted\', { selected: \'wrong\' })">submit</button>',
           },
           LearningTask: { template: '<div class="learn-stub">learn</div>' },
+
           ClueRiddleTask: true,
           FakeNewsTask: true,
           AIPhotoTask: true,
@@ -577,5 +586,6 @@ describe('TaskView', () => {
 
     expect(wrapper.text()).not.toContain('Kunne ikke sende svar')
     expect(wrapper.find('.submit-answer').exists()).toBe(true)
+
   })
 })

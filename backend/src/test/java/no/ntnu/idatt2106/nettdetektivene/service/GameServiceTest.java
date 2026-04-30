@@ -405,6 +405,7 @@ class GameServiceTest {
 
         assertThat(response.correct()).isFalse();
         assertThat(response.score()).isZero();
+        assertThat(response.correctArticleIndex()).isEqualTo(1);
         verify(studentProgressRepository, never()).save(any(StudentProgress.class));
     }
 

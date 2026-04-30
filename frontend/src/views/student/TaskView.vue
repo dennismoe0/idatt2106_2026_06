@@ -112,6 +112,7 @@
                 @submitted="handleSubmit"
                 @next="goNext"
                 @retry="clearCurrentResult"
+
                 @back-to-map="goToMap"
               />
 
@@ -123,6 +124,7 @@
                 @submitted="handleSubmit"
                 @next="goNext"
                 @retry="clearCurrentResult"
+
                 @back-to-map="goToMap"
               />
 
@@ -134,6 +136,7 @@
                 @submitted="handleSubmit"
                 @next="goNext"
                 @retry="clearCurrentResult"
+
               />
 
               <PasswordTask
@@ -594,9 +597,28 @@ async function handleSubmit(answer) {
       maybeShowStoredClueModal(submittedTask, result.value)
       isMockMode.value = true
     } else {
-      error.value = 'Kunne ikke sende svar. Prøv igjen.'
+      error.value = describeSubmitError(apiError)
     }
   }
+}
+
+function describeSubmitError(apiError) {
+  const status = apiError?.response?.status
+  const message = apiError?.response?.data?.error ?? apiError?.response?.data?.message
+
+  if (status === 403) {
+    if (message === 'Tutorial must be completed first') {
+      return 'Du må fullføre læringsoppgaven først før du kan svare på denne oppgaven.'
+    }
+    if (message === 'Previous tasks must be completed first') {
+      return 'Du må løse den forrige oppgaven riktig før du kan gå videre.'
+    }
+    if (message === 'Stop is locked') {
+      return 'Dette stoppet er låst akkurat nå. Fullfør det forrige stoppet først.'
+    }
+  }
+
+  return 'Kunne ikke sende svar. Prøv igjen.'
 }
 
 function isTaskSequenceBlocked(apiError) {
@@ -1039,6 +1061,7 @@ function handlePeekOut(e) {
 function goNext() {
   if (!result.value?.correct) {
     console.warn('[TaskView] Refusing to advance without a correct result for task:', currentTask.value?.id)
+
     return
   }
   if (result.value && currentTask.value) {
