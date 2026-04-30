@@ -516,7 +516,7 @@ function formatDate(dateStr) {
 }
 
 .card-desc { font-size: var(--text-sm); color: var(--color-text-muted); }
-.card-meta { font-size: var(--text-xs); color: var(--color-text-muted); opacity: 0.75; }
+.card-meta { font-size: var(--text-sm); color: var(--color-text-muted); opacity: 0.95; }
 
 .card-footer {
   margin-top: auto;
