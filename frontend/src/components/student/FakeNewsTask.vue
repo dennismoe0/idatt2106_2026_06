@@ -56,7 +56,7 @@
           {{ result.correct ? '✅ Riktig!' : '❌ Ikke helt riktig' }}
         </p>
         <p class="fake-news-task__explanation">{{ result.explanation }}</p>
-        <p v-if="result.stopCompleted" class="fake-news-task__stop-msg">🎉 Du fullførte stoppet!</p>
+        <p v-if="result.correct && result.stopCompleted" class="fake-news-task__stop-msg">🎉 Du fullførte stoppet!</p>
         <button v-if="result.correct" class="next-btn" @click="$emit('next')">
           {{ isLastTask ? 'Videre til sammendrag →' : 'Neste oppgave →' }}
         </button>
