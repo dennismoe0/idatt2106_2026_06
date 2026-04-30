@@ -1741,7 +1741,7 @@ public class DataLoader implements ApplicationRunner {
 
     private static final String FINAL_BOSS_CONTENT_JSON = """
         {
-          "intro": "Backup-planen har startet! Du har 6 sikkerhetssystemer å stoppe.",
+          "intro": "For å finne Millie Mus må vi finne ut hvor hun har gjemt seg i datasenteret, bruk det du har lært til å finne ut hvor!",
           "challenges": [
             {
               "id": 0,
@@ -1818,13 +1818,14 @@ public class DataLoader implements ApplicationRunner {
               "description": "Stopp svindelsiden som samler betalingsinfo",
               "failureExplanation": "Domenet er ukjent og betalingsmåten (Western Union/gavekort) er klassiske svindeltegn. Merk disse to.",
               "successExplanation": "Riktig! Ukjent domene og usikker betalingsmåte er de tydeligste faresignalene i denne annonsen.",
+              "siteName": "sneaker-blitz.shop",
               "mockup": {
-                "url": "sneaker-blitz.shop",
-                "image": "/marketplace/air-max-270.png",
-                "title": "Nike Air Max 270",
+                "headline": "Nike Air Max 270",
+                "productName": "Nike Air Max 270",
                 "price": "299 kr",
-                "seller": "Nordisk Butikk AS",
-                "payment": "Western Union / Gavekort"
+                "paymentText": "Western Union / Gavekort",
+                "contactText": "Nordisk Butikk AS",
+                "productImageUrl": "/marketplace/air-max-270.png"
               },
               "elements": [
                 { "id": "domain",   "label": "sneaker-blitz.shop" },
@@ -1833,7 +1834,7 @@ public class DataLoader implements ApplicationRunner {
                 { "id": "seller",   "label": "Nordisk Butikk AS" },
                 { "id": "shipping", "label": "Levering 2–4 virkedager" }
               ],
-              "correctAnswer": { "domain": "true", "payment": "true" }
+              "correctAnswer": { "flaggedElementIds": ["domain", "payment"] }
             },
             {
               "id": 4,
@@ -1866,16 +1867,15 @@ public class DataLoader implements ApplicationRunner {
               "type": "PASSWORD",
               "systemName": "Hovedlåsen",
               "description": "Lås opp den digitale safe og redd pengene",
-              "failureExplanation": "Den digitale safen krever et langt og uforutsigbart passord. Velg alternativet som er vanskeligst å gjette.",
-              "successExplanation": "Riktig! F!sk3Taco#92 er sterkt fordi det er langt og blander store og små bokstaver, tall og spesialtegn uten personlig informasjon.",
-              "question": "Hvilket passord er sterkt nok til å sikre den redde kontoen?",
-              "options": [
-                { "id": "a", "value": "Ola123" },
-                { "id": "b", "value": "Australia2026" },
-                { "id": "c", "value": "Hei" },
-                { "id": "d", "value": "F!sk3Taco#92" }
-              ],
-              "correctAnswer": { "selected": "d" }
+              "failureExplanation": "Den digitale safen krever et sterkt passord. Kombiner ord, tall og spesialtegn for å gjøre det vanskelig å gjette.",
+              "successExplanation": "Riktig! Et langt passord med tall og spesialtegn er vanskelig å knekke for en datamaskin.",
+              "question": "Bygg et sterkt passord for å låse systemet",
+              "builderType": "BUILDER",
+              "minStrength": "STRONG",
+              "words": ["Sjøhest", "Kaktus", "Fjord", "Robot"],
+              "numbers": ["42", "99", "7", "2026"],
+              "symbols": ["!", "#", "@", "?"],
+              "correctAnswer": {}
             }
           ]
         }
@@ -1892,9 +1892,9 @@ public class DataLoader implements ApplicationRunner {
                   "challenge_0": { "article_0": true, "article_1": false },
                   "challenge_1": { "image_0": "AI_GENERATED", "image_1": "REAL" },
                   "challenge_2": { "action": "REPORT" },
-                  "challenge_3": { "domain": "true", "payment": "true" },
+                  "challenge_3": { "flaggedElementIds": ["domain", "payment"] },
                   "challenge_4": { "selected": "CHECK_SOURCES" },
-                  "challenge_5": { "selected": "d" }
+                  "challenge_5": {}
                 }
                 """)));
         } catch (JsonProcessingException e) {

@@ -1,5 +1,7 @@
 <template>
-  <section class="boss">
+  <BossVictoryScreen v-if="phase === 'victory'" @next="$emit('next')" />
+
+  <section v-else class="boss">
     <!-- Intro -->
     <div v-if="phase === 'intro'" class="boss__intro">
       <p class="boss__siren" aria-hidden="true">🚨</p>
@@ -40,42 +42,63 @@
         <p class="boss__system-desc">{{ currentChallenge.description }}</p>
       </div>
 
-      <BossFakeNews
-        v-if="currentChallenge.type === 'FAKE_NEWS'"
-        :challenge="currentChallenge"
-        :submitted="isSystemLocked"
-        @answer="recordAnswer"
-      />
-      <BossAiPhoto
-        v-else-if="currentChallenge.type === 'AI_PHOTO'"
-        :challenge="currentChallenge"
-        :submitted="isSystemLocked"
-        @answer="recordAnswer"
-      />
-      <BossPhishing
-        v-else-if="currentChallenge.type === 'PHISHING_EMAIL'"
-        :challenge="currentChallenge"
-        :submitted="isSystemLocked"
-        @answer="recordAnswer"
-      />
-      <BossSocialMedia
-        v-else-if="currentChallenge.type === 'SOCIAL_MEDIA'"
-        :challenge="currentChallenge"
-        :submitted="isSystemLocked"
-        @answer="recordAnswer"
-      />
-      <BossPassword
-        v-else-if="currentChallenge.type === 'PASSWORD'"
-        :challenge="currentChallenge"
-        :submitted="isSystemLocked"
-        @answer="recordAnswer"
-      />
-      <BossChoice
-        v-else
-        :challenge="currentChallenge"
-        :submitted="isSystemLocked"
-        @answer="recordAnswer"
-      />
+      <!-- Real task components — visible only while idle (no feedback showing) -->
+      <template v-if="isIdle">
+        <FakeNewsTask
+          v-if="currentChallenge.type === 'FAKE_NEWS'"
+          :key="`fn-${currentIdx}-${retryKey}`"
+          :task="bossTask"
+          :result="null"
+          @submitted="recordAnswer"
+          @next="() => {}"
+          @back-to-map="() => {}"
+        />
+        <AIPhotoTask
+          v-else-if="currentChallenge.type === 'AI_PHOTO'"
+          :key="`ai-${currentIdx}-${retryKey}`"
+          :task="bossTask"
+          :result="null"
+          @submitted="recordAnswer"
+          @next="() => {}"
+        />
+        <BossPhishing
+          v-else-if="currentChallenge.type === 'PHISHING_EMAIL'"
+          :challenge="currentChallenge"
+          :submitted="false"
+          @answer="recordAnswer"
+        />
+        <MarketplaceTask
+          v-else-if="currentChallenge.type === 'MARKETPLACE'"
+          :key="`mp-${currentIdx}-${retryKey}`"
+          :task="bossTask"
+          :result="null"
+          @submitted="recordAnswer"
+          @next="() => {}"
+        />
+        <SocialMediaTask
+          v-else-if="currentChallenge.type === 'SOCIAL_MEDIA'"
+          :key="`sm-${currentIdx}-${retryKey}`"
+          :task="bossTask"
+          :result="null"
+          @submitted="recordAnswer"
+          @next="() => {}"
+        />
+        <PasswordTask
+          v-else-if="currentChallenge.type === 'PASSWORD'"
+          :key="`pw-${currentIdx}-${retryKey}`"
+          :task="bossTask"
+          :result="null"
+          @submitted="recordAnswer"
+          @next="() => {}"
+          @retry="() => {}"
+        />
+        <BossChoice
+          v-else
+          :challenge="currentChallenge"
+          :submitted="false"
+          @answer="recordAnswer"
+        />
+      </template>
 
       <Transition name="result-slide">
         <div v-if="systemState.mode !== 'idle'" class="boss__system-stopped" :class="`boss__system-stopped--${systemState.mode}`">
@@ -111,33 +134,26 @@
       </Transition>
     </template>
 
-    <!-- Result -->
+    <!-- Result (incorrect only — correct triggers victory phase) -->
     <div v-else-if="phase === 'result'" class="boss__result">
-      <template v-if="result?.correct">
-        <p class="boss__result-emoji">🎉</p>
-        <h2 class="boss__result-title">Du stoppet backup-planen!</h2>
-        <p class="boss__result-body">Pengene til idrettsparken er reddet.<br>Internettbyen er trygg igjen.</p>
-        <p class="boss__result-title2">Du er en Mesterdetektiv!</p>
-      </template>
-      <template v-else>
-        <p class="boss__result-emoji">⚡</p>
-        <h2 class="boss__result-title">Ikke helt riktig</h2>
-        <p class="boss__result-body">{{ result?.explanation }}</p>
-      </template>
-      <button v-if="!result?.correct" class="boss__btn" @click="$emit('retry')">Prøv igjen</button>
-      <button v-else class="boss__btn" @click="$emit('next')">Se oppsummering →</button>
+      <p class="boss__result-emoji">⚡</p>
+      <h2 class="boss__result-title">Ikke helt riktig</h2>
+      <p class="boss__result-body">{{ result?.explanation }}</p>
+      <button class="boss__btn" @click="$emit('retry')">Prøv igjen</button>
     </div>
   </section>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import BossFakeNews from '@/components/student/boss/BossFakeNews.vue'
-import BossAiPhoto  from '@/components/student/boss/BossAiPhoto.vue'
-import BossPhishing from '@/components/student/boss/BossPhishing.vue'
-import BossSocialMedia from '@/components/student/boss/BossSocialMedia.vue'
-import BossPassword from '@/components/student/boss/BossPassword.vue'
-import BossChoice   from '@/components/student/boss/BossChoice.vue'
+import FakeNewsTask       from '@/components/student/FakeNewsTask.vue'
+import AIPhotoTask        from '@/components/student/AIPhotoTask.vue'
+import MarketplaceTask    from '@/components/student/MarketplaceTask.vue'
+import SocialMediaTask    from '@/components/student/SocialMediaTask.vue'
+import PasswordTask       from '@/components/student/PasswordTask.vue'
+import BossPhishing       from '@/components/student/boss/BossPhishing.vue'
+import BossChoice         from '@/components/student/boss/BossChoice.vue'
+import BossVictoryScreen  from '@/components/student/boss/BossVictoryScreen.vue'
 
 const SYSTEM_ICONS = {
   FAKE_NEWS:      '📰',
@@ -156,15 +172,40 @@ const emit = defineEmits(['submitted', 'next', 'retry'])
 
 const phase      = ref('intro')
 const currentIdx = ref(0)
+const retryKey   = ref(0)
 const answers    = ref({})
 const systemState = ref({ mode: 'idle', explanation: '' })
 const failedAttempts = ref({})
 
 const challenges       = computed(() => props.task.contentJson?.challenges ?? [])
 const currentChallenge = computed(() => challenges.value[currentIdx.value])
-const solvedCount = computed(() => Object.keys(answers.value).length)
-const isSystemLocked = computed(() => systemState.value.mode !== 'idle')
-const isRetrySpent = computed(() => (failedAttempts.value[currentIdx.value] ?? 0) > 1)
+const solvedCount      = computed(() => Object.keys(answers.value).length)
+const isIdle           = computed(() => systemState.value.mode === 'idle')
+const isRetrySpent     = computed(() => (failedAttempts.value[currentIdx.value] ?? 0) > 1)
+
+function buildContentJson(c) {
+  switch (c.type) {
+    case 'FAKE_NEWS':      return { articles: c.articles }
+    case 'AI_PHOTO':       return { images: c.images }
+    case 'PHISHING_EMAIL': return { email: c.email, options: c.options, question: c.question }
+    case 'MARKETPLACE':    return { mockup: c.mockup, elements: c.elements, siteName: c.siteName }
+    case 'SOCIAL_MEDIA':   return { post: c.post, options: c.options, question: c.question }
+    case 'PASSWORD':       return { type: c.builderType ?? 'BUILDER', words: c.words ?? [], numbers: c.numbers ?? [], symbols: c.symbols ?? [], question: c.question, minStrength: c.minStrength ?? 'STRONG' }
+    default:               return {}
+  }
+}
+
+const bossTask = computed(() => {
+  const c = currentChallenge.value
+  if (!c) return null
+  return {
+    id: `boss-${c.id}`,
+    guidanceText: c.description,
+    stopName: c.systemName,
+    stop: { name: c.systemName },
+    contentJson: buildContentJson(c),
+  }
+})
 
 function recordAnswer(answer) {
   const challenge = currentChallenge.value
@@ -206,6 +247,7 @@ function submitAll() {
 }
 
 function retryCurrentSystem() {
+  retryKey.value++
   systemState.value = { mode: 'idle', explanation: '' }
 }
 
@@ -216,7 +258,14 @@ function goToNextSystem() {
 
 function isCorrectAnswer(expected, actual) {
   if (!expected) return true
-  return Object.keys(expected).every((key) => String(actual?.[key]) === String(expected[key]))
+  return Object.keys(expected).every((key) => {
+    if (Array.isArray(expected[key])) {
+      const exp = [...expected[key]].map(String).sort()
+      const act = [...(actual?.[key] ?? [])].map(String).sort()
+      return exp.length === act.length && exp.every((v, i) => v === act[i])
+    }
+    return String(actual?.[key]) === String(expected[key])
+  })
 }
 
 function resetBossRun() {
@@ -229,11 +278,10 @@ function resetBossRun() {
 
 watch(() => props.result, (r) => {
   if (r !== null) {
-    phase.value = 'result'
+    phase.value = r.correct ? 'victory' : 'result'
     return
   }
-
-  if (phase.value === 'result') {
+  if (phase.value === 'result' || phase.value === 'victory') {
     resetBossRun()
   }
 })

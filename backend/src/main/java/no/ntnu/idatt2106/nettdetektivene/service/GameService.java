@@ -515,6 +515,9 @@ public class GameService {
     }
 
     private boolean checkChallengeAnswer(JsonNode correct, Map<String, Object> answer) {
+        if (!correct.fields().hasNext()) {
+            return true;
+        }
         if (!correct.path("action").isMissingNode()) {
             return checkPhishingEmailAnswer(correct, answer);
         }
@@ -523,6 +526,9 @@ public class GameService {
             if (submitted == null) return false;
             return correct.path("selected").asText().equalsIgnoreCase(String.valueOf(submitted));
         }
+        if (!correct.path("flaggedElementIds").isMissingNode()) {
+            return checkFlaggedElementIds(correct, answer);
+        }
         if (correct.fieldNames().hasNext()) {
             String firstKey = correct.fieldNames().next();
             if (firstKey.startsWith("article_")) return checkFakeNewsAnswer(correct, answer);
@@ -530,6 +536,23 @@ public class GameService {
         }
         log.warn("[GameService] checkChallengeAnswer: unrecognised correct answer shape");
         return false;
+    }
+
+    private boolean checkFlaggedElementIds(JsonNode correct, Map<String, Object> answer) {
+        JsonNode correctIds = correct.path("flaggedElementIds");
+        if (!correctIds.isArray()) return false;
+        Object raw = answer.get("flaggedElementIds");
+        if (!(raw instanceof List)) return false;
+        List<String> expected = new ArrayList<>();
+        correctIds.forEach(n -> expected.add(n.asText()));
+        Collections.sort(expected);
+        List<String> actual = ((List<?>) raw).stream()
+            .map(String::valueOf)
+            .sorted()
+            .collect(java.util.stream.Collectors.toList());
+        boolean match = expected.equals(actual);
+        log.info("[GameService] checkFlaggedElementIds: expected={} actual={} match={}", expected, actual, match);
+        return match;
     }
 
     private boolean checkAiPhotoAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
