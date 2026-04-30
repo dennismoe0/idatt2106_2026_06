@@ -368,7 +368,16 @@ public class DataLoader implements ApplicationRunner {
                     ),
                     new Quiz("q1", "Hva slags innhold spres raskest på sosiale medier?", new String[]{"Rolig faktabasert nyheter", "Innhold som vekker sterke følelser som sinne eller frykt", "Vitenskapelige artikler"}, "Innhold som vekker sterke følelser som sinne eller frykt"),
                     new Quiz("q2", "Hva bør du gjøre om en fremmed ber om personlig informasjon?", new String[]{"Svare høflig og gi informasjonen", "Avvise og rapportere kontoen", "Be dem spørre igjen"}, "Avvise og rapportere kontoen"),
-                    new Quiz("q3", "Hva betyr det om et innlegg bruker kapslås og ber om hastedeling?", new String[]{"Innholdet er viktig og sant", "Avsenderen prøver å hindre deg i å tenke kritisk", "Det er bare en stil"}, "Avsenderen prøver å hindre deg i å tenke kritisk")
+                    new Quiz(
+                        "q3",
+                        "Hva er et tegn på at du bør stoppe og sjekke før du deler et innlegg?",
+                        new String[]{
+                            "Innlegget sier at du må dele med én gang uten å vise bevis",
+                            "Innlegget har fine farger og bilder",
+                            "Innlegget er lett å lese"
+                        },
+                        "Innlegget sier at du må dele med én gang uten å vise bevis"
+                    )
                 )
             )
         ));

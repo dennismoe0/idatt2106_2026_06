@@ -44,31 +44,30 @@ public class DevSeeder implements ApplicationRunner {
     }
 
     private void wipe() {
-        for (String code : List.of("dataing-2", "dataing-1", "norsk-3")) {
-            classroomRepository.findByJoinCode(code).ifPresent(c -> {
-                classroomRepository.delete(c);
-                log.info("[DevSeeder] Deleted classroom: {}", code);
-            });
+        List<School> devSchools = List.of("skole-a", "skole-b").stream()
+            .map(schoolRepository::findByJoinCode)
+            .flatMap(java.util.Optional::stream)
+            .toList();
+
+        for (School school : devSchools) {
+            for (Classroom classroom : classroomRepository.findBySchool_Id(school.getId())) {
+                classroomRepository.delete(classroom);
+                log.info("[DevSeeder] Deleted classroom: {}", classroom.getJoinCode());
+            }
         }
-        for (String email : List.of(
-            "grethe@teacher.no", "ali@teacher.no",
-            "dennis@student.local", "shakti@student.local", "kristian@student.local",
-            "oliver@student.local", "kasper@student.local", "ola@student.local",
-            "christian@student.local", "aleksander@student.local", "mia@student.local",
-            "nora@student.local", "lars@student.local", "emma@student.local",
-            "sofie@student.local", "magnus@student.local", "ida@student.local",
-            "william@student.local", "lea@student.local"
-        )) {
-            userRepository.findByEmail(email).ifPresent(u -> {
-                userRepository.delete(u);
-                log.info("[DevSeeder] Deleted user: {}", email);
-            });
+        entityManager.flush();
+
+        for (School school : devSchools) {
+            for (User user : userRepository.findBySchool_Id(school.getId())) {
+                userRepository.delete(user);
+                log.info("[DevSeeder] Deleted user: {}", user.getEmail());
+            }
         }
-        for (String code : List.of("skole-a", "skole-b")) {
-            schoolRepository.findByJoinCode(code).ifPresent(s -> {
-                schoolRepository.delete(s);
-                log.info("[DevSeeder] Deleted school: {}", code);
-            });
+        entityManager.flush();
+
+        for (School school : devSchools) {
+            schoolRepository.delete(school);
+            log.info("[DevSeeder] Deleted school: {}", school.getJoinCode());
         }
     }
 
