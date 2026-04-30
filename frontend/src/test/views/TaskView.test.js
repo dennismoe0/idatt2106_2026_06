@@ -201,7 +201,7 @@ describe('TaskView', () => {
   })
 
   it('starts at the first incomplete Passordbanken task when the tutorial is already completed', async () => {
-    localStorage.setItem('mystery_seen_stop_6', '1')
+    localStorage.setItem('mystery_seen_classroom_11_stop_6', '1')
     const gameStore = useGameStore()
     gameStore.fetchTasks.mockResolvedValue([
       {
@@ -263,7 +263,7 @@ describe('TaskView', () => {
   })
 
   it('starts at the first incomplete Passordbanken task when API returns alreadyCompleted', async () => {
-    localStorage.setItem('mystery_seen_stop_6', '1')
+    localStorage.setItem('mystery_seen_classroom_11_stop_6', '1')
     const gameStore = useGameStore()
     gameStore.fetchTasks.mockResolvedValue([
       {
@@ -448,7 +448,7 @@ describe('TaskView', () => {
   })
 
   it('clears password result when retry is emitted after wrong answer', async () => {
-    localStorage.setItem('mystery_seen_stop_6', '1')
+    localStorage.setItem('mystery_seen_classroom_11_stop_6', '1')
     const gameStore = useGameStore()
     gameStore.fetchTasks.mockResolvedValue([
       {
@@ -514,7 +514,7 @@ describe('TaskView', () => {
   })
 
   it('keeps the task visible when backend rejects an out-of-sequence submit', async () => {
-    localStorage.setItem('mystery_seen_stop_6', '1')
+    localStorage.setItem('mystery_seen_classroom_11_stop_6', '1')
     const gameStore = useGameStore()
     gameStore.fetchTasks.mockResolvedValue([
       {

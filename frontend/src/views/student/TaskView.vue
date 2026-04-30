@@ -521,7 +521,7 @@ function isTaskSolved(task) {
 
 function checkMystery() {
   if (!stopId.value || !tasks.value.length) return
-  const mysteryKey = `mystery_seen_stop_${stopId.value}`
+  const mysteryKey = mysterySeenKey()
   if (mysteryScenario.value && !localStorage.getItem(mysteryKey)) {
     showMystery.value = true
     console.log('[TaskView] Showing mystery screen for stop', stopId.value)
@@ -532,9 +532,13 @@ function checkMystery() {
 
 function acceptMystery() {
   showMystery.value = false
-  localStorage.setItem(`mystery_seen_stop_${stopId.value}`, '1')
+  localStorage.setItem(mysterySeenKey(), '1')
   console.log('[TaskView] Mystery accepted for stop', stopId.value)
   checkTutorial()
+}
+
+function mysterySeenKey() {
+  return `mystery_seen_classroom_${classroomId.value}_stop_${stopId.value}`
 }
 
 function checkTutorial() {
