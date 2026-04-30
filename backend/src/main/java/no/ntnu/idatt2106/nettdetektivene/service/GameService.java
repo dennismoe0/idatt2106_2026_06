@@ -63,6 +63,7 @@ public class GameService {
     private static final int XP_PER_TASK = 10;
     private static final int XP_PER_STOP = 30;
     private static final int SUSPECT_REVEAL_STOP_ORDER = 6;
+    private static final EnumSet<TaskType> LEARN_EXCLUDED_TASK_TYPES = EnumSet.of(TaskType.LEARN);
     private static final Set<TaskType> COMPLETION_EXCLUDED_TASK_TYPES = EnumSet.of(
         TaskType.LEARN,
         TaskType.CLUE_RIDDLE
@@ -122,7 +123,7 @@ public class GameService {
                 s.getName(),
                 s.getOrderIndex(),
                 s.getTheme(),
-                Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNotIn(s.getId(), List.of(TaskType.LEARN)))
+                Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNotIn(s.getId(), LEARN_EXCLUDED_TASK_TYPES))
             ))
             .toList();
     }

@@ -88,7 +88,10 @@
         </ul>
 
         <p v-if="result.stopCompleted" class="phishing-task__stop-msg">🎉 Du fullførte stoppet!</p>
-        <button class="next-btn" @click="$emit('next')">
+        <button v-if="!result.correct" class="next-btn" @click="$emit('retry')">
+          Prøv igjen
+        </button>
+        <button v-else class="next-btn" @click="$emit('next')">
           {{ isLastTask ? 'Videre til sammendrag →' : 'Neste oppgave →' }}
         </button>
       </div>
@@ -105,7 +108,7 @@ const props = defineProps({
   isLastTask: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['submitted', 'next', 'backToMap'])
+const emit = defineEmits(['submitted', 'next', 'retry', 'backToMap'])
 
 const flagged = reactive(new Set())
 
