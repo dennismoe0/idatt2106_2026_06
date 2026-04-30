@@ -102,14 +102,14 @@ describe('FakeNewsTask.vue', () => {
 
     it('viser overskrift i hvert kort', () => {
       const wrapper = mountTask()
-      const headlines = wrapper.findAll('.newspaper__headline')
-      expect(headlines[0].text()).toBe('KOMMUNEN HOLDER SKOLENE ÅPNE ETTER SNØFALLET')
-      expect(headlines[1].text()).toBe('ALLE SKOLER I NORGE STENGER I MORGEN')
+      const headlines = wrapper.findAll('.newspaper-clipping__headline')
+      expect(headlines[0].text()).toBe('Kommunen holder skolene åpne etter snøfallet')
+      expect(headlines[1].text()).toBe('Alle skoler i Norge stenger i morgen')
     })
 
     it('viser kilde i hvert kort', () => {
       const wrapper = mountTask()
-      const bylines = wrapper.findAll('.newspaper__byline')
+      const bylines = wrapper.findAll('.newspaper-clipping__byline')
       expect(bylines[0].text()).toContain('Trondheim kommune')
       expect(bylines[1].text()).toContain('NorskNyhet24.info')
     })
@@ -317,6 +317,15 @@ describe('FakeNewsTask.vue', () => {
       await wrapper.find('.next-btn').trigger('click')
       expect(wrapper.emitted('next')).toHaveLength(1)
     })
+
+    it('viser Prøv igjen og emitter retry ved feil svar', async () => {
+      const wrapper = mountTask(TWO_ARTICLE_TASK, { result: WRONG_RESULT })
+      expect(wrapper.find('.next-btn').text()).toContain('Prøv igjen')
+
+      await wrapper.find('.next-btn').trigger('click')
+      expect(wrapper.emitted('retry')).toHaveLength(1)
+      expect(wrapper.emitted('next')).toBeFalsy()
+    })
   })
 
   // ── mastheadBrand / extractDomainOrName ─────────────────────────────────
@@ -324,14 +333,14 @@ describe('FakeNewsTask.vue', () => {
   describe('mastheadBrand — masthead-tekst', () => {
     it('viser kildenavn som-det-er for vanlige navn (Trondheim kommune)', () => {
       const wrapper = mountTask()
-      const brands = wrapper.findAll('.newspaper__brand')
+      const brands = wrapper.findAll('.newspaper-clipping__brand')
       // text-transform: uppercase i CSS — test mot uppercase
       expect(brands[0].text()).toBe('TRONDHEIM KOMMUNE')
     })
 
     it('viser domenenavn uten www for URL-kilder (nrk.no)', () => {
       const wrapper = mountTask(THREE_ARTICLE_TASK)
-      expect(wrapper.findAll('.newspaper__brand')[0].text()).toBe('NRK.NO')
+      expect(wrapper.findAll('.newspaper-clipping__brand')[0].text()).toBe('NRK.NO')
     })
 
     it('håndterer percent-encodet kilde uten å vise %20', () => {
@@ -345,8 +354,8 @@ describe('FakeNewsTask.vue', () => {
         },
       }
       const wrapper = mountTask(encodedTask)
-      expect(wrapper.find('.newspaper__brand').text()).not.toContain('%20')
-      expect(wrapper.find('.newspaper__brand').text()).toBe('TRONDHEIM KOMMUNE')
+      expect(wrapper.find('.newspaper-clipping__brand').text()).not.toContain('%20')
+      expect(wrapper.find('.newspaper-clipping__brand').text()).toBe('TRONDHEIM KOMMUNE')
     })
 
     it('viser NYHETER som fallback for tom kilde', () => {
@@ -358,7 +367,7 @@ describe('FakeNewsTask.vue', () => {
         },
       }
       const wrapper = mountTask(noSourceTask)
-      expect(wrapper.find('.newspaper__brand').text()).toBe('NYHETER')
+      expect(wrapper.find('.newspaper-clipping__brand').text()).toBe('NYHETER')
     })
   })
 

@@ -101,7 +101,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
-                @retry="result = null"
+                @retry="clearCurrentResult"
               />
 
               <FakeNewsTask
@@ -111,6 +111,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="clearCurrentResult"
                 @back-to-map="goToMap"
               />
 
@@ -121,6 +122,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="clearCurrentResult"
                 @back-to-map="goToMap"
               />
 
@@ -131,6 +133,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="clearCurrentResult"
               />
 
               <PasswordTask
@@ -140,7 +143,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
-                @retry="result = null"
+                @retry="clearCurrentResult"
               />
 
               <SocialMediaTask
@@ -150,6 +153,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="clearCurrentResult"
               />
 
               <MarketplaceTask
@@ -159,6 +163,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="clearCurrentResult"
               />
 
               <ClueRiddleTask
@@ -168,7 +173,7 @@
                 :is-last-task="currentTaskIndex === tasks.length - 1"
                 @submitted="handleSubmit"
                 @next="goNext"
-                @try-again="result = null"
+                @try-again="clearCurrentResult"
               />
 
               <FinalBossTask
@@ -177,6 +182,7 @@
                 :result="result"
                 @submitted="handleSubmit"
                 @next="goNext"
+                @retry="clearCurrentResult"
               />
 
               <p v-else class="task-view__state task-view__state--error">
@@ -505,8 +511,12 @@ async function loadTasks() {
 }
 
 function firstIncompleteTaskIndex(loadedTasks) {
-  const index = loadedTasks.findIndex(task => !(task.alreadyCompleted ?? task.completed))
+  const index = loadedTasks.findIndex(task => !isTaskSolved(task))
   return index >= 0 ? index : 0
+}
+
+function isTaskSolved(task) {
+  return Boolean(task?.alreadyCompleted ?? task?.completed ?? taskResults.value[task?.id]?.correct === true)
 }
 
 function checkMystery() {
@@ -560,6 +570,7 @@ function replayIntro() {
 async function handleSubmit(answer) {
   if (!currentTask.value) return
   const submittedTask = currentTask.value
+  error.value = ''
   console.log('[TaskView] Submitting answer for task:', submittedTask.id, 'type:', submittedTask.taskType)
   try {
     result.value = await gameStore.submitAnswer(submittedTask.id, answer, classroomId.value)
@@ -569,6 +580,10 @@ async function handleSubmit(answer) {
     isMockMode.value = false
   } catch (apiError) {
     console.error('[TaskView] Failed to submit answer.', apiError)
+    if (isTaskSequenceBlocked(apiError)) {
+      recoverFromTaskSequenceBlock()
+      return
+    }
     if (import.meta.env.DEV) {
       result.value = buildMockResult(submittedTask, answer)
       handleCelebration(result.value)
@@ -578,6 +593,31 @@ async function handleSubmit(answer) {
       error.value = 'Kunne ikke sende svar. Prøv igjen.'
     }
   }
+}
+
+function isTaskSequenceBlocked(apiError) {
+  if (apiError?.response?.status !== 403) return false
+  const message = [
+    apiError.response?.data?.message,
+    apiError.response?.data?.error,
+    apiError.response?.data,
+  ]
+    .filter(Boolean)
+    .join(' ')
+  return message.includes('Previous tasks must be completed first')
+}
+
+function recoverFromTaskSequenceBlock() {
+  const previousIndex = currentTaskIndex.value
+  currentTaskIndex.value = firstIncompleteTaskIndex(tasks.value)
+  result.value = null
+  error.value = ''
+  console.warn(
+    '[TaskView] Backend rejected task sequence. Returning to first incomplete task:',
+    currentTaskIndex.value + 1,
+    'from',
+    previousIndex + 1,
+  )
 }
 
 function maybeShowStoredClueModal(task, submitResult) {
@@ -993,6 +1033,10 @@ function handlePeekOut(e) {
 }
 
 function goNext() {
+  if (!result.value?.correct) {
+    console.warn('[TaskView] Refusing to advance without a correct result for task:', currentTask.value?.id)
+    return
+  }
   if (result.value && currentTask.value) {
     taskResults.value[currentTask.value.id] = result.value
   }
@@ -1008,6 +1052,11 @@ function goNext() {
   }
   console.log('[TaskView] All tasks done — showing summary')
   showSummary.value = true
+}
+
+function clearCurrentResult() {
+  result.value = null
+  error.value = ''
 }
 
 function continueAfterStoredClue() {

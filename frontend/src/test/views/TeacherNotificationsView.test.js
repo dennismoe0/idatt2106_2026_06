@@ -7,7 +7,9 @@ const fetchNotifications = vi.fn()
 const fetchUnreadCount = vi.fn()
 const markAsRead = vi.fn()
 const markAllAsRead = vi.fn()
+const deleteOldNotifications = vi.fn()
 const updateStudentStatus = vi.fn()
+const recentCreatedAt = new Date().toISOString()
 
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push }),
@@ -25,7 +27,7 @@ vi.mock('@/stores/notification', () => ({
         classroomId: 2,
         studentId: null,
         isRead: false,
-        createdAt: '2026-04-27T10:00:00Z'
+        createdAt: recentCreatedAt
       },
       {
         id: 2,
@@ -35,7 +37,7 @@ vi.mock('@/stores/notification', () => ({
         classroomId: 3,
         studentId: 12,
         isRead: true,
-        createdAt: '2026-04-27T11:00:00Z'
+        createdAt: recentCreatedAt
       }
     ],
     unreadCount: 1,
@@ -44,7 +46,8 @@ vi.mock('@/stores/notification', () => ({
     fetchNotifications,
     fetchUnreadCount,
     markAsRead,
-    markAllAsRead
+    markAllAsRead,
+    deleteOldNotifications
   })
 }))
 
