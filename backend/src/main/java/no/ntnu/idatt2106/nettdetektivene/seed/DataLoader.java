@@ -777,11 +777,14 @@ public class DataLoader implements ApplicationRunner {
                     "contactText": "Kontakt: kontakt@sneaker-blitz.shop"
                   },
                   "elements": [
-                    { "id": "domain",  "label": "sneaker-blitz.shop",      "explanation": "Ukjent domene er et klassisk varselsignal.", "isSuspicious": true },
-                    { "id": "payment", "label": "Western Union / Gavekort", "explanation": "Denne betalingsmåten brukes ofte i svindel.", "isSuspicious": true },
-                    { "id": "price",   "label": "299",                      "explanation": "Prisen er veldig lav, men i denne oppgaven er det domene og betaling som er de tydeligste faresignalene.", "isSuspicious": false },
-                    { "id": "seller",  "label": "Solgt av Nordisk Butikk AS", "explanation": "Dette ser ganske vanlig ut alene og er ikke hovedproblemet her.", "isSuspicious": false },
-                    { "id": "shipping","label": "Levering 2-4 virkedager", "explanation": "Vanlig leveringstid er ikke i seg selv et faresignal.", "isSuspicious": false }
+                    { "id": "domain",       "label": "sneaker-blitz.shop",          "explanation": "Ukjent domene er et klassisk varselsignal.", "isSuspicious": true },
+                    { "id": "seller",       "label": "Solgt av Nordisk Butikk AS",  "explanation": "Selgernavnet ser ganske normalt ut og er ikke hovedproblemet her.", "isSuspicious": false },
+                    { "id": "shipping",     "label": "Levering 2-4 virkedager",    "explanation": "Vanlig leveringstid er ikke i seg selv et faresignal.", "isSuspicious": false },
+                    { "id": "productName",  "label": "Nike Air Max 270",           "explanation": "Produktnavnet i seg selv sier ikke at butikken er falsk.", "isSuspicious": false },
+                    { "id": "price",        "label": "299",                        "explanation": "Prisen er veldig lav, men det er domene og betaling som er de tydeligste faresignalene.", "isSuspicious": false },
+                    { "id": "payment",      "label": "Western Union / Gavekort",   "explanation": "Denne betalingsmåten brukes ofte i svindel.", "isSuspicious": true },
+                    { "id": "contact",      "label": "kontakt@sneaker-blitz.shop", "explanation": "E-posten samsvarer med domenet, men domenet er ukjent.", "isSuspicious": false },
+                    { "id": "returnPolicy", "label": "14 dagers returrett",         "explanation": "En returpolicy i seg selv er ikke et faresignal.", "isSuspicious": false }
                   ],
                   "explanation": "Domenet er ukjent og betalingsmåten (Western Union/gavekort) er klassiske svindeltegn."
                 }
@@ -806,11 +809,14 @@ public class DataLoader implements ApplicationRunner {
                     "contactText": "Kontakt: ingen informasjon tilgjengelig"
                   },
                   "elements": [
-                    { "id": "domain",  "label": "billig-elektronikk.cc",          "explanation": "Domenet virker generisk og lite troverdig.", "isSuspicious": true },
-                    { "id": "contact", "label": "ingen informasjon tilgjengelig",  "explanation": "Seriøse butikker skjuler ikke kontaktinfo.", "isSuspicious": true },
-                    { "id": "productName", "label": "PlayStation 5",               "explanation": "Produktnavnet i seg selv sier ikke at butikken er falsk.", "isSuspicious": false },
-                    { "id": "payment", "label": "Visa / Mastercard",               "explanation": "Vanlig kortbetaling ser mer normalt ut og er ikke hovedproblemet her.", "isSuspicious": false },
-                    { "id": "price",   "label": "1 499",                           "explanation": "Prisen er lav, men i denne oppgaven er det domenet og manglende kontaktinfo som avslører butikken best.", "isSuspicious": false }
+                    { "id": "domain",       "label": "billig-elektronikk.cc",         "explanation": "Domenet virker generisk og lite troverdig.", "isSuspicious": true },
+                    { "id": "seller",       "label": "Solgt av ElektroAS",            "explanation": "Selgernavnet ser ganske normalt ut og er ikke hovedproblemet her.", "isSuspicious": false },
+                    { "id": "shipping",     "label": "Levering 3-5 virkedager",      "explanation": "Vanlig leveringstid er ikke i seg selv et faresignal.", "isSuspicious": false },
+                    { "id": "productName",  "label": "PlayStation 5",                "explanation": "Produktnavnet i seg selv sier ikke at butikken er falsk.", "isSuspicious": false },
+                    { "id": "price",        "label": "1 499",                        "explanation": "Prisen er lav, men det er domenet og manglende kontaktinfo som avslører butikken best.", "isSuspicious": false },
+                    { "id": "payment",      "label": "Visa / Mastercard",            "explanation": "Vanlig kortbetaling ser mer normalt ut og er ikke hovedproblemet her.", "isSuspicious": false },
+                    { "id": "contact",      "label": "ingen informasjon tilgjengelig", "explanation": "Seriøse butikker skjuler ikke kontaktinfo.", "isSuspicious": true },
+                    { "id": "returnPolicy", "label": "14 dagers returrett",           "explanation": "En returpolicy i seg selv er ikke et faresignal.", "isSuspicious": false }
                   ],
                   "explanation": "Domenet er ukjent og det mangler kontaktinformasjon — to alvorlige varseltegn."
                 }
@@ -836,11 +842,14 @@ public class DataLoader implements ApplicationRunner {
                     "returnPolicyText": "30 dagers retur med kvittering"
                   },
                   "elements": [
-                    { "id": "payment", "label": "Kun bankoverføring før sending", "explanation": "Bare bankoverføring gjør det mye vanskeligere å få hjelp hvis noe går galt.", "isSuspicious": true },
-                    { "id": "contact", "label": "Kontakt oss kun via DM på ShopChat", "explanation": "Seriøse butikker har vanligvis ordentlig kontaktinfo, ikke bare DM.", "isSuspicious": true },
-                    { "id": "returnPolicy", "label": "30 dagers retur med kvittering", "explanation": "En tydelig returregel er et godt tegn, ikke et faresignal.", "isSuspicious": false },
-                    { "id": "domain", "label": "streetwear-fast.net", "explanation": "Domenet kan se litt rart ut, men i denne oppgaven er det ikke det tydeligste faresignalet.", "isSuspicious": false },
-                    { "id": "productName", "label": "Urban Storm Jacket", "explanation": "Produktnavnet ser helt vanlig ut og er ikke mistenkelig i seg selv.", "isSuspicious": false }
+                    { "id": "domain",       "label": "streetwear-fast.net",               "explanation": "Domenet kan se litt rart ut, men det er ikke det tydeligste faresignalet her.", "isSuspicious": false },
+                    { "id": "seller",       "label": "Solgt av UrbanStyle AS",            "explanation": "Selgernavnet ser ganske normalt ut og er ikke hovedproblemet her.", "isSuspicious": false },
+                    { "id": "shipping",     "label": "Levering 2-4 virkedager",          "explanation": "Vanlig leveringstid er ikke i seg selv et faresignal.", "isSuspicious": false },
+                    { "id": "productName",  "label": "Urban Storm Jacket",               "explanation": "Produktnavnet ser helt vanlig ut og er ikke mistenkelig i seg selv.", "isSuspicious": false },
+                    { "id": "price",        "label": "899 kr",                           "explanation": "Prisen ser grei ut og er ikke et faresignal her.", "isSuspicious": false },
+                    { "id": "payment",      "label": "Kun bankoverføring før sending",    "explanation": "Bare bankoverføring gjør det mye vanskeligere å få hjelp hvis noe går galt.", "isSuspicious": true },
+                    { "id": "contact",      "label": "Kontakt oss kun via DM på ShopChat", "explanation": "Seriøse butikker har vanligvis ordentlig kontaktinfo, ikke bare DM.", "isSuspicious": true },
+                    { "id": "returnPolicy", "label": "30 dagers retur med kvittering",    "explanation": "En tydelig returregel er et godt tegn, ikke et faresignal.", "isSuspicious": false }
                   ],
                   "explanation": "Her er det betalingsmåten og den dårlige kontaktløsningen som avslører butikken."
                 }

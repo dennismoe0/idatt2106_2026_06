@@ -470,14 +470,15 @@ function handleToggle(id) {
 .fake-shop__field {
   display: inline;
   text-align: left;
-  border: 1.5px dashed var(--color-border);
-  border-radius: 3px;
-  padding: 1px 5px;
-  background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+  border: 1.5px dashed color-mix(in srgb, var(--color-warning) 60%, transparent);
+  border-radius: 4px;
+  padding: 2px 6px;
+  background: color-mix(in srgb, var(--color-warning-light) 50%, transparent);
   color: inherit;
   font: inherit;
   cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+  outline-offset: 2px;
 }
 
 .fake-shop__trust-pill.fake-shop__field,
@@ -486,12 +487,14 @@ function handleToggle(id) {
 }
 
 .fake-shop__field:hover:not(:disabled) {
-  background: var(--color-warning-light);
-  border-style: solid;
+  background: color-mix(in srgb, var(--color-warning) 35%, white);
+  border-color: var(--color-warning);
+  transform: scale(1.03);
 }
 
 .fake-shop__field:disabled {
   cursor: not-allowed;
+  transform: none;
 }
 
 .fake-shop__field--flagged {
