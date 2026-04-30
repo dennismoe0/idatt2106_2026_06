@@ -125,107 +125,50 @@
       </template>
     </div>
 
-    <BaseModal
-      :model-value="editingReflectionId !== null"
+    <NotebookEditModal
+      :open="editingReflectionId !== null"
       title="Rediger observasjon"
-      @update:modelValue="handleReflectionEditModalToggle"
-    >
-      <div class="journal-modal">
-        <textarea
-          v-model="editReflectionContent"
-          class="journal-modal__textarea"
-          rows="6"
-          maxlength="500"
-          aria-label="Rediger observasjon"
-          autofocus
-        />
-        <p class="journal-modal__count">{{ editReflectionContent.length }}/500</p>
-        <div class="journal-modal__actions">
-          <button
-            class="journal-modal__button journal-modal__button--primary"
-            type="button"
-            :disabled="!editReflectionContent.trim() || saving"
-            @click="saveCurrentReflectionEdit"
-          >
-            {{ saving ? 'Lagrer...' : 'Lagre' }}
-          </button>
-          <button class="journal-modal__button" type="button" @click="cancelReflectionEdit">
-            Avbryt
-          </button>
-        </div>
-        <p v-if="saveError" class="journal-modal__error" role="alert">{{ saveError }}</p>
-      </div>
-    </BaseModal>
+      :initial-content="editingReflectionContent"
+      :saving="saving"
+      :error="saveError"
+      @save="saveCurrentReflectionEdit"
+      @cancel="cancelReflectionEdit"
+    />
 
-    <BaseModal :model-value="editingStop !== null" title="Ny observasjon" @update:modelValue="handleObservationModalToggle">
-      <div class="journal-modal">
-        <textarea
-          v-model="newContent"
-          class="journal-modal__textarea"
-          rows="6"
-          maxlength="500"
-          aria-label="Ny observasjon"
-          autofocus
-        />
-        <p class="journal-modal__count">{{ newContent.length }}/500</p>
-        <div class="journal-modal__actions">
-          <button class="journal-modal__button journal-modal__button--primary" type="button" :disabled="!newContent.trim() || saving" @click="submitCurrentObservation">
-            {{ saving ? 'Lagrer...' : 'Lagre' }}
-          </button>
-          <button class="journal-modal__button" type="button" @click="cancelEdit">Avbryt</button>
-        </div>
-        <p v-if="saveError" class="journal-modal__error" role="alert">{{ saveError }}</p>
-      </div>
-    </BaseModal>
+    <NotebookEditModal
+      :open="editingStop !== null"
+      title="Ny observasjon"
+      :saving="saving"
+      :error="saveError"
+      @save="submitCurrentObservation"
+      @cancel="cancelEdit"
+    />
 
-    <BaseModal :model-value="addingNote" title="Nytt notat" @update:modelValue="handleGeneralNoteModalToggle">
-      <div class="journal-modal">
-        <textarea
-          v-model="newNoteContent"
-          class="journal-modal__textarea"
-          rows="6"
-          maxlength="500"
-          aria-label="Nytt generelt notat"
-          autofocus
-        />
-        <p class="journal-modal__count">{{ newNoteContent.length }}/500</p>
-        <div class="journal-modal__actions">
-          <button class="journal-modal__button journal-modal__button--primary" type="button" :disabled="!newNoteContent.trim() || saving" @click="submitGeneralNote">
-            {{ saving ? 'Lagrer...' : 'Lagre' }}
-          </button>
-          <button class="journal-modal__button" type="button" @click="cancelAddNote">Avbryt</button>
-        </div>
-        <p v-if="saveError" class="journal-modal__error" role="alert">{{ saveError }}</p>
-      </div>
-    </BaseModal>
+    <NotebookEditModal
+      :open="addingNote"
+      title="Nytt notat"
+      :saving="saving"
+      :error="saveError"
+      @save="submitGeneralNote"
+      @cancel="cancelAddNote"
+    />
 
-    <BaseModal :model-value="editingNoteId !== null" title="Rediger notat" @update:modelValue="handleEditNoteModalToggle">
-      <div class="journal-modal">
-        <textarea
-          v-model="editContent"
-          class="journal-modal__textarea"
-          rows="6"
-          maxlength="500"
-          aria-label="Rediger notat"
-          autofocus
-        />
-        <p class="journal-modal__count">{{ editContent.length }}/500</p>
-        <div class="journal-modal__actions">
-          <button class="journal-modal__button journal-modal__button--primary" type="button" :disabled="!editContent.trim() || saving" @click="saveCurrentEdit">
-            {{ saving ? 'Lagrer...' : 'Lagre' }}
-          </button>
-          <button class="journal-modal__button" type="button" @click="cancelNoteEdit">Avbryt</button>
-        </div>
-        <p v-if="saveError" class="journal-modal__error" role="alert">{{ saveError }}</p>
-      </div>
-    </BaseModal>
+    <NotebookEditModal
+      :open="editingNoteId !== null"
+      title="Rediger notat"
+      :initial-content="editingNoteContent"
+      :saving="saving"
+      :error="saveError"
+      @save="saveCurrentEdit"
+      @cancel="cancelNoteEdit"
+    />
   </CorkBoardPage>
 </template>
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import BaseModal from '@/components/common/BaseModal.vue'
 import CorkBoardPage from '@/components/common/CorkBoardPage.vue'
+import NotebookEditModal from '@/components/student/NotebookEditModal.vue'
 import NotebookJournalPage from '@/components/student/NotebookJournalPage.vue'
 import { useSound } from '@/composables/useSound'
 import { useNotebookStore } from '@/stores/notebook'
@@ -249,13 +192,11 @@ const saving = ref(false)
 const saveError = ref(null)
 
 const editingStop = ref(null)
-const newContent = ref('')
 const addingNote = ref(false)
-const newNoteContent = ref('')
 const editingNoteId = ref(null)
-const editContent = ref('')
+const editingNoteContent = ref('')
 const editingReflectionId = ref(null)
-const editReflectionContent = ref('')
+const editingReflectionContent = ref('')
 
 const showJournalOverlay = ref(true)
 const isOpening = ref(false)
@@ -447,59 +388,51 @@ async function load() {
 
 function startEdit(stopId) {
   editingStop.value = stopId
-  newContent.value = ''
   saveError.value = null
 }
 
 function cancelEdit() {
   editingStop.value = null
-  newContent.value = ''
   saveError.value = null
 }
 
 function startAddNote() {
   addingNote.value = true
-  newNoteContent.value = ''
   saveError.value = null
 }
 
 function cancelAddNote() {
   addingNote.value = false
-  newNoteContent.value = ''
   saveError.value = null
 }
 
 function startNoteEdit(note) {
   editingNoteId.value = note.id
-  editContent.value = note.content
+  editingNoteContent.value = note.content
   saveError.value = null
 }
 
 function cancelNoteEdit() {
   editingNoteId.value = null
-  editContent.value = ''
+  editingNoteContent.value = ''
   saveError.value = null
 }
 
-// ADD after cancelNoteEdit():
-
 function startReflectionEdit(reflection) {
   editingReflectionId.value = reflection.id
-  editReflectionContent.value = reflection.content
+  editingReflectionContent.value = reflection.content
   saveError.value = null
 }
 
 function cancelReflectionEdit() {
   editingReflectionId.value = null
-  editReflectionContent.value = ''
+  editingReflectionContent.value = ''
   saveError.value = null
 }
 
-async function saveCurrentReflectionEdit() {
+async function saveCurrentReflectionEdit(content) {
   const id = editingReflectionId.value
-  if (!id) return
-  const content = editReflectionContent.value.trim()
-  if (!content) return
+  if (!id || !content) return
 
   saving.value = true
   saveError.value = null
@@ -522,13 +455,9 @@ async function removeReflection(id) {
   }
 }
 
-function handleReflectionEditModalToggle(nextValue) {
-  if (!nextValue) cancelReflectionEdit()
-}
-
-async function submitReflection(stopId) {
-  const content = newContent.value.trim()
-  if (!content) return
+async function submitCurrentObservation(content) {
+  const stopId = editingStop.value
+  if (!stopId || !content) return
 
   saving.value = true
   saveError.value = null
@@ -544,13 +473,7 @@ async function submitReflection(stopId) {
   }
 }
 
-async function submitCurrentObservation() {
-  if (!editingStop.value) return
-  await submitReflection(editingStop.value)
-}
-
-async function submitGeneralNote() {
-  const content = newNoteContent.value.trim()
+async function submitGeneralNote(content) {
   if (!content) return
 
   saving.value = true
@@ -567,9 +490,9 @@ async function submitGeneralNote() {
   }
 }
 
-async function saveEdit(id) {
-  const content = editContent.value.trim()
-  if (!content) return
+async function saveCurrentEdit(content) {
+  const id = editingNoteId.value
+  if (!id || !content) return
 
   saving.value = true
   saveError.value = null
@@ -585,29 +508,12 @@ async function saveEdit(id) {
   }
 }
 
-async function saveCurrentEdit() {
-  if (!editingNoteId.value) return
-  await saveEdit(editingNoteId.value)
-}
-
 async function removeNote(id) {
   try {
     await notebookStore.deleteNote(id)
   } catch (err) {
     console.error('[NotebookView] Failed to delete note:', err)
   }
-}
-
-function handleObservationModalToggle(nextValue) {
-  if (!nextValue) cancelEdit()
-}
-
-function handleGeneralNoteModalToggle(nextValue) {
-  if (!nextValue) cancelAddNote()
-}
-
-function handleEditNoteModalToggle(nextValue) {
-  if (!nextValue) cancelNoteEdit()
 }
 
 function openJournal() {
@@ -948,6 +854,11 @@ onBeforeUnmount(() => {
 
 .journal-paper--right::after {
   right: 22px;
+}
+
+.journal-paper--single::after {
+  left: 4%;
+  transform: translateX(-50%);
 }
 
 .journal-leaf {
@@ -1301,72 +1212,6 @@ onBeforeUnmount(() => {
     18px 16px 28px rgba(0, 0, 0, 0.18);
 }
 
-.journal-modal {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-}
-
-.journal-modal__textarea {
-  width: 100%;
-  box-sizing: border-box;
-  resize: none;
-  padding: 0.9rem 1rem;
-  border-radius: 12px;
-  border: 1px solid color-mix(in srgb, var(--color-journal-leather-light) 28%, transparent);
-  background: var(--color-journal-modal-surface);
-  color: var(--color-journal-modal-ink);
-  font-family: inherit;
-  font-size: 0.96rem;
-  line-height: 1.5;
-}
-
-.journal-modal__textarea:focus {
-  outline: none;
-  border-color: color-mix(in srgb, var(--color-journal-accent) 70%, transparent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-journal-accent) 18%, transparent);
-}
-
-.journal-modal__count {
-  margin: 0;
-  text-align: right;
-  font-size: 0.78rem;
-  color: color-mix(in srgb, var(--color-journal-ink) 65%, transparent);
-}
-
-.journal-modal__actions {
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-
-.journal-modal__button {
-  padding: 0.72rem 1rem;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--color-journal-leather-top) 24%, transparent);
-  background: color-mix(in srgb, var(--color-journal-parchment-light) 75%, transparent);
-  color: var(--color-journal-ink-soft);
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.journal-modal__button--primary {
-  background: linear-gradient(135deg, var(--color-journal-leather-top), var(--color-journal-leather-bottom));
-  color: var(--color-journal-parchment-light);
-  border-color: transparent;
-}
-
-.journal-modal__button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.journal-modal__error {
-  margin: 0;
-  font-size: 0.86rem;
-  color: var(--color-journal-error);
-}
 @media (max-width: 640px) {
   .journal-reader {
     gap: var(--space-3);
@@ -1432,10 +1277,6 @@ onBeforeUnmount(() => {
 
   .journal-leaf--back {
     left: 10px;
-  }
-
-  .journal-modal__button {
-    width: 100%;
   }
 
   .journal-cover-stage {

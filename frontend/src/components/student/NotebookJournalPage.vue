@@ -9,23 +9,12 @@
       <p v-if="page.partLabel" class="journal-page-content__part">{{ page.partLabel }}</p>
 
       <button
-        v-if="interactive && page.kind === 'stop' && page.showComposer && page.stopId != null"
+        v-if="addButton"
         class="journal-page-content__add"
         type="button"
-        aria-label="Legg til observasjon"
-        title="Legg til observasjon"
-        @click="startStopEdit?.(page.stopId)"
-      >
-        <span aria-hidden="true">+</span>
-      </button>
-
-      <button
-        v-else-if="interactive && page.kind === 'general' && page.showComposer"
-        class="journal-page-content__add"
-        type="button"
-        aria-label="Legg til notat"
-        title="Legg til notat"
-        @click="startAddNote?.()"
+        :aria-label="addButton.label"
+        :title="addButton.label"
+        @click="addButton.onClick"
       >
         <span aria-hidden="true">+</span>
       </button>
@@ -128,7 +117,9 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   page: {
     type: Object,
     required: true
@@ -147,6 +138,17 @@ defineProps({
   removeNote: Function,
   startReflectionEdit: Function,
   removeReflection: Function
+})
+
+const addButton = computed(() => {
+  if (!props.interactive || !props.page.showComposer) return null
+  if (props.page.kind === 'stop' && props.page.stopId != null) {
+    return { label: 'Legg til observasjon', onClick: () => props.startStopEdit?.(props.page.stopId) }
+  }
+  if (props.page.kind === 'general') {
+    return { label: 'Legg til notat', onClick: () => props.startAddNote?.() }
+  }
+  return null
 })
 
 function continuationText(block) {
@@ -304,10 +306,6 @@ function formatDate(isoString) {
   border-radius: 999px;
 }
 
-.journal-page-content__body--report {
-  justify-content: flex-start;
-}
-
 .journal-page-content__body--blank {
   justify-content: center;
 }
@@ -404,9 +402,11 @@ function formatDate(isoString) {
   font-size: clamp(0.78rem, 1.1vw + 0.55rem, 0.92rem);
   line-height: 1.55;
   /* Wrap normally; only break unbroken strings (e.g. 500x "M") via overflow-wrap. */
+  white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: normal;
   hyphens: auto;
+  max-width: 100%;
 }
 
 .journal-entry-card__continuation {
@@ -465,28 +465,6 @@ function formatDate(isoString) {
   font-style: italic;
 }
 
-.journal-button,
-.journal-text-button {
-  cursor: pointer;
-  transition: transform 180ms ease, background 180ms ease, opacity 180ms ease;
-}
-
-.journal-button {
-  align-self: flex-start;
-  padding: 0.62rem 0.92rem;
-  border-radius: 999px;
-  border: 1px dashed color-mix(in srgb, var(--color-journal-accent) 60%, transparent);
-  background: color-mix(in srgb, var(--color-journal-parchment-light) 60%, transparent);
-  color: var(--color-journal-ink-soft);
-  font-size: 0.84rem;
-  font-weight: 700;
-}
-
-.journal-button:hover,
-.journal-text-button:hover {
-  transform: translateY(-1px);
-}
-
 .journal-text-button {
   padding: 0;
   border: none;
@@ -494,6 +472,12 @@ function formatDate(isoString) {
   color: var(--color-journal-accent);
   font-size: 0.8rem;
   font-weight: 700;
+  cursor: pointer;
+  transition: transform 180ms ease, background 180ms ease, opacity 180ms ease;
+}
+
+.journal-text-button:hover {
+  transform: translateY(-1px);
 }
 
 .journal-text-button--danger {
@@ -537,16 +521,12 @@ function formatDate(isoString) {
   min-width: 0;
 }
 
-.journal-report-card__text,
-.journal-entry-card__text,
 .journal-empty,
 .journal-page-content__quote {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: normal;
   hyphens: auto;
-  max-width: 100%;
-  display: block;
 }
 
 @media (max-width: 640px) {
