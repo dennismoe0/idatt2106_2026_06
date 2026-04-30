@@ -1336,7 +1336,7 @@ function scrollToLearningTop() {
 
 .news-domains__url {
   flex: 1;
-  color: var(--color-text)
+  color: var(--color-text);
 }
 
 .news-domains__name {

@@ -48,15 +48,6 @@ const classroomId = computed(() => Number(classroomStore.currentClassroomId))
   margin-bottom: var(--space-6);
 }
 
-.mysterium-view__eyebrow {
-  font-size: var(--text-xs);
-  font-weight: var(--font-bold);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--color-cork-dark);
-  margin: 0 0 var(--space-2);
-}
-
 .mysterium-view__title {
   font-family: 'Special Elite', serif;
   font-size: clamp(1.8rem, 5vw, 2.6rem);
