@@ -61,11 +61,7 @@
           Prøv igjen
         </button>
         <button v-else class="next-btn" @click="$emit('next')">
-        
           {{ isLastTask ? 'Videre til sammendrag →' : 'Neste oppgave →' }}
-        </button>
-        <button v-else class="next-btn" @click="$emit('retry')">
-          Prøv igjen
         </button>
       </div>
     </Transition>

@@ -219,8 +219,23 @@ function isCorrectAnswer(expected, actual) {
   return Object.keys(expected).every((key) => String(actual?.[key]) === String(expected[key]))
 }
 
+function resetBossRun() {
+  phase.value = 'intro'
+  currentIdx.value = 0
+  answers.value = {}
+  systemState.value = { mode: 'idle', explanation: '' }
+  failedAttempts.value = {}
+}
+
 watch(() => props.result, (r) => {
-  if (r !== null) phase.value = 'result'
+  if (r !== null) {
+    phase.value = 'result'
+    return
+  }
+
+  if (phase.value === 'result') {
+    resetBossRun()
+  }
 })
 </script>
 

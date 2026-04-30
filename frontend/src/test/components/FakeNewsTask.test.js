@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import FakeNewsTask from '@/components/student/FakeNewsTask.vue'
 
@@ -81,6 +81,13 @@ function mountTask(task = TWO_ARTICLE_TASK, extraProps = {}) {
 // ─── Tests ─────────────────────────────────────────────────────────────────
 
 describe('FakeNewsTask.vue', () => {
+  beforeEach(() => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.99)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
 
   // ── Rendering ───────────────────────────────────────────────────────────
 
