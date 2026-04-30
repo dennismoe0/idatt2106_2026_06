@@ -38,6 +38,30 @@ const TASK = {
   },
 }
 
+const MARKETPLACE_TASK = {
+  id: 8,
+  taskType: 'FINAL_BOSS',
+  guidanceText: 'Stopp backup-planen.',
+  contentJson: {
+    intro: 'Tyvens siste forsvar er aktivert.',
+    challenges: [
+      {
+        id: 'm0',
+        type: 'MARKETPLACE',
+        systemName: 'Butikksjekk',
+        description: 'Finn faresignalet.',
+        failureExplanation: 'Nettadressen og betalingen avslører svindelen.',
+        question: 'Hva er galt med denne nettsiden?',
+        options: [
+          { id: 'a', text: 'Ingenting' },
+          { id: 'b', text: 'URL-en er falsk og betalingsvalget er utrygt' },
+        ],
+        correctAnswer: { selected: 'b' },
+      },
+    ],
+  },
+}
+
 describe('FinalBossTask', () => {
   it('shows intro and system preview before start', () => {
     const wrapper = mount(FinalBossTask, { props: { task: TASK } })
@@ -119,5 +143,16 @@ describe('FinalBossTask', () => {
       challenge_0: null,
       challenge_1: { selected: 'b' },
     })
+  })
+
+  it('renders marketplace challenges through the shared choice component', async () => {
+    const wrapper = mount(FinalBossTask, { props: { task: MARKETPLACE_TASK } })
+
+    await wrapper.find('.boss__btn--start').trigger('click')
+    await wrapper.get('.mini-task__options button:nth-child(2)').trigger('click')
+    await wrapper.get('.mini-task__submit').trigger('click')
+
+    expect(wrapper.text()).toContain('System stoppet!')
+    expect(wrapper.find('.boss__btn--finish').exists()).toBe(true)
   })
 })

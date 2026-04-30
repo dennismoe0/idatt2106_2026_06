@@ -58,12 +58,6 @@
         :submitted="isSystemLocked"
         @answer="recordAnswer"
       />
-      <BossMarketplace
-        v-else-if="currentChallenge.type === 'MARKETPLACE'"
-        :challenge="currentChallenge"
-        :submitted="isSystemLocked"
-        @answer="recordAnswer"
-      />
       <BossSocialMedia
         v-else-if="currentChallenge.type === 'SOCIAL_MEDIA'"
         :challenge="currentChallenge"
@@ -141,7 +135,6 @@ import BossFakeNews from '@/components/student/boss/BossFakeNews.vue'
 import BossAiPhoto  from '@/components/student/boss/BossAiPhoto.vue'
 import BossPhishing from '@/components/student/boss/BossPhishing.vue'
 import BossSocialMedia from '@/components/student/boss/BossSocialMedia.vue'
-import BossMarketplace from '@/components/student/boss/BossChoice.vue'
 import BossPassword from '@/components/student/boss/BossPassword.vue'
 import BossChoice   from '@/components/student/boss/BossChoice.vue'
 

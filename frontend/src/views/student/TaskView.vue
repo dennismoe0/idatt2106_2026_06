@@ -587,7 +587,7 @@ async function handleSubmit(answer) {
 
 function describeSubmitError(apiError) {
   const status = apiError?.response?.status
-  const message = apiError?.response?.data?.error
+  const message = apiError?.response?.data?.error ?? apiError?.response?.data?.message
 
   if (status === 403) {
     if (message === 'Tutorial must be completed first') {
@@ -1017,13 +1017,13 @@ function handlePeekOut(e) {
 }
 
 function goNext() {
-  if (result.value && currentTask.value) {
-    taskResults.value[currentTask.value.id] = result.value
-  }
   if (result.value && !result.value.correct) {
     console.warn('[TaskView] Blocking advance after wrong answer for task', currentTask.value?.id)
     result.value = null
     return
+  }
+  if (result.value && currentTask.value) {
+    taskResults.value[currentTask.value.id] = result.value
   }
   if (shouldShowArrestScene()) {
     arrestSceneStep.value = 0
