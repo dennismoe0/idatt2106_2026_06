@@ -14,7 +14,6 @@ const classroomId = computed(() => Number(classroomStore.currentClassroomId))
 
     <main class="mysterium-view__main">
       <header class="mysterium-view__header">
-        <p class="mysterium-view__eyebrow">🔎 UKENTLIG UTFORDRING</p>
         <h1 class="mysterium-view__title">Ukas Mysterium</h1>
         <p class="mysterium-view__desc">
           Hvert mysterium er sendt inn av en elev i klassen din og godkjent av læreren.
@@ -54,7 +53,7 @@ const classroomId = computed(() => Number(classroomStore.currentClassroomId))
   font-weight: var(--font-bold);
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--color-cork-light);
+  color: var(--color-cork-dark);
   margin: 0 0 var(--space-2);
 }
 
