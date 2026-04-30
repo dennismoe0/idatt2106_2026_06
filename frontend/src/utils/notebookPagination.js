@@ -195,36 +195,45 @@ export function buildLevelPagesForGroup(stopOrder, group) {
     RESERVED_REPORT_TITLES[stopOrder] ||
     `Oppdrag ${stopOrder}`
 
-  const blocks = []
-
-  // 1. Level note (autoTip) first — shown at the top of each level section
+  // Tip and clue are always rendered together on the first page of the
+  // level, regardless of length, so the unlocked report and its associated
+  // clue stay visually paired (see e.g. the post-office level which has a
+  // long tip + clue pair that previously overflowed onto separate pages).
+  const headerBlocks = []
   if (group?.autoTip) {
-    blocks.push(...buildTipBlocks(group.autoTip))
+    headerBlocks.push(...buildTipBlocks(group.autoTip))
   }
-
-  // 2. Auto-discovered clue from the stop, kept separate from the tip
   if (group?.autoClue) {
-    blocks.push(...buildClueBlocks(group.autoClue))
+    headerBlocks.push(...buildClueBlocks(group.autoClue))
   }
 
-  // 3. User's own observations for this level
+  const reflectionBlocks = []
   for (const reflection of group?.reflections ?? []) {
-    blocks.push(...buildReflectionBlocks(reflection))
+    reflectionBlocks.push(...buildReflectionBlocks(reflection))
   }
 
-  // 4. Empty state
-  if (!blocks.length) {
-    blocks.push({
-      key: `level-empty-${stopOrder}`,
-      type: 'empty',
-      content: group
-        ? 'Ingen observasjoner ennå. Skriv ned rare detaljer før de forsvinner.'
-        : 'Fullfør dette nivået for å låse opp rapporten og legge til observasjoner.',
-      units: 5
-    })
+  let pages
+  if (headerBlocks.length) {
+    // First page is dedicated to tip+clue; remaining reflections paginate
+    // normally on subsequent pages.
+    const reflectionPages = reflectionBlocks.length
+      ? packBlocks(reflectionBlocks, 12)
+      : []
+    pages = [headerBlocks, ...reflectionPages]
+  } else if (reflectionBlocks.length) {
+    pages = packBlocks(reflectionBlocks, 12)
+  } else {
+    pages = [[
+      {
+        key: `level-empty-${stopOrder}`,
+        type: 'empty',
+        content: group
+          ? 'Ingen observasjoner ennå. Skriv ned rare detaljer før de forsvinner.'
+          : 'Fullfør dette nivået for å låse opp rapporten og legge til observasjoner.',
+        units: 5
+      }
+    ]]
   }
-
-  const pages = packBlocks(blocks, 12)
   const stopId = group?.stopId ?? null
 
   return pages.map((pageBlocks, index) => ({
