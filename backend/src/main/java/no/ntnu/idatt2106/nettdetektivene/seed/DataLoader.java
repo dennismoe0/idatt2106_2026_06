@@ -1673,8 +1673,16 @@ public class DataLoader implements ApplicationRunner {
     }
 
     private JsonNode clueRiddleCorrectSelection(String correctOptionId) {
-        if (correctOptionId != null && correctOptionId.trim().startsWith("[")) {
-            return readJsonNode(correctOptionId, "clue riddle correct selection");
+        if (correctOptionId == null) {
+            return objectMapper.getNodeFactory().nullNode();
+        }
+        try {
+            JsonNode parsed = objectMapper.readTree(correctOptionId);
+            if (parsed.isArray() || parsed.isObject()) {
+                return parsed;
+            }
+        } catch (JsonProcessingException ignored) {
+            // not JSON - fall through to plain text
         }
         return objectMapper.getNodeFactory().textNode(correctOptionId);
     }
