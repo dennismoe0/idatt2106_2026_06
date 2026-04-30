@@ -401,7 +401,7 @@ async function copyCode() {
   white-space: nowrap;
 }
 .badge--pending  { background: var(--color-warning-light); color: var(--color-warning); }
-.badge--approved { background: var(--color-success-light); color: var(--color-success); }
+.badge--approved { background: var(--color-success-light); color: var(--color-text); }
 .badge--kicked   { background: var(--color-danger-light);  color: var(--color-danger); }
 
 .stop-cell {
