@@ -76,17 +76,17 @@
     <!-- Default: classify each image -->
     <template v-else>
       <div class="images-grid">
-        <div
-          v-for="(img, index) in images"
-          :key="img.id"
-          class="image-card"
-          data-peek-trigger
-          :class="{
-            'image-card--answered': !!result,
-            'image-card--correct':  result?.correct,
-            'image-card--wrong':    result && !result.correct
-          }"
-        >
+          <div
+            v-for="(img, index) in images"
+            :key="img.id"
+            class="image-card"
+            data-peek-trigger
+            :class="{
+              'image-card--answered': !!result,
+              'image-card--correct':  imageResultState(index, img) === 'correct',
+              'image-card--wrong':    imageResultState(index, img) === 'wrong'
+            }"
+          >
           <div class="image-card__img-wrap">
             <img
               v-if="img.src"
@@ -114,6 +114,14 @@
             >
               {{ opt.label }}
             </button>
+          </div>
+
+          <div
+            v-if="result && imageFeedbackText(index, img)"
+            class="image-card__feedback"
+            :class="`image-card__feedback--${imageResultState(index, img)}`"
+          >
+            {{ imageFeedbackText(index, img) }}
           </div>
         </div>
       </div>
@@ -226,6 +234,24 @@ const isReady = computed(() => {
 
 function setAnswer(index, value) {
   answers.value[`image_${index}`] = value
+}
+
+function expectedTypeFor(img) {
+  return img.correctType ?? img.expectedType ?? img.answer ?? null
+}
+
+function imageResultState(index, img) {
+  if (!props.result) return null
+  const expectedType = expectedTypeFor(img)
+  if (!expectedType) return props.result.correct ? 'correct' : 'wrong'
+  return answers.value[`image_${index}`] === expectedType ? 'correct' : 'wrong'
+}
+
+function imageFeedbackText(index, img) {
+  const state = imageResultState(index, img)
+  if (state === 'correct') return img.correctFeedback ?? img.explanation ?? ''
+  if (state === 'wrong') return img.wrongFeedback ?? img.explanation ?? ''
+  return ''
 }
 
 function submit() {
@@ -411,6 +437,23 @@ function submit() {
   display: flex;
   gap: var(--space-2);
   flex-wrap: wrap;
+}
+.image-card__feedback {
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  line-height: 1.45;
+}
+.image-card__feedback--correct {
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
+  border: 1px solid var(--color-success);
+}
+.image-card__feedback--wrong {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+  border: 1px solid var(--color-danger);
 }
 .type-btn {
   flex: 1;
