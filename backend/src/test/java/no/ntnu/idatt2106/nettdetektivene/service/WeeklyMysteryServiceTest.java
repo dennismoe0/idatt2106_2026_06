@@ -56,14 +56,16 @@ class WeeklyMysteryServiceTest {
         when(completionRepo.existsByStudentIdAndMysteryId(1L, 5L)).thenReturn(false);
         when(completionRepo.countByStudentIdAndCorrectTrue(1L)).thenReturn(0L);
         when(completionRepo.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(userRepo.getReferenceById(1L)).thenReturn(student);
         when(userRepo.findById(1L)).thenReturn(Optional.of(student));
 
         MysteryCompleteDto dto = new MysteryCompleteDto(10L, "FAKE");
-        MysteryCompleteResultDto result = service.completeMystery(student, dto);
+        MysteryCompleteResultDto result = service.completeMystery(1L, dto);
 
         assertThat(result.correct()).isTrue();
         assertThat(result.starsEarned()).isEqualTo(5);
         assertThat(result.xpEarned()).isEqualTo(50);
+        verify(userRepo).getReferenceById(1L);
     }
 
     @Test
@@ -83,12 +85,13 @@ class WeeklyMysteryServiceTest {
             .thenReturn(true);
         when(mysteryRepo.findByClassroomIdAndFeaturedTrue(10L)).thenReturn(Optional.of(mystery));
         when(completionRepo.existsByStudentIdAndMysteryId(1L, 5L)).thenReturn(true);
+        when(userRepo.getReferenceById(1L)).thenReturn(student);
 
         MysteryCompleteDto dto = new MysteryCompleteDto(10L, "FAKE");
 
         org.junit.jupiter.api.Assertions.assertThrows(
             IllegalStateException.class,
-            () -> service.completeMystery(student, dto)
+            () -> service.completeMystery(1L, dto)
         );
     }
 
@@ -104,6 +107,7 @@ class WeeklyMysteryServiceTest {
         classroom.setId(10L);
 
         when(classroomRepo.findById(10L)).thenReturn(Optional.of(classroom));
+        when(userRepo.getReferenceById(1L)).thenReturn(student);
         when(mysteryRepo.save(any(WeeklyMystery.class))).thenAnswer(invocation -> {
             WeeklyMystery mystery = invocation.getArgument(0);
             mystery.setId(55L);
@@ -112,11 +116,12 @@ class WeeklyMysteryServiceTest {
         when(classroomTeacherRepo.findTeachersByClassroomId(10L)).thenReturn(java.util.List.of(teacher));
 
         WeeklyMystery result = service.submitMystery(
-            student,
+            1L,
             new WeeklyMysterySubmissionDto("Mystery title", "Description", null, 10L)
         );
 
         assertThat(result.getId()).isEqualTo(55L);
+        verify(userRepo).getReferenceById(1L);
         verify(notificationService).createNotification(
             2L,
             10L,

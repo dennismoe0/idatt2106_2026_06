@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.dto.notification.NotificationCountDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.notification.NotificationDto;
 import no.ntnu.idatt2106.nettdetektivene.service.NotificationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,16 +24,22 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('TEACHER')")
 public class NotificationController {
+    private static final Logger log = LoggerFactory.getLogger(NotificationController.class);
+
     private final NotificationService notificationService;
 
     @GetMapping
     public List<NotificationDto> listNotifications(@AuthenticationPrincipal UserDetails userDetails) {
-        return notificationService.listNotifications(currentUserId(userDetails));
+        Long userId = currentUserId(userDetails);
+        log.info("[NotificationController] GET /api/notifications userId={}", userId);
+        return notificationService.listNotifications(userId);
     }
 
     @GetMapping("/count")
     public NotificationCountDto unreadCount(@AuthenticationPrincipal UserDetails userDetails) {
-        return notificationService.unreadCount(currentUserId(userDetails));
+        Long userId = currentUserId(userDetails);
+        log.info("[NotificationController] GET /api/notifications/count userId={}", userId);
+        return notificationService.unreadCount(userId);
     }
 
     @PutMapping("/{id}/read")
@@ -49,7 +57,6 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotification(
         @AuthenticationPrincipal UserDetails userDetails,
@@ -59,7 +66,6 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
     @DeleteMapping("/old")
     public ResponseEntity<Void> deleteOldNotifications(@AuthenticationPrincipal UserDetails userDetails) {
         notificationService.deleteOldNotifications(currentUserId(userDetails));

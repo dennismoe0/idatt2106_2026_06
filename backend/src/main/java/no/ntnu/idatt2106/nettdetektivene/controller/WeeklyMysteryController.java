@@ -6,9 +6,7 @@ import no.ntnu.idatt2106.nettdetektivene.dto.MysteryCompleteResultDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.WeeklyMysteryEditDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.WeeklyMysteryResponseDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.WeeklyMysterySubmissionDto;
-import no.ntnu.idatt2106.nettdetektivene.entity.User;
 import no.ntnu.idatt2106.nettdetektivene.entity.WeeklyMystery;
-import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
 import no.ntnu.idatt2106.nettdetektivene.service.WeeklyMysteryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,12 +33,9 @@ public class WeeklyMysteryController {
     private static final Logger log = LoggerFactory.getLogger(WeeklyMysteryController.class);
 
     private final WeeklyMysteryService weeklyMysteryService;
-    private final UserRepository userRepository;
 
-    public WeeklyMysteryController(WeeklyMysteryService weeklyMysteryService,
-                                   UserRepository userRepository) {
+    public WeeklyMysteryController(WeeklyMysteryService weeklyMysteryService) {
         this.weeklyMysteryService = weeklyMysteryService;
-        this.userRepository = userRepository;
     }
 
     // -------------------------------------------------------------------------
@@ -55,8 +50,7 @@ public class WeeklyMysteryController {
     ) {
         Long studentId = currentUserId(userDetails);
         log.info("[WeeklyMysteryController] POST /submissions studentId={} classroomId={}", studentId, dto.classroomId());
-        User student = userRepository.getReferenceById(studentId);
-        WeeklyMystery saved = weeklyMysteryService.submitMystery(student, dto);
+        WeeklyMystery saved = weeklyMysteryService.submitMystery(studentId, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponseDto(saved));
     }
 
@@ -92,8 +86,7 @@ public class WeeklyMysteryController {
     ) {
         Long studentId = currentUserId(userDetails);
         log.info("[WeeklyMysteryController] POST /active/complete studentId={} classroomId={}", studentId, dto.classroomId());
-        User student = userRepository.getReferenceById(studentId);
-        MysteryCompleteResultDto result = weeklyMysteryService.completeMystery(student, dto);
+        MysteryCompleteResultDto result = weeklyMysteryService.completeMystery(studentId, dto);
         return ResponseEntity.ok(result);
     }
 

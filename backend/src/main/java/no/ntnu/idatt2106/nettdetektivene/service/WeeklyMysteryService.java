@@ -70,8 +70,10 @@ public class WeeklyMysteryService {
     // -------------------------------------------------------------------------
 
     @Transactional
-    public WeeklyMystery submitMystery(User student, WeeklyMysterySubmissionDto dto) {
-        log.info("[WeeklyMysteryService] submitMystery studentId={} classroomId={}", student.getId(), dto.classroomId());
+    public WeeklyMystery submitMystery(Long studentId, WeeklyMysterySubmissionDto dto) {
+        log.info("[WeeklyMysteryService] submitMystery studentId={} classroomId={}", studentId, dto.classroomId());
+
+        User student = userRepo.getReferenceById(studentId);
 
         var classroom = classroomRepo.findById(dto.classroomId())
                 .orElseThrow(() -> {
@@ -117,8 +119,10 @@ public class WeeklyMysteryService {
     // -------------------------------------------------------------------------
 
     @Transactional
-    public MysteryCompleteResultDto completeMystery(User student, MysteryCompleteDto dto) {
-        log.info("[WeeklyMysteryService] completeMystery studentId={} classroomId={}", student.getId(), dto.classroomId());
+    public MysteryCompleteResultDto completeMystery(Long studentId, MysteryCompleteDto dto) {
+        log.info("[WeeklyMysteryService] completeMystery studentId={} classroomId={}", studentId, dto.classroomId());
+
+        User student = userRepo.getReferenceById(studentId);
 
         if (!classroomStudentRepo.existsByClassroom_IdAndStudent_IdAndStatus(
                 dto.classroomId(), student.getId(), ClassroomStudentStatus.APPROVED)) {
