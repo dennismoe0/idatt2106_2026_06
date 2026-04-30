@@ -124,7 +124,8 @@
         <h2 class="boss__result-title">Ikke helt riktig</h2>
         <p class="boss__result-body">{{ result?.explanation }}</p>
       </template>
-      <button class="boss__btn" @click="$emit('next')">Se oppsummering →</button>
+      <button v-if="!result?.correct" class="boss__btn" @click="$emit('retry')">Prøv igjen</button>
+      <button v-else class="boss__btn" @click="$emit('next')">Se oppsummering →</button>
     </div>
   </section>
 </template>
@@ -151,7 +152,7 @@ const props = defineProps({
   task:   { type: Object, required: true },
   result: { type: Object, default: null },
 })
-const emit = defineEmits(['submitted', 'next'])
+const emit = defineEmits(['submitted', 'next', 'retry'])
 
 const phase      = ref('intro')
 const currentIdx = ref(0)
@@ -218,8 +219,23 @@ function isCorrectAnswer(expected, actual) {
   return Object.keys(expected).every((key) => String(actual?.[key]) === String(expected[key]))
 }
 
+function resetBossRun() {
+  phase.value = 'intro'
+  currentIdx.value = 0
+  answers.value = {}
+  systemState.value = { mode: 'idle', explanation: '' }
+  failedAttempts.value = {}
+}
+
 watch(() => props.result, (r) => {
-  if (r !== null) phase.value = 'result'
+  if (r !== null) {
+    phase.value = 'result'
+    return
+  }
+
+  if (phase.value === 'result') {
+    resetBossRun()
+  }
 })
 </script>
 

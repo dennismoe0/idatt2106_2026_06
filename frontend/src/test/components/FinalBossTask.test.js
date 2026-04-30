@@ -155,4 +155,24 @@ describe('FinalBossTask', () => {
     expect(wrapper.text()).toContain('System stoppet!')
     expect(wrapper.find('.boss__btn--finish').exists()).toBe(true)
   })
+
+  it('resets to a fresh intro when a wrong final result is cleared for retry', async () => {
+    const wrapper = mount(FinalBossTask, { props: { task: TASK } })
+
+    await wrapper.setProps({
+      result: { correct: false, explanation: 'Backup-planen kjører fortsatt.' },
+    })
+
+    expect(wrapper.find('.boss__result').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Backup-planen kjører fortsatt.')
+
+    await wrapper.setProps({ result: null })
+
+    expect(wrapper.find('.boss__intro').exists()).toBe(true)
+
+    await wrapper.find('.boss__btn--start').trigger('click')
+
+    expect(wrapper.find('.boss__result').exists()).toBe(false)
+    expect(wrapper.text()).toContain('0 av 2 systemer stoppet')
+  })
 })

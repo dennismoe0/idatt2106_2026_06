@@ -33,6 +33,12 @@ describe('LearningTask', () => {
   beforeEach(() => { vi.useFakeTimers() })
   afterEach(() => { vi.useRealTimers() })
 
+  function optionByText(wrapper, text) {
+    const option = wrapper.findAll('.option-btn').find(button => button.text() === text)
+    expect(option, `Expected option "${text}" to exist`).toBeTruthy()
+    return option
+  }
+
   it('starts in LEARN phase on the first learning section only', () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
     expect(wrapper.text()).toContain('Overskrift 1')
@@ -63,8 +69,7 @@ describe('LearningTask', () => {
   it('marks an inline correct answer and unlocks the next section', async () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
 
-    const options = wrapper.findAll('.option-btn')
-    await options[0].trigger('click') // 'Riktig' — correct
+    await optionByText(wrapper, 'Riktig').trigger('click')
 
     expect(wrapper.find('.option-btn--correct').exists()).toBe(true)
     expect(wrapper.text()).toContain('Riktig!')
@@ -82,8 +87,7 @@ describe('LearningTask', () => {
   it('marks wrong answer and resets after 1200ms', async () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
 
-    const options = wrapper.findAll('.option-btn')
-    await options[1].trigger('click') // 'Feil' — wrong
+    await optionByText(wrapper, 'Feil').trigger('click')
 
     expect(wrapper.find('.option-btn--wrong').exists()).toBe(true)
     expect(wrapper.text()).toContain('Prøv igjen')
@@ -99,15 +103,14 @@ describe('LearningTask', () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
 
     // Answer q1 correctly
-    await wrapper.findAll('.option-btn')[0].trigger('click')
+    await optionByText(wrapper, 'Riktig').trigger('click')
     await wrapper.vm.$nextTick()
 
     await wrapper.find('.nav-btn--primary').trigger('click')
     expect(wrapper.text()).toContain('Andre spørsmål?')
 
     // Answer q2 correctly
-    const opts = wrapper.findAll('.option-btn')
-    await opts[1].trigger('click') // 'B' — correct
+    await optionByText(wrapper, 'B').trigger('click')
     vi.advanceTimersByTime(900)
     await wrapper.vm.$nextTick()
 
@@ -121,7 +124,7 @@ describe('LearningTask', () => {
 
   it('resets to LEARN view when task id changes', async () => {
     const wrapper = mount(LearningTask, { props: { task: TASK } })
-    await wrapper.findAll('.option-btn')[0].trigger('click')
+    await optionByText(wrapper, 'Riktig').trigger('click')
     expect(wrapper.find('.option-btn--correct').exists()).toBe(true)
 
     await wrapper.setProps({ task: { ...TASK, id: 99 } })

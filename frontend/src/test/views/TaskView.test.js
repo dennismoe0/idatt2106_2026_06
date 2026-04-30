@@ -208,7 +208,7 @@ describe('TaskView', () => {
   })
 
   it('starts at the first incomplete Passordbanken task when the tutorial is already completed', async () => {
-    localStorage.setItem('mystery_seen_stop_6', '1')
+    localStorage.setItem('mystery_seen_classroom_11_stop_6', '1')
     const gameStore = useGameStore()
     gameStore.fetchTasks.mockResolvedValue([
       {
@@ -270,7 +270,7 @@ describe('TaskView', () => {
   })
 
   it('starts at the first incomplete Passordbanken task when API returns alreadyCompleted', async () => {
-    localStorage.setItem('mystery_seen_stop_6', '1')
+    localStorage.setItem('mystery_seen_classroom_11_stop_6', '1')
     const gameStore = useGameStore()
     gameStore.fetchTasks.mockResolvedValue([
       {
@@ -455,7 +455,7 @@ describe('TaskView', () => {
   })
 
   it('clears password result when retry is emitted after wrong answer', async () => {
-    localStorage.setItem('mystery_seen_stop_6', '1')
+    localStorage.setItem('mystery_seen_classroom_11_stop_6', '1')
     const gameStore = useGameStore()
     gameStore.fetchTasks.mockResolvedValue([
       {
@@ -520,10 +520,20 @@ describe('TaskView', () => {
     expect(wrapper.find('.submit-answer').exists()).toBe(true)
   })
 
-  it('does not store a wrong result when next is pressed after a failed submission', async () => {
-    localStorage.setItem('mystery_seen_stop_6', '1')
+  it('keeps the task visible when backend rejects an out-of-sequence submit', async () => {
+    localStorage.setItem('mystery_seen_classroom_11_stop_6', '1')
     const gameStore = useGameStore()
     gameStore.fetchTasks.mockResolvedValue([
+      {
+        id: 400,
+        taskType: 'LEARN',
+        alreadyCompleted: true,
+        stopId: 6,
+        stopName: 'Passordbanken',
+        stopTheme: 'PASSWORD',
+        stopOrderIndex: 6,
+        contentJson: { slides: [], quiz: [] },
+      },
       {
         id: 401,
         taskType: 'PASSWORD',
@@ -532,16 +542,15 @@ describe('TaskView', () => {
         stopName: 'Passordbanken',
         stopTheme: 'PASSWORD',
         stopOrderIndex: 6,
-        stopDescription: 'Tyven er nesten tatt.',
+
         contentJson: { type: 'CHOICE', question: 'Velg det sterkeste passordet.', options: [] },
       },
     ])
-    gameStore.submitAnswer.mockResolvedValue({
-      correct: false,
-      explanation: 'Feil svar.',
-      stopCompleted: false,
-      showSuspectReveal: false,
-      medalEarned: null,
+    gameStore.submitAnswer.mockRejectedValue({
+      response: {
+        status: 403,
+        data: { message: 'Previous tasks must be completed first' },
+      },
     })
 
     const wrapper = mount(TaskView, {
@@ -552,15 +561,10 @@ describe('TaskView', () => {
           StopMysteryScreen: true,
           TutorialScreen: true,
           PasswordTask: {
-            props: ['result'],
-            template: `
-              <div>
-                <button v-if="!result" class="submit-answer" @click="$emit('submitted', { selected: 'wrong' })">submit</button>
-                <button v-else class="next-answer" @click="$emit('next')">next</button>
-              </div>
-            `,
+            template: '<button class="submit-answer" @click="$emit(\'submitted\', { selected: \'wrong\' })">submit</button>',
           },
-          LearningTask: true,
+          LearningTask: { template: '<div class="learn-stub">learn</div>' },
+
           ClueRiddleTask: true,
           FakeNewsTask: true,
           AIPhotoTask: true,
@@ -579,10 +583,9 @@ describe('TaskView', () => {
     await flushPromises()
     await wrapper.get('.submit-answer').trigger('click')
     await flushPromises()
-    await wrapper.get('.next-answer').trigger('click')
-    await flushPromises()
 
+    expect(wrapper.text()).not.toContain('Kunne ikke sende svar')
     expect(wrapper.find('.submit-answer').exists()).toBe(true)
-    expect(wrapper.find('.dot--wrong').exists()).toBe(false)
+
   })
 })
