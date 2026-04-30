@@ -1,66 +1,90 @@
 <template>
   <section class="phishing-task">
-    <p class="phishing-task__guidance">{{ task.guidanceText }}</p>
+    <header class="phishing-task__header">
+      <div class="phishing-task__header-icon" aria-hidden="true">📧</div>
+      <div class="phishing-task__header-text">
+        <h2 class="phishing-task__title">{{ task.stop?.name ?? 'Postkontoret' }}</h2>
+        <p class="phishing-task__guidance">{{ task.guidanceText }}</p>
+      </div>
+    </header>
 
-    <!-- Email card -->
-    <article class="pinned-note phishing-task__email" style="--card-rotate: -0.3deg" data-peek-trigger>
-      <!-- From row -->
-      <div class="phishing-task__from-row">
-        <span class="phishing-task__field-label">Fra:</span>
-        <span class="phishing-task__sender-name">{{ email.fromName }}</span>
+    <div class="phishing-task__workspace">
+      <aside class="phishing-task__brief">
+        <p class="phishing-task__brief-label">Oppdrag</p>
+        <p class="phishing-task__brief-text">Klikk på alle delene av e-posten som virker mistenkelige før du sender svaret ditt.</p>
+        <p class="phishing-task__brief-label">Status</p>
+        <p class="phishing-task__brief-text">
+          {{ flagged.size === 0 ? 'Ingen deler markert ennå.' : `Du har markert ${flagged.size} del${flagged.size === 1 ? '' : 'er'}.` }}
+        </p>
+
+        <div v-if="flagged.size > 0 && !result" class="phishing-task__chips" aria-live="polite">
+          <span
+            v-for="id in [...flagged]"
+            :key="id"
+            class="phishing-task__chip"
+          >🚩 {{ clueLabel(id) }}</span>
+        </div>
+      </aside>
+
+      <div class="phishing-task__panel">
+        <p class="phishing-task__question">Klikk på de delene du synes er mistenkelige.</p>
+
+        <article class="phishing-task__email" data-peek-trigger>
+          <div class="phishing-task__window">
+            <span class="phishing-task__window-dot" aria-hidden="true" />
+            <span class="phishing-task__window-dot" aria-hidden="true" />
+            <span class="phishing-task__window-dot" aria-hidden="true" />
+            <span class="phishing-task__window-title">E-post</span>
+          </div>
+
+          <div class="phishing-task__meta">
+            <div class="phishing-task__from-row">
+              <span class="phishing-task__field-label">Fra:</span>
+              <span class="phishing-task__sender-name">{{ email.fromName }}</span>
+              <button
+                v-if="senderClue"
+                class="clue-btn"
+                :class="{ 'clue-btn--flagged': flagged.has(senderClue.id), 'clue-btn--correct': isFeedbackCorrect(senderClue.id), 'clue-btn--missed': isFeedbackMissed(senderClue.id) }"
+                :aria-pressed="flagged.has(senderClue.id)"
+                :disabled="!!result"
+                @click="toggleClue(senderClue.id)"
+                :aria-label="`Flagg avsenderadresse som mistenkelig: ${senderClue.label}`"
+              >&lt;{{ senderClue.label }}&gt;</button>
+              <span v-else class="phishing-task__sender-email">&lt;{{ email.fromEmail }}&gt;</span>
+            </div>
+
+            <div class="phishing-task__subject-row">
+              <span class="phishing-task__field-label">Emne:</span>
+              <span>{{ email.subject }}</span>
+            </div>
+          </div>
+
+          <p class="phishing-task__body">
+            <template v-for="seg in bodySegments" :key="seg.key">
+              <button
+                v-if="seg.clueId"
+                class="clue-btn"
+                :class="{ 'clue-btn--flagged': flagged.has(seg.clueId), 'clue-btn--correct': isFeedbackCorrect(seg.clueId), 'clue-btn--missed': isFeedbackMissed(seg.clueId) }"
+                :aria-pressed="flagged.has(seg.clueId)"
+                :disabled="!!result"
+                @click="toggleClue(seg.clueId)"
+                :aria-label="`Flagg som mistenkelig: ${seg.text}`"
+              >{{ seg.text }}</button>
+              <span v-else>{{ seg.text }}</span>
+            </template>
+          </p>
+        </article>
+
         <button
-          v-if="senderClue"
-          class="clue-btn"
-          :class="{ 'clue-btn--flagged': flagged.has(senderClue.id), 'clue-btn--correct': isFeedbackCorrect(senderClue.id), 'clue-btn--missed': isFeedbackMissed(senderClue.id) }"
-          :aria-pressed="flagged.has(senderClue.id)"
-          :disabled="!!result"
-          @click="toggleClue(senderClue.id)"
-          :aria-label="`Flagg avsenderadresse som mistenkelig: ${senderClue.label}`"
-        >&lt;{{ senderClue.label }}&gt;</button>
-        <span v-else class="phishing-task__sender-email">&lt;{{ email.fromEmail }}&gt;</span>
+          v-if="!result"
+          class="phishing-task__submit"
+          :disabled="flagged.size === 0"
+          @click="submit"
+        >
+          Send svar
+        </button>
       </div>
-
-      <!-- Subject -->
-      <div class="phishing-task__subject-row">
-        <span class="phishing-task__field-label">Emne:</span>
-        <span>{{ email.subject }}</span>
-      </div>
-
-      <!-- Body with inline clue spans -->
-      <p class="phishing-task__body">
-        <template v-for="seg in bodySegments" :key="seg.key">
-          <button
-            v-if="seg.clueId"
-            class="clue-btn"
-            :class="{ 'clue-btn--flagged': flagged.has(seg.clueId), 'clue-btn--correct': isFeedbackCorrect(seg.clueId), 'clue-btn--missed': isFeedbackMissed(seg.clueId) }"
-            :aria-pressed="flagged.has(seg.clueId)"
-            :disabled="!!result"
-            @click="toggleClue(seg.clueId)"
-            :aria-label="`Flagg som mistenkelig: ${seg.text}`"
-          >{{ seg.text }}</button>
-          <span v-else>{{ seg.text }}</span>
-        </template>
-      </p>
-    </article>
-
-    <!-- Clue flag chips (visual feedback) -->
-    <div v-if="flagged.size > 0 && !result" class="phishing-task__chips" aria-live="polite">
-      <span
-        v-for="id in [...flagged]"
-        :key="id"
-        class="phishing-task__chip"
-      >🚩 {{ clueLabel(id) }}</span>
     </div>
-
-    <!-- Submit button -->
-    <button
-      v-if="!result"
-      class="phishing-task__submit"
-      :disabled="flagged.size === 0"
-      @click="submit"
-    >
-      Send svar
-    </button>
 
     <!-- Feedback after submit -->
     <Transition name="result-slide">
@@ -76,6 +100,17 @@
           {{ result.correct ? '✅ Riktig!' : '❌ Ikke helt riktig' }}
         </p>
         <p class="phishing-task__explanation">{{ result.explanation }}</p>
+        <div v-if="resultStats.length" class="phishing-task__stats">
+          <p
+            v-for="stat in resultStats"
+            :key="stat.key"
+            class="phishing-task__stat"
+            :class="`phishing-task__stat--${stat.tone}`"
+          >
+            <span class="phishing-task__stat-value">{{ stat.value }}</span>
+            <span>{{ stat.label }}</span>
+          </p>
+        </div>
 
         <!-- Per-clue explanations -->
         <ul v-if="revealedClues.length" class="phishing-task__clue-list">
@@ -157,7 +192,7 @@ function isFeedbackMissed(id) {
 const revealedClues = computed(() => {
   if (!props.result) return []
   return allClues.value
-    .filter(c => correctClueIds.value.has(c.id) || flagged.has(c.id))
+    .filter(c => flagged.has(c.id))
     .map(c => {
       const isCorrectClue = correctClueIds.value.has(c.id)
       const wasFlagged = flagged.has(c.id)
@@ -192,15 +227,48 @@ const revealedClues = computed(() => {
           iconClass: 'phishing-task__clue-icon--wrong'
         }
       }
-
-      return {
-        id: c.id,
-        label: c.label,
-        explanation: clueFeedbackById.value.get(c.id)?.explanation ?? '',
-        icon: '🔎',
-        iconClass: 'phishing-task__clue-icon--missed'
-      }
     })
+    .filter(Boolean)
+})
+
+const resultStats = computed(() => {
+  if (!props.result) return []
+
+  const flaggedIds = [...flagged]
+  const correctCount = flaggedIds.filter(id => correctClueIds.value.has(id)).length
+  const wrongCount = flaggedIds.filter(id => !correctClueIds.value.has(id)).length
+  const missedCount = [...correctClueIds.value].filter(id => !flagged.has(id)).length
+
+  const stats = []
+
+  if (correctCount > 0) {
+    stats.push({
+      key: 'correct',
+      tone: 'correct',
+      value: correctCount,
+      label: correctCount === 1 ? 'riktig valg' : 'riktige valg',
+    })
+  }
+
+  if (wrongCount > 0) {
+    stats.push({
+      key: 'wrong',
+      tone: 'wrong',
+      value: wrongCount,
+      label: wrongCount === 1 ? 'feil valg' : 'feil valg',
+    })
+  }
+
+  if (missedCount > 0) {
+    stats.push({
+      key: 'missed',
+      tone: 'missed',
+      value: missedCount,
+      label: missedCount === 1 ? 'riktig valg manglet' : 'riktige valg manglet',
+    })
+  }
+
+  return stats
 })
 
 function toggleClue(id) {
@@ -227,23 +295,136 @@ function submit() {
 
 <style scoped>
 .phishing-task {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: var(--space-4);
+}
+
+.phishing-task__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-surface) 100%);
+  border: 1.5px solid var(--color-primary-soft-strong);
+}
+
+.phishing-task__header-icon {
+  flex-shrink: 0;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.phishing-task__header-text {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.phishing-task__title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--color-heading);
+  line-height: 1.2;
 }
 
 .phishing-task__guidance {
   margin: 0;
-  color: var(--color-cork-dark);
-  font-weight: 600;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.phishing-task__workspace {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.phishing-task__brief,
+.phishing-task__panel,
+.phishing-task__result {
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: 0 14px 28px rgba(47, 106, 255, 0.08);
+}
+
+.phishing-task__brief,
+.phishing-task__panel {
+  padding: var(--space-4);
+}
+
+.phishing-task__brief {
+  display: grid;
+  gap: var(--space-3);
+  position: sticky;
+  top: var(--space-4);
+}
+
+.phishing-task__brief-label {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.phishing-task__brief-text {
+  margin: 0;
+  color: var(--color-ink);
+  line-height: 1.5;
+}
+
+.phishing-task__panel {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.phishing-task__question {
+  margin: 0;
+  font-weight: var(--font-semibold);
+  color: var(--color-heading);
 }
 
 .phishing-task__email {
-  transform: rotate(var(--card-rotate, 0deg));
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: var(--space-3);
-  font-size: var(--text-sm);
+  padding: var(--space-4);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #fffdfa 0%, #f8f5ed 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.phishing-task__window {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.phishing-task__window-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #d7cfbe;
+}
+
+.phishing-task__window-title {
+  margin-left: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.phishing-task__meta {
+  display: grid;
+  gap: var(--space-2);
 }
 
 .phishing-task__from-row,
@@ -256,7 +437,7 @@ function submit() {
 
 .phishing-task__field-label {
   font-weight: 700;
-  color: var(--color-wood);
+  color: var(--color-text-muted);
   flex-shrink: 0;
 }
 
@@ -274,43 +455,41 @@ function submit() {
   color: var(--color-ink-body);
 }
 
-/* Clue inline buttons */
 .clue-btn {
   display: inline;
-  background: var(--color-clue-bg);
-  border: 1.5px dashed var(--color-clue-border);
-  border-radius: 3px;
-  padding: 1px 5px;
+  background: #f3ede1;
+  border: 2px solid #d8cfbf;
+  border-radius: 8px;
+  padding: 2px 7px;
   color: inherit;
   font: inherit;
   cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 .clue-btn:hover:not(:disabled) {
-  background: var(--color-clue-hover-bg);
-  border-style: solid;
+  background: #fff4db;
+  border-color: var(--color-primary);
+  box-shadow: 0 8px 18px rgba(47, 106, 255, 0.12);
+  transform: translateY(-1px);
 }
 .clue-btn:focus-visible {
   outline: 3px solid var(--color-gold);
   outline-offset: 2px;
 }
 .clue-btn--flagged {
-  background: var(--color-clue-flagged-bg);
+  background: #ffe1de;
   border-color: var(--color-danger);
-  border-style: solid;
-  color: var(--color-clue-flagged-text);
+  color: #7f1d1d;
   font-weight: 600;
 }
 .clue-btn--correct {
-  background: var(--color-clue-correct-bg);
+  background: #e2f6e8;
   border-color: var(--color-success);
-  border-style: solid;
-  color: var(--color-clue-correct-text);
+  color: #166534;
 }
 .clue-btn--missed {
-  background: var(--color-clue-missed-bg);
-  border-color: var(--color-clue-missed-border);
-  border-style: solid;
+  background: #fff3cf;
+  border-color: #d9a300;
   animation: clue-pulse 0.6s ease-out;
 }
 @keyframes clue-pulse {
@@ -318,45 +497,42 @@ function submit() {
   50%       { transform: scale(1.05); }
 }
 
-/* Chips */
 .phishing-task__chips {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
 }
 .phishing-task__chip {
-  background: var(--color-danger);
-  color: #fff;
+  background: #fff1ef;
+  color: #8a1c1c;
+  border: 1px solid #f0bbb4;
   border-radius: var(--radius-full);
-  padding: 2px 10px;
+  padding: 5px 10px;
   font-size: var(--text-xs);
-  font-weight: 600;
+  font-weight: 700;
 }
 
-/* Submit */
 .phishing-task__submit {
   align-self: flex-start;
-  background: var(--color-wood);
-  color: var(--color-gold);
-  border: none;
+  background: var(--color-primary);
+  color: #fff;
+  border: 0;
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-6);
   font-size: var(--text-base);
   font-weight: 700;
   cursor: pointer;
   min-height: 44px;
-  transition: background var(--transition-fast);
+  transition: background var(--transition-fast), transform var(--transition-fast);
 }
-.phishing-task__submit:hover:not(:disabled) { background: var(--color-wood-mid); }
+.phishing-task__submit:hover:not(:disabled) { background: #2456d3; transform: translateY(-1px); }
 .phishing-task__submit:disabled { opacity: 0.5; cursor: not-allowed; }
-.phishing-task__submit:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 2px; }
+.phishing-task__submit:focus-visible { outline: 3px solid var(--color-primary-soft-strong); outline-offset: 2px; }
 
-/* Result note */
 .phishing-task__result {
-  transform: rotate(var(--card-rotate, 0deg));
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: var(--space-3);
+  padding: var(--space-4);
 }
 .phishing-task__result--correct { border-color: var(--color-success); }
 .phishing-task__result--wrong   { border-color: var(--color-danger); }
@@ -372,7 +548,52 @@ function submit() {
 .phishing-task__explanation { margin: 0; font-size: var(--text-sm); color: var(--color-ink); line-height: 1.5; }
 .phishing-task__stop-msg { margin: 0; font-weight: 600; color: var(--color-success); }
 
-/* Clue reveal list */
+.phishing-task__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.phishing-task__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.phishing-task__stat-value {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  font-weight: 800;
+}
+
+.phishing-task__stat--correct {
+  color: #166534;
+  background: #e8f8ed;
+  border-color: #b9e5c5;
+}
+
+.phishing-task__stat--wrong {
+  color: #8a1c1c;
+  background: #fff1ef;
+  border-color: #f0bbb4;
+}
+
+.phishing-task__stat--missed {
+  color: #8a6500;
+  background: #fff7df;
+  border-color: #ebd38a;
+}
+
 .phishing-task__clue-list {
   list-style: none;
   margin: 0;
@@ -395,8 +616,8 @@ function submit() {
 
 .next-btn {
   align-self: flex-start;
-  background: var(--color-wood);
-  color: var(--color-gold);
+  background: var(--color-primary);
+  color: #fff;
   border: none;
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-6);
@@ -406,13 +627,22 @@ function submit() {
   min-height: 44px;
   transition: background var(--transition-fast), transform var(--transition-fast);
 }
-.next-btn:hover  { background: var(--color-wood-mid); }
+.next-btn:hover  { background: #2456d3; }
 .next-btn:active { transform: scale(0.98); }
-.next-btn:focus-visible { outline: 3px solid var(--color-gold); outline-offset: 2px; }
+.next-btn:focus-visible { outline: 3px solid var(--color-primary-soft-strong); outline-offset: 2px; }
 
-/* Slide transition */
 .result-slide-enter-active { transition: transform 0.3s ease, opacity 0.3s ease; }
 .result-slide-leave-active { transition: transform 0.2s ease, opacity 0.2s ease; }
 .result-slide-enter-from   { transform: translateY(-12px); opacity: 0; }
 .result-slide-leave-to     { transform: translateY(-8px);  opacity: 0; }
+
+@media (max-width: 920px) {
+  .phishing-task__workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .phishing-task__brief {
+    position: static;
+  }
+}
 </style>
