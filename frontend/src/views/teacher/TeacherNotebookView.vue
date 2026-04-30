@@ -29,11 +29,6 @@
           {{ group.stopName }}
         </h2>
 
-        <div v-if="group.autoTip" class="auto-tip">
-          <p class="auto-tip__label">🔍 Detektivrapporten</p>
-          <p class="auto-tip__content">{{ group.autoTip.content }}</p>
-        </div>
-
         <div v-if="group.reflections.length" class="reflections">
           <h3 class="reflections__heading">Elevens observasjoner</h3>
           <div v-for="r in group.reflections" :key="r.id" class="reflection-entry">
@@ -72,7 +67,7 @@ const grouped = computed(() => {
     }
     const g = map.get(e.stopId)
     if (e.entryType === 'AUTO_TIP') g.autoTip = e
-    else g.reflections.push(e)
+    else if (e.entryType !== 'AUTO_CLUE') g.reflections.push(e)
   }
   return [...map.values()].sort((a, b) => a.stopOrder - b.stopOrder)
 })
