@@ -405,7 +405,7 @@ loadShop()
   font-size: var(--text-4xl); color: rgba(200,160,64,.2);
 }
 .shop-showcase__hint {
-  font-size: var(--text-xs); color: rgba(200,160,64,.45); text-align: center;
+  font-size: var(--text-xs); color: rgba(200, 160, 64, 0.75); text-align: center;
   font-weight: 600; letter-spacing: .05em; margin: 0;
 }
 
