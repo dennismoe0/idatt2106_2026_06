@@ -214,6 +214,10 @@
   --color-journal-rule-strong:    rgba(188, 101, 51, 0.4);
   --color-journal-stamp:          rgba(133, 36, 24, 0.78);
   --color-journal-stamp-border:   rgba(133, 36, 24, 0.42);
+  --color-journal-clue-bg-top:    rgba(255, 235, 196, 0.55);
+  --color-journal-clue-bg-bottom: rgba(244, 215, 165, 0.45);
+  --color-journal-clue-border:    rgba(168, 102, 36, 0.42);
+  --color-journal-clue-inner:     rgba(255, 244, 215, 0.5);
   --color-journal-locked:         rgba(95, 79, 58, 0.66);
   --color-journal-locked-border:  rgba(95, 79, 58, 0.32);
   --color-journal-modal-surface:  rgba(255, 253, 247, 0.96);

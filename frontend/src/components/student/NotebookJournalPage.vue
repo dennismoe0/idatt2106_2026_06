@@ -9,23 +9,12 @@
       <p v-if="page.partLabel" class="journal-page-content__part">{{ page.partLabel }}</p>
 
       <button
-        v-if="interactive && page.kind === 'stop' && page.showComposer && page.stopId != null"
+        v-if="addButton"
         class="journal-page-content__add"
         type="button"
-        aria-label="Legg til observasjon"
-        title="Legg til observasjon"
-        @click="startStopEdit?.(page.stopId)"
-      >
-        <span aria-hidden="true">+</span>
-      </button>
-
-      <button
-        v-else-if="interactive && page.kind === 'general' && page.showComposer"
-        class="journal-page-content__add"
-        type="button"
-        aria-label="Legg til notat"
-        title="Legg til notat"
-        @click="startAddNote?.()"
+        :aria-label="addButton.label"
+        :title="addButton.label"
+        @click="addButton.onClick"
       >
         <span aria-hidden="true">+</span>
       </button>
@@ -47,10 +36,25 @@
         <template v-for="block in page.blocks" :key="block.key">
           <article v-if="block.type === 'tip'" class="journal-entry-card journal-entry-card--tip">
             <p class="journal-entry-card__label">{{ block.label }}</p>
-            <p class="journal-entry-card__text">{{ block.content }}</p>
-            <p v-if="block.continuedFromPrevious || block.continuesToNext" class="journal-entry-card__continuation">
-              {{ continuationText(block) }}
+            <div class="journal-entry-card__scroll">
+              <p class="journal-entry-card__text">{{ block.content }}</p>
+              <p v-if="block.continuedFromPrevious || block.continuesToNext" class="journal-entry-card__continuation">
+                {{ continuationText(block) }}
+              </p>
+            </div>
+          </article>
+
+          <article v-else-if="block.type === 'clue'" class="journal-entry-card journal-entry-card--clue">
+            <p class="journal-entry-card__label journal-entry-card__label--clue">
+              <span class="journal-entry-card__clue-icon" aria-hidden="true">🔎</span>
+              {{ block.label }}
             </p>
+            <div class="journal-entry-card__scroll">
+              <p class="journal-entry-card__text">{{ block.content }}</p>
+              <p v-if="block.continuedFromPrevious || block.continuesToNext" class="journal-entry-card__continuation">
+                {{ continuationText(block) }}
+              </p>
+            </div>
           </article>
 
           <article v-else-if="block.type === 'reflection'" class="journal-entry-card">
@@ -113,7 +117,9 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   page: {
     type: Object,
     required: true
@@ -132,6 +138,17 @@ defineProps({
   removeNote: Function,
   startReflectionEdit: Function,
   removeReflection: Function
+})
+
+const addButton = computed(() => {
+  if (!props.interactive || !props.page.showComposer) return null
+  if (props.page.kind === 'stop' && props.page.stopId != null) {
+    return { label: 'Legg til observasjon', onClick: () => props.startStopEdit?.(props.page.stopId) }
+  }
+  if (props.page.kind === 'general') {
+    return { label: 'Legg til notat', onClick: () => props.startAddNote?.() }
+  }
+  return null
 })
 
 function continuationText(block) {
@@ -157,13 +174,13 @@ function formatDate(isoString) {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: clamp(0.45rem, 1.2vh, 1rem);
   height: 100%;
-  /* Increase bottom padding so composer/footer buttons don't overlap page number */
-  padding: 1.35rem 1.2rem 3rem;
+  padding: clamp(0.7rem, 2vh, 1.35rem) clamp(0.6rem, 2vw, 1.2rem) clamp(1.4rem, 4vh, 3rem);
   color: var(--color-journal-ink);
   font-family: Georgia, 'Times New Roman', serif;
   overflow: hidden;
+  container-type: inline-size;
 }
 
 .journal-page-content::before {
@@ -269,17 +286,24 @@ function formatDate(isoString) {
 .journal-page-content__body {
   position: relative;
   z-index: 1;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
-  padding: 0 0.65rem;
-  overflow: visible;
+  gap: clamp(0.45rem, 1.2vh, 0.9rem);
+  padding: 0 clamp(0.35rem, 1.2vw, 0.65rem);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 85, 33, 0.35) transparent;
 }
 
-.journal-page-content__body--report {
-  justify-content: flex-start;
+.journal-page-content__body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.journal-page-content__body::-webkit-scrollbar-thumb {
+  background: rgba(124, 85, 33, 0.3);
+  border-radius: 999px;
 }
 
 .journal-page-content__body--blank {
@@ -287,12 +311,11 @@ function formatDate(isoString) {
 }
 
 .journal-page-content__blocks {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: clamp(0.4rem, 1vh, 0.8rem);
   min-height: 0;
-  overflow: hidden;
 }
 
 .journal-stamp {
@@ -313,7 +336,7 @@ function formatDate(isoString) {
 
 .journal-report-card,
 .journal-entry-card {
-  padding: 0.88rem 0.96rem;
+  padding: clamp(0.55rem, 1.3vw, 0.88rem) clamp(0.6rem, 1.5vw, 0.96rem);
   border-radius: 14px;
   background: rgba(255, 250, 242, 0.42);
   border: 1px solid rgba(138, 96, 44, 0.18);
@@ -324,26 +347,14 @@ function formatDate(isoString) {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  max-height: 16rem;
+  /* Cards size to their content; the page body scrolls if the total overflows */
+  flex: 0 0 auto;
+  max-height: none;
 }
 
 .journal-entry-card__scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  padding-right: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(124, 85, 33, 0.35) transparent;
-}
-
-.journal-entry-card__scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.journal-entry-card__scroll::-webkit-scrollbar-thumb {
-  background: rgba(124, 85, 33, 0.3);
-  border-radius: 999px;
+  flex: 0 0 auto;
+  overflow: visible;
 }
 
 .journal-report-card--locked {
@@ -352,6 +363,28 @@ function formatDate(isoString) {
 
 .journal-entry-card--tip {
   background: rgba(242, 233, 217, 0.5);
+}
+
+.journal-entry-card--clue {
+  background:
+    linear-gradient(135deg, var(--color-journal-clue-bg-top), var(--color-journal-clue-bg-bottom));
+  border-color: var(--color-journal-clue-border);
+  box-shadow:
+    0 4px 12px rgba(118, 88, 39, 0.08),
+    inset 0 0 0 1px var(--color-journal-clue-inner);
+}
+
+.journal-entry-card__label--clue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-journal-stamp);
+  font-weight: 800;
+}
+
+.journal-entry-card__clue-icon {
+  font-size: 0.9rem;
+  line-height: 1;
 }
 
 .journal-report-card__label,
@@ -366,12 +399,14 @@ function formatDate(isoString) {
 .journal-report-card__text,
 .journal-entry-card__text {
   margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.6;
+  font-size: clamp(0.78rem, 1.1vw + 0.55rem, 0.92rem);
+  line-height: 1.55;
   /* Wrap normally; only break unbroken strings (e.g. 500x "M") via overflow-wrap. */
+  white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: normal;
   hyphens: auto;
+  max-width: 100%;
 }
 
 .journal-entry-card__continuation {
@@ -430,28 +465,6 @@ function formatDate(isoString) {
   font-style: italic;
 }
 
-.journal-button,
-.journal-text-button {
-  cursor: pointer;
-  transition: transform 180ms ease, background 180ms ease, opacity 180ms ease;
-}
-
-.journal-button {
-  align-self: flex-start;
-  padding: 0.62rem 0.92rem;
-  border-radius: 999px;
-  border: 1px dashed color-mix(in srgb, var(--color-journal-accent) 60%, transparent);
-  background: color-mix(in srgb, var(--color-journal-parchment-light) 60%, transparent);
-  color: var(--color-journal-ink-soft);
-  font-size: 0.84rem;
-  font-weight: 700;
-}
-
-.journal-button:hover,
-.journal-text-button:hover {
-  transform: translateY(-1px);
-}
-
 .journal-text-button {
   padding: 0;
   border: none;
@@ -459,6 +472,12 @@ function formatDate(isoString) {
   color: var(--color-journal-accent);
   font-size: 0.8rem;
   font-weight: 700;
+  cursor: pointer;
+  transition: transform 180ms ease, background 180ms ease, opacity 180ms ease;
+}
+
+.journal-text-button:hover {
+  transform: translateY(-1px);
 }
 
 .journal-text-button--danger {
@@ -502,16 +521,12 @@ function formatDate(isoString) {
   min-width: 0;
 }
 
-.journal-report-card__text,
-.journal-entry-card__text,
 .journal-empty,
 .journal-page-content__quote {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: normal;
   hyphens: auto;
-  max-width: 100%;
-  display: block;
 }
 
 @media (max-width: 640px) {

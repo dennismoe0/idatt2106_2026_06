@@ -74,18 +74,19 @@ public class NotebookService {
 
     @Transactional
     public void createAutoClueIfNotExists(Long studentId, Stop stop) {
+        // Always ensure the auto-tip is captured as well, so the tip and the
+        // clue live side-by-side in the journal instead of overwriting each other.
+        createAutoTipIfNotExists(studentId, stop);
+
         String content = stop.getClueText();
-        if (content == null || content.isBlank()) {
-            createAutoTipIfNotExists(studentId, stop);
-            return;
-        }
+        if (content == null || content.isBlank()) return;
         if (notebookRepository.existsByStudent_IdAndStop_IdAndEntryType(
-                studentId, stop.getId(), NotebookEntry.EntryType.AUTO_TIP)) return;
+                studentId, stop.getId(), NotebookEntry.EntryType.AUTO_CLUE)) return;
 
         NotebookEntry entry = new NotebookEntry();
         entry.setStudent(userRepository.getReferenceById(studentId));
         entry.setStop(stop);
-        entry.setEntryType(NotebookEntry.EntryType.AUTO_TIP);
+        entry.setEntryType(NotebookEntry.EntryType.AUTO_CLUE);
         entry.setContent(content);
         notebookRepository.save(entry);
         log.info("[NotebookService] auto-clue created studentId={} stopId={}", studentId, stop.getId());
@@ -133,8 +134,9 @@ public class NotebookService {
             log.warn("[NotebookService] update rejected — not owner studentId={} entryId={}", studentId, entryId);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your entry");
         }
-        if (entry.getEntryType() == NotebookEntry.EntryType.AUTO_TIP) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot edit auto-tips");
+        if (entry.getEntryType() == NotebookEntry.EntryType.AUTO_TIP
+                || entry.getEntryType() == NotebookEntry.EntryType.AUTO_CLUE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot edit auto-generated entries");
         }
         entry.setContent(content.strip());
         log.info("[NotebookService] entry updated studentId={} id={}", studentId, entryId);
@@ -151,8 +153,9 @@ public class NotebookService {
             log.warn("[NotebookService] delete rejected — not owner studentId={} entryId={}", studentId, entryId);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your entry");
         }
-        if (entry.getEntryType() == NotebookEntry.EntryType.AUTO_TIP) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot delete auto-tips");
+        if (entry.getEntryType() == NotebookEntry.EntryType.AUTO_TIP
+                || entry.getEntryType() == NotebookEntry.EntryType.AUTO_CLUE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot delete auto-generated entries");
         }
         notebookRepository.delete(entry);
         log.info("[NotebookService] entry deleted studentId={} id={}", studentId, entryId);

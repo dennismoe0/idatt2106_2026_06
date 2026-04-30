@@ -32,5 +32,5 @@ public class NotebookEntry {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    public enum EntryType { AUTO_TIP, REFLECTION, GENERAL_NOTE }
+    public enum EntryType { AUTO_TIP, AUTO_CLUE, REFLECTION, GENERAL_NOTE }
 }

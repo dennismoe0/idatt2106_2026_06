@@ -19,12 +19,15 @@ export const useNotebookStore = defineStore('notebook', () => {
           stopName: e.stopName,
           stopOrder: e.stopOrder,
           autoTip: null,
+          autoClue: null,
           reflections: [],
         })
       }
       const group = map.get(e.stopId)
       if (e.entryType === 'AUTO_TIP') {
         group.autoTip = e
+      } else if (e.entryType === 'AUTO_CLUE') {
+        group.autoClue = e
       } else {
         group.reflections.push(e)
       }
