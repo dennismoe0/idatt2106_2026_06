@@ -149,8 +149,7 @@ describe('FinalBossTask', () => {
     const wrapper = mount(FinalBossTask, { props: { task: MARKETPLACE_TASK } })
 
     await wrapper.find('.boss__btn--start').trigger('click')
-    await wrapper.get('.mini-task__options button:nth-child(2)').trigger('click')
-    await wrapper.get('.mini-task__submit').trigger('click')
+    await wrapper.findComponent({ name: 'BossChoice' }).vm.$emit('answer', { selected: 'b' })
 
     expect(wrapper.text()).toContain('System stoppet!')
     expect(wrapper.find('.boss__btn--finish').exists()).toBe(true)

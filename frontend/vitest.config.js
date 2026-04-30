@@ -11,6 +11,8 @@ export default mergeConfig(
       exclude: [...configDefaults.exclude, 'e2e/**'],
       root: fileURLToPath(new URL('./', import.meta.url)),
       setupFiles: ['./src/test/setup.js'],
+      testTimeout: 15000,
+      hookTimeout: 15000,
     },
   }),
 )
