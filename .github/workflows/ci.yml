@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main, dev]
 
+permissions:
+  contents: read
+
 jobs:
 
   # ─── Backend ──────────────────────────────────────────────────────────────
@@ -41,6 +44,17 @@ jobs:
           path: backend/target/site/jacoco/
           if-no-files-found: ignore
 
+      - name: Configure Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/configure-pages@v5
+
+      - name: Upload JaCoCo Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        continue-on-error: true
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: backend/target/site/jacoco/
+
   # ─── Frontend ─────────────────────────────────────────────────────────────
   frontend:
     name: Frontend — Lint, Test & Build
@@ -67,3 +81,23 @@ jobs:
       - name: Build
         working-directory: frontend
         run: npm run build
+
+  deploy-pages:
+    name: Deploy JaCoCo to GitHub Pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: backend
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: true
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
