@@ -1277,13 +1277,13 @@ function scrollToLearningTop() {
 
 .news-domains__pill--safe {
   background: color-mix(in srgb, var(--color-success-light) 70%, white);
-  color: var(--color-success);
+  color: var(--color-primary-dark);
   border: 1px solid color-mix(in srgb, var(--color-success) 40%, transparent);
 }
 
 .news-domains__pill--risky {
   background: color-mix(in srgb, var(--color-danger-light) 70%, white);
-  color: var(--color-danger);
+  color: var(--color-primary-dark);
   border: 1px solid color-mix(in srgb, var(--color-danger) 40%, transparent);
 }
 
@@ -1336,6 +1336,7 @@ function scrollToLearningTop() {
 
 .news-domains__url {
   flex: 1;
+  color: var(--color-text);
 }
 
 .news-domains__name {
@@ -1347,7 +1348,7 @@ function scrollToLearningTop() {
 
 .news-domains__tag {
   margin: 0;
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
   letter-spacing: 0.04em;
 }
@@ -1442,7 +1443,7 @@ function scrollToLearningTop() {
 
 .news-search__badge--safe {
   background: color-mix(in srgb, var(--color-success-light) 75%, white);
-  color: var(--color-success);
+  color: var(--color-text);
   border: 1px solid color-mix(in srgb, var(--color-success) 38%, transparent);
 }
 

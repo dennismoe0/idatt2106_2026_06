@@ -1318,7 +1318,7 @@ function goToMap() {
 
 .stored-clue-modal__intro {
   margin: 0;
-  color: #4b341b;
+  color: var(--color-text);
   font-size: var(--text-base);
   line-height: 1.45;
 }

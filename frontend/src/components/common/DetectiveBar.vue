@@ -126,13 +126,13 @@ onMounted(async () => {
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  opacity: 0.55;
+  opacity: 0.95;
 }
 
 .detective-bar__hud {
   display: flex;
   gap: var(--space-3);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   opacity: 0.75;
   white-space: nowrap;
 }
