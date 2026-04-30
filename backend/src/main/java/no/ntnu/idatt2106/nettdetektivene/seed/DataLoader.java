@@ -641,17 +641,22 @@ public class DataLoader implements ApplicationRunner {
                       "src": "/story_pictures/photographer-task-1-manipulated-beach.png",
                       "alt": "Barn leker på en strand med flere personer og hus i bakgrunnen. Bildet er manipulert med KI.",
                       "label": "Bilde A",
-                      "explanation": "Dette bildet er manipulert med KI. Det kan se ut som et vanlig strandfoto, men innholdet er endret slik at scenen ikke er et pålitelig bevis på hva som faktisk skjedde."
+                      "correctType": "MANIPULATED",
+                      "wrongFeedback": "Feil, se på barna i bakgrunnen. Er det noe rart her?",
+                      "correctFeedback": "Riktig! Barna i bildet er satt inn i bildet, mens resten av bildet er ekte."
                     },
                     {
                       "id": "image_1",
                       "src": "/story_pictures/photographer-task-1-ai-beach.png",
                       "alt": "En strandpromenade med palmer, vei, strand og mennesker. Bildet er KI-generert.",
                       "label": "Bilde B",
-                      "explanation": "Dette bildet er KI-generert. Hele scenen er laget kunstig, selv om lys, strand og bygninger kan virke realistiske ved første blikk."
+                      "correctType": "AI_GENERATED",
+                      "wrongFeedback": "Feil, se på menneskene, bygningene og landskapet. Er det noe feil her?",
+                      "correctFeedback": "Riktig! Bygninger, landskap og mennesker har mange feil. Dette bildet er helt KI-generert."
                     }
                   ],
-                  "question": "Sorter hvert bilde: er det ekte, KI-generert eller manipulert?"
+                  "question": "Sorter hvert bilde: er det ekte, KI-generert eller manipulert?",
+                  "explanation": "Se forklaringene under hvert bilde for hvorfor klassifiseringen stemmer."
                 }
                 """,
                 "{\"image_0\": \"MANIPULATED\", \"image_1\": \"AI_GENERATED\"}"),
@@ -664,24 +669,31 @@ public class DataLoader implements ApplicationRunner {
                       "src": "/story_pictures/photographer-task-2-real-taj.jpg",
                       "alt": "Et ekte foto av Taj Mahal med hage, vannløp, besøkende og blå himmel.",
                       "label": "Bilde A",
-                      "explanation": "Dette er det ekte bildet. Det har naturlige kameradetaljer, vanlige variasjoner i mennesker og omgivelser, og scenen virker konsistent uten ekstra elementer som er lagt inn."
+                      "correctType": "REAL",
+                      "wrongFeedback": "Feil, se på lys, skygger og menneskene i bildet. Virker detaljene naturlige og konsistente?",
+                      "correctFeedback": "Riktig! Dette er et ekte foto. Lys, skygger og menneskene henger naturlig sammen."
                     },
                     {
                       "id": "image_1",
                       "src": "/story_pictures/photographer-task-2-manipulated-taj.png",
                       "alt": "Taj Mahal med ekstra elementer som luftballong, helikopter, fugler, kamel og elefant lagt inn i scenen.",
                       "label": "Bilde B",
-                      "explanation": "Dette bildet er manipulert. Det bygger på den samme scenen, men flere elementer er lagt til etterpå, som luftballong, helikopter, dyr og ekstra personer."
+                      "correctType": "MANIPULATED",
+                      "wrongFeedback": "Feil, se etter ting som ikke hører naturlig hjemme i scenen. Er det lagt til noe ekstra?",
+                      "correctFeedback": "Riktig! Bildet er manipulert. Luftballong, helikopter og dyr er lagt inn i et ellers realistisk bilde."
                     },
                     {
                       "id": "image_2",
                       "src": "/story_pictures/photographer-task-2-ai-taj.png",
                       "alt": "Et KI-generert bilde av Taj Mahal med et glattere og mer kunstig uttrykk.",
                       "label": "Bilde C",
-                      "explanation": "Dette bildet er KI-generert. Det ligner på et fotografi, men hele scenen er laget kunstig og har et glattere, mer konstruert preg enn originalfotoet."
+                      "correctType": "AI_GENERATED",
+                      "wrongFeedback": "Feil, se på overflater, mennesker og bygninger. Virker de litt for glatte eller kunstige?",
+                      "correctFeedback": "Riktig! Hele scenen er KI-generert, med glatte detaljer og et kunstig preg."
                     }
                   ],
-                  "question": "Sorter hvert bilde: ekte, KI-generert eller manipulert?"
+                  "question": "Sorter hvert bilde: ekte, KI-generert eller manipulert?",
+                  "explanation": "Se forklaringene under hvert bilde for hvorfor klassifiseringen stemmer."
                 }
                 """,
                 "{\"image_0\": \"REAL\", \"image_1\": \"MANIPULATED\", \"image_2\": \"AI_GENERATED\"}"),
@@ -694,24 +706,31 @@ public class DataLoader implements ApplicationRunner {
                       "src": "/story_pictures/photographer-task-3-manipulated-canal.png",
                       "alt": "Panamakanalen med Miraflores Locks, cruiseskip, vann og mange mennesker. Bildet er manipulert.",
                       "label": "Bilde A",
-                      "explanation": "Dette bildet er manipulert. Det bygger på en realistisk scene, men innholdet er endret slik at bildet ikke kan brukes som et sikkert bevis alene."
+                      "correctType": "MANIPULATED",
+                      "wrongFeedback": "Feil, se på menneskemengden og detaljene rundt skipet. Er alt naturlig plassert?",
+                      "correctFeedback": "Riktig! Bildet er manipulert. Scenen bygger på et ekte sted, men innhold er endret og kan ikke brukes som sikkert bevis."
                     },
                     {
                       "id": "image_1",
                       "src": "/story_pictures/photographer-task-3-ai-canal.png",
                       "alt": "Et KI-generert bilde av Miraflores Locks ved Panamakanalen med skip, bygning, vann og åser.",
                       "label": "Bilde B",
-                      "explanation": "Dette bildet er KI-generert. Det prøver å ligne et ekte foto fra samme sted, men hele scenen er kunstig laget."
+                      "correctType": "AI_GENERATED",
+                      "wrongFeedback": "Feil, se på skip, bygninger og vann. Virker detaljene helt realistiske?",
+                      "correctFeedback": "Riktig! Dette bildet er KI-generert. Hele scenen er kunstig laget selv om motivet ligner et ekte sted."
                     },
                     {
                       "id": "image_2",
                       "src": "/story_pictures/photographer-task-3-real-canal.jpg",
                       "alt": "Et ekte foto av Miraflores Locks ved Panamakanalen med et cruiseskip og naturlige kameradetaljer.",
                       "label": "Bilde C",
-                      "explanation": "Dette er det ekte bildet. Det har naturlig lys, kamerastøy og små uperfekte detaljer som passer sammen gjennom hele scenen."
+                      "correctType": "REAL",
+                      "wrongFeedback": "Feil, se på lys, kamerastøy og små detaljer. Passer de sammen gjennom hele bildet?",
+                      "correctFeedback": "Riktig! Dette er det ekte bildet. Lys, kamerastøy og detaljene passer naturlig sammen."
                     }
                   ],
-                  "question": "Hvilket bilde kan vi stole på som ekte bevis?"
+                  "question": "Hvilket bilde kan vi stole på som ekte bevis?",
+                  "explanation": "Se forklaringene under hvert bilde for hvorfor klassifiseringen stemmer."
                 }
                 """,
                 "{\"image_0\": \"MANIPULATED\", \"image_1\": \"AI_GENERATED\", \"image_2\": \"REAL\"}"),
