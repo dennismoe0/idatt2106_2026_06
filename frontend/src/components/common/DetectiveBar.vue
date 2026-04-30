@@ -123,7 +123,7 @@ onMounted(async () => {
 .detective-bar__title {
   flex: 1;
   text-align: center;
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   text-transform: uppercase;
   letter-spacing: 1.5px;
   opacity: 0.95;
