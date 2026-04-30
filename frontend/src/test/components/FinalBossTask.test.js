@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import FinalBossTask from '@/components/student/FinalBossTask.vue'
-import BossFakeNews from '@/components/student/boss/BossFakeNews.vue'
-import BossPassword from '@/components/student/boss/BossPassword.vue'
-import BossChoice from '@/components/student/boss/BossChoice.vue'
+import FakeNewsTask from '@/components/student/FakeNewsTask.vue'
+import PasswordTask from '@/components/student/PasswordTask.vue'
+import MarketplaceTask from '@/components/student/MarketplaceTask.vue'
 
 const TASK = {
   id: 7,
@@ -82,7 +82,7 @@ describe('FinalBossTask', () => {
 
     expect(wrapper.text()).toContain('0 av 2 systemer stoppet')
 
-    await wrapper.findComponent(BossFakeNews).vm.$emit('answer', { article_0: true, article_1: false })
+    await wrapper.findComponent(FakeNewsTask).vm.$emit('submitted', { article_0: true, article_1: false })
 
     expect(wrapper.text()).toContain('1 av 2 systemer stoppet')
   })
@@ -91,7 +91,7 @@ describe('FinalBossTask', () => {
     const wrapper = mount(FinalBossTask, { props: { task: TASK } })
 
     await wrapper.find('.boss__btn--start').trigger('click')
-    await wrapper.findComponent(BossFakeNews).vm.$emit('answer', { article_0: false, article_1: true })
+    await wrapper.findComponent(FakeNewsTask).vm.$emit('submitted', { article_0: false, article_1: true })
 
     expect(wrapper.text()).toContain('Prøv igjen')
     expect(wrapper.text()).toContain('Denne artikkelen var for godt dokumentert til å være falsk.')
@@ -106,9 +106,9 @@ describe('FinalBossTask', () => {
     const wrapper = mount(FinalBossTask, { props: { task: TASK } })
 
     await wrapper.find('.boss__btn--start').trigger('click')
-    await wrapper.findComponent(BossFakeNews).vm.$emit('answer', { article_0: false, article_1: true })
+    await wrapper.findComponent(FakeNewsTask).vm.$emit('submitted', { article_0: false, article_1: true })
     await wrapper.get('.boss__retry-btn').trigger('click')
-    await wrapper.findComponent(BossFakeNews).vm.$emit('answer', { article_0: true, article_1: false })
+    await wrapper.findComponent(FakeNewsTask).vm.$emit('submitted', { article_0: true, article_1: false })
     await wrapper.get('.boss__btn:not(.boss__btn--finish)').trigger('click')
 
     expect(wrapper.text()).toContain('Hovedlås')
@@ -118,9 +118,9 @@ describe('FinalBossTask', () => {
     const wrapper = mount(FinalBossTask, { props: { task: TASK } })
 
     await wrapper.find('.boss__btn--start').trigger('click')
-    await wrapper.findComponent(BossFakeNews).vm.$emit('answer', { article_0: false, article_1: true })
+    await wrapper.findComponent(FakeNewsTask).vm.$emit('submitted', { article_0: false, article_1: true })
     await wrapper.get('.boss__retry-btn').trigger('click')
-    await wrapper.findComponent(BossFakeNews).vm.$emit('answer', { article_0: false, article_1: true })
+    await wrapper.findComponent(FakeNewsTask).vm.$emit('submitted', { article_0: false, article_1: true })
 
     expect(wrapper.find('.boss__retry-btn').exists()).toBe(false)
     expect(wrapper.text()).toContain('Gå videre')
@@ -134,11 +134,11 @@ describe('FinalBossTask', () => {
     const wrapper = mount(FinalBossTask, { props: { task: TASK } })
 
     await wrapper.find('.boss__btn--start').trigger('click')
-    await wrapper.findComponent(BossFakeNews).vm.$emit('answer', { article_0: false, article_1: true })
+    await wrapper.findComponent(FakeNewsTask).vm.$emit('submitted', { article_0: false, article_1: true })
     await wrapper.get('.boss__retry-btn').trigger('click')
-    await wrapper.findComponent(BossFakeNews).vm.$emit('answer', { article_0: false, article_1: true })
+    await wrapper.findComponent(FakeNewsTask).vm.$emit('submitted', { article_0: false, article_1: true })
     await wrapper.get('.boss__btn:not(.boss__btn--finish)').trigger('click')
-    await wrapper.findComponent(BossPassword).vm.$emit('answer', { selected: 'b' })
+    await wrapper.findComponent(PasswordTask).vm.$emit('submitted', { selected: 'b' })
     await wrapper.get('.boss__btn--finish').trigger('click')
 
     expect(wrapper.emitted('submitted')).toBeTruthy()
@@ -148,11 +148,11 @@ describe('FinalBossTask', () => {
     })
   })
 
-  it('renders marketplace challenges through the shared choice component', async () => {
+  it('renders marketplace challenges through the dedicated marketplace component', async () => {
     const wrapper = mount(FinalBossTask, { props: { task: MARKETPLACE_TASK } })
 
     await wrapper.find('.boss__btn--start').trigger('click')
-    await wrapper.findComponent(BossChoice).vm.$emit('answer', { selected: 'b' })
+    await wrapper.findComponent(MarketplaceTask).vm.$emit('submitted', { selected: 'b' })
 
     expect(wrapper.text()).toContain('System stoppet!')
     expect(wrapper.find('.boss__btn--finish').exists()).toBe(true)

@@ -6,7 +6,7 @@
       <!-- Mugshot with animated jail bars -->
       <div class="vs__mugshot-wrap">
         <img
-          src="/suspects/millie_fengsel.jpeg"
+          :src="mugshotSrc"
           alt="Millie Mus i fengsel"
           class="vs__mugshot"
         />
@@ -35,6 +35,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 
 defineEmits(['next'])
 
+const mugshotSrc = '/suspects/millie_fengsel.jpeg'
 const canvas = ref(null)
 const shut   = ref(false)
 let raf = null
