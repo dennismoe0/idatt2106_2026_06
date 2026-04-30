@@ -14,12 +14,12 @@
 @theme {
   /* Brand */
   --color-primary:       #2B6CB0;
-  --color-primary-light: color-mix(in srgb, #2B6CB0 40%, white);
+  --color-primary-light: color-mix(in srgb, #2B6CB0 15%, white);
   --color-primary-dark:  color-mix(in srgb, #2B6CB0 60%, black);
 
   --color-accent:        #ED8936;
   --color-accent-light:  color-mix(in srgb, #ED8936 40%, white);
-  --color-accent-dark:   color-mix(in srgb, #ED8936 60%, black);
+  --color-accent-dark:   color-mix(in srgb, #ED8936 40%, black);
 
   --color-danger:        #E53E3E;
   --color-danger-light:  color-mix(in srgb, #E53E3E 40%, white);
@@ -54,7 +54,7 @@
   --color-focus:        #ED8936;
   --color-primary-soft: color-mix(in srgb, var(--color-primary) 14%, white);
   --color-primary-soft-strong: color-mix(in srgb, var(--color-primary) 22%, white);
-  --color-accent-soft: color-mix(in srgb, var(--color-accent) 20%, white);
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 15%, white);
   --color-success-soft: color-mix(in srgb, var(--color-success) 12%, white);
   --color-danger-soft: color-mix(in srgb, var(--color-danger) 12%, white);
   --color-surface-glass: color-mix(in srgb, var(--color-surface) 88%, var(--color-bg));

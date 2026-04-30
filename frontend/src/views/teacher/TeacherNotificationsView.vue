@@ -393,15 +393,8 @@ function viewMystery(notification) {
   flex-shrink: 0;
 }
 
-.user-name {
-  font-size: var(--text-sm);
-  font-weight: 800;
-}
-
-.user-school {
-  font-size: var(--text-xs);
-  opacity: 0.65;
-}
+.user-name   { font-size: var(--text-sm); font-weight: 600; }
+.user-school { font-size: var(--text-xs); opacity: 0.85; }
 
 .sidebar-nav {
   padding: var(--space-3) 0;
