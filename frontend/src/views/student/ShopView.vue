@@ -41,125 +41,125 @@
         </div>
         <p class="shop-showcase__hint">
           <span v-if="isPreviewingAny">Klikk Kjøp for å beholde</span>
-          <span v-else>Klikk et plagg for å forhåndsvise</span>
+          <span v-else>Klikk på et plagg for å forhåndsvise</span>
         </p>
       </div>
 
       <!-- SHOP SECTIONS -->
       <div class="shop-sections">
-      <section v-for="group in itemGroups" :key="group.key" class="shop-section">
-        <div class="shop-section__inner">
+        <section v-for="group in itemGroups" :key="group.key" class="shop-section">
+          <div class="shop-section__inner">
 
-          <div class="shop-rule">
-            <div class="shop-rule-line"></div>
-            <div class="shop-rule-label">✦ {{ group.label.toUpperCase() }} ✦</div>
-            <div class="shop-rule-line-r"></div>
-          </div>
+            <div class="shop-rule">
+              <div class="shop-rule-line"></div>
+              <div class="shop-rule-label">✦ {{ group.label.toUpperCase() }} ✦</div>
+              <div class="shop-rule-line-r"></div>
+            </div>
 
-          <!-- HAIR COLOR SWATCHES -->
-          <template v-if="group.key === 'hairColor'">
-            <div class="shop-swatches">
-              <div
-                v-for="item in group.items"
-                :key="item.id"
-                class="shop-swatch-wrap"
-                :class="{ 'shop-swatch-wrap--shake': shakingId === item.id }"
-              >
+            <!-- HAIR COLOR SWATCHES -->
+            <template v-if="group.key === 'hairColor'">
+              <div class="shop-swatches">
                 <div
-                  class="shop-swatch"
-                  :class="{
+                  v-for="item in group.items"
+                  :key="item.id"
+                  class="shop-swatch-wrap"
+                  :class="{ 'shop-swatch-wrap--shake': shakingId === item.id }"
+                >
+                  <div
+                    class="shop-swatch"
+                    :class="{
                     'shop-swatch--owned':  item.purchased,
                     'shop-swatch--active': confirmingId === item.id,
                   }"
-                  :style="{ background: item.optionValue }"
-                  @click="setPreview(item)"
-                >
-                  <span v-if="item.purchased" class="shop-swatch__check">✓</span>
-                </div>
-                <template v-if="confirmingId === item.id">
-                  <button type="button" class="shop-swatch__buy" :disabled="isPurchasing" @click="doPurchase(item)">Kjøp</button>
-                  <button type="button" class="shop-swatch__cancel" @click="confirmingId = null">✕</button>
-                </template>
-                <template v-else>
-                  <div
-                    class="shop-swatch__price"
-                    :class="{ 'shop-swatch__price--buyable': !item.purchased }"
-                    @click="!item.purchased && onSwatchBuy(item)"
+                    :style="{ background: item.optionValue }"
+                    @click="setPreview(item)"
                   >
-                    <span v-if="item.purchased" class="shop-swatch__price--owned">✓</span>
-                    <span v-else-if="shakingId === item.id" class="shop-swatch__price--err">Ikke nok!</span>
-                    <span v-else class="shop-swatch__price--cost">⭐ {{ item.starPrice }}</span>
+                    <span v-if="item.purchased" class="shop-swatch__check">✓</span>
                   </div>
-                </template>
+                  <template v-if="confirmingId === item.id">
+                    <button type="button" class="shop-swatch__buy" :disabled="isPurchasing" @click="doPurchase(item)">Kjøp</button>
+                    <button type="button" class="shop-swatch__cancel" @click="confirmingId = null">✕</button>
+                  </template>
+                  <template v-else>
+                    <div
+                      class="shop-swatch__price"
+                      :class="{ 'shop-swatch__price--buyable': !item.purchased }"
+                      @click="!item.purchased && onSwatchBuy(item)"
+                    >
+                      <span v-if="item.purchased" class="shop-swatch__price--owned">✓</span>
+                      <span v-else-if="shakingId === item.id" class="shop-swatch__price--err">Ikke nok!</span>
+                      <span v-else class="shop-swatch__price--cost">⭐ {{ item.starPrice }}</span>
+                    </div>
+                  </template>
+                </div>
               </div>
-            </div>
-          </template>
+            </template>
 
-          <!-- ITEM CARDS (hairStyle, outfit, accessory) -->
-          <template v-else>
-            <div class="shop-cards">
-              <div
-                v-for="item in group.items"
-                :key="item.id"
-                class="shop-card"
-                :class="{
+            <!-- ITEM CARDS (hairStyle, outfit, accessory) -->
+            <template v-else>
+              <div class="shop-cards">
+                <div
+                  v-for="item in group.items"
+                  :key="item.id"
+                  class="shop-card"
+                  :class="{
                   'shop-card--owned':  item.purchased,
                   'shop-card--locked': !item.purchased && starBalance < item.starPrice,
                   'shop-card--shake':  shakingId === item.id,
                 }"
-              >
-                <div class="shop-corner shop-corner-tl"></div>
-                <div class="shop-corner shop-corner-tr"></div>
-                <div class="shop-corner shop-corner-bl"></div>
-                <div class="shop-corner shop-corner-br"></div>
+                >
+                  <div class="shop-corner shop-corner-tl"></div>
+                  <div class="shop-corner shop-corner-tr"></div>
+                  <div class="shop-corner shop-corner-bl"></div>
+                  <div class="shop-corner shop-corner-br"></div>
 
-                <div class="shop-preview" @click="setPreview(item)">
-                  <component
-                    :is="previewComponentFor(item.optionType)"
-                    v-bind="previewPropsFor(item)"
-                  />
-                  <div v-if="item.purchased" class="shop-preview__stamp">
-                    <div class="shop-stamp-text">ANSKAFFET</div>
+                  <div class="shop-preview" @click="setPreview(item)">
+                    <component
+                      :is="previewComponentFor(item.optionType)"
+                      v-bind="previewPropsFor(item)"
+                    />
+                    <div v-if="item.purchased" class="shop-preview__stamp">
+                      <div class="shop-stamp-text">ANSKAFFET</div>
+                    </div>
                   </div>
-                </div>
 
-                <div class="shop-item-name" @click="setPreview(item)">{{ formatOption(item.optionValue) }}</div>
+                  <div class="shop-item-name" @click="setPreview(item)">{{ formatOption(item.optionValue) }}</div>
 
-                <div v-if="item.purchased" class="shop-owned-footer">✓ &nbsp;Kjøpt</div>
-                <template v-else-if="confirmingId === item.id">
-                  <div class="shop-confirm">
-                    <button type="button" class="shop-confirm__yes" :disabled="isPurchasing" @click="doPurchase(item)">
-                      Ja ⭐{{ item.starPrice }}
-                    </button>
-                    <button type="button" class="shop-confirm__no" @click="confirmingId = null">Avbryt</button>
-                  </div>
-                </template>
-                <div
-                  v-else
-                  class="shop-ticket"
-                  :class="{
+                  <div v-if="item.purchased" class="shop-owned-footer">✓ &nbsp;Kjøpt</div>
+                  <template v-else-if="confirmingId === item.id">
+                    <div class="shop-confirm">
+                      <button type="button" class="shop-confirm__yes" :disabled="isPurchasing" @click="doPurchase(item)">
+                        Ja ⭐{{ item.starPrice }}
+                      </button>
+                      <button type="button" class="shop-confirm__no" @click="confirmingId = null">Avbryt</button>
+                    </div>
+                  </template>
+                  <div
+                    v-else
+                    class="shop-ticket"
+                    :class="{
                     'shop-ticket--locked': starBalance < item.starPrice,
                     'shop-ticket--shake':  shakingId === item.id,
                   }"
-                  @click="onTicketClick(item)"
-                >
-                  <div class="shop-ticket__price">
-                    <span class="shop-ticket__star">⭐</span>
-                    <span class="shop-ticket__amount">{{ item.starPrice }}</span>
-                  </div>
-                  <div class="shop-ticket__action">
-                    <template v-if="shakingId === item.id">Ikke nok!</template>
-                    <template v-else>Kjøp</template>
+                    @click="onTicketClick(item)"
+                  >
+                    <div class="shop-ticket__price">
+                      <span class="shop-ticket__star">⭐</span>
+                      <span class="shop-ticket__amount">{{ item.starPrice }}</span>
+                    </div>
+                    <div class="shop-ticket__action">
+                      <template v-if="shakingId === item.id">Ikke nok!</template>
+                      <template v-else>Kjøp</template>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </template>
+            </template>
 
-        </div>
-      </section>
+          </div>
+        </section>
 
-      <p v-if="purchaseError" class="shop-feedback-error">{{ purchaseError }}</p>
+        <p v-if="purchaseError" class="shop-feedback-error">{{ purchaseError }}</p>
       </div><!-- end shop-sections -->
     </div>
   </main>
@@ -219,8 +219,8 @@ const itemGroups = computed(() => {
     { label: 'Tilbehør',  key: 'accessory' },
   ]
   return groups
-    .map(g => ({ label: g.label, key: g.key, items: items.filter(i => i.optionType === g.key) }))
-    .filter(g => g.items.length > 0)
+  .map(g => ({ label: g.label, key: g.key, items: items.filter(i => i.optionType === g.key) }))
+  .filter(g => g.items.length > 0)
 })
 
 function previewComponentFor(optionType) {
@@ -315,38 +315,38 @@ loadShop()
 /* === BASE === */
 .shop-view {
   min-height: 100vh;
-  background: linear-gradient(160deg, #1a1209 0%, #251709 50%, #1a1209 100%);
-  color: #f5e6c8;
+  background: linear-gradient(160deg, var(--color-dossier-bg-end) 0%, var(--color-dossier-bg-mid) 50%, var(--color-dossier-bg-end) 100%);
+  color: var(--color-dossier-text-on-dark);
 }
 
 /* === HEADER === */
 .shop-header {
   position: sticky; top: 0; z-index: 10;
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 16px;
-  background: linear-gradient(90deg, #0e0b06, #1a1007, #0e0b06);
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(90deg, var(--color-dossier-frame), var(--color-dossier-ink-deep), var(--color-dossier-frame));
   border-bottom: 1px solid rgba(200,160,64,.35);
-  box-shadow: 0 4px 16px rgba(0,0,0,.6);
+  box-shadow: var(--shadow-lg);
 }
 .shop-header__title { flex: 1; display: flex; flex-direction: column; gap: 1px; }
 .shop-header__eyebrow {
-  font-size: 7px; text-transform: uppercase; letter-spacing: .18em;
+  font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .18em;
   color: rgba(200,160,64,.55); font-weight: 700;
 }
 .shop-header__name {
-  font-size: 14px; font-weight: 900; color: #f5e6c8;
+  font-size: var(--text-sm); font-weight: 900; color: var(--color-dossier-text-on-dark);
   text-transform: uppercase; letter-spacing: .06em;
 }
 .shop-star-badge {
   display: flex; align-items: center; gap: 4px;
   background: rgba(245,197,24,.1); border: 1px solid rgba(200,160,64,.4);
-  border-radius: 20px; padding: 4px 12px;
-  font-size: 0.8rem; font-weight: 700; color: #f5c518; white-space: nowrap;
+  border-radius: var(--radius-full); padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm); font-weight: 700; color: var(--color-gold); white-space: nowrap;
 }
 
 /* === BODY === */
 .shop-body {
-  padding: 20px 16px 40px;
+  padding: var(--space-6) var(--space-4) var(--space-10);
   max-width: 1100px; margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr;
@@ -357,7 +357,7 @@ loadShop()
     grid-template-columns: 220px 1fr;
     gap: 28px;
     align-items: start;
-    padding: 24px 20px 48px;
+    padding: var(--space-6) var(--space-6) var(--space-12);
   }
 }
 @media (min-width: 1100px) {
@@ -374,23 +374,23 @@ loadShop()
     padding: 14px;
     background:
       repeating-linear-gradient(45deg, rgba(255,255,255,.012) 0px, rgba(255,255,255,.012) 1px, transparent 1px, transparent 7px),
-      linear-gradient(160deg, #2c1c0a, #1e1206);
+      linear-gradient(160deg, var(--color-dossier-ink-warm), var(--color-dossier-ink-deep));
     border: 1px solid rgba(200,160,64,.4);
-    border-radius: 3px;
-    box-shadow: inset 0 1px 0 rgba(200,160,64,.12), 0 6px 20px rgba(0,0,0,.5);
+    border-radius: var(--radius-md);
+    box-shadow: inset 0 1px 0 rgba(200,160,64,.12), var(--shadow-lg);
     position: sticky;
     top: 52px;
   }
 }
 .shop-showcase__eyebrow {
-  font-size: 8px; font-weight: 900; text-transform: uppercase;
+  font-size: var(--text-xs); font-weight: 900; text-transform: uppercase;
   letter-spacing: .18em; color: rgba(200,160,64,.65);
   white-space: nowrap;
 }
 .shop-showcase__stage {
-  background: linear-gradient(160deg, #2e1c0c, #3d2510);
+  background: linear-gradient(160deg, var(--color-dossier-ink-body), var(--color-dossier-ink-soft));
   border: 1px solid rgba(200,160,64,.2);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   display: flex; align-items: center; justify-content: center;
   width: 100%; aspect-ratio: 3/4;
   position: relative; overflow: hidden;
@@ -402,10 +402,10 @@ loadShop()
   background: linear-gradient(90deg, transparent, rgba(200,160,64,.22), transparent);
 }
 .shop-showcase__placeholder {
-  font-size: 48px; color: rgba(200,160,64,.2);
+  font-size: var(--text-4xl); color: rgba(200,160,64,.2);
 }
 .shop-showcase__hint {
-  font-size: 9px; color: rgba(200,160,64,.45); text-align: center;
+  font-size: var(--text-xs); color: rgba(200,160,64,.45); text-align: center;
   font-weight: 600; letter-spacing: .05em; margin: 0;
 }
 
@@ -413,7 +413,7 @@ loadShop()
 .shop-sections { display: flex; flex-direction: column; gap: 0; }
 
 /* === SECTION === */
-.shop-section        { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 32px; }
+.shop-section        { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: var(--space-8); }
 .shop-section__inner { width: 100%; }
 
 /* === SCROLL HINT (right gutter, visible on wide screens only) === */
@@ -438,12 +438,12 @@ loadShop()
   .shop-scroll-hint { display: flex; }
 }
 .shop-scroll-hint__text {
-  font-size: 9px; font-weight: 700;
+  font-size: var(--text-xs); font-weight: 700;
   letter-spacing: .18em; text-transform: uppercase;
   white-space: nowrap; text-align: center;
 }
 .shop-scroll-hint__arrow {
-  font-size: 32px; line-height: 1;
+  font-size: var(--text-2xl); line-height: 1;
   animation: bounce-hint 2s ease-in-out infinite;
 }
 
@@ -456,9 +456,9 @@ loadShop()
   border: 1px solid rgba(200,160,64,.4);
   border-radius: 2px;
   padding: 3px 10px;
-  font-size: 8px; font-weight: 900;
+  font-size: var(--text-xs); font-weight: 900;
   text-transform: uppercase; letter-spacing: .18em;
-  color: #c8a040; white-space: nowrap; flex-shrink: 0;
+  color: var(--color-gold); white-space: nowrap; flex-shrink: 0;
 }
 
 /* === SHAKE ANIMATION === */
@@ -479,7 +479,7 @@ loadShop()
 .shop-swatch {
   width: 68px; height: 68px; border-radius: 50%;
   border: 2px solid rgba(200,160,64,.3);
-  box-shadow: 0 2px 6px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.1);
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,.1);
   cursor: pointer; position: relative;
   display: flex; align-items: center; justify-content: center;
   background: transparent;
@@ -488,15 +488,15 @@ loadShop()
 .shop-swatch--active { border-color: rgba(200,160,64,.8); box-shadow: 0 0 0 3px rgba(200,160,64,.2); }
 .shop-swatch__buy {
   width: 68px; padding: 5px 0;
-  background: linear-gradient(180deg, #22c55e, #16a34a);
-  color: #fff; border: none; border-radius: 2px; cursor: pointer;
-  font-size: 9px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase;
-  box-shadow: 0 2px 0 #0f7030;
+  background: linear-gradient(180deg, var(--color-success), var(--color-success-dark));
+  color: var(--color-text-on-dark); border: none; border-radius: var(--radius-sm); cursor: pointer;
+  font-size: var(--text-xs); font-weight: 900; letter-spacing: .08em; text-transform: uppercase;
+  box-shadow: 0 2px 0 var(--color-success-dark);
 }
 .shop-swatch__buy:disabled { opacity: 0.5; cursor: not-allowed; }
 .shop-swatch__cancel {
   background: transparent; border: none;
-  color: rgba(200,160,64,.6); font-size: 12px; cursor: pointer; padding: 0; line-height: 1;
+  color: rgba(200,160,64,.6); font-size: var(--text-sm); cursor: pointer; padding: 0; line-height: 1;
 }
 
 /* hover states */
@@ -516,32 +516,32 @@ loadShop()
 .shop-swatch__check {
   position: absolute; bottom: -2px; right: -2px;
   width: 20px; height: 20px; border-radius: 50%;
-  background: #22c55e; border: 1.5px solid #1a1209;
-  font-size: 11px; color: #fff;
+  background: var(--color-success); border: 1.5px solid var(--color-dossier-ink-deep);
+  font-size: var(--text-xs); color: var(--color-text-on-dark);
   display: flex; align-items: center; justify-content: center;
 }
-.shop-swatch__price        { font-size: 10px; }
-.shop-swatch__price--owned { color: #4ade80; }
-.shop-swatch__price--cost  { color: #f5c518; }
-.shop-swatch__price--err   { color: #f87171; font-weight: 800; }
+.shop-swatch__price        { font-size: var(--text-xs); }
+.shop-swatch__price--owned { color: var(--color-success-light); }
+.shop-swatch__price--cost  { color: var(--color-gold); }
+.shop-swatch__price--err   { color: var(--color-danger-light); font-weight: 800; }
 .shop-swatch__price--buyable { cursor: pointer; }
-.shop-swatch__price--buyable:hover .shop-swatch__price--cost { color: #f5e030; }
+.shop-swatch__price--buyable:hover .shop-swatch__price--cost { color: var(--color-accent-light); }
 
 /* === ITEM CARDS === */
-.shop-cards { display: flex; flex-wrap: wrap; gap: 14px; }
+.shop-cards { display: flex; flex-wrap: wrap; gap: var(--space-4); }
 .shop-card {
   width: fit-content;
-  border-radius: 3px;
-  padding: 10px;
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
   display: flex; flex-direction: column; align-items: stretch;
   background:
     repeating-linear-gradient(45deg, rgba(255,255,255,.012) 0px, rgba(255,255,255,.012) 1px, transparent 1px, transparent 7px),
-    linear-gradient(160deg, #2c1c0a, #1e1206);
+    linear-gradient(160deg, var(--color-dossier-ink-warm), var(--color-dossier-ink-deep));
   border: 1px solid rgba(200,160,64,.4);
-  box-shadow: inset 0 1px 0 rgba(200,160,64,.12), 0 5px 16px rgba(0,0,0,.5);
+  box-shadow: inset 0 1px 0 rgba(200,160,64,.12), var(--shadow-lg);
   position: relative;
 }
-.shop-card--owned  { border-color: rgba(34,197,94,.35); }
+.shop-card--owned  { border-color: rgba(56,161,105,.35); }
 .shop-card--locked { /* no dimming — shake feedback on click instead */ }
 
 /* corner brackets */
@@ -559,11 +559,11 @@ loadShop()
 .shop-preview {
   width: 136px; height: 181px;
   cursor: pointer;
-  background: linear-gradient(160deg, #2e1c0c, #3d2510);
+  background: linear-gradient(160deg, var(--color-dossier-ink-body), var(--color-dossier-ink-soft));
   border: 1px solid rgba(200,160,64,.2);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   display: flex; align-items: center; justify-content: center;
-  position: relative; overflow: hidden; margin-bottom: 10px;
+  position: relative; overflow: hidden; margin-bottom: var(--space-3);
   box-shadow: inset 0 2px 6px rgba(0,0,0,.35);
 }
 .shop-preview::before {
@@ -573,24 +573,24 @@ loadShop()
 }
 .shop-preview__stamp {
   position: absolute; inset: 0;
-  background: rgba(8,6,3,.5);
+  background: var(--color-dossier-shadow-strong);
   display: flex; align-items: center; justify-content: center;
 }
 .shop-stamp-text {
-  border: 2px solid rgba(74,222,128,.75); border-radius: 3px;
-  color: rgba(74,222,128,.9); font-size: 8px; font-weight: 900;
+  border: 2px solid var(--color-success); border-radius: var(--radius-sm);
+  color: var(--color-success-light); font-size: var(--text-xs); font-weight: 900;
   letter-spacing: .12em; text-transform: uppercase;
-  text-shadow: 0 0 8px rgba(74,222,128,.5);
+  text-shadow: 0 0 8px rgba(56, 161, 105, .5);
   transform: rotate(-16deg); padding: 3px 6px; white-space: nowrap;
 }
 
 /* item name label tape */
 .shop-item-name {
-  font-size: 10px; color: #f0ddb8; font-weight: 800;
+  font-size: var(--text-xs); color: var(--color-dossier-text-on-dark); font-weight: 800;
   letter-spacing: .1em; text-transform: uppercase;
   border-top: 1px solid rgba(200,160,64,.2);
   border-bottom: 1px solid rgba(200,160,64,.2);
-  padding: 4px 0; margin-bottom: 8px;
+  padding: var(--space-1) 0; margin-bottom: var(--space-2);
   background: rgba(255,220,100,.03);
   text-align: center;
 }
@@ -598,7 +598,7 @@ loadShop()
 /* ticket buy button */
 .shop-ticket {
   display: flex; border-radius: 2px; overflow: hidden;
-  box-shadow: 0 3px 0 #7a5010, 0 4px 8px rgba(0,0,0,.5);
+  box-shadow: 0 3px 0 var(--color-cork-dark), var(--shadow-md);
   cursor: pointer;
 }
 .shop-ticket__price {
@@ -609,56 +609,56 @@ loadShop()
   flex-shrink: 0;
 }
 .shop-ticket__star   { font-size: 13px; line-height: 1; }
-.shop-ticket__amount { font-size: 12px; font-weight: 900; color: #f5c518; }
+.shop-ticket__amount { font-size: var(--text-sm); font-weight: 900; color: var(--color-gold); }
 .shop-ticket__action {
   flex: 1;
-  background: linear-gradient(180deg, #d4a832, #a87220);
-  color: #1a1209; font-size: 10px; font-weight: 900;
+  background: linear-gradient(180deg, var(--color-gold), var(--color-cork));
+  color: var(--color-dossier-ink-deep); font-size: var(--text-xs); font-weight: 900;
   letter-spacing: .1em; text-transform: uppercase;
-  display: flex; align-items: center; justify-content: center; padding: 7px 10px;
+  display: flex; align-items: center; justify-content: center; padding: var(--space-2) var(--space-3);
 }
 .shop-ticket--locked { /* no dimming — shake on click instead */ }
 .shop-ticket--shake .shop-ticket__action {
-  background: linear-gradient(180deg, #ef4444, #b91c1c);
-  color: #fff;
+  background: linear-gradient(180deg, var(--color-danger), var(--color-danger-dark));
+  color: var(--color-text-on-dark);
 }
 
 /* owned footer */
 .shop-owned-footer {
   display: flex; align-items: center; justify-content: center; gap: 4px;
-  background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.35);
-  border-radius: 2px; padding: 7px 10px;
-  font-size: 10px; font-weight: 900; letter-spacing: .1em;
-  text-transform: uppercase; color: #4ade80;
+  background: var(--color-success-soft); border: 1px solid var(--color-success);
+  border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs); font-weight: 900; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--color-success-light);
 }
 
 /* confirm buttons */
-.shop-confirm     { display: flex; gap: 5px; }
+.shop-confirm     { display: flex; gap: var(--space-2); }
 .shop-confirm__yes {
-  flex: 1; padding: 7px 8px; border: none; border-radius: 2px; cursor: pointer;
-  background: linear-gradient(180deg, #22c55e, #16a34a);
-  color: #fff; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em;
-  box-shadow: 0 2px 0 #0f7030;
+  flex: 1; padding: var(--space-2) var(--space-2); border: none; border-radius: var(--radius-sm); cursor: pointer;
+  background: linear-gradient(180deg, var(--color-success), var(--color-success-dark));
+  color: var(--color-text-on-dark); font-size: var(--text-xs); font-weight: 900; text-transform: uppercase; letter-spacing: .06em;
+  box-shadow: 0 2px 0 var(--color-success-dark);
 }
 .shop-confirm__yes:disabled { opacity: 0.5; cursor: not-allowed; }
 .shop-confirm__no {
-  flex: 1; padding: 7px 8px; border: 1px solid rgba(200,160,64,.3); border-radius: 2px; cursor: pointer;
-  background: rgba(255,255,255,.05); color: #c8a040;
-  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  flex: 1; padding: var(--space-2) var(--space-2); border: 1px solid rgba(200,160,64,.3); border-radius: var(--radius-sm); cursor: pointer;
+  background: rgba(255,255,255,.05); color: var(--color-gold);
+  font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
 }
 .shop-ticket:not(.shop-ticket--shake):hover .shop-ticket__action {
-  background: linear-gradient(180deg, #e6ba38, #b87c28);
+  background: linear-gradient(180deg, var(--color-accent-light), var(--color-cork));
 }
 .shop-confirm__yes:not(:disabled):hover { filter: brightness(1.1); }
-.shop-confirm__no:hover { border-color: rgba(200,160,64,.6); color: #e6b84a; }
+.shop-confirm__no:hover { border-color: rgba(200,160,64,.6); color: var(--color-accent-light); }
 
 /* state card (loading/error) */
 .shop-state-card {
   min-height: 16rem; display: grid; place-items: center; gap: var(--space-3);
   text-align: center; padding: var(--space-6); border-radius: 4px;
-  background: rgba(255,255,255,.04); border: 1px solid rgba(200,160,64,.2);
+  background: var(--color-dossier-panel-tint); border: 1px solid rgba(200,160,64,.2);
 }
 
 /* error feedback */
-.shop-feedback-error { color: #ef4444; margin-top: 12px; font-size: 0.85rem; }
+.shop-feedback-error { color: var(--color-danger); margin-top: var(--space-3); font-size: var(--text-sm); }
 </style>

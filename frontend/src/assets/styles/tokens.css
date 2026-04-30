@@ -47,7 +47,7 @@
   --color-surface-soft-alt: #EEF3FF;
   --color-backdrop:     color-mix(in srgb, var(--color-surface) 42%, transparent);
   --color-text:         #1A202C;
-  --color-text-muted:   #718096;
+  --color-text-muted:   #4E586A;
   --color-text-on-dark: #FFFFFF;
   --color-border:       #E2E8F0;
   --color-border-strong: #CBD5E0;
@@ -283,11 +283,11 @@
   --color-medals-meter-fill: linear-gradient(90deg, #efb45c 0%, #ffd76a 52%, #fff0ab 100%);
   --color-medals-meter-glow: rgba(255, 206, 84, 0.45);
   --color-medals-room-bg: linear-gradient(
-      180deg,
-      rgba(68, 38, 12, 0.2) 0%,
-      rgba(68, 38, 12, 0.08) 100%
-    ),
-    linear-gradient(135deg, rgba(255, 248, 229, 0.1), rgba(255, 232, 179, 0.02));
+    180deg,
+    rgba(68, 38, 12, 0.2) 0%,
+    rgba(68, 38, 12, 0.08) 100%
+  ),
+  linear-gradient(135deg, rgba(255, 248, 229, 0.1), rgba(255, 232, 179, 0.02));
   --color-medals-room-border: rgba(255, 230, 168, 0.16);
   --color-medals-room-inner-border: rgba(255, 248, 229, 0.06);
   --color-medals-room-note: rgba(255, 244, 218, 0.82);
