@@ -12,16 +12,24 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Evaluates answers for AI_PHOTO tasks, supporting both artifact-finding and image-classification subtypes.
+ */
 @Component
 public class AiPhotoTaskAnswerChecker implements TaskAnswerChecker {
 
     private static final Logger log = LoggerFactory.getLogger(AiPhotoTaskAnswerChecker.class);
 
+    /** {@inheritDoc} */
     @Override
     public TaskType supportedTaskType() {
         return TaskType.AI_PHOTO;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>Dispatches to artifact-finding or image-classification evaluation based on the correct-answer shape.</p>
+     */
     @Override
     public boolean isCorrect(Task task, JsonNode correctAnswer, Map<String, Object> answer) {
         if (!correctAnswer.path("foundArtifactIds").isMissingNode()) {

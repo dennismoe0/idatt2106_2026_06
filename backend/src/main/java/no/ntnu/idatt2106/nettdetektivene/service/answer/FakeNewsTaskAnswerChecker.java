@@ -7,14 +7,19 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+/**
+ * Evaluates answers for FAKE_NEWS tasks by checking that the student flagged the correct article as fake.
+ */
 @Component
 public class FakeNewsTaskAnswerChecker implements TaskAnswerChecker {
 
+    /** {@inheritDoc} */
     @Override
     public TaskType supportedTaskType() {
         return TaskType.FAKE_NEWS;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isCorrect(Task task, JsonNode correctAnswer, Map<String, Object> answer) {
         // Student picks exactly one article as fake (submitted false).

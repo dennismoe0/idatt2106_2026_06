@@ -9,9 +9,23 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repository for the {@link ClassroomStudent} join entity, managing student
+ * memberships and approval state within classrooms.
+ */
 public interface ClassroomStudentRepository extends JpaRepository<ClassroomStudent, Long> {
+
+    /**
+     * Returns all membership records for a given classroom, regardless of status.
+     */
     List<ClassroomStudent> findByClassroom_Id(Long classroomId);
 
+    /**
+     * Finds the membership record for a specific student in a specific classroom.
+     *
+     * @param classroomId the classroom id
+     * @param studentId   the student user id
+     */
     @Query("""
         select cs
         from ClassroomStudent cs
@@ -22,22 +36,47 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
         @Param("studentId") Long studentId
     );
 
+    /**
+     * Checks whether a student has any membership record in the given classroom.
+     */
     boolean existsByClassroom_IdAndStudent_Id(Long classroomId, Long studentId);
 
+    /**
+     * Checks whether a student has a membership record with the given status in the classroom.
+     */
     boolean existsByClassroom_IdAndStudent_IdAndStatus(Long classroomId, Long studentId, ClassroomStudentStatus status);
 
+    /**
+     * Finds the membership record for a student that has the given status.
+     *
+     * @param studentId the student user id
+     * @param status    the required status
+     */
     @Query("select cs from ClassroomStudent cs where cs.student.id = :studentId and cs.status = :status")
     Optional<ClassroomStudent> findByStudentIdAndStatus(
         @Param("studentId") Long studentId,
         @Param("status") ClassroomStudentStatus status
     );
 
+    /**
+     * Finds the membership record for a student that does NOT have the given status.
+     *
+     * @param studentId the student user id
+     * @param status    the status to exclude
+     */
     @Query("select cs from ClassroomStudent cs where cs.student.id = :studentId and cs.status <> :status")
     Optional<ClassroomStudent> findByStudentIdAndStatusNot(
         @Param("studentId") Long studentId,
         @Param("status") ClassroomStudentStatus status
     );
 
+    /**
+     * Returns leaderboard data for all approved students in the given classroom,
+     * ranked by number of completed tasks (descending).
+     *
+     * @param classroomId the classroom to build the leaderboard for
+     * @return projected rows containing display name and completed-task count
+     */
     @Query(value = """
         SELECT cs.display_name AS displayName,
                COUNT(sp.id)    AS completedTasks
@@ -52,6 +91,14 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
         """, nativeQuery = true)
     List<LeaderboardRow> getLeaderboard(@Param("classroomId") Long classroomId);
 
+    /**
+     * Returns school-wide leaderboard data for all approved students across the given
+     * classrooms, including avatar fields for visual display. Used to build
+     * cross-classroom rankings within a school.
+     *
+     * @param classroomIds the list of classroom ids belonging to the school
+     * @return projected rows with student, classroom, school, and avatar data
+     */
     @Query(value = """
         SELECT cs.student_id         AS studentId,
                cs.display_name       AS displayName,
@@ -86,6 +133,13 @@ public interface ClassroomStudentRepository extends JpaRepository<ClassroomStude
         """, nativeQuery = true)
     List<SchoolLeaderboardRow> getSchoolLeaderboard(@Param("classroomIds") List<Long> classroomIds);
 
+    /**
+     * Checks whether the given student is enrolled (in any status) in any classroom
+     * taught by the given teacher. Used for access-control checks in teacher-facing APIs.
+     *
+     * @param teacherId the teacher user id
+     * @param studentId the student user id
+     */
     @Query("""
         select count(cs) > 0
         from ClassroomStudent cs

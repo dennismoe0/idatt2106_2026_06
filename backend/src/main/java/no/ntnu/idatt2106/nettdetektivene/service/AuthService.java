@@ -12,6 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.UUID;
 
+/**
+ * Handles authentication for teachers and students, including registration and JWT issuance.
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -22,6 +25,13 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
+    /**
+     * Registers a new teacher account.
+     *
+     * @param request the registration details (email and password)
+     * @return an {@link AuthResponse} containing a JWT and user metadata
+     * @throws AuthException if the email is already in use
+     */
     public AuthResponse register(RegisterRequest request) {
         log.info("Registering new teacher: {}", request.email());
         if (userRepository.existsByEmail(request.email())) {
@@ -37,6 +47,13 @@ public class AuthService {
         return toAuthResponse(user);
     }
 
+    /**
+     * Authenticates a teacher by email and password.
+     *
+     * @param request the login credentials
+     * @return an {@link AuthResponse} containing a JWT and user metadata
+     * @throws AuthException if the credentials are invalid
+     */
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
             .orElseThrow(() -> {
@@ -51,6 +68,12 @@ public class AuthService {
         return toAuthResponse(user);
     }
 
+    /**
+     * Performs a simulated Feide login for students, creating a new account if one does not exist.
+     *
+     * @param request the student login details (username)
+     * @return an {@link AuthResponse} containing a JWT and user metadata
+     */
     public AuthResponse studentLogin(StudentLoginRequest request) {
         log.info("Student login attempt: username={}", request.username());
         String email = request.username() + "@student.local";

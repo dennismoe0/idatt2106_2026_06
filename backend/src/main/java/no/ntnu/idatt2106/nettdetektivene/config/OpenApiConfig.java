@@ -6,6 +6,11 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configures the OpenAPI (Swagger) documentation for the application.
+ * Registers a global JWT bearer-token security scheme so that the Swagger UI
+ * can include an {@code Authorization: Bearer &lt;token&gt;} header on test requests.
+ */
 @Configuration
 @OpenAPIDefinition(info = @Info(title = "Nettdetektivene API", version = "1.0"))
 @SecurityScheme(

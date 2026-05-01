@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
+/**
+ * Audit log of XP awarded to a student for completing a stop.
+ * One row is written per stop-completion event, enabling the service layer
+ * to detect and prevent duplicate XP grants.
+ */
 @Entity
 @Table(name = "student_xp_log")
 @Getter

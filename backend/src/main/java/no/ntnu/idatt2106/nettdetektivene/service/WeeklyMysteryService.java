@@ -26,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Manages the weekly mystery feature, including student submissions, teacher approval/activation/rejection, and answer evaluation with medal rewards.
+ */
 @Service
 public class WeeklyMysteryService {
 
@@ -69,6 +72,14 @@ public class WeeklyMysteryService {
     // Student: submit a mystery
     // -------------------------------------------------------------------------
 
+    /**
+     * Saves a new weekly mystery submission from a student and notifies classroom teachers.
+     *
+     * @param student the student submitting the mystery
+     * @param dto     the submission details (title, description, optional image URL, classroom ID)
+     * @return the persisted {@link WeeklyMystery}
+     * @throws IllegalArgumentException if the classroom does not exist
+     */
     @Transactional
     public WeeklyMystery submitMystery(User student, WeeklyMysterySubmissionDto dto) {
         log.info("[WeeklyMysteryService] submitMystery studentId={} classroomId={}", student.getId(), dto.classroomId());
@@ -97,6 +108,12 @@ public class WeeklyMysteryService {
     // Student: get active (featured + approved) mystery for classroom
     // -------------------------------------------------------------------------
 
+    /**
+     * Returns the currently featured (active) mystery for a classroom, or {@code null} if none is active.
+     *
+     * @param classroomId the classroom ID
+     * @return the active {@link WeeklyMystery}, or {@code null}
+     */
     public WeeklyMystery getActiveMystery(Long classroomId) {
         log.info("[WeeklyMysteryService] getActiveMystery classroomId={}", classroomId);
         return mysteryRepo.findByClassroomIdAndFeaturedTrue(classroomId).orElse(null);
@@ -106,6 +123,13 @@ public class WeeklyMysteryService {
     // Student: has already completed this mystery?
     // -------------------------------------------------------------------------
 
+    /**
+     * Checks whether a student has already completed a specific mystery.
+     *
+     * @param studentId the student's user ID
+     * @param mysteryId the mystery ID
+     * @return {@code true} if the student has completed it
+     */
     public boolean hasStudentCompleted(Long studentId, Long mysteryId) {
         boolean completed = completionRepo.existsByStudentIdAndMysteryId(studentId, mysteryId);
         log.info("[WeeklyMysteryService] hasStudentCompleted studentId={} mysteryId={} result={}", studentId, mysteryId, completed);
@@ -116,6 +140,15 @@ public class WeeklyMysteryService {
     // Student: submit answer for active mystery
     // -------------------------------------------------------------------------
 
+    /**
+     * Evaluates a student's answer for the active mystery, awards XP/stars/medals on a correct answer, and records the completion.
+     *
+     * @param student the answering student
+     * @param dto     the completion details (classroomId and submitted answer)
+     * @return a {@link MysteryCompleteResultDto} with the result and any rewards
+     * @throws SecurityException   if the student is not enrolled in the classroom
+     * @throws IllegalStateException if there is no active mystery or the student has already completed it
+     */
     @Transactional
     public MysteryCompleteResultDto completeMystery(User student, MysteryCompleteDto dto) {
         log.info("[WeeklyMysteryService] completeMystery studentId={} classroomId={}", student.getId(), dto.classroomId());
@@ -193,6 +226,12 @@ public class WeeklyMysteryService {
     // Teacher: list all submissions for a classroom
     // -------------------------------------------------------------------------
 
+    /**
+     * Returns all mystery submissions for a classroom, newest first (teacher view).
+     *
+     * @param classroomId the classroom ID
+     * @return list of {@link WeeklyMystery} submissions
+     */
     public List<WeeklyMystery> getSubmissions(Long classroomId) {
         log.info("[WeeklyMysteryService] getSubmissions classroomId={}", classroomId);
         return mysteryRepo.findByClassroomIdOrderByCreatedAtDesc(classroomId);
@@ -202,6 +241,16 @@ public class WeeklyMysteryService {
     // Teacher: edit/approve a mystery (sets status to APPROVED)
     // -------------------------------------------------------------------------
 
+    /**
+     * Applies teacher edits to a mystery (title, description, correct answer, rewards, etc.) and sets its status to APPROVED.
+     *
+     * @param mysteryId the mystery ID to edit
+     * @param dto       the update payload
+     * @param teacherId the teacher's user ID
+     * @return the updated {@link WeeklyMystery}
+     * @throws SecurityException     if the teacher does not own the classroom containing the mystery
+     * @throws IllegalArgumentException if the mystery is not found
+     */
     @Transactional
     public WeeklyMystery editMystery(Long mysteryId, WeeklyMysteryEditDto dto, Long teacherId) {
         log.info("[WeeklyMysteryService] editMystery mysteryId={} teacherId={}", mysteryId, teacherId);
@@ -238,6 +287,16 @@ public class WeeklyMysteryService {
     // Teacher: activate (feature) a mystery for the classroom
     // -------------------------------------------------------------------------
 
+    /**
+     * Activates (features) a mystery for students, deactivating any previously featured mystery in the same classroom.
+     *
+     * @param mysteryId   the mystery ID to activate
+     * @param classroomId the classroom ID
+     * @param teacherId   the teacher's user ID
+     * @return the activated {@link WeeklyMystery}
+     * @throws SecurityException     if the teacher does not own the classroom
+     * @throws IllegalArgumentException if the mystery is not found
+     */
     @Transactional
     public WeeklyMystery activateMystery(Long mysteryId, Long classroomId, Long teacherId) {
         log.info("[WeeklyMysteryService] activateMystery mysteryId={} classroomId={} teacherId={}", mysteryId, classroomId, teacherId);
@@ -270,6 +329,15 @@ public class WeeklyMysteryService {
     // Teacher: reject a mystery
     // -------------------------------------------------------------------------
 
+    /**
+     * Rejects a mystery submission by setting its status to REJECTED.
+     *
+     * @param mysteryId the mystery ID to reject
+     * @param teacherId the teacher's user ID
+     * @return the rejected {@link WeeklyMystery}
+     * @throws SecurityException     if the teacher does not own the classroom
+     * @throws IllegalArgumentException if the mystery is not found
+     */
     @Transactional
     public WeeklyMystery rejectMystery(Long mysteryId, Long teacherId) {
         log.info("[WeeklyMysteryService] rejectMystery mysteryId={} teacherId={}", mysteryId, teacherId);

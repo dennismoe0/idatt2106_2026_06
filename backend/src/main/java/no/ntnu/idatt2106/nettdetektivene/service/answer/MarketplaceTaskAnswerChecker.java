@@ -13,6 +13,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Evaluates answers for MARKETPLACE tasks, supporting element-flagging and the legacy single-selection format.
+ */
 @Component
 public class MarketplaceTaskAnswerChecker implements TaskAnswerChecker {
 
@@ -24,11 +27,16 @@ public class MarketplaceTaskAnswerChecker implements TaskAnswerChecker {
         this.objectMapper = objectMapper;
     }
 
+    /** {@inheritDoc} */
     @Override
     public TaskType supportedTaskType() {
         return TaskType.MARKETPLACE;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>Dispatches to element-flagging or legacy selection evaluation based on the correct-answer shape.</p>
+     */
     @Override
     public boolean isCorrect(Task task, JsonNode correctAnswer, Map<String, Object> answer) {
         if (!correctAnswer.path("correctElementIds").isMissingNode()) {

@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Stateless utility for evaluating phishing-email task answers in both the new clue-ID format and the legacy action format.
+ */
 public class PhishingAnswerChecker {
 
     private PhishingAnswerChecker() {}
@@ -39,6 +42,12 @@ public class PhishingAnswerChecker {
         return false;
     }
 
+    /**
+     * Extracts the list of required clue IDs from a correct-answer node.
+     *
+     * @param correctAnswer the correct-answer JSON (may be {@code null})
+     * @return list of required clue ID strings, empty if none are defined
+     */
     public static List<String> requiredClueIds(JsonNode correctAnswer) {
         List<String> ids = new ArrayList<>();
         if (correctAnswer == null) return ids;

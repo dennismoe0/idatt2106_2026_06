@@ -28,6 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Handles weekly mystery submissions, activation, and review for both students and teachers.
+ */
 @RestController
 @RequestMapping("/api/weekly-mysteries")
 public class WeeklyMysteryController {
@@ -37,6 +40,12 @@ public class WeeklyMysteryController {
     private final WeeklyMysteryService weeklyMysteryService;
     private final UserRepository userRepository;
 
+    /**
+     * Constructs the controller with the required service and repository dependencies.
+     *
+     * @param weeklyMysteryService the service handling weekly mystery business logic
+     * @param userRepository       the repository used to resolve user references
+     */
     public WeeklyMysteryController(WeeklyMysteryService weeklyMysteryService,
                                    UserRepository userRepository) {
         this.weeklyMysteryService = weeklyMysteryService;
@@ -47,6 +56,13 @@ public class WeeklyMysteryController {
     // Student: submit a mystery
     // -------------------------------------------------------------------------
 
+    /**
+     * Submits a new weekly mystery entry created by the authenticated student.
+     *
+     * @param userDetails the authenticated student
+     * @param dto         the mystery submission including title, description, image URL, and classroom ID
+     * @return 201 Created with the saved {@link WeeklyMysteryResponseDto}
+     */
     @PostMapping("/submissions")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<WeeklyMysteryResponseDto> submitMystery(
@@ -64,6 +80,13 @@ public class WeeklyMysteryController {
     // Student: get active mystery for classroom (204 if none)
     // -------------------------------------------------------------------------
 
+    /**
+     * Returns the currently active (featured) weekly mystery for the given classroom, or 204 if none is active.
+     *
+     * @param userDetails the authenticated student
+     * @param classroomId the classroom to check for an active mystery
+     * @return 200 OK with the active {@link WeeklyMysteryResponseDto}, or 204 No Content if no mystery is active
+     */
     @GetMapping("/active")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<WeeklyMysteryResponseDto> getActiveMystery(
@@ -84,6 +107,13 @@ public class WeeklyMysteryController {
     // Student: submit answer for active mystery
     // -------------------------------------------------------------------------
 
+    /**
+     * Submits the authenticated student's answer for the active weekly mystery and returns the result.
+     *
+     * @param userDetails the authenticated student
+     * @param dto         the answer payload including classroom ID and the student's response
+     * @return 200 OK with a {@link MysteryCompleteResultDto} indicating whether the answer was correct and XP awarded
+     */
     @PostMapping("/active/complete")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<MysteryCompleteResultDto> completeMystery(
@@ -101,6 +131,13 @@ public class WeeklyMysteryController {
     // Teacher: list all submissions for classroom
     // -------------------------------------------------------------------------
 
+    /**
+     * Returns all weekly mystery submissions for a classroom, accessible by the owning teacher.
+     *
+     * @param userDetails the authenticated teacher
+     * @param classroomId the classroom whose submissions to retrieve
+     * @return 200 OK with a list of {@link WeeklyMysteryResponseDto} for all submissions
+     */
     @GetMapping("/submissions")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<List<WeeklyMysteryResponseDto>> getSubmissions(
@@ -120,6 +157,14 @@ public class WeeklyMysteryController {
     // Teacher: edit/approve a mystery
     // -------------------------------------------------------------------------
 
+    /**
+     * Edits or approves a weekly mystery submission, accessible by the teacher.
+     *
+     * @param userDetails the authenticated teacher
+     * @param id          the ID of the mystery to edit
+     * @param dto         the updated mystery fields (teacher comment, reward values, status)
+     * @return 200 OK with the updated {@link WeeklyMysteryResponseDto}
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<WeeklyMysteryResponseDto> editMystery(
@@ -137,6 +182,14 @@ public class WeeklyMysteryController {
     // Teacher: activate (feature) a mystery for classroom
     // -------------------------------------------------------------------------
 
+    /**
+     * Activates (features) a weekly mystery for a specific classroom, making it visible to students.
+     *
+     * @param userDetails the authenticated teacher
+     * @param id          the ID of the mystery to activate
+     * @param classroomId the classroom in which to activate the mystery
+     * @return 200 OK with the activated {@link WeeklyMysteryResponseDto}
+     */
     @PutMapping("/{id}/activate")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<WeeklyMysteryResponseDto> activateMystery(
@@ -154,6 +207,13 @@ public class WeeklyMysteryController {
     // Teacher: reject a mystery
     // -------------------------------------------------------------------------
 
+    /**
+     * Rejects a weekly mystery submission so it is not shown to students.
+     *
+     * @param userDetails the authenticated teacher
+     * @param id          the ID of the mystery to reject
+     * @return 200 OK with the rejected {@link WeeklyMysteryResponseDto}
+     */
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<WeeklyMysteryResponseDto> rejectMystery(
@@ -170,10 +230,22 @@ public class WeeklyMysteryController {
     // Private helpers
     // -------------------------------------------------------------------------
 
+    /**
+     * Extracts the numeric user ID from the authenticated principal's username.
+     *
+     * @param userDetails the authenticated user
+     * @return the user's database ID
+     */
     private Long currentUserId(UserDetails userDetails) {
         return Long.parseLong(userDetails.getUsername());
     }
 
+    /**
+     * Maps a {@link WeeklyMystery} entity to a {@link WeeklyMysteryResponseDto} for API responses.
+     *
+     * @param m the mystery entity to map
+     * @return a {@link WeeklyMysteryResponseDto} with all relevant fields populated
+     */
     private WeeklyMysteryResponseDto toResponseDto(WeeklyMystery m) {
         String displayName = "Anonym elev";
         return new WeeklyMysteryResponseDto(

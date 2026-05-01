@@ -2,6 +2,9 @@ package no.ntnu.idatt2106.nettdetektivene.dto;
 
 import java.time.LocalDateTime;
 
+/**
+ * Response representing a weekly mystery, used both for teacher management views and student-facing display.
+ */
 public record WeeklyMysteryResponseDto(
     Long id,
     String title,

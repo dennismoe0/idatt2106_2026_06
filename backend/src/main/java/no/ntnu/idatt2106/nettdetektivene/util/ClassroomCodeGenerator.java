@@ -7,6 +7,12 @@ import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
 
+/**
+ * Generates unique, human-readable join codes for classrooms.
+ * Codes combine a Norwegian nature-themed prefix with an animal-themed suffix
+ * (e.g. {@code fjord-ulv}, {@code skog-ørn}). The generator retries up to
+ * {@code MAX_ATTEMPTS} times before throwing an exception.
+ */
 @Component
 public class ClassroomCodeGenerator {
     private static final Logger log = LoggerFactory.getLogger(ClassroomCodeGenerator.class);
@@ -28,6 +34,13 @@ public class ClassroomCodeGenerator {
 
     private final SecureRandom random = new SecureRandom();
 
+    /**
+     * Generates a unique classroom join code that does not yet exist in the database.
+     *
+     * @param repository the classroom repository used to check for uniqueness
+     * @return a unique join code such as {@code fjord-ulv}
+     * @throws IllegalStateException if a unique code cannot be found within the allowed attempts
+     */
     public String generate(ClassroomRepository repository) {
         for (int i = 0; i < MAX_ATTEMPTS; i++) {
             String code = PREFIXES[random.nextInt(PREFIXES.length)]

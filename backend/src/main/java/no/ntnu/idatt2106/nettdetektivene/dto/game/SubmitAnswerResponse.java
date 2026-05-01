@@ -2,6 +2,9 @@ package no.ntnu.idatt2106.nettdetektivene.dto.game;
 
 import java.util.List;
 
+/**
+ * Response returned after a student submits a task answer, including correctness, earned rewards, and task-type-specific feedback.
+ */
 public record SubmitAnswerResponse(
     boolean correct,
     int score,

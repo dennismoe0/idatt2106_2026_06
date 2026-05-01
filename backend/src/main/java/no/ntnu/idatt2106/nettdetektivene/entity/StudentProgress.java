@@ -6,6 +6,11 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
+/**
+ * Tracks a student's progress on an individual task within a stop.
+ * Each row is unique per student–task pair and stores the number of attempts,
+ * the best score achieved, and whether the task has been completed.
+ */
 @Entity
 @Table(name = "student_progress",
        uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "task_id"}))

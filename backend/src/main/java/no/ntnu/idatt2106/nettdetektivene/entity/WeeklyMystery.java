@@ -7,6 +7,12 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
+/**
+ * Represents a "weekly mystery" challenge submitted by a student and moderated
+ * by the classroom teacher. Once approved by the teacher and marked as
+ * {@code featured}, the mystery becomes the active challenge for all students
+ * in the classroom. Completing it with the correct answer awards stars and XP.
+ */
 @Entity
 @Table(name = "weekly_mysteries")
 @Getter @Setter @NoArgsConstructor
@@ -60,5 +66,6 @@ public class WeeklyMystery {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    /** Moderation lifecycle of a student-submitted mystery. */
     public enum Status { PENDING, APPROVED, REJECTED }
 }

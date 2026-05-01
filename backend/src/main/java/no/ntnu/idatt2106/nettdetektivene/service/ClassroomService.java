@@ -42,6 +42,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Manages classroom lifecycle: creation, deletion, student membership, status updates, and leaderboards.
+ */
 @Service
 @RequiredArgsConstructor
 public class ClassroomService {
@@ -58,6 +61,14 @@ public class ClassroomService {
     private final StopRepository stopRepository;
     private final StudentProgressRepository studentProgressRepository;
 
+    /**
+     * Creates a new classroom for the given teacher and generates a unique join code.
+     *
+     * @param teacherId the ID of the teacher creating the classroom
+     * @param req       the classroom name and optional description
+     * @return the created classroom as a {@link ClassroomResponse}
+     * @throws no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException if the teacher does not exist
+     */
     @Transactional
     public ClassroomResponse createClassroom(Long teacherId, CreateClassroomRequest req) {
         log.info("[ClassroomService] createClassroom teacherId={} name={}", teacherId, req.name());
@@ -85,6 +96,12 @@ public class ClassroomService {
         return toClassroomResponse(classroom);
     }
 
+    /**
+     * Returns all classrooms owned by the given teacher.
+     *
+     * @param teacherId the teacher's user ID
+     * @return list of {@link ClassroomResponse} DTOs
+     */
     public List<ClassroomResponse> getMyClassrooms(Long teacherId) {
         log.info("Fetching classrooms for teacherId={}", teacherId);
         return classroomRepository.findByTeachers_Teacher_UserId(teacherId).stream()
@@ -92,12 +109,26 @@ public class ClassroomService {
             .toList();
     }
 
+    /**
+     * Returns a single classroom, verifying that the caller is its teacher.
+     *
+     * @param teacherId   the teacher's user ID
+     * @param classroomId the classroom ID
+     * @return the {@link ClassroomResponse}
+     * @throws no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException if the classroom is not found or not owned by the teacher
+     */
     public ClassroomResponse getClassroom(Long teacherId, Long classroomId) {
         log.info("Fetching classroom: classroomId={} teacherId={}", classroomId, teacherId);
         Classroom classroom = getClassroomForTeacher(teacherId, classroomId);
         return toClassroomResponse(classroom);
     }
 
+    /**
+     * Soft-deletes a classroom by marking it inactive.
+     *
+     * @param teacherId   the teacher's user ID
+     * @param classroomId the classroom to delete
+     */
     @Transactional
     public void deleteClassroom(Long teacherId, Long classroomId) {
         Classroom classroom = getClassroomForTeacher(teacherId, classroomId);
@@ -106,6 +137,13 @@ public class ClassroomService {
         log.info("[ClassroomService] Classroom soft-deleted: classroomId={} by teacherId={}", classroomId, teacherId);
     }
 
+    /**
+     * Returns the task-completion leaderboard for a classroom, accessible by the owning teacher.
+     *
+     * @param teacherId   the teacher's user ID
+     * @param classroomId the classroom ID
+     * @return ordered list of {@link LeaderboardEntryDto}
+     */
     @Transactional(readOnly = true)
     public List<LeaderboardEntryDto> getLeaderboard(Long teacherId, Long classroomId) {
         log.info("[ClassroomService] getLeaderboard teacherId={} classroomId={}", teacherId, classroomId);
@@ -118,6 +156,14 @@ public class ClassroomService {
         return entries;
     }
 
+    /**
+     * Adds a student to a classroom using a join code, or reactivates a previously kicked student.
+     *
+     * @param studentId the student's user ID
+     * @param req       the join code and desired display name
+     * @return the student's membership record as a {@link StudentInClassroomResponse}
+     * @throws org.springframework.web.server.ResponseStatusException if the student is already an active member
+     */
     public StudentInClassroomResponse joinClassroom(Long studentId, JoinClassroomRequest req) {
         Classroom classroom = classroomRepository.findByJoinCode(req.code())
             .orElseThrow(() -> {
@@ -154,6 +200,13 @@ public class ClassroomService {
         return toStudentResponse(classroomStudent);
     }
 
+    /**
+     * Returns all students in a classroom (any status), verifying teacher ownership.
+     *
+     * @param teacherId   the teacher's user ID
+     * @param classroomId the classroom ID
+     * @return list of {@link StudentInClassroomResponse}
+     */
     public List<StudentInClassroomResponse> getStudents(Long teacherId, Long classroomId) {
         log.info("Fetching students for classroomId={} teacherId={}", classroomId, teacherId);
         verifyTeacherOwnsClassroom(teacherId, classroomId);
@@ -162,6 +215,13 @@ public class ClassroomService {
             .toList();
     }
 
+    /**
+     * Returns a per-student progress summary for all approved members of a classroom.
+     *
+     * @param teacherId   the teacher's user ID
+     * @param classroomId the classroom ID
+     * @return list of {@link StudentProgressSummaryDto} ordered by approved membership
+     */
     @Transactional(readOnly = true)
     public List<StudentProgressSummaryDto> getStudentProgressSummaries(Long teacherId, Long classroomId) {
         log.info("[ClassroomService] getStudentProgressSummaries teacherId={} classroomId={}", teacherId, classroomId);
@@ -207,6 +267,13 @@ public class ClassroomService {
         }).toList();
     }
 
+    /**
+     * Returns all stops in order for a classroom, with task counts (teacher view — no per-student data).
+     *
+     * @param teacherId   the teacher's user ID
+     * @param classroomId the classroom ID
+     * @return ordered list of {@link StopResponse}
+     */
     public List<StopResponse> getStopsForClassroom(Long teacherId, Long classroomId) {
         log.info("Fetching stops for classroomId={} teacherId={}", classroomId, teacherId);
         verifyTeacherOwnsClassroom(teacherId, classroomId);
@@ -231,6 +298,16 @@ public class ClassroomService {
         );
     }
 
+    /**
+     * Approves or kicks a student from a classroom.
+     *
+     * @param teacherId   the teacher's user ID
+     * @param classroomId the classroom ID
+     * @param studentId   the student's user ID
+     * @param status      the new status ({@code APPROVED} or {@code KICKED})
+     * @return the updated {@link StudentInClassroomResponse}
+     * @throws org.springframework.web.server.ResponseStatusException if status is PENDING or the student is not in the classroom
+     */
     public StudentInClassroomResponse updateStudentStatus(
         Long teacherId,
         Long classroomId,
@@ -259,6 +336,12 @@ public class ClassroomService {
         return toStudentResponse(classroomStudent);
     }
 
+    /**
+     * Returns the leaderboard for a classroom without requiring a teacher authorization check (student-facing).
+     *
+     * @param classroomId the classroom ID
+     * @return ordered list of {@link LeaderboardEntryDto}
+     */
     public List<LeaderboardEntryDto> getLeaderboard(Long classroomId) {
         log.info("[ClassroomService] getLeaderboard classroomId={}", classroomId);
         int totalTasks = (int) taskRepository.count();
@@ -271,6 +354,13 @@ public class ClassroomService {
             .toList();
     }
 
+    /**
+     * Returns a school-wide leaderboard that includes all classrooms belonging to the same school as the given classroom.
+     *
+     * @param userId      the requesting user's ID (teacher or approved student)
+     * @param classroomId the reference classroom ID used to resolve the school
+     * @return list of {@link SchoolLeaderboardEntryDto} ordered by completed tasks
+     */
     @Transactional
     public List<SchoolLeaderboardEntryDto> getSchoolLeaderboard(Long userId, Long classroomId) {
         log.info("[ClassroomService] getSchoolLeaderboard userId={} classroomId={}", userId, classroomId);
@@ -294,6 +384,13 @@ public class ClassroomService {
         return toSchoolLeaderboardEntries(classroomIds, totalTasks);
     }
 
+    /**
+     * Returns a global leaderboard across all active classrooms.
+     *
+     * @param userId      the requesting user's ID
+     * @param classroomId a valid classroom ID used for access verification
+     * @return list of {@link SchoolLeaderboardEntryDto} for all active classrooms
+     */
     @Transactional(readOnly = true)
     public List<SchoolLeaderboardEntryDto> getGlobalLeaderboard(Long userId, Long classroomId) {
         log.info("[ClassroomService] getGlobalLeaderboard userId={} classroomId={}", userId, classroomId);
@@ -325,6 +422,14 @@ public class ClassroomService {
             .toList();
     }
 
+    /**
+     * Updates the display name a student uses within a specific classroom.
+     *
+     * @param studentId   the student's user ID
+     * @param classroomId the classroom ID
+     * @param displayName the new display name
+     * @return the updated {@link StudentInClassroomResponse}
+     */
     public StudentInClassroomResponse updateMyDisplayName(Long studentId, Long classroomId, String displayName) {
         log.info("[ClassroomService] updateMyDisplayName studentId={} classroomId={}", studentId, classroomId);
         ClassroomStudent cs = classroomStudentRepository
@@ -339,6 +444,12 @@ public class ClassroomService {
         return toStudentResponse(cs);
     }
 
+    /**
+     * Returns the active classroom membership for a student, if one exists.
+     *
+     * @param studentId the student's user ID
+     * @return an {@link Optional} containing the {@link StudentInClassroomResponse}, or empty if not enrolled
+     */
     public Optional<StudentInClassroomResponse> getMyClassroom(Long studentId) {
         log.info("[ClassroomService] getMyClassroom studentId={}", studentId);
         return classroomStudentRepository
@@ -346,6 +457,13 @@ public class ClassroomService {
             .map(this::toStudentResponse);
     }
 
+    /**
+     * Returns a student's approval status and classroom music-mute preference.
+     *
+     * @param studentId   the student's user ID
+     * @param classroomId the classroom ID
+     * @return a {@link StudentStatusResponse}
+     */
     public StudentStatusResponse getMyStatus(Long studentId, Long classroomId) {
         log.info("[ClassroomService] getMyStatus studentId={} classroomId={}", studentId, classroomId);
         ClassroomStudent entry = classroomStudentRepository
@@ -359,6 +477,13 @@ public class ClassroomService {
         return new StudentStatusResponse(entry.getStatus().name(), musicMuted);
     }
 
+    /**
+     * Toggles the music-muted flag for a classroom.
+     *
+     * @param teacherId   the teacher's user ID
+     * @param classroomId the classroom ID
+     * @param musicMuted  {@code true} to mute music, {@code false} to unmute
+     */
     @Transactional
     public void setMusicMuted(Long teacherId, Long classroomId, boolean musicMuted) {
         log.info("[ClassroomService] setMusicMuted classroomId={} musicMuted={}", classroomId, musicMuted);

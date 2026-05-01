@@ -1,4 +1,15 @@
-# idatt2106_2026_06 — Nettdetektivene
+# Nettdetektivene — IDATT2106 V2026, Team 6
+
+Nettdetektivene ("The Net Detectives") is an educational browser game for students aged 8–13. A mysterious criminal has stolen the town's digital budget, and players take on the role of junior detectives. To unmask the culprit, they must investigate 7 locations across the city, each teaching a core internet-safety skill: spotting fake news, identifying phishing emails, recognising AI-manipulated images, evaluating password strength, avoiding online scams, understanding social media manipulation, and a final boss challenge combining all six.
+
+The game is played inside a classroom managed by a teacher. The teacher creates the classroom, students join with a code, and each student's progress is tracked individually. Medals, avatar customisation, a personal notebook, and leaderboards keep students engaged across multiple sessions.
+
+**Target audience:** School students, ages 8–13.
+**Course:** IDATT2106 Systemutvikling 2 med smidig prosjekt — NTNU 2026.
+
+---
+
+## Team
 
 | Username   | Name                          |
 |------------|-------------------------------|
@@ -9,6 +20,76 @@
 | olasy      | Ola Syrstad Berg              |
 | shaktios   | Shakti Om Sharma              |
 | tohiggin   | Thomas Oliver Wallin Higgins  |
+
+---
+
+## Tech stack
+
+| Layer        | Technology                                                      |
+|--------------|-----------------------------------------------------------------|
+| Backend      | Spring Boot 3.2.4 / Java 21                                     |
+| Database     | MySQL 8, Flyway migrations (30 migrations)                      |
+| Auth         | JWT (HMAC-SHA256, 24 h expiry), BCrypt strength 12              |
+| ORM          | Spring Data JPA / Hibernate                                     |
+| Frontend     | Vue 3.5 (Composition API, `<script setup>`)                     |
+| State        | Pinia 3                                                         |
+| Routing      | Vue Router 5                                                    |
+| Styling      | Tailwind CSS v4 (CSS-first `@theme` config)                     |
+| Build        | Vite (frontend), Maven (backend)                                |
+| HTTP client  | Axios with JWT interceptor                                      |
+
+---
+
+## Game overview
+
+Students explore 7 stops in order. Each stop has a short learning phase followed by domain-specific tasks, and ends with a clue riddle that advances the story.
+
+| # | Stop | Theme |
+|---|------|-------|
+| 1 | Nyhetskvartalet | Fake news detection |
+| 2 | Fotografen | AI / manipulated images |
+| 3 | Postkontoret | Phishing emails |
+| 4 | Markedsplassen | Scam marketplace |
+| 5 | Den sosiale møteplassen | Social media manipulation |
+| 6 | Passordbanken | Password strength |
+| 7 | Datasenteret | Final Boss — all six types combined |
+
+Completed stops award XP and medals. Medals unlock avatar options. Stars (secondary currency) are spent in the avatar shop. A classroom leaderboard, school leaderboard, and global leaderboard track progress.
+
+See [docs/game-mechanics.md](docs/game-mechanics.md) for the full game design.
+
+---
+
+## Architecture
+
+The backend is a Spring Boot REST API. The frontend is a Vue 3 SPA that communicates with the API via Axios. MySQL is the database; Flyway manages all schema changes. Authentication is stateless JWT, role-based (STUDENT / TEACHER).
+
+See [docs/architecture.md](docs/architecture.md) for the full architecture document including package structure, security model, and key design decisions.
+
+---
+
+## API
+
+Interactive Swagger UI is available at **http://localhost:8080/swagger-ui/index.html** when the backend is running.
+
+See [docs/api.md](docs/api.md) for the full endpoint reference.
+
+---
+
+## Testing
+
+```bash
+# Backend — 225 tests
+cd backend && mvn test
+
+# Frontend — 310 tests
+cd frontend && npm run test
+
+# E2E (Cypress, headless)
+cd frontend && npm run cypress:run
+```
+
+See [docs/testing.md](docs/testing.md) for coverage targets, test structure, and E2E flow documentation.
 
 ---
 

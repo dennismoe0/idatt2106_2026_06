@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Provides medal retrieval for students, including both earned and all available medals.
+ */
 @Service
 @RequiredArgsConstructor
 public class MedalService {
@@ -24,6 +27,12 @@ public class MedalService {
     private final StudentMedalRepository studentMedalRepository;
     private final MedalRepository medalRepository;
 
+    /**
+     * Returns all medals with their earned status for the given student.
+     *
+     * @param studentId the student's user ID
+     * @return list of {@link EarnedMedalDto} ordered by medal ID, with {@code earnedAt} null for unearned medals
+     */
     @Transactional(readOnly = true)
     public List<EarnedMedalDto> getAllMedals(Long studentId) {
         log.info("[MedalService] getAllMedals studentId={}", studentId);
@@ -46,6 +55,12 @@ public class MedalService {
             .toList();
     }
 
+    /**
+     * Returns only the medals that the student has already earned.
+     *
+     * @param studentId the student's user ID
+     * @return list of earned {@link EarnedMedalDto}
+     */
     @Transactional(readOnly = true)
     public List<EarnedMedalDto> getEarnedMedals(Long studentId) {
         log.info("[MedalService] getEarnedMedals studentId={}", studentId);

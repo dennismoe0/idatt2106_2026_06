@@ -18,6 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Development-profile seed runner that populates the database with a fixed set of
+ * schools, teachers, classrooms, students, and a sample weekly mystery on every
+ * application startup. Any existing data from previous dev-seed runs is wiped first
+ * to keep the state predictable. This component is only active under the {@code dev}
+ * Spring profile and runs after {@link DataLoader} (order 2).
+ */
 @Component
 @Profile("dev")
 @Order(2)

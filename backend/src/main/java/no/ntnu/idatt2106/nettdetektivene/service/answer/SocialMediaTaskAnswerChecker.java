@@ -10,16 +10,21 @@ import org.springframework.stereotype.Component;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * Evaluates answers for SOCIAL_MEDIA tasks, supporting single-action, accepted-actions, single-selection, and accepted-selection answer shapes.
+ */
 @Component
 public class SocialMediaTaskAnswerChecker implements TaskAnswerChecker {
 
     private static final Logger log = LoggerFactory.getLogger(SocialMediaTaskAnswerChecker.class);
 
+    /** {@inheritDoc} */
     @Override
     public TaskType supportedTaskType() {
         return TaskType.SOCIAL_MEDIA;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isCorrect(Task task, JsonNode correctAnswer, Map<String, Object> answer) {
         if (!correctAnswer.path("action").isMissingNode()) {

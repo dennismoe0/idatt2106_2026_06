@@ -1,5 +1,8 @@
 package no.ntnu.idatt2106.nettdetektivene.dto.avatar;
 
+/**
+ * Response representing a student's current avatar appearance configuration.
+ */
 public record AvatarResponse(
     String gender,
     String eyeColor,
