@@ -100,7 +100,7 @@ class DataLoaderTest {
     }
 
     @Test
-    void run_seedsFakeNewsTasksWithFourArticlesAndOneRealArticle() throws Exception {
+    void run_seedsFakeNewsTasksWithFourArticlesAndOneFakeArticle() throws Exception {
         List<Task> tasks = seededTasks();
 
         List<Task> fakeNewsTasks = tasks.stream()
@@ -113,7 +113,7 @@ class DataLoaderTest {
             ArrayNode articles = (ArrayNode) new ObjectMapper().readTree(task.getContentJson()).path("articles");
             assertThat(articles).hasSize(4);
             assertThat(articles)
-                .filteredOn(article -> article.path("isReal").asBoolean())
+                .filteredOn(article -> !article.path("isReal").asBoolean())
                 .hasSize(1);
         }
     }
