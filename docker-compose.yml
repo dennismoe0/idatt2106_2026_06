@@ -22,6 +22,7 @@ services:
     build: ./backend
     environment:
       DB_HOST: db
+      MYSQL_PORT: 3306
       DB_NAME: ${DB_NAME}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -42,6 +43,7 @@ services:
       context: ./frontend
       args:
         VITE_API_URL: ""
+        VITE_SHOW_DEV_TOOLS: "true"
     ports:
       - "${FRONTEND_PORT:-5173}:80"
     depends_on:

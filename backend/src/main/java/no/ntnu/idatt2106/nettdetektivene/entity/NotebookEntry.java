@@ -7,6 +7,12 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
+/**
+ * A single entry in a student's in-game notebook.
+ * Entries are either auto-generated (tips and clues produced by the system when
+ * a student completes a task) or manually created by the student (reflections and
+ * general notes). The optional {@code stop} link groups stop-specific entries.
+ */
 @Entity
 @Table(name = "notebook_entries")
 @Getter
@@ -32,5 +38,6 @@ public class NotebookEntry {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    public enum EntryType { AUTO_TIP, REFLECTION, GENERAL_NOTE }
+    /** Distinguishes system-generated entries from student-authored ones. */
+    public enum EntryType { AUTO_TIP, AUTO_CLUE, REFLECTION, GENERAL_NOTE }
 }

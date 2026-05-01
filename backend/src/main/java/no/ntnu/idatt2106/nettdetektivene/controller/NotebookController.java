@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Handles notebook entries for students (reflections and general notes) and allows teachers to read student entries.
+ */
 @RestController
 @RequestMapping("/api/notebook")
 @RequiredArgsConstructor
@@ -25,6 +28,12 @@ public class NotebookController {
 
     private final NotebookService notebookService;
 
+    /**
+     * Returns all notebook entries for the authenticated student.
+     *
+     * @param userDetails the authenticated student
+     * @return a list of {@link NotebookEntryDto} belonging to the student
+     */
     @GetMapping
     @PreAuthorize("hasRole('STUDENT')")
     public List<NotebookEntryDto> getMyEntries(
@@ -34,6 +43,13 @@ public class NotebookController {
         return notebookService.getEntries(studentId);
     }
 
+    /**
+     * Creates a reflection entry tied to a specific game stop for the authenticated student.
+     *
+     * @param userDetails the authenticated student
+     * @param request     the reflection content and stop ID
+     * @return 201 Created with the new {@link NotebookEntryDto}
+     */
     @PostMapping
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<NotebookEntryDto> createReflection(
@@ -45,6 +61,13 @@ public class NotebookController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    /**
+     * Creates a free-form general note (not tied to a stop) for the authenticated student.
+     *
+     * @param userDetails the authenticated student
+     * @param request     the note content
+     * @return 201 Created with the new {@link NotebookEntryDto}
+     */
     @PostMapping("/general")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<NotebookEntryDto> createGeneralNote(
@@ -56,6 +79,14 @@ public class NotebookController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    /**
+     * Updates the content of an existing notebook entry owned by the authenticated student.
+     *
+     * @param userDetails the authenticated student
+     * @param id          the ID of the entry to update
+     * @param request     the new content for the entry
+     * @return the updated {@link NotebookEntryDto}
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('STUDENT')")
     public NotebookEntryDto updateEntry(
@@ -67,6 +98,13 @@ public class NotebookController {
         return notebookService.updateEntry(studentId, id, request.content());
     }
 
+    /**
+     * Deletes a notebook entry owned by the authenticated student.
+     *
+     * @param userDetails the authenticated student
+     * @param id          the ID of the entry to delete
+     * @return 204 No Content on success
+     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<Void> deleteEntry(
@@ -78,6 +116,13 @@ public class NotebookController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Returns all notebook entries for a specific student, accessible only to teachers.
+     *
+     * @param userDetails the authenticated teacher
+     * @param studentId   the ID of the student whose entries to retrieve
+     * @return a list of {@link NotebookEntryDto} for the given student
+     */
     @GetMapping("/student/{studentId}")
     @PreAuthorize("hasRole('TEACHER')")
     public List<NotebookEntryDto> getStudentEntries(

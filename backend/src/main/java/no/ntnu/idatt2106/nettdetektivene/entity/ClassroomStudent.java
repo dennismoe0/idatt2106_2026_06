@@ -8,6 +8,11 @@ import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
+/**
+ * Join table that tracks the membership of a student in a classroom.
+ * The {@code status} field progresses from PENDING (awaiting teacher approval)
+ * to APPROVED or KICKED. A student may only appear once per classroom.
+ */
 @Entity
 @Table(name = "classroom_students",
        uniqueConstraints = @UniqueConstraint(columnNames = {"classroom_id", "student_id"}))

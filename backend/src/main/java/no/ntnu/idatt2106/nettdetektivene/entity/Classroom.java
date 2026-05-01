@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
+/**
+ * Represents a classroom created by a teacher. Students join a classroom via a
+ * short {@code joinCode} and are approved or kicked by the owning teacher.
+ * A classroom may belong to a school and optionally mutes background music for all students.
+ */
 @Entity
 @Table(name = "classrooms")
 @Getter
@@ -27,6 +32,9 @@ public class Classroom {
 
     @Column(nullable = false)
     private boolean isActive = true;
+
+    @Column(nullable = false)
+    private boolean musicMuted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")

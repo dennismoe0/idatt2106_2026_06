@@ -1,5 +1,10 @@
 <template>
-  <div class="sound-controls" :class="{ 'sound-controls--muted': audioStore.muted }">
+  <div
+    class="sound-controls"
+    :class="{ 'sound-controls--muted': audioStore.muted }"
+    role="group"
+    aria-label="Lydkontroller"
+  >
     <button
       class="mute-btn"
       :aria-label="audioStore.muted ? 'Slå på lyd' : 'Demp lyd'"
@@ -18,6 +23,9 @@
       :value="audioStore.volume"
       :disabled="audioStore.muted"
       aria-label="Volum"
+      :aria-valuenow="audioStore.volume"
+      :aria-valuemin="0"
+      :aria-valuemax="1"
       @input="e => audioStore.setVolume(parseFloat(e.target.value))"
     />
   </div>
@@ -49,24 +57,38 @@ const volumeIcon = computed(() => {
   border: none;
   cursor: pointer;
   font-size: var(--text-lg);
-  padding: var(--space-1);
+  /* min 44×44px touch target */
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   border-radius: var(--radius-sm);
   line-height: 1;
   transition: transform var(--transition-fast);
 }
 .mute-btn:hover { transform: scale(1.15); }
 .mute-btn:active { transform: scale(0.95); }
+.mute-btn:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
 
 .volume-slider {
   -webkit-appearance: none;
   appearance: none;
   width: 72px;
-  height: 4px;
-  border-radius: 2px;
+  height: 6px;
+  border-radius: 3px;
   background: var(--color-border);
   outline: none;
   cursor: pointer;
   transition: opacity var(--transition-fast);
+}
+.volume-slider:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
 }
 .volume-slider:disabled {
   opacity: 0.35;
@@ -74,22 +96,23 @@ const volumeIcon = computed(() => {
 }
 .volume-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border-radius: var(--radius-full);
   background: var(--color-primary);
   cursor: pointer;
+  border: 2px solid #fff;
   transition: transform var(--transition-fast);
 }
 .volume-slider:not(:disabled)::-webkit-slider-thumb:hover {
   transform: scale(1.25);
 }
 .volume-slider::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border-radius: var(--radius-full);
   background: var(--color-primary);
-  border: none;
+  border: 2px solid #fff;
   cursor: pointer;
 }
 .sound-controls--muted .volume-slider { opacity: 0.35; }

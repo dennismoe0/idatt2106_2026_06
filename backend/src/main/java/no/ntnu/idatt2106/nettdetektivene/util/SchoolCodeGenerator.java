@@ -7,6 +7,12 @@ import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
 
+/**
+ * Generates unique, human-readable join codes for schools.
+ * Codes are composed of a Norwegian geographic prefix and a suffix
+ * (e.g. {@code nord-barneskole}, {@code berg-01}). The generator retries
+ * up to {@code MAX_ATTEMPTS} times before throwing an exception.
+ */
 @Component
 public class SchoolCodeGenerator {
     private static final Logger log = LoggerFactory.getLogger(SchoolCodeGenerator.class);
@@ -26,6 +32,13 @@ public class SchoolCodeGenerator {
 
     private final SecureRandom random = new SecureRandom();
 
+    /**
+     * Generates a unique school join code that does not yet exist in the database.
+     *
+     * @param repository the school repository used to check for uniqueness
+     * @return a unique join code such as {@code nord-barneskole}
+     * @throws IllegalStateException if a unique code cannot be found within the allowed attempts
+     */
     public String generate(SchoolRepository repository) {
         for (int i = 0; i < MAX_ATTEMPTS; i++) {
             String code = PREFIXES[random.nextInt(PREFIXES.length)]

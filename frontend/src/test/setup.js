@@ -14,3 +14,24 @@ Object.defineProperty(globalThis, 'localStorage', {
   writable: true,
   configurable: true,
 })
+
+// JSDOM does not implement media playback. The app expects play() to return a
+// Promise so it can attach .catch(), matching browser behavior closely enough
+// for component tests.
+Object.defineProperty(globalThis.HTMLMediaElement.prototype, 'play', {
+  value: () => Promise.resolve(),
+  writable: true,
+  configurable: true,
+})
+
+Object.defineProperty(globalThis.HTMLMediaElement.prototype, 'pause', {
+  value: () => {},
+  writable: true,
+  configurable: true,
+})
+
+Object.defineProperty(globalThis, 'scrollTo', {
+  value: () => {},
+  writable: true,
+  configurable: true,
+})

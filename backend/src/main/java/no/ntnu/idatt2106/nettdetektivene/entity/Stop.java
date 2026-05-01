@@ -5,6 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents one of the seven themed investigation stops on the game map
+ * (e.g. Nyhetskvartalet, Postkontoret). Stops are unlocked sequentially
+ * according to {@code orderIndex}. The final stop is marked with
+ * {@code isFinalBoss = true} and uses a mixed-task format.
+ */
 @Entity
 @Table(name = "stops")
 @Getter
@@ -31,4 +37,7 @@ public class Stop {
 
     @Column(columnDefinition = "TEXT")
     private String autoTip;
+
+    @Column(columnDefinition = "TEXT")
+    private String clueText;
 }

@@ -2,9 +2,18 @@ package no.ntnu.idatt2106.nettdetektivene.service.answer;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * Scores password strength based on length, character variety, and Norwegian character support.
+ */
 @Component
 public class PasswordStrengthEvaluator {
 
+    /**
+     * Evaluates the strength of a password.
+     *
+     * @param password the password to evaluate (may be {@code null} or blank)
+     * @return {@code "WEAK"}, {@code "MEDIUM"}, or {@code "STRONG"}
+     */
     public String evaluate(String password) {
         if (password == null || password.isBlank()) {
             return "WEAK";
@@ -41,6 +50,12 @@ public class PasswordStrengthEvaluator {
         return "STRONG";
     }
 
+    /**
+     * Converts a strength label to a numeric level for comparison.
+     *
+     * @param level the strength label ({@code "WEAK"}, {@code "MEDIUM"}, or {@code "STRONG"})
+     * @return 1 for WEAK, 2 for MEDIUM, 3 for STRONG
+     */
     public int strengthLevel(String level) {
         return switch (level.toUpperCase()) {
             case "STRONG" -> 3;

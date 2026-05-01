@@ -1,3 +1,6 @@
 package no.ntnu.idatt2106.nettdetektivene.dto.classroom;
 
-public record StudentStatusResponse(String status) {}
+/**
+ * Response carrying a student's current enrollment status and music-muted preference.
+ */
+public record StudentStatusResponse(String status, boolean musicMuted) {}

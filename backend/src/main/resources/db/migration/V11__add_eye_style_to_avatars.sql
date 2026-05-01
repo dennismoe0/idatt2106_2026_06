@@ -1,0 +1,1 @@
+ALTER TABLE avatars ADD COLUMN eye_style VARCHAR(50);

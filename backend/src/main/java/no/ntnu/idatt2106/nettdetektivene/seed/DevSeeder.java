@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import no.ntnu.idatt2106.nettdetektivene.entity.*;
 import no.ntnu.idatt2106.nettdetektivene.model.ClassroomStudentStatus;
 import no.ntnu.idatt2106.nettdetektivene.repository.*;
+import no.ntnu.idatt2106.nettdetektivene.repository.WeeklyMysteryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -17,6 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Development-profile seed runner that populates the database with a fixed set of
+ * schools, teachers, classrooms, students, and a sample weekly mystery on every
+ * application startup. Any existing data from previous dev-seed runs is wiped first
+ * to keep the state predictable. This component is only active under the {@code dev}
+ * Spring profile and runs after {@link DataLoader} (order 2).
+ */
 @Component
 @Profile("dev")
 @Order(2)
@@ -30,6 +38,7 @@ public class DevSeeder implements ApplicationRunner {
     private final ClassroomTeacherRepository classroomTeacherRepository;
     private final ClassroomStudentRepository classroomStudentRepository;
     private final SchoolRepository schoolRepository;
+    private final WeeklyMysteryRepository weeklyMysteryRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManager entityManager;
 
@@ -42,29 +51,30 @@ public class DevSeeder implements ApplicationRunner {
     }
 
     private void wipe() {
-        for (String code : List.of("dataing-2", "norsk-3")) {
-            classroomRepository.findByJoinCode(code).ifPresent(c -> {
-                classroomRepository.delete(c);
-                log.info("[DevSeeder] Deleted classroom: {}", code);
-            });
+        List<School> devSchools = List.of("skole-a", "skole-b").stream()
+            .map(schoolRepository::findByJoinCode)
+            .flatMap(java.util.Optional::stream)
+            .toList();
+
+        for (School school : devSchools) {
+            for (Classroom classroom : classroomRepository.findBySchool_Id(school.getId())) {
+                classroomRepository.delete(classroom);
+                log.info("[DevSeeder] Deleted classroom: {}", classroom.getJoinCode());
+            }
         }
-        for (String email : List.of(
-            "grethe@teacher.no", "ali@teacher.no",
-            "dennis@student.local", "shakti@student.local", "kristian@student.local",
-            "oliver@student.local", "kasper@student.local", "ola@student.local",
-            "christian@student.local", "aleksander@student.local", "mia@student.local",
-            "nora@student.local", "lars@student.local", "emma@student.local"
-        )) {
-            userRepository.findByEmail(email).ifPresent(u -> {
-                userRepository.delete(u);
-                log.info("[DevSeeder] Deleted user: {}", email);
-            });
+        entityManager.flush();
+
+        for (School school : devSchools) {
+            for (User user : userRepository.findBySchool_Id(school.getId())) {
+                userRepository.delete(user);
+                log.info("[DevSeeder] Deleted user: {}", user.getEmail());
+            }
         }
-        for (String code : List.of("skole-a", "skole-b")) {
-            schoolRepository.findByJoinCode(code).ifPresent(s -> {
-                schoolRepository.delete(s);
-                log.info("[DevSeeder] Deleted school: {}", code);
-            });
+        entityManager.flush();
+
+        for (School school : devSchools) {
+            schoolRepository.delete(school);
+            log.info("[DevSeeder] Deleted school: {}", school.getJoinCode());
         }
     }
 
@@ -76,10 +86,12 @@ public class DevSeeder implements ApplicationRunner {
         User ali    = createTeacher("ali@teacher.no",    skoleB);
 
         Classroom c1 = createClassroom("DATAING 2. klasse", "dataing-2", grethe, skoleA);
-        Classroom c2 = createClassroom("Norsk 3. klasse",   "norsk-3",   ali,    skoleB);
+        Classroom c2 = createClassroom("DATAING 1. klasse", "dataing-1", grethe, skoleA);
+        Classroom c3 = createClassroom("Norsk 3. klasse",   "norsk-3",   ali,    skoleB);
 
+        User dennis = createStudent("dennis", skoleA);
+        enroll(dennis, c1, "Dennis");
         for (String[] s : List.of(
-            new String[]{"dennis",    "Dennis"},
             new String[]{"shakti",    "Shakti"},
             new String[]{"kristian",  "Kristian"},
             new String[]{"oliver",    "Oliver"},
@@ -97,10 +109,22 @@ public class DevSeeder implements ApplicationRunner {
             new String[]{"lars",       "Lars"},
             new String[]{"emma",       "Emma"}
         )) {
-            enroll(createStudent(s[0], skoleB), c2, s[1]);
+            enroll(createStudent(s[0], skoleB), c3, s[1]);
         }
 
-        log.info("[DevSeeder] Seeded: 2 schools, 2 teachers, 2 classrooms, 12 students");
+        for (String[] s : List.of(
+            new String[]{"sofie",   "Sofie"},
+            new String[]{"magnus",  "Magnus"},
+            new String[]{"ida",     "Ida"},
+            new String[]{"william", "William"},
+            new String[]{"lea",     "Lea"}
+        )) {
+            enroll(createStudent(s[0], skoleA), c2, s[1]);
+        }
+
+        seedMystery(c1, dennis);
+
+        log.info("[DevSeeder] Seeded: 2 schools, 2 teachers, 3 classrooms, 17 students, 1 featured mystery");
     }
 
     private School createSchool(String name, String joinCode) {
@@ -142,6 +166,33 @@ public class DevSeeder implements ApplicationRunner {
         classroomTeacherRepository.save(ct);
 
         return c;
+    }
+
+    private void seedMystery(Classroom classroom, User submitter) {
+        WeeklyMystery m = new WeeklyMystery();
+        m.setClassroom(classroom);
+        m.setStudent(submitter);
+        m.setTitle("Mystisk melding fra rådhuset");
+        m.setDescription(
+            "En av ordførerens ansatte fikk denne meldingen på telefonen sin rett etter at pengene " +
+            "forsvant fra prosjektkontoen. Avsenderen utgir seg for å være fra kommunens IT-avdeling " +
+            "og ber om innloggingsdetaljer for å \"sikre kontoen\".\n\n" +
+            "Klarer du å avgjøre om dette er en ekte melding fra IT-avdelingen, " +
+            "eller et forsøk på å lure til seg passord?"
+        );
+        m.setMysteryType("REAL_OR_FAKE");
+        m.setQuestionText("Er denne meldingen ekte eller falsk?");
+        m.setCorrectAnswer("FALSK");
+        m.setTeacherComment(
+            "Legg merke til avsenderadressen — den er nesten lik den ekte, men har en ekstra bokstav. " +
+            "IT-avdelinger ber aldri om passord via SMS eller e-post. Dette er et klassisk phishing-forsøk!"
+        );
+        m.setRewardStars(5);
+        m.setRewardXp(50);
+        m.setStatus(WeeklyMystery.Status.APPROVED);
+        m.setFeatured(true);
+        weeklyMysteryRepository.save(m);
+        log.info("[DevSeeder] Seeded featured mystery for classroomId={}", classroom.getId());
     }
 
     private void enroll(User student, Classroom classroom, String displayName) {

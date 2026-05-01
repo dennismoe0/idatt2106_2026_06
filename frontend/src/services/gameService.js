@@ -6,6 +6,11 @@ export const gameService = {
     return api.get('/api/game/stops', { params: { classroomId } })
   },
 
+  getStopsMeta() {
+    console.log('[gameService] getStopsMeta')
+    return api.get('/api/game/stops/meta')
+  },
+
   getTasks(stopId, classroomId) {
     console.log('[gameService] getTasks stopId:', stopId, 'classroomId:', classroomId)
     return api.get(`/api/game/stops/${stopId}/tasks`, { params: { classroomId } })
@@ -44,6 +49,11 @@ export const gameService = {
   getSchoolLeaderboard(classroomId) {
     console.log('[gameService] getSchoolLeaderboard classroomId:', classroomId)
     return api.get(`/api/classrooms/${classroomId}/school-leaderboard`)
+  },
+
+  getGlobalLeaderboard(classroomId) {
+    console.log('[gameService] getGlobalLeaderboard classroomId:', classroomId)
+    return api.get(`/api/classrooms/${classroomId}/global-leaderboard`)
   },
 
   getProfile() {

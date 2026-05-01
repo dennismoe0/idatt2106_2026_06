@@ -8,6 +8,11 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
+/**
+ * Represents a school that groups teachers and classrooms together.
+ * Teachers join a school via a short {@code joinCode}; all classrooms
+ * associated with that teacher inherit the school relationship.
+ */
 @Entity
 @Table(name = "schools")
 @Getter @Setter @NoArgsConstructor

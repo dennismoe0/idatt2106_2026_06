@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
+/**
+ * An in-app notification delivered to a teacher, typically triggered by student
+ * activity such as a join request. The {@code referenceId} optionally points to
+ * the related entity (e.g. a {@link ClassroomStudent} id).
+ */
 @Entity
 @Table(name = "notifications")
 @Getter
@@ -27,6 +32,9 @@ public class Notification {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
+
+    @Column(name = "reference_id")
+    private Long referenceId;
 
     @Column(nullable = false)
     private boolean isRead = false;

@@ -20,6 +20,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.*;
 import java.util.List;
 
+/**
+ * Configures Spring Security for the application: stateless JWT-based authentication,
+ * role-based route protection, CORS policy, BCrypt password encoding, and basic
+ * security headers (frame-deny, CSP).
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -31,6 +36,12 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origin:http://localhost:5173}")
     private String allowedOrigin;
 
+    /**
+     * Defines the main security filter chain. Public endpoints are
+     * {@code /api/auth/**} and the Swagger UI; all other requests require
+     * a valid JWT. The JWT filter is inserted before Spring's default
+     * username/password filter.
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
@@ -55,16 +66,23 @@ public class SecurityConfig {
             .build();
     }
 
+    /** Returns a BCrypt password encoder with a work factor of 12. */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
     }
 
+    /** Exposes the default Spring Security {@link AuthenticationManager} as a bean. */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Configures CORS to allow requests only from the configured frontend origin.
+     * In production this should be the deployed frontend URL; in development it
+     * defaults to {@code http://localhost:5173}.
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();

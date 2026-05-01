@@ -1,9 +1,15 @@
 <template>
   <div class="map-view">
-    <StudentHeader title="Kart" :back-to="{ name: 'Home' }" />
-    <button class="map-view__world-btn" @click="switchToWorldMap" aria-label="Bytt til verdenskart">
-      Verdenskart
-    </button>
+    <DetectiveBar page-title="Kart" :back-to="{ name: 'Home' }" />
+
+    <div class="map-view__actions" aria-label="Kartvalg">
+      <button class="map-view__world-btn" @click="switchToWorldMap" aria-label="Bytt til verdenskart">
+        Verdenskart
+      </button>
+      <RouterLink class="map-view__dossier-btn" :to="{ name: 'SuspectDossier' }" aria-label="Åpne mistenktmappe">
+        🗂 Mistenktmappe
+      </RouterLink>
+    </div>
 
     <LoadingSpinner v-if="loading" />
 
@@ -25,18 +31,26 @@
         🔒 Spill de tidligere stoppene for å låse opp denne!
       </p>
     </Transition>
+
+    <MapIntroModal
+      :model-value="showMapIntroPopup"
+      @dismiss="dismissMapIntroPopup"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { useClassroomStore } from '@/stores/classroom'
-import StudentHeader from '@/components/common/StudentHeader.vue'
+import DetectiveBar from '@/components/common/DetectiveBar.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import StopMarker from '@/components/student/StopMarker.vue'
+import MapIntroModal from '@/components/student/MapIntroModal.vue'
+import { MAP_INTRO_STORAGE_KEY, shouldShowMapIntroPopup } from '@/utils/mapIntro'
 
+const route = useRoute()
 const router = useRouter()
 const gameStore = useGameStore()
 const classroomStore = useClassroomStore()
@@ -46,11 +60,17 @@ const error = ref(null)
 const stops = computed(() => gameStore.stops)
 const lockedStopId = ref(null)
 const lockedMessage = ref(false)
+const showMapIntroPopup = ref(false)
 let lockedTimer = null
 
 function switchToWorldMap() {
   localStorage.setItem('mapView', 'world')
   router.push({ name: 'WorldMap' })
+}
+
+function dismissMapIntroPopup() {
+  localStorage.setItem(MAP_INTRO_STORAGE_KEY, 'true')
+  showMapIntroPopup.value = false
 }
 
 onMounted(async () => {
@@ -65,6 +85,11 @@ onMounted(async () => {
     console.warn('[MapView] No classroomId — redirecting to join')
     router.push({ name: 'JoinClassroom' })
     return
+  }
+
+  if (shouldShowMapIntroPopup(route)) {
+    console.log('[MapView] Showing first-time map intro popup')
+    showMapIntroPopup.value = true
   }
 
   loading.value = true
@@ -140,9 +165,19 @@ function handleStopClick(stop) {
   padding: var(--space-4);
 }
 
-.map-view__world-btn {
-  display: block;
+.map-view__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
   margin: var(--space-3) 0 0;
+}
+
+.map-view__world-btn,
+.map-view__dossier-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
   padding: var(--space-2) var(--space-4);
   background: var(--color-surface);
   color: var(--color-primary);
@@ -152,10 +187,19 @@ function handleStopClick(stop) {
   font-weight: var(--font-medium);
   cursor: pointer;
   font-family: inherit;
+  text-decoration: none;
   transition: background var(--transition-fast), color var(--transition-fast);
 }
-.map-view__world-btn:hover {
+
+.map-view__world-btn:hover,
+.map-view__dossier-btn:hover {
   background: var(--color-primary-light);
+}
+
+.map-view__dossier-btn {
+  color: var(--color-dossier-danger);
+  border-color: var(--color-red-pin);
+  font-weight: var(--font-bold);
 }
 
 .stops-path {

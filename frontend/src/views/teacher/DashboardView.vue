@@ -13,7 +13,7 @@
       <div class="sidebar-user">
         <div class="user-avatar">👩‍🏫</div>
         <div>
-          <div class="user-name">{{ authStore.user?.email ?? '' }}</div>
+          <div class="user-name">{{ authStore.user?.email ?? authStore.email ?? '' }}</div>
           <div class="user-school">{{ schoolStore.school?.name ?? 'Ingen skole' }}</div>
         </div>
       </div>
@@ -26,24 +26,21 @@
             </router-link>
           </li>
           <li>
-            <a href="#" class="nav-link">
-              <span class="nav-icon">📊</span> Fremgang
-            </a>
-          </li>
-          <li>
-            <a href="#" class="nav-link">
-              <span class="nav-icon">🕯️</span> Ukens mysterium
-            </a>
-          </li>
-          <li>
-            <a href="#" class="nav-link">
+            <router-link to="/teacher/notifications" class="nav-link" data-testid="notifications-link">
               <span class="nav-icon">🔔</span> Varsler
-            </a>
+              <span
+                  v-if="notificationStore.unreadCount > 0"
+                  class="notification-badge"
+                  data-testid="notification-badge"
+              >
+                {{ notificationStore.unreadCount }}
+              </span>
+            </router-link>
           </li>
           <li>
-            <a href="#" class="nav-link">
+            <router-link to="/teacher/settings" class="nav-link">
               <span class="nav-icon">⚙️</span> Innstillinger
-            </a>
+            </router-link>
           </li>
         </ul>
       </nav>
@@ -83,10 +80,10 @@
 
           <!-- Teacher has a school -->
           <SchoolOverview
-            v-if="schoolStore.school"
-            :school="schoolStore.school"
-            :classrooms="schoolClassrooms"
-            @copy-code="copySchoolCode"
+              v-if="schoolStore.school"
+              :school="schoolStore.school"
+              :classrooms="schoolClassrooms"
+              @copy-code="copySchoolCode"
           />
 
           <!-- No school yet -->
@@ -105,11 +102,11 @@
         <div class="section-label">Dine klasser</div>
         <div class="classrooms-grid">
           <a
-            v-for="classroom in classrooms"
-            :key="classroom.id"
-            class="classroom-card"
-            @click.prevent="goToClassroom(classroom.id)"
-            href="#"
+              v-for="classroom in classrooms"
+              :key="classroom.id"
+              class="classroom-card"
+              @click.prevent="goToClassroom(classroom.id)"
+              href="#"
           >
             <div class="card-header">
               <div class="card-name">{{ classroom.name }}</div>
@@ -119,6 +116,13 @@
             <div class="card-meta">Opprettet {{ formatDate(classroom.createdAt) }}</div>
             <div class="card-footer">
               <span class="btn btn-primary btn-sm">Se klassen →</span>
+              <router-link
+                  :to="{ name: 'WeeklyMysteryManage', params: { classroomId: classroom.id } }"
+                  class="btn btn-mystery btn-sm"
+                  @click.stop
+              >
+                🕯️ Ukens mysterium
+              </router-link>
             </div>
           </a>
 
@@ -157,21 +161,21 @@
           <div class="form-group">
             <label class="form-label">Klassenavn *</label>
             <input
-              v-model="createForm.name"
-              class="form-input"
-              type="text"
-              placeholder="f.eks. 7A — Blindern skole"
-              required
-              autofocus
+                v-model="createForm.name"
+                class="form-input"
+                type="text"
+                placeholder="f.eks. 7A — Blindern skole"
+                required
+                autofocus
             />
           </div>
           <div class="form-group">
             <label class="form-label">Beskrivelse <span class="optional">(valgfri)</span></label>
             <input
-              v-model="createForm.description"
-              class="form-input"
-              type="text"
-              placeholder="f.eks. Vår 2026"
+                v-model="createForm.description"
+                class="form-input"
+                type="text"
+                placeholder="f.eks. Vår 2026"
             />
           </div>
           <div v-if="createError" class="form-error">{{ createError }}</div>
@@ -193,6 +197,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useClassroomStore } from '@/stores/classroom'
+import { useNotificationStore } from '@/stores/notification'
 import { useSchoolStore } from '@/stores/school'
 import BaseModal from '@/components/common/BaseModal.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
@@ -202,6 +207,7 @@ import SchoolOverview from '@/components/teacher/SchoolOverview.vue'
 const router = useRouter()
 const authStore = useAuthStore()
 const classroomStore = useClassroomStore()
+const notificationStore = useNotificationStore()
 const schoolStore = useSchoolStore()
 const showSchoolModal = ref(false)
 const schoolClassrooms = ref([])
@@ -230,6 +236,12 @@ onMounted(async () => {
     loading.value = false
   }
 
+  try {
+    await notificationStore.fetchUnreadCount()
+  } catch (notificationErr) {
+    console.warn('[Dashboard] Failed to load notification count:', notificationErr)
+  }
+
   // Try to load school data (teacher may not have a school yet)
   try {
     await schoolStore.fetchMySchool()
@@ -244,7 +256,6 @@ onMounted(async () => {
 })
 
 function goToClassroom(id) {
-  // TODO: register ClassroomDetail route in index.js when the view is built
   router.push({ name: 'ClassroomDetail', params: { id } })
 }
 
@@ -366,8 +377,8 @@ function formatDate(dateStr) {
   font-size: 20px;
   flex-shrink: 0;
 }
-.user-name   { font-size: var(--text-sm); font-weight: 800; }
-.user-school { font-size: var(--text-xs); opacity: 0.65; }
+.user-name   { font-size: var(--text-sm); font-weight: 600; }
+.user-school { font-size: var(--text-xs); opacity: 0.85; }
 
 .sidebar-nav { padding: var(--space-3) 0; flex: 1; }
 .sidebar-nav ul { list-style: none; margin: 0; padding: 0; }
@@ -391,6 +402,20 @@ function formatDate(dateStr) {
   border-left-color: var(--color-accent);
 }
 .nav-icon { width: 20px; text-align: center; font-size: 16px; }
+.notification-badge {
+  margin-left: auto;
+  min-width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-text-on-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  font-size: var(--text-xs);
+  font-weight: 900;
+}
 
 .sidebar-footer {
   padding: var(--space-4);
@@ -491,12 +516,15 @@ function formatDate(dateStr) {
 }
 
 .card-desc { font-size: var(--text-sm); color: var(--color-text-muted); }
-.card-meta { font-size: var(--text-xs); color: var(--color-text-muted); opacity: 0.75; }
+.card-meta { font-size: var(--text-sm); color: var(--color-text-muted); opacity: 0.95; }
 
 .card-footer {
   margin-top: auto;
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-border);
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
 }
 
 /* ─── New classroom card ──────────────────────────────────── */
@@ -559,6 +587,31 @@ function formatDate(dateStr) {
 }
 .btn-outline:hover { background: var(--color-primary-light); }
 .btn-sm { padding: var(--space-2) var(--space-4); font-size: var(--text-xs); }
+
+.btn-mystery {
+  background: var(--color-accent-soft, #FFF3E0);
+  color: var(--color-accent-dark, #C05621);
+  border: 1.5px solid var(--color-accent-light, #FBBF79);
+}
+.btn-mystery:hover {
+  background: var(--color-accent-light, #FBBF79);
+  color: var(--color-accent-dark, #C05621);
+  transform: translateY(-1px);
+}
+
+/* Sidebar disabled state — teacher has no classrooms yet */
+.nav-link--disabled {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 20px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  border-left: 3px solid transparent;
+  cursor: not-allowed;
+  user-select: none;
+}
 
 /* ─── Loading / Error ─────────────────────────────────────── */
 .loading-state {

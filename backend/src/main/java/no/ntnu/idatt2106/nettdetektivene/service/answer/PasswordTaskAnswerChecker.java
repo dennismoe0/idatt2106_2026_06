@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+/**
+ * Evaluates answers for PASSWORD tasks, supporting both multiple-choice selection and password-builder subtypes.
+ */
 @Component
 public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
 
@@ -27,11 +30,16 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
         this.passwordStrengthEvaluator = passwordStrengthEvaluator;
     }
 
+    /** {@inheritDoc} */
     @Override
     public TaskType supportedTaskType() {
         return TaskType.PASSWORD;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>Reads the task subtype from {@code content_json} and delegates to the appropriate evaluation path.</p>
+     */
     @Override
     public boolean isCorrect(Task task, JsonNode correctAnswer, Map<String, Object> answer) {
         try {
@@ -39,7 +47,7 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
             String subtype = content.path("type").asText("CHOICE");
 
             if ("BUILDER".equals(subtype)) {
-                return checkBuilderAnswer(correctAnswer, answer);
+                return checkBuilderAnswer(content, correctAnswer, answer);
             }
 
             Object submitted = answer.get("selected");
@@ -53,7 +61,7 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
         }
     }
 
-    private boolean checkBuilderAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
+    private boolean checkBuilderAnswer(JsonNode content, JsonNode correctAnswer, Map<String, Object> answer) {
         String requiredStrength = correctAnswer.path("minStrength").asText("STRONG");
         Object submittedPassword = answer.get("password");
         if (submittedPassword == null) {
@@ -61,7 +69,13 @@ public class PasswordTaskAnswerChecker implements TaskAnswerChecker {
             return false;
         }
 
-        String strength = passwordStrengthEvaluator.evaluate(String.valueOf(submittedPassword));
+        String password = String.valueOf(submittedPassword);
+        int maxLength = content.path("maxLength").asInt(0);
+        if (maxLength > 0 && password.length() > maxLength) {
+            log.info("[PasswordTaskAnswerChecker] PASSWORD BUILDER rejected due to maxLength={} submittedLength={}", maxLength, password.length());
+            return false;
+        }
+        String strength = passwordStrengthEvaluator.evaluate(password);
         log.info(
             "[PasswordTaskAnswerChecker] PASSWORD BUILDER submitted strength={} required={}",
             strength,

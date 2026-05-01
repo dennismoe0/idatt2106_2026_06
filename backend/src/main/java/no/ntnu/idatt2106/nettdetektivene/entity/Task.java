@@ -5,6 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents a single interactive task inside a stop. The {@code taskType} enum
+ * tells the frontend which task component to render, and {@code contentJson}
+ * holds all type-specific content (questions, options, images, etc.) as a JSON
+ * blob. The optional {@code classroom} link identifies teacher-created custom
+ * tasks scoped to a specific classroom.
+ */
 @Entity
 @Table(name = "tasks")
 @Getter

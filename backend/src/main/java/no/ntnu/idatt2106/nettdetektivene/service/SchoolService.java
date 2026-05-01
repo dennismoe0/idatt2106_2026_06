@@ -26,6 +26,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+/**
+ * Manages school creation, teacher school membership, and school-level classroom summaries.
+ */
 @Service
 @RequiredArgsConstructor
 public class SchoolService {
@@ -38,6 +41,14 @@ public class SchoolService {
     private final TaskRepository taskRepository;
     private final SchoolCodeGenerator schoolCodeGenerator;
 
+    /**
+     * Creates a new school and associates the teacher with it, also syncing existing classrooms.
+     *
+     * @param teacherId the teacher's user ID
+     * @param req       the school name
+     * @return the created {@link SchoolResponse}
+     * @throws org.springframework.web.server.ResponseStatusException if the teacher already belongs to a school
+     */
     @Transactional
     public SchoolResponse createSchool(Long teacherId, CreateSchoolRequest req) {
         log.info("[SchoolService] createSchool teacherId={} name={}", teacherId, req.name());
@@ -52,10 +63,20 @@ public class SchoolService {
         school = schoolRepository.save(school);
         teacher.setSchool(school);
         userRepository.save(teacher);
+        syncTeacherClassroomsToSchool(teacherId, school);
         log.info("[SchoolService] School created: schoolId={} teacherId={} joinCode={}", school.getId(), teacherId, school.getJoinCode());
         return toSchoolResponse(school);
     }
 
+    /**
+     * Joins an existing school using a join code, also syncing the teacher's classrooms to that school.
+     *
+     * @param teacherId the teacher's user ID
+     * @param req       the school join code
+     * @return the joined {@link SchoolResponse}
+     * @throws org.springframework.web.server.ResponseStatusException if the teacher already belongs to a school
+     * @throws no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException if the join code is invalid
+     */
     @Transactional
     public SchoolResponse joinSchool(Long teacherId, JoinSchoolRequest req) {
         log.info("[SchoolService] joinSchool teacherId={} code={}", teacherId, req.code());
@@ -71,10 +92,18 @@ public class SchoolService {
             });
         teacher.setSchool(school);
         userRepository.save(teacher);
+        syncTeacherClassroomsToSchool(teacherId, school);
         log.info("[SchoolService] Teacher {} joined school {}", teacherId, school.getId());
         return toSchoolResponse(school);
     }
 
+    /**
+     * Returns the school the given teacher belongs to.
+     *
+     * @param teacherId the teacher's user ID
+     * @return the teacher's {@link SchoolResponse}
+     * @throws no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException if the teacher has no school
+     */
     @Transactional(readOnly = true)
     public SchoolResponse getMySchool(Long teacherId) {
         log.info("[SchoolService] getMySchool teacherId={}", teacherId);
@@ -86,6 +115,12 @@ public class SchoolService {
         return toSchoolResponse(teacher.getSchool());
     }
 
+    /**
+     * Returns classroom summaries for all classrooms in the teacher's school.
+     *
+     * @param teacherId the teacher's user ID
+     * @return list of {@link SchoolClassroomSummary}; empty if the teacher has no school
+     */
     @Transactional(readOnly = true)
     public List<SchoolClassroomSummary> getSchoolClassrooms(Long teacherId) {
         log.info("[SchoolService] getSchoolClassrooms teacherId={}", teacherId);
@@ -118,6 +153,23 @@ public class SchoolService {
                 log.warn("[SchoolService] Teacher not found: {}", teacherId);
                 return new ResourceNotFoundException("User not found");
             });
+    }
+
+    private void syncTeacherClassroomsToSchool(Long teacherId, School school) {
+        List<Classroom> classrooms = classroomRepository.findByTeachers_Teacher_UserId(teacherId);
+        for (Classroom classroom : classrooms) {
+            if (school.equals(classroom.getSchool())) {
+                continue;
+            }
+            classroom.setSchool(school);
+        }
+        classroomRepository.saveAll(classrooms);
+        log.info(
+            "[SchoolService] Synced {} classrooms to school {} for teacher {}",
+            classrooms.size(),
+            school.getId(),
+            teacherId
+        );
     }
 
     private SchoolResponse toSchoolResponse(School school) {

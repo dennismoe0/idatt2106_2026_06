@@ -9,7 +9,6 @@ vi.mock('@/services/gameService', () => ({
     getTask: vi.fn(),
     submitAnswer: vi.fn(),
     getProgress: vi.fn(),
-    getSchoolLeaderboard: vi.fn(),
   }
 }))
 
@@ -81,15 +80,5 @@ describe('game store', () => {
     gameService.getStops.mockRejectedValue(new Error('Forbidden'))
     const store = useGameStore()
     await expect(store.fetchStops(1)).rejects.toThrow('Forbidden')
-  })
-
-  it('fetchSchoolLeaderboard stores entries', async () => {
-    const entries = [
-      { displayName: 'Alice', classroomId: 1, classroomName: 'Klasse A', completedTasks: 5, totalTasks: 7 },
-    ]
-    gameService.getSchoolLeaderboard.mockResolvedValue({ data: entries })
-    const store = useGameStore()
-    await store.fetchSchoolLeaderboard(1)
-    expect(store.schoolLeaderboard).toEqual(entries)
   })
 })

@@ -2,9 +2,13 @@ package no.ntnu.idatt2106.nettdetektivene.dto.avatar;
 
 import jakarta.validation.constraints.NotBlank;
 
+/**
+ * Request payload for saving a student's updated avatar appearance selections.
+ */
 public record UpdateAvatarRequest(
     @NotBlank String gender,
     @NotBlank String eyeColor,
+    @NotBlank String eyeStyle,
     @NotBlank String skinColor,
     @NotBlank String hairColor,
     @NotBlank String hairStyle,

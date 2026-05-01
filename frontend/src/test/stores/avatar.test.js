@@ -6,7 +6,7 @@ vi.mock('@/services/avatarService', () => ({
   avatarService: {
     getMyAvatar: vi.fn(),
     updateAvatar: vi.fn(),
-    getOptions: vi.fn(),
+    getMyOptions: vi.fn(),
   }
 }))
 
@@ -21,7 +21,7 @@ describe('avatar store', () => {
   it('initial state is null', () => {
     const store = useAvatarStore()
     expect(store.avatar).toBeNull()
-    expect(store.options).toEqual({})
+    expect(store.available).toEqual({})
   })
 
   it('fetchAvatar sets avatar', async () => {
@@ -44,12 +44,16 @@ describe('avatar store', () => {
   })
 
   it('fetchOptions sets options map', async () => {
-    avatarService.getOptions.mockResolvedValue({
-      data: { hairStyle: ['short', 'long', 'curly'], eyeColor: ['brown', 'blue', 'green'] }
+    avatarService.getMyOptions.mockResolvedValue({
+      data: {
+        available: { hairStyle: ['short', 'long', 'curly'], eyeColor: ['brown', 'blue', 'green'] },
+        medalLocked: [],
+        colorPickerUnlocked: false
+      }
     })
     const store = useAvatarStore()
     await store.fetchOptions()
-    expect(store.options.hairStyle).toContain('short')
+    expect(store.available.hairStyle).toContain('short')
   })
 
   it('fetchAvatar propagates errors', async () => {

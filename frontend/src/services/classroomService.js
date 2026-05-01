@@ -16,6 +16,12 @@ export const classroomService = {
   updateStudentStatus: (classroomId, studentId, status) =>
     api.put(`/api/classrooms/${classroomId}/students/${studentId}`, { status }),
 
+  getStops: (classroomId) =>
+    api.get(`/api/classrooms/${classroomId}/stops`),
+
+  getStudentProgress: (classroomId) =>
+    api.get(`/api/classrooms/${classroomId}/student-progress`),
+
   getMyStatus: (classroomId) =>
     api.get(`/api/classrooms/${classroomId}/my-status`),
 
@@ -25,6 +31,6 @@ export const classroomService = {
   updateMyDisplayName: (classroomId, displayName) =>
     api.put(`/api/classrooms/${classroomId}/my-displayname`, { displayName }),
 
-  deleteClassroom: (id) =>
-    api.delete(`/api/classrooms/${id}`),
+  setMusicMuted: (classroomId, musicMuted) =>
+    api.put(`/api/classrooms/${classroomId}/music-muted`, { musicMuted }),
 }

@@ -1,0 +1,1 @@
+ALTER TABLE stops ADD COLUMN clue_text TEXT NULL;

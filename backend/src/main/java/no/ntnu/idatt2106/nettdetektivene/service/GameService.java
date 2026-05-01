@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ClaimXpResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.MedalDto;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.PhishingClueFeedbackDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.PlayerProfileDto;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.ProgressResponse;
+import no.ntnu.idatt2106.nettdetektivene.dto.game.StopMetaResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.StopResponse;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.SubmitAnswerRequest;
 import no.ntnu.idatt2106.nettdetektivene.dto.game.SubmitAnswerResponse;
@@ -30,21 +32,32 @@ import no.ntnu.idatt2106.nettdetektivene.repository.StudentProgressRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.StudentXpLogRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.TaskRepository;
 import no.ntnu.idatt2106.nettdetektivene.repository.UserRepository;
-import no.ntnu.idatt2106.nettdetektivene.service.answer.TaskAnswerChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import no.ntnu.idatt2106.nettdetektivene.service.AvatarService;
+import no.ntnu.idatt2106.nettdetektivene.service.answer.TaskAnswerChecker;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Core game service responsible for stops, tasks, answer submission, progress tracking, XP/star rewards, and medal awards.
+ */
 @Service
 public class GameService {
 
@@ -52,6 +65,12 @@ public class GameService {
     private static final int CORRECT_SCORE = 100;
     private static final int XP_PER_TASK = 10;
     private static final int XP_PER_STOP = 30;
+    private static final int SUSPECT_REVEAL_STOP_ORDER = 6;
+    private static final EnumSet<TaskType> LEARN_EXCLUDED_TASK_TYPES = EnumSet.of(TaskType.LEARN);
+    private static final Set<TaskType> COMPLETION_EXCLUDED_TASK_TYPES = EnumSet.of(
+        TaskType.LEARN,
+        TaskType.CLUE_RIDDLE
+    );
 
     private final StopRepository stopRepository;
     private final TaskRepository taskRepository;
@@ -64,6 +83,10 @@ public class GameService {
     private final NotebookService notebookService;
     private final StudentXpLogRepository studentXpLogRepository;
     private final Map<TaskType, TaskAnswerChecker> answerCheckers;
+    private final AvatarService avatarService;
+
+    @Value("${app.bypass-stop-lock:false}")
+    private boolean bypassStopLock;
 
     public GameService(
         StopRepository stopRepository,
@@ -76,6 +99,7 @@ public class GameService {
         ObjectMapper objectMapper,
         NotebookService notebookService,
         StudentXpLogRepository studentXpLogRepository,
+        AvatarService avatarService,
         List<TaskAnswerChecker> answerCheckers
     ) {
         this.stopRepository = stopRepository;
@@ -88,10 +112,37 @@ public class GameService {
         this.objectMapper = objectMapper;
         this.notebookService = notebookService;
         this.studentXpLogRepository = studentXpLogRepository;
+        this.avatarService = avatarService;
         this.answerCheckers = answerCheckers.stream()
             .collect(Collectors.toUnmodifiableMap(TaskAnswerChecker::supportedTaskType, Function.identity()));
     }
 
+    /**
+     * Returns lightweight metadata for all stops, ordered by stop index.
+     *
+     * @return list of {@link StopMetaResponse} objects
+     */
+    @Transactional(readOnly = true)
+    public List<StopMetaResponse> getStopsMeta() {
+        log.info("[GameService] getStopsMeta");
+        return stopRepository.findAllByOrderByOrderIndexAsc().stream()
+            .map(s -> new StopMetaResponse(
+                s.getId(),
+                s.getName(),
+                s.getOrderIndex(),
+                s.getTheme(),
+                Math.toIntExact(taskRepository.countByStop_IdAndTaskTypeNotIn(s.getId(), LEARN_EXCLUDED_TASK_TYPES))
+            ))
+            .toList();
+    }
+
+    /**
+     * Returns all stops with per-student lock/completion state.
+     *
+     * @param studentId   the student's user ID
+     * @param classroomId the student's classroom ID
+     * @return list of {@link StopResponse} objects
+     */
     @Transactional(readOnly = true)
     public List<StopResponse> getStops(Long studentId, Long classroomId) {
         log.info("[GameService] getStops studentId={} classroomId={}", studentId, classroomId);
@@ -101,6 +152,16 @@ public class GameService {
             .toList();
     }
 
+    /**
+     * Returns all tasks for a stop, in order, with the student's completion state.
+     *
+     * @param studentId   the student's user ID
+     * @param classroomId the student's classroom ID
+     * @param stopId      the stop ID
+     * @return list of {@link TaskResponse} objects
+     * @throws no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException if the stop is not found
+     * @throws org.springframework.web.server.ResponseStatusException if the stop is locked
+     */
     @Transactional(readOnly = true)
     public List<TaskResponse> getTasks(Long studentId, Long classroomId, Long stopId) {
         log.info(
@@ -116,11 +177,21 @@ public class GameService {
             });
         requireUnlocked(studentId, classroomId, stop);
 
-        return taskRepository.findByStop_IdOrderByIdAsc(stopId).stream()
+        return taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(stopId).stream()
             .map(task -> toTaskResponse(studentId, classroomId, task))
             .toList();
     }
 
+    /**
+     * Returns a single task with the student's completion state.
+     *
+     * @param studentId   the student's user ID
+     * @param classroomId the student's classroom ID
+     * @param taskId      the task ID
+     * @return the {@link TaskResponse}
+     * @throws no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException if the task is not found
+     * @throws org.springframework.web.server.ResponseStatusException if the stop is locked or task sequence requirements are unmet
+     */
     @Transactional(readOnly = true)
     public TaskResponse getTask(Long studentId, Long classroomId, Long taskId) {
         log.info(
@@ -135,9 +206,19 @@ public class GameService {
                 return new ResourceNotFoundException("Task not found");
             });
         requireUnlocked(studentId, classroomId, task.getStop());
+        requireTaskSequenceAvailable(studentId, task);
         return toTaskResponse(studentId, classroomId, task);
     }
 
+    /**
+     * Evaluates a student's answer, records progress, awards XP and stars, and triggers medal/stop-completion logic.
+     *
+     * @param studentId   the student's user ID
+     * @param classroomId the student's classroom ID
+     * @param taskId      the task being answered
+     * @param req         the submitted answer payload
+     * @return a {@link SubmitAnswerResponse} containing correctness, rewards, and optional medal/clue data
+     */
     @Transactional
     public SubmitAnswerResponse submitAnswer(
         Long studentId,
@@ -157,26 +238,55 @@ public class GameService {
                 return new ResourceNotFoundException("Task not found");
             });
         requireUnlocked(studentId, classroomId, task.getStop());
+        requireTaskSequenceAvailable(studentId, task);
 
         String explanation = extractExplanation(task);
         Optional<StudentProgress> existingProgress = studentProgressRepository
             .findByStudent_IdAndTask_Id(studentId, taskId);
 
         if (existingProgress.map(StudentProgress::isCompleted).orElse(false)) {
+            if (task.getTaskType() == TaskType.CLUE_RIDDLE && !checkAnswer(task, req == null ? null : req.answer())) {
+                log.info("[GameService] wrong answer on already completed task studentId={} taskId={}", studentId, taskId);
+                List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
+                    ? correctClueIdsFor(task) : List.of();
+                List<PhishingClueFeedbackDto> phishingClues = task.getTaskType() == TaskType.PHISHING_EMAIL
+                    ? phishingCluesFor(task) : List.of();
+                Integer correctArticleIndex = task.getTaskType() == TaskType.FAKE_NEWS
+                    ? fakeNewsCorrectIndex(task) : null;
+                return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, phishingClues, correctArticleIndex, null, false);
+            }
+            boolean stopCompleted = canReturnStopCompletion(task) && isStopComplete(studentId, task.getStop().getId());
+            String clueText = stopCompleted ? task.getStop().getClueText() : null;
+            List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? correctClueIdsFor(task) : List.of();
+            List<PhishingClueFeedbackDto> phishingClues = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? phishingCluesFor(task) : List.of();
+            boolean currentAnswerCorrect = checkAnswer(task, req == null ? null : req.answer());
             return new SubmitAnswerResponse(
-                true,
+                currentAnswerCorrect,
                 existingProgress.get().getScore(),
                 explanation,
-                isStopComplete(studentId, task.getStop().getId()),
+                stopCompleted,
                 null,
                 0,
-                0
+                0,
+                correctClueIds,
+                phishingClues,
+                null,
+                clueText,
+                false
             );
         }
 
         if (!checkAnswer(task, req == null ? null : req.answer())) {
             log.info("[GameService] wrong answer studentId={} taskId={}", studentId, taskId);
-            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0);
+            List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? correctClueIdsFor(task) : List.of();
+            List<PhishingClueFeedbackDto> phishingClues = task.getTaskType() == TaskType.PHISHING_EMAIL
+                ? phishingCluesFor(task) : List.of();
+            Integer correctArticleIndex = task.getTaskType() == TaskType.FAKE_NEWS
+                ? fakeNewsCorrectIndex(task) : null;
+            return new SubmitAnswerResponse(false, 0, explanation, false, null, 0, 0, correctClueIds, phishingClues, correctArticleIndex, null, false);
         }
 
         StudentProgress progress = existingProgress.orElseGet(StudentProgress::new);
@@ -189,21 +299,28 @@ public class GameService {
         progress.setCompletedAt(LocalDateTime.now());
         studentProgressRepository.save(progress);
 
-        // Award 1 star + 10 XP for this first correct answer
-        User student = userRepository.findById(studentId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        student.setStarBalance(student.getStarBalance() + 1);
-        student.setXp(student.getXp() + XP_PER_TASK);
+        boolean earnsTaskReward = task.getTaskType() != TaskType.LEARN;
+        User student = earnsTaskReward
+            ? userRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException("User not found"))
+            : null;
+        if (earnsTaskReward) {
+            student.setStarBalance(student.getStarBalance() + 1);
+            student.setXp(student.getXp() + XP_PER_TASK);
+        }
 
-        boolean stopCompleted = isStopComplete(studentId, task.getStop().getId());
-        int xpEarned = XP_PER_TASK;
+        boolean stopCompleted = canReturnStopCompletion(task) && isStopComplete(studentId, task.getStop().getId());
+        boolean awardStopCompletion = canCompleteStop(task) && stopCompleted;
+        int xpEarned = earnsTaskReward ? XP_PER_TASK : 0;
+        String clueText = stopCompleted ? task.getStop().getClueText() : null;
+        boolean showSuspectReveal = stopCompleted
+            && task.getTaskType() == TaskType.CLUE_RIDDLE
+            && shouldShowSuspectReveal(task.getStop());
 
-        if (stopCompleted) {
+        if (awardStopCompletion) {
             log.info("[GameService] stop completed studentId={} stopId={}", studentId, task.getStop().getId());
             student.setXp(student.getXp() + XP_PER_STOP);
             xpEarned += XP_PER_STOP;
-            notebookService.createAutoTipIfNotExists(studentId, task.getStop());
-            int taskCount = Math.toIntExact(taskRepository.countByStop_Id(task.getStop().getId()));
+            int taskCount = Math.toIntExact(requiredTaskCount(task.getStop().getId()));
             StudentXpLog xpLog = new StudentXpLog();
             xpLog.setStudent(student);
             xpLog.setStop(task.getStop());
@@ -211,16 +328,47 @@ public class GameService {
             xpLog.setAwardedAt(LocalDateTime.now());
             studentXpLogRepository.save(xpLog);
         }
-        userRepository.save(student);
-        log.info("[GameService] awarded starsEarned=1 xpEarned={} studentId={} taskId={}", xpEarned, studentId, taskId);
+        if (shouldStoreClue(task, stopCompleted, awardStopCompletion)) {
+            notebookService.createAutoClueIfNotExists(studentId, task.getStop());
+        }
+        if (student != null) {
+            userRepository.save(student);
+        }
+        int starsEarned = earnsTaskReward ? 1 : 0;
+        log.info("[GameService] awarded starsEarned={} xpEarned={} studentId={} taskId={}", starsEarned, xpEarned, studentId, taskId);
 
-        MedalDto medalEarned = stopCompleted
+        MedalDto medalEarned = awardStopCompletion
             ? checkAndAwardMedal(studentId, task.getStop().getId()).map(this::toMedalDto).orElse(null)
             : null;
 
-        return new SubmitAnswerResponse(true, CORRECT_SCORE, explanation, stopCompleted, medalEarned, 1, xpEarned);
+        List<String> correctClueIds = task.getTaskType() == TaskType.PHISHING_EMAIL
+            ? correctClueIdsFor(task) : List.of();
+        List<PhishingClueFeedbackDto> phishingClues = task.getTaskType() == TaskType.PHISHING_EMAIL
+            ? phishingCluesFor(task) : List.of();
+
+        return new SubmitAnswerResponse(
+            true,
+            CORRECT_SCORE,
+            explanation,
+            stopCompleted,
+            medalEarned,
+            starsEarned,
+            xpEarned,
+            correctClueIds,
+            phishingClues,
+            null,
+            clueText,
+            showSuspectReveal
+        );
     }
 
+    /**
+     * Returns the student's overall progress including completed stop count and per-stop details.
+     *
+     * @param studentId   the student's user ID
+     * @param classroomId the student's classroom ID
+     * @return a {@link ProgressResponse}
+     */
     @Transactional(readOnly = true)
     public ProgressResponse getProgress(Long studentId, Long classroomId) {
         log.info("[GameService] getProgress studentId={} classroomId={}", studentId, classroomId);
@@ -229,6 +377,12 @@ public class GameService {
         return new ProgressResponse(stopsCompleted, stops.size(), stops);
     }
 
+    /**
+     * Returns a student's profile including level (completed stops), XP, and star balance.
+     *
+     * @param studentId the student's user ID
+     * @return a {@link PlayerProfileDto}
+     */
     @Transactional(readOnly = true)
     public PlayerProfileDto getProfile(Long studentId) {
         log.info("[GameService] getProfile studentId={}", studentId);
@@ -239,6 +393,14 @@ public class GameService {
         return new PlayerProfileDto(level, student.getXp(), student.getStarBalance());
     }
 
+    /**
+     * Awards a student the weekly XP bonus for a completed stop, provided they have not claimed it within the last 7 days.
+     *
+     * @param studentId the student's user ID
+     * @param stopId    the stop for which XP is being claimed
+     * @return a {@link ClaimXpResponse} with the amount of XP awarded
+     * @throws org.springframework.web.server.ResponseStatusException if the stop is not complete or the claim is too recent
+     */
     @Transactional
     public ClaimXpResponse claimWeeklyXp(Long studentId, Long stopId) {
         log.info("[GameService] claimWeeklyXp studentId={} stopId={}", studentId, stopId);
@@ -260,7 +422,7 @@ public class GameService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "XP already claimed for this stop within the last 7 days");
         }
 
-        int taskCount = Math.toIntExact(taskRepository.countByStop_Id(stopId));
+        int taskCount = Math.toIntExact(requiredTaskCount(stopId));
         int xpEarned = XP_PER_TASK * taskCount + XP_PER_STOP;
 
         User student = userRepository.findById(studentId)
@@ -280,6 +442,10 @@ public class GameService {
     }
 
     private boolean isStopUnlocked(Long studentId, Long classroomId, Stop stop) {
+        if (bypassStopLock) {
+            log.debug("[GameService] bypassStopLock active — stop {} unlocked unconditionally", stop.getId());
+            return true;
+        }
         if (stop.getOrderIndex() <= 1) {
             return true;
         }
@@ -292,8 +458,8 @@ public class GameService {
     }
 
     private boolean isStopComplete(Long studentId, Long stopId) {
-        long taskCount = taskRepository.countByStop_Id(stopId);
-        return taskCount > 0 && completedTaskCount(studentId, stopId) == taskCount;
+        long taskCount = requiredTaskCount(stopId);
+        return taskCount > 0 && completedTaskCount(studentId, stopId) >= taskCount;
     }
 
     private Optional<Medal> checkAndAwardMedal(Long studentId, Long stopId) {
@@ -312,6 +478,11 @@ public class GameService {
         studentMedal.setMedal(medal.get());
         studentMedalRepository.save(studentMedal);
         log.info("[GameService] awarded medal studentId={} stopId={} medalId={}", studentId, stopId, medal.get().getId());
+        try {
+            avatarService.handleMedalUnlock(studentId, stopId);
+        } catch (Exception e) {
+            log.error("[GameService] handleMedalUnlock failed for studentId={} stopId={}, avatar reward skipped", studentId, stopId, e);
+        }
         return medal;
     }
 
@@ -322,20 +493,211 @@ public class GameService {
 
         try {
             JsonNode correctAnswer = objectMapper.readTree(task.getCorrectAnswerJson());
-            TaskAnswerChecker answerChecker = answerCheckers.get(task.getTaskType());
-            if (answerChecker == null) {
+            Map<String, Object> normalizedAnswer = normalizeAnswerForChecker(task.getTaskType(), correctAnswer, answer);
+            if (task.getTaskType() == TaskType.FINAL_BOSS) {
+                return checkFinalBossAnswer(correctAnswer, normalizedAnswer);
+            }
+            TaskAnswerChecker checker = answerCheckers.get(task.getTaskType());
+            if (checker == null) {
                 log.warn("[GameService] no answer checker registered for taskType={}", task.getTaskType());
                 return false;
             }
-            return answerChecker.isCorrect(task, correctAnswer, answer);
+            return checker.isCorrect(task, correctAnswer, normalizedAnswer);
         } catch (JsonProcessingException exception) {
             log.error("[GameService] failed to parse correct answer JSON taskId={}", task.getId(), exception);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Task answer data is invalid");
         }
     }
 
+    private Map<String, Object> normalizeAnswerForChecker(
+        TaskType taskType,
+        JsonNode correctAnswer,
+        Map<String, Object> answer
+    ) {
+        if (taskType != TaskType.SOCIAL_MEDIA) {
+            return answer;
+        }
+
+        Object selected = answer.get("selected");
+        Object action = answer.get("action");
+
+        if ((hasSingleOrMultiple(correctAnswer, "selected", "acceptedSelected")) && selected == null && action != null) {
+            Map<String, Object> normalized = new java.util.HashMap<>(answer);
+            normalized.put("selected", action);
+            return normalized;
+        }
+
+        if ((hasSingleOrMultiple(correctAnswer, "action", "acceptedActions")) && action == null && selected != null) {
+            Map<String, Object> normalized = new java.util.HashMap<>(answer);
+            normalized.put("action", selected);
+            return normalized;
+        }
+
+        return answer;
+    }
+
+    private boolean hasSingleOrMultiple(JsonNode correctAnswer, String singleKey, String multipleKey) {
+        return !correctAnswer.path(singleKey).isMissingNode() || correctAnswer.path(multipleKey).isArray();
+    }
+
+    private boolean checkFakeNewsAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
+        Iterator<Map.Entry<String, JsonNode>> fields = correctAnswer.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            Boolean submitted = asBoolean(answer.get(field.getKey()));
+            if (submitted == null || submitted != field.getValue().asBoolean()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkPhishingEmailAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
+        return PhishingAnswerChecker.check(correctAnswer, answer);
+    }
+
+    private boolean checkFinalBossAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
+        for (int i = 0; i < 6; i++) {
+            String key = "challenge_" + i;
+            JsonNode challengeCorrect = correctAnswer.path(key);
+            if (challengeCorrect.isMissingNode()) {
+                log.warn("[GameService] FINAL_BOSS correctAnswer missing key: {}", key);
+                return false;
+            }
+            Object raw = answer.get(key);
+            if (raw == null) {
+                log.warn("[GameService] FINAL_BOSS submitted answer missing key: {}", key);
+                return false;
+            }
+            @SuppressWarnings("unchecked")
+            Map<String, Object> challengeAnswer = (Map<String, Object>) raw;
+            if (!checkChallengeAnswer(challengeCorrect, challengeAnswer)) {
+                log.info("[GameService] FINAL_BOSS challenge {} incorrect", i);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkChallengeAnswer(JsonNode correct, Map<String, Object> answer) {
+        if (!correct.fields().hasNext()) {
+            return true;
+        }
+        if (!correct.path("action").isMissingNode()) {
+            return checkPhishingEmailAnswer(correct, answer);
+        }
+        if (!correct.path("selected").isMissingNode()) {
+            Object submitted = answer.get("selected");
+            if (submitted == null) return false;
+            return correct.path("selected").asText().equalsIgnoreCase(String.valueOf(submitted));
+        }
+        if (!correct.path("flaggedElementIds").isMissingNode()) {
+            return checkFlaggedElementIds(correct, answer);
+        }
+        if (correct.fieldNames().hasNext()) {
+            String firstKey = correct.fieldNames().next();
+            if (firstKey.startsWith("article_")) return checkFakeNewsAnswer(correct, answer);
+            if (firstKey.startsWith("image_"))   return checkAiPhotoAnswer(correct, answer);
+        }
+        log.warn("[GameService] checkChallengeAnswer: unrecognised correct answer shape");
+        return false;
+    }
+
+    private boolean checkFlaggedElementIds(JsonNode correct, Map<String, Object> answer) {
+        JsonNode correctIds = correct.path("flaggedElementIds");
+        if (!correctIds.isArray()) return false;
+        Object raw = answer.get("flaggedElementIds");
+        if (!(raw instanceof List)) return false;
+        List<String> expected = new ArrayList<>();
+        correctIds.forEach(n -> expected.add(n.asText()));
+        Collections.sort(expected);
+        List<String> actual = ((List<?>) raw).stream()
+            .map(String::valueOf)
+            .sorted()
+            .collect(java.util.stream.Collectors.toList());
+        boolean match = expected.equals(actual);
+        log.info("[GameService] checkFlaggedElementIds: expected={} actual={} match={}", expected, actual, match);
+        return match;
+    }
+
+    private boolean checkAiPhotoAnswer(JsonNode correctAnswer, Map<String, Object> answer) {
+        Iterator<Map.Entry<String, JsonNode>> fields = correctAnswer.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            Object submitted = answer.get(field.getKey());
+            if (submitted == null) return false;
+            if (!field.getValue().asText().equalsIgnoreCase(String.valueOf(submitted))) return false;
+        }
+        return true;
+    }
+
+    private Integer fakeNewsCorrectIndex(Task task) {
+        try {
+            JsonNode correct = objectMapper.readTree(task.getCorrectAnswerJson());
+            Iterator<Map.Entry<String, JsonNode>> fields = correct.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> entry = fields.next();
+                if (!entry.getValue().asBoolean()) {
+                    return Integer.parseInt(entry.getKey().replace("article_", ""));
+                }
+            }
+        } catch (Exception e) {
+            log.warn("[GameService] Failed to parse correctAnswerJson for fake news index taskId={}", task.getId());
+        }
+        return null;
+    }
+
+    private List<String> correctClueIdsFor(Task task) {
+        try {
+            JsonNode correct = objectMapper.readTree(task.getCorrectAnswerJson());
+            return PhishingAnswerChecker.requiredClueIds(correct);
+        } catch (Exception e) {
+            log.warn("[GameService] Failed to parse correctAnswerJson for clue IDs taskId={}", task.getId());
+            return List.of();
+        }
+    }
+
+    private List<PhishingClueFeedbackDto> phishingCluesFor(Task task) {
+        try {
+            JsonNode clues = objectMapper.readTree(task.getContentJson()).path("email").path("clues");
+            if (!clues.isArray()) {
+                return List.of();
+            }
+
+            List<PhishingClueFeedbackDto> feedback = new ArrayList<>();
+            clues.forEach(clue -> {
+                if (!clue.isObject()) return;
+                feedback.add(new PhishingClueFeedbackDto(
+                    clue.path("id").asText(),
+                    clue.path("label").asText(),
+                    clue.path("explanation").asText(""),
+                    clue.path("isClue").asBoolean(false)
+                ));
+            });
+            return feedback;
+        } catch (JsonProcessingException e) {
+            log.error("[GameService] Failed to parse contentJson for phishing clue feedback taskId={}", task.getId(), e);
+            return List.of();
+        }
+    }
+
+    private Boolean asBoolean(Object value) {
+        if (value instanceof Boolean booleanValue) {
+            return booleanValue;
+        }
+        if (value instanceof String stringValue) {
+            if ("true".equalsIgnoreCase(stringValue)) {
+                return true;
+            }
+            if ("false".equalsIgnoreCase(stringValue)) {
+                return false;
+            }
+        }
+        return null;
+    }
+
     private StopResponse toStopResponse(Long studentId, Long classroomId, Stop stop) {
-        int taskCount = Math.toIntExact(taskRepository.countByStop_Id(stop.getId()));
+        int taskCount = Math.toIntExact(requiredTaskCount(stop.getId()));
         int correctCount = Math.toIntExact(completedTaskCount(studentId, stop.getId()));
         boolean unlocked = isStopUnlocked(studentId, classroomId, stop);
         boolean completed = isStopComplete(studentId, stop.getId());
@@ -349,7 +711,8 @@ public class GameService {
             completed,
             taskCount,
             correctCount,
-            xpClaimable
+            xpClaimable,
+            stop.getTheme()
         );
     }
 
@@ -366,11 +729,16 @@ public class GameService {
             .map(StudentProgress::isCompleted)
             .orElse(false);
 
+        Stop stop = task.getStop();
         return new TaskResponse(
             task.getId(),
-            task.getStop().getId(),
+            stop.getId(),
+            stop.getName(),
+            stop.getDescription(),
+            stop.getOrderIndex(),
+            stop.getTheme(),
             task.getTaskType().name(),
-            sanitizeContentForClient(task.getTaskType(), task.getContentJson()),
+            sanitizeContentForClient(task.getTaskType(), task.getContentJson(), task.getCorrectAnswerJson()),
             task.getGuidanceText(),
             alreadyCompleted
         );
@@ -399,13 +767,74 @@ public class GameService {
         }
     }
 
+    private void requireTaskSequenceAvailable(Long studentId, Task task) {
+        if (task.getTaskType() == TaskType.LEARN) {
+            return;
+        }
+
+        List<Task> stopTasks = taskRepository.findByStop_IdOrderByOrderIndexAscIdAsc(task.getStop().getId());
+        boolean tutorialComplete = stopTasks.stream()
+            .filter(candidate -> candidate.getTaskType() == TaskType.LEARN)
+            .allMatch(candidate -> studentProgressRepository
+                .findByStudent_IdAndTask_Id(studentId, candidate.getId())
+                .map(StudentProgress::isCompleted)
+                .orElse(false));
+
+        if (!tutorialComplete) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tutorial must be completed first");
+        }
+
+        boolean previousRequiredTasksComplete = stopTasks.stream()
+            .filter(candidate -> !COMPLETION_EXCLUDED_TASK_TYPES.contains(candidate.getTaskType()))
+            .filter(candidate -> candidate.getOrderIndex() < task.getOrderIndex())
+            .allMatch(candidate -> studentProgressRepository
+                .findByStudent_IdAndTask_Id(studentId, candidate.getId())
+                .map(StudentProgress::isCompleted)
+                .orElse(false));
+
+        if (!previousRequiredTasksComplete) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Previous tasks must be completed first");
+        }
+    }
+
     private boolean allTasksCompleted(Long studentId, Long stopId) {
-        long taskCount = taskRepository.countByStop_Id(stopId);
-        return taskCount > 0 && completedTaskCount(studentId, stopId) == taskCount;
+        long taskCount = requiredTaskCount(stopId);
+        return taskCount > 0 && completedTaskCount(studentId, stopId) >= taskCount;
     }
 
     private long completedTaskCount(Long studentId, Long stopId) {
-        return studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrue(studentId, stopId);
+        return studentProgressRepository.countByStudent_IdAndTask_Stop_IdAndCompletedTrueAndTask_TaskTypeNotIn(
+            studentId,
+            stopId,
+            COMPLETION_EXCLUDED_TASK_TYPES
+        );
+    }
+
+    private long requiredTaskCount(Long stopId) {
+        // LEARN and CLUE_RIDDLE are excluded: LEARN is introductory, CLUE_RIDDLE is a bonus clue.
+        return taskRepository.countByStop_IdAndTaskTypeNotIn(stopId, COMPLETION_EXCLUDED_TASK_TYPES);
+    }
+
+    private boolean shouldShowSuspectReveal(Stop stop) {
+        return Integer.valueOf(SUSPECT_REVEAL_STOP_ORDER).equals(stop.getOrderIndex());
+    }
+
+    private boolean canCompleteStop(Task task) {
+        return !COMPLETION_EXCLUDED_TASK_TYPES.contains(task.getTaskType());
+    }
+
+    private boolean canReturnStopCompletion(Task task) {
+        return task.getTaskType() != TaskType.LEARN;
+    }
+
+    private boolean shouldStoreClue(Task task, boolean stopCompleted, boolean awardStopCompletion) {
+        if (!stopCompleted) {
+            return false;
+        }
+        if (task.getTaskType() == TaskType.CLUE_RIDDLE) {
+            return true;
+        }
+        return awardStopCompletion && !taskRepository.existsByStop_IdAndTaskType(task.getStop().getId(), TaskType.CLUE_RIDDLE);
     }
 
     private String extractExplanation(Task task) {
@@ -417,7 +846,7 @@ public class GameService {
         }
     }
 
-    private JsonNode sanitizeContentForClient(TaskType type, String contentJson) {
+    private JsonNode sanitizeContentForClient(TaskType type, String contentJson, String correctAnswerJson) {
         try {
             JsonNode parsed = objectMapper.readTree(contentJson);
             if (!parsed.isObject()) {
@@ -439,6 +868,20 @@ public class GameService {
             if (type == TaskType.PHISHING_EMAIL && root.path("email").isObject()) {
                 ObjectNode email = (ObjectNode) root.path("email");
                 email.remove("correctAction");
+                if (email.path("clues").isArray()) {
+                    ArrayNode clues = (ArrayNode) email.path("clues");
+                    clues.forEach(clue -> {
+                        if (clue.isObject()) {
+                            ((ObjectNode) clue).remove("isClue");
+                            ((ObjectNode) clue).remove("explanation");
+                        }
+                    });
+                }
+            }
+
+            if (type == TaskType.SOCIAL_MEDIA) {
+                root.remove("type");
+                shuffleSocialMediaOptions(root, correctAnswerJson);
             }
 
             return root;
@@ -446,5 +889,83 @@ public class GameService {
             log.error("[GameService] failed to sanitize content taskType={}", type, exception);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Task content invalid");
         }
+    }
+
+    private void shuffleSocialMediaOptions(ObjectNode root, String correctAnswerJson) throws JsonProcessingException {
+        if (!root.path("options").isArray()) {
+            return;
+        }
+
+        ArrayNode options = (ArrayNode) root.path("options");
+        List<JsonNode> shuffledOptions = new ArrayList<>();
+        options.forEach(option -> shuffledOptions.add(option.deepCopy()));
+        Collections.shuffle(shuffledOptions);
+
+        // Only singular-answer tasks can be biased away from the middle slot.
+        // Multi-answer tasks intentionally keep a fully random order.
+        moveCorrectOptionAwayFromMiddle(shuffledOptions, socialMediaCorrectOptionId(correctAnswerJson));
+
+        ArrayNode shuffledArray = objectMapper.createArrayNode();
+        shuffledOptions.forEach(shuffledArray::add);
+        root.set("options", shuffledArray);
+    }
+
+    private String socialMediaCorrectOptionId(String correctAnswerJson) throws JsonProcessingException {
+        JsonNode correctAnswer = objectMapper.readTree(correctAnswerJson);
+        if (!correctAnswer.path("selected").isMissingNode()) {
+            return correctAnswer.path("selected").asText();
+        }
+        if (!correctAnswer.path("action").isMissingNode()) {
+            return correctAnswer.path("action").asText();
+        }
+        if (correctAnswer.path("acceptedSelected").isArray() && !correctAnswer.path("acceptedSelected").isEmpty()) {
+            return correctAnswer.path("acceptedSelected").get(0).asText();
+        }
+        if (correctAnswer.path("acceptedActions").isArray() && !correctAnswer.path("acceptedActions").isEmpty()) {
+            return correctAnswer.path("acceptedActions").get(0).asText();
+        }
+        return null;
+    }
+
+    private void moveCorrectOptionAwayFromMiddle(List<JsonNode> options, String correctOptionId) {
+        if (correctOptionId == null || options.size() < 3) {
+            return;
+        }
+
+        int correctIndex = -1;
+        for (int i = 0; i < options.size(); i++) {
+            if (correctOptionId.equalsIgnoreCase(options.get(i).path("id").asText())) {
+                correctIndex = i;
+                break;
+            }
+        }
+
+        if (correctIndex < 0 || !isMiddleIndex(correctIndex, options.size())) {
+            return;
+        }
+
+        List<Integer> edgeIndexes = new ArrayList<>();
+        for (int i = 0; i < options.size(); i++) {
+            if (i != correctIndex && !isMiddleIndex(i, options.size())) {
+                edgeIndexes.add(i);
+            }
+        }
+
+        if (edgeIndexes.isEmpty()) {
+            return;
+        }
+
+        Collections.shuffle(edgeIndexes);
+        Collections.swap(options, correctIndex, edgeIndexes.getFirst());
+    }
+
+    private boolean isMiddleIndex(int index, int size) {
+        if (size < 3) {
+            return false;
+        }
+        if (size % 2 == 1) {
+            return index == size / 2;
+        }
+        return index == (size / 2) - 1 || index == size / 2;
     }
 }

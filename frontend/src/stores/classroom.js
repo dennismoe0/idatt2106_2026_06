@@ -10,6 +10,7 @@ export const useClassroomStore = defineStore('classroom', () => {
   const pendingJoin = ref(null)
   const displayName = ref(null)
   const approvalStatus = ref(null)
+  const musicMuted = ref(false)
 
   async function fetchMyClassrooms() {
     console.log('[classroom] Fetching my classrooms')
@@ -100,18 +101,6 @@ export const useClassroomStore = defineStore('classroom', () => {
     }
   }
 
-  async function deleteClassroom(id) {
-    console.log('[classroom] Deleting classroom:', id)
-    try {
-      await classroomService.deleteClassroom(id)
-      classrooms.value = classrooms.value.filter(c => c.id !== id)
-      console.log('[classroom] Deleted classroom:', id)
-    } catch (err) {
-      console.error('[classroom] Failed to delete classroom:', err)
-      throw err
-    }
-  }
-
   async function fetchMyClassroom() {
     console.log('[classroom] Fetching my classroom membership from server')
     try {
@@ -164,6 +153,7 @@ export const useClassroomStore = defineStore('classroom', () => {
     try {
       const { data } = await classroomService.getMyStatus(classroomId)
       approvalStatus.value = data.status
+      musicMuted.value = data.musicMuted ?? false
       localStorage.setItem('classroomStatus', data.status)
       if (pendingJoin.value?.classroomId === classroomId) {
         pendingJoin.value = {
@@ -171,7 +161,7 @@ export const useClassroomStore = defineStore('classroom', () => {
           status: data.status
         }
       }
-      console.log('[classroom] My status is:', data.status)
+      console.log('[classroom] My status is:', data.status, '— musicMuted:', data.musicMuted)
       return data.status
     } catch (err) {
       console.error('[classroom] Failed to fetch my status:', err)
@@ -194,7 +184,7 @@ export const useClassroomStore = defineStore('classroom', () => {
   }
 
   return {
-    classrooms, currentClassroom, students, currentClassroomId, pendingJoin, displayName, approvalStatus,
-    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents, fetchMyStatus, updateStudentStatus, fetchMyClassroom, updateMyDisplayName, deleteClassroom, rehydrate, reset
+    classrooms, currentClassroom, students, currentClassroomId, pendingJoin, displayName, approvalStatus, musicMuted,
+    fetchMyClassrooms, createClassroom, joinClassroom, fetchStudents, fetchMyStatus, updateStudentStatus, fetchMyClassroom, updateMyDisplayName, rehydrate, reset
   }
 })
