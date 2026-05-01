@@ -422,7 +422,7 @@ const quiz    = computed(() => content.value.quiz   ?? [])
 const THEME_INSTRUCTIONS = {
   FAKE_NEWS: 'Nå skal vi lære om falske nyheter. Les forklaringene nøye og gjør oppgaven under etterpå.',
   PHISHING_EMAIL: 'Nå skal vi lære om phishing. Se etter hva som avslører en falsk melding før du gjør oppgaven under.',
-  AI_PHOTO: 'Nå skal vi lære om ekte, manipulerte og KI-lagde bilder. Se nøye på detaljene før du gjør oppgaven under.',
+  AI_PHOTO: 'Nå skal vi lære om ekte og KI-genererte bilder. Se nøye på detaljene før du gjør oppgaven under.',
   PASSWORD: 'Nå skal vi lære om passord. Finn ut hva som gjør et passord svakt eller sterkt før du gjør oppgaven under.',
   MARKETPLACE: 'Nå skal vi lære om nettsvindel. Tren på å klikke bare de feltene som faktisk er mistenkelige før du gjør oppgaven under.',
   SOCIAL_MEDIA: 'Nå skal vi lære om sosiale medier og manipulasjon. Les hvordan rykter og falske kontoer fungerer før du gjør oppgaven under.',
@@ -722,12 +722,12 @@ const PHOTO_VISUAL_EXAMPLES = {
       alt: 'Et ekte foto av to barn på en lekeplass der en person henger fra en metallstang.',
     },
     {
-      key: 'manipulated',
+      key: 'ai-edited',
       src: '/story_pictures/photographer-manipulated-playground.png',
-      eyebrow: 'Manipulert bilde',
+      eyebrow: 'KI-endret bilde',
       title: 'Personer er lagt til i etterkant',
-      body: 'Bildet bygger på den samme scenen, men flere mennesker er lagt inn. Da kan bildet gi et annet inntrykk av hva som faktisk skjedde. Ser vi nøye etter, er ansiktene til noen av personene merkelige.',
-      alt: 'Et manipulert foto fra samme lekeplass der flere personer er lagt til rundt personen som henger fra metallstangen.',
+      body: 'Bildet bygger på den samme scenen, men flere mennesker er lagt inn med KI. Da kan bildet gi et annet inntrykk av hva som faktisk skjedde. Ser vi nøye etter, er ansiktene til noen av personene merkelige.',
+      alt: 'Et KI-endret foto fra samme lekeplass der flere personer er lagt til rundt personen som henger fra metallstangen.',
     },
   ],
 }

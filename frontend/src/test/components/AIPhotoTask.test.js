@@ -11,7 +11,7 @@ const TASK = {
         id: 'image_0',
         label: 'Bilde A',
         alt: 'Strandbilde',
-        correctType: 'MANIPULATED',
+        correctType: 'AI_GENERATED',
         wrongFeedback: 'Feil, se på barna i bakgrunnen. Er det noe rart her?',
         correctFeedback: 'Riktig! Barna i bildet er satt inn i bildet, mens resten av bildet er ekte.',
       },
@@ -35,7 +35,7 @@ describe('AIPhotoTask', () => {
     const buttons = wrapper.findAll('.type-btn')
 
     await buttons[0].trigger('click')
-    await buttons[4].trigger('click')
+    await buttons[3].trigger('click')
     await wrapper.setProps({
       result: { correct: false, explanation: 'Se forklaringene under hvert bilde.', stopCompleted: false },
     })

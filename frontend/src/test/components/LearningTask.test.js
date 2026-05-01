@@ -160,7 +160,7 @@ describe('LearningTask', () => {
     expect(wrapper.text()).toContain('Utrygg betaling')
   })
 
-  it('renders real and manipulated photo examples in the third AI photo learning part', async () => {
+  it('renders real and AI-edited photo examples in the third AI photo learning part', async () => {
     const wrapper = mount(LearningTask, {
       props: {
         task: {
@@ -170,7 +170,7 @@ describe('LearningTask', () => {
             slides: [
               { heading: 'Del 1', body: 'Tekst', examples: [], checks: [] },
               { heading: 'Del 2', body: 'Tekst', examples: [], checks: [] },
-              { heading: 'Del 3', body: 'Tekst', examples: ['Ekte og manipulert'], checks: [] },
+              { heading: 'Del 3', body: 'Tekst', examples: ['Ekte og KI-endret'], checks: [] },
             ],
             quiz: [
               { id: 'q1', question: 'Q1?', options: ['Ja'], correct: 'Ja' },
@@ -189,7 +189,7 @@ describe('LearningTask', () => {
 
     expect(wrapper.find('.photo-compare').exists()).toBe(true)
     expect(wrapper.text()).toContain('Ekte bilde')
-    expect(wrapper.text()).toContain('Manipulert bilde')
+    expect(wrapper.text()).toContain('KI-endret bilde')
     expect(wrapper.find('img[src="/story_pictures/photographer-real-playground.jpg"]').exists()).toBe(true)
     expect(wrapper.find('img[src="/story_pictures/photographer-manipulated-playground.png"]').exists()).toBe(true)
   })

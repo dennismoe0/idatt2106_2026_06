@@ -170,7 +170,6 @@ import { ref, computed, watch } from 'vue'
 const IMAGE_TYPES = [
   { value: 'REAL',         label: 'Ekte' },
   { value: 'AI_GENERATED', label: 'KI-generert' },
-  { value: 'MANIPULATED',  label: 'Manipulert' },
 ]
 
 const props = defineProps({
