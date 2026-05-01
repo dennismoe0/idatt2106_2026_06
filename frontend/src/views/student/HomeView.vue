@@ -1,119 +1,196 @@
 <template>
   <div class="home">
 
-    <!-- Wooden-frame header -->
-    <header class="home__header">
-      <div class="home__identity">
-        <p class="home__eyebrow">Nettdetektivene · Saksmappe</p>
-        <h1 class="home__name">Detektiv {{ studentName }}</h1>
+    <!-- Standing detective easel — scaled to fill viewport via JS -->
+    <div id="home-easel" class="home__easel">
+
+      <!-- Top rail: label left, controls right -->
+      <div class="home__rail">
+        <span class="home__knob" aria-hidden="true"></span>
+        <span class="home__rail-label">Detektiv {{ studentName }} · Sak #042</span>
+        <div class="home__rail-controls">
+          <SoundControls />
+          <button class="home__logout" @click="handleLogout">Logg ut</button>
+        </div>
+        <span class="home__knob" aria-hidden="true"></span>
       </div>
-      <SoundControls class="home__sound" />
-      <button class="home__logout" @click="handleLogout">Logg ut</button>
-    </header>
 
-    <!-- Cork board -->
-    <div class="home__board" role="main">
+      <!-- Wooden frame -->
+      <div class="home__frame">
+        <main class="home__board" aria-label="Studentmeny">
 
-      <!-- Decorative red yarn / string -->
-      <svg class="home__yarn" viewBox="0 0 1000 520" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M 80 55 Q 280 100 480 65 Q 660 30 850 110"
-              fill="none" stroke="#9B2226" stroke-width="1.8" opacity="0.45" stroke-linecap="round"/>
-        <path d="M 60 420 Q 320 360 580 400 Q 780 440 960 360"
-              fill="none" stroke="#9B2226" stroke-width="1.2" opacity="0.3" stroke-linecap="round"/>
-        <circle cx="80"  cy="55"  r="3.5" fill="#9B2226" opacity="0.55"/>
-        <circle cx="480" cy="65"  r="3.5" fill="#9B2226" opacity="0.55"/>
-        <circle cx="850" cy="110" r="3.5" fill="#9B2226" opacity="0.55"/>
-        <circle cx="60"  cy="420" r="2.5" fill="#9B2226" opacity="0.4"/>
-        <circle cx="580" cy="400" r="2.5" fill="#9B2226" opacity="0.4"/>
+          <!-- Red threads — z-index 3, rendered above cards -->
+          <svg class="home__threads" viewBox="0 0 784 425" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <!-- hero(391,166) → each card pin -->
+            <path d="M 391 166 Q 240 122 99 24"   fill="none" stroke="#9B2226" stroke-width="1.5" opacity=".85" stroke-linecap="round"/>
+            <path d="M 391 166 Q 392 102 392 18"  fill="none" stroke="#9B2226" stroke-width="1.5" opacity=".85" stroke-linecap="round"/>
+            <path d="M 391 166 Q 540 120 679 24"  fill="none" stroke="#9B2226" stroke-width="1.5" opacity=".85" stroke-linecap="round"/>
+            <path d="M 391 166 Q 245 172 100 150" fill="none" stroke="#9B2226" stroke-width="1.5" opacity=".85" stroke-linecap="round"/>
+            <path d="M 391 166 Q 540 172 683 146" fill="none" stroke="#9B2226" stroke-width="1.5" opacity=".85" stroke-linecap="round"/>
+            <path d="M 391 166 Q 240 232 97 276"  fill="none" stroke="#9B2226" stroke-width="1.5" opacity=".85" stroke-linecap="round"/>
+            <path d="M 391 166 Q 540 230 683 272" fill="none" stroke="#9B2226" stroke-width="1.5" opacity=".85" stroke-linecap="round"/>
+            <path d="M 391 166 Q 308 258 239 310" fill="none" stroke="#9B2226" stroke-width="1.5" opacity=".85" stroke-linecap="round"/>
+            <path d="M 391 166 Q 470 256 539 306" fill="none" stroke="#9B2226" stroke-width="1.5" opacity=".85" stroke-linecap="round"/>
+            <!-- card pin dots -->
+            <circle cx="99"  cy="24"  r="4.5" fill="#c02020" opacity=".92"/>
+            <circle cx="392" cy="18"  r="4.5" fill="#c02020" opacity=".92"/>
+            <circle cx="679" cy="24"  r="4.5" fill="#c02020" opacity=".92"/>
+            <circle cx="100" cy="150" r="4.5" fill="#c02020" opacity=".92"/>
+            <circle cx="683" cy="146" r="4.5" fill="#c02020" opacity=".92"/>
+            <circle cx="97"  cy="276" r="4.5" fill="#c02020" opacity=".92"/>
+            <circle cx="683" cy="272" r="4.5" fill="#c02020" opacity=".92"/>
+            <circle cx="239" cy="310" r="4.5" fill="#c02020" opacity=".92"/>
+            <circle cx="539" cy="306" r="4.5" fill="#c02020" opacity=".92"/>
+            <!-- gold hero pin -->
+            <circle cx="391" cy="166" r="8.5" fill="#EFB45C" stroke="#a86a06" stroke-width="1.4" opacity=".95"/>
+            <circle cx="389" cy="164" r="3.2" fill="#fff8cc" opacity=".65"/>
+          </svg>
+
+          <!-- Hero: Til kartet (gold pin, outside clip-path via .home__hw wrapper) -->
+          <div class="home__hw" style="left:317px;top:168px;transform:rotate(-.4deg);">
+            <RouterLink :to="mapEntryRoute" class="home__hero">
+              <span class="home__badge" aria-hidden="true">AKTIV SAK</span>
+              <span class="home__h-icon" aria-hidden="true">🗺️</span>
+              <span class="home__h-title">Til kartet</span>
+              <span class="home__h-sub">Fortsett etterforskningen →</span>
+            </RouterLink>
+            <span class="home__hpin" aria-hidden="true"></span>
+          </div>
+
+          <!-- Nav cards (pin is AFTER .home__card in DOM → renders on top, never clipped) -->
+          <div
+            v-for="card in navCards"
+            :key="card.key"
+            class="home__cw"
+            :style="card.wrapStyle"
+          >
+            <RouterLink
+              :to="card.route"
+              class="home__card"
+              :style="card.cardStyle"
+              :aria-label="card.title"
+            >
+              <span class="home__c-icon" aria-hidden="true">{{ card.icon }}</span>
+              <span class="home__c-label">{{ card.title }}</span>
+            </RouterLink>
+            <span class="home__ipin" aria-hidden="true"></span>
+          </div>
+
+        </main>
+      </div>
+
+      <!-- Easel legs (go off-screen at bottom — board fills viewport) -->
+      <svg class="home__legs" viewBox="0 0 820 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="hv-lg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#5a2c10"/>
+            <stop offset="40%"  stop-color="#3a1808"/>
+            <stop offset="100%" stop-color="#2a1005"/>
+          </linearGradient>
+          <linearGradient id="hv-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%"   stop-color="#5a2c10"/>
+            <stop offset="100%" stop-color="#2a1005"/>
+          </linearGradient>
+        </defs>
+        <rect x="-3" y="0" width="11" height="128" rx="4" fill="url(#hv-lg)" transform="rotate(-9, 140, 0) translate(140,0)"/>
+        <rect x="-3" y="0" width="11" height="128" rx="4" fill="url(#hv-lg)" transform="rotate(9, 668, 0) translate(668,0)"/>
+        <rect x="405" y="0" width="8" height="90"  rx="3" fill="#2a1005" opacity=".5"/>
+        <rect x="125" y="82" width="568" height="9" rx="4" fill="url(#hv-bg)"/>
+        <ellipse cx="128" cy="126" rx="12" ry="5" fill="#111" opacity=".7"/>
+        <ellipse cx="690" cy="126" rx="12" ry="5" fill="#111" opacity=".7"/>
+        <ellipse cx="409" cy="89"  rx="8"  ry="4" fill="#111" opacity=".5"/>
       </svg>
 
-      <nav class="home__grid" aria-label="Studentmeny">
+    </div>
 
-        <!-- Hero: Map -->
-        <RouterLink :to="mapEntryRoute" class="home__note home__note--hero">
-          <span class="home__pin home__pin--gold" aria-hidden="true"></span>
-          <span class="home__note-badge" aria-hidden="true">AKTIV SAK</span>
-          <span class="home__note-icon" aria-hidden="true">🗺️</span>
-          <div class="home__note-body">
-            <h2 class="home__note-title">Til kartet</h2>
-            <p class="home__note-sub">Fortsett etterforskningen →</p>
-          </div>
-        </RouterLink>
-
-        <!-- Active secondary notes -->
+    <!-- Mobile layout (≤768px): 2-column card grid, easel hidden -->
+    <div class="home__mobile" aria-label="Studentmeny">
+      <div class="home__m-top">
+        <SoundControls />
+        <button class="home__logout" @click="handleLogout">Logg ut</button>
+      </div>
+      <RouterLink :to="mapEntryRoute" class="home__m-hero">
+        <span class="home__m-hero-icon" aria-hidden="true">🗺️</span>
+        <span class="home__m-hero-title">Til kartet</span>
+        <span class="home__m-hero-sub">Fortsett etterforskningen →</span>
+      </RouterLink>
+      <div class="home__m-grid">
         <RouterLink
-          v-for="card in activeCards"
-          :key="card.title"
+          v-for="card in navCards"
+          :key="card.key"
           :to="card.route"
-          class="home__note"
-          :style="{ '--note-bg': card.color }"
+          class="home__m-card"
+          :style="{ '--card-bg': card.color }"
+          :aria-label="card.title"
         >
-          <span class="home__pin" aria-hidden="true"></span>
-          <span class="home__note-icon" aria-hidden="true">{{ card.icon }}</span>
-          <h2 class="home__note-title">{{ card.title }}</h2>
+          <span class="home__m-icon" aria-hidden="true">{{ card.icon }}</span>
+          <span class="home__m-label">{{ card.title }}</span>
         </RouterLink>
-
-        <!-- Locked notes -->
-        <div
-          v-for="card in lockedCards"
-          :key="card.title"
-          class="home__note home__note--locked"
-          role="article"
-          :aria-label="`${card.title} — kommer snart`"
-        >
-          <span class="home__pin home__pin--dark" aria-hidden="true"></span>
-          <span class="home__note-icon" aria-hidden="true">{{ card.icon }}</span>
-          <h2 class="home__note-title">{{ card.title }}</h2>
-          <p class="home__note-soon">Kommer snart</p>
-        </div>
-
-      </nav>
-
+      </div>
     </div>
 
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useClassroomStore } from '@/stores/classroom'
 import SoundControls from '@/components/common/SoundControls.vue'
 import { buildMapIntroRoute, hasSeenMapIntro as getHasSeenMapIntro } from '@/utils/mapIntro'
 
-
 const authStore = useAuthStore()
 const classroomStore = useClassroomStore()
 const router = useRouter()
 
-const preferredMap = computed(() => (
+const preferredMap = computed(() =>
   localStorage.getItem('mapView') === 'simple' ? 'Map' : 'WorldMap'
-))
+)
 const hasSeenMapIntro = computed(() => getHasSeenMapIntro())
-const mapEntryRoute = computed(() => (
+const mapEntryRoute = computed(() =>
   hasSeenMapIntro.value
     ? { name: preferredMap.value }
     : buildMapIntroRoute(preferredMap.value)
-))
-
+)
 const studentName = computed(() =>
   classroomStore.displayName || formatDisplayName(authStore.email)
 )
 
-const activeCards = [
-  { title: 'Medaljer',           icon: '🏅', route: { name: 'Medals' },         color: '#B45309' },
-  { title: 'Notatblokk',        icon: '📝', route: { name: 'Notebook' },          color: '#0E7490' },
-  { title: 'Mistenktmappe',     icon: '🗂️', route: { name: 'SuspectDossier' },   color: '#9B2226' },
-  { title: 'Profil',            icon: '🕵️', route: { name: 'Profile' },           color: '#6D28D9' },
-  { title: 'Ledertavle',        icon: '📊', route: { name: 'Leaderboard' },       color: '#1D4ED8' },
-  { title: 'Butikk',            icon: '🏪', route: { name: 'Shop' },              color: '#065F46' },
-  { title: 'Ukas Mysterium',    icon: '🧩', route: { name: 'UkasMysterium' },     color: '#7C3AED' },
-  { title: 'Send inn mysterium', icon: '🔍', route: { name: 'SendInn' },          color: '#0F766E' },
-  { title: 'Hjelp',             icon: '💡', route: { name: 'Help' },              color: '#92400E' },
-]
+// Unique torn-edge clip-paths per card
+const CP = {
+  medaljer:      'polygon(0% 5%,5% 2%,11% 5%,18% 1%,26% 4%,35% 0%,44% 4%,53% 1%,62% 5%,71% 0%,80% 3%,90% 1%,100% 4%,100% 96%,93% 100%,83% 96%,73% 100%,63% 96%,52% 100%,42% 96%,31% 100%,21% 97%,11% 100%,4% 96%,0% 100%)',
+  notatblokk:    'polygon(0% 4%,7% 0%,14% 4%,22% 1%,31% 5%,40% 0%,50% 4%,60% 0%,70% 4%,80% 1%,90% 4%,100% 2%,100% 97%,90% 100%,80% 97%,70% 100%,60% 96%,49% 100%,38% 97%,27% 100%,17% 96%,8% 100%,0% 97%)',
+  mistenktmappe: 'polygon(0% 6%,4% 2%,10% 5%,17% 0%,25% 4%,34% 1%,43% 5%,52% 0%,62% 4%,72% 1%,82% 5%,91% 0%,100% 3%,100% 97%,95% 100%,84% 97%,74% 100%,64% 97%,54% 100%,44% 96%,33% 100%,22% 97%,12% 100%,5% 97%,0% 100%)',
+  profil:        'polygon(0% 3%,6% 0%,13% 4%,21% 1%,30% 5%,39% 0%,49% 3%,59% 1%,69% 5%,79% 0%,89% 3%,100% 1%,100% 96%,91% 100%,81% 96%,71% 100%,61% 97%,51% 100%,41% 96%,31% 100%,21% 97%,12% 100%,5% 96%,0% 100%)',
+  ledertavle:    'polygon(0% 5%,8% 1%,16% 5%,25% 0%,34% 4%,44% 1%,54% 5%,64% 0%,74% 4%,84% 1%,93% 5%,100% 2%,100% 97%,93% 100%,82% 96%,72% 100%,62% 97%,52% 100%,42% 96%,31% 100%,21% 97%,11% 100%,4% 97%,0% 100%)',
+  butikk:        'polygon(0% 4%,5% 0%,12% 3%,20% 1%,29% 5%,38% 0%,48% 4%,58% 1%,68% 5%,77% 0%,87% 3%,96% 1%,100% 4%,100% 96%,92% 100%,81% 97%,70% 100%,59% 96%,48% 100%,37% 97%,26% 100%,16% 96%,7% 100%,0% 97%)',
+  ukasmysterium: 'polygon(0% 6%,6% 2%,13% 6%,20% 1%,28% 5%,37% 0%,46% 4%,55% 1%,65% 5%,74% 0%,84% 4%,93% 1%,100% 5%,100% 98%,94% 100%,84% 97%,74% 100%,63% 97%,53% 100%,42% 97%,32% 100%,22% 97%,12% 100%,5% 97%,0% 100%)',
+  sendinn:       'polygon(0% 3%,7% 0%,15% 4%,23% 0%,32% 4%,41% 1%,51% 5%,61% 0%,71% 4%,81% 1%,91% 4%,100% 0%,100% 97%,92% 100%,82% 96%,72% 100%,61% 97%,51% 100%,40% 96%,30% 100%,20% 97%,10% 100%,4% 97%,0% 100%)',
+  hjelp:         'polygon(0% 5%,4% 1%,11% 4%,19% 0%,28% 4%,37% 1%,47% 5%,57% 0%,67% 4%,77% 1%,87% 5%,96% 0%,100% 3%,100% 97%,95% 100%,85% 96%,75% 100%,65% 97%,55% 100%,45% 96%,35% 100%,25% 97%,15% 100%,6% 97%,0% 100%)',
+}
 
-const lockedCards = []
+/*
+  Card layout (board 784×425, hero at left=317 top=168 w=149):
+  ipin: top=-8px h=13px → pin_center_y = card.top - 2
+  pin_center_x = card.left + card.width / 2
+  SVG dots match these coordinates.
+*/
+const navCards = [
+  { key: 'medaljer',      title: 'Medaljer',         icon: '🏅', route: { name: 'Medals' },        left: 34,  top: 26,  rot: -2.5, width: 130, color: '#B45309', cp: CP.medaljer },
+  { key: 'ukasmysterium', title: 'Ukas Mysterium',   icon: '🧩', route: { name: 'UkasMysterium' }, left: 322, top: 20,  rot: -1,   width: 140, color: '#7C3AED', cp: CP.ukasmysterium },
+  { key: 'notatblokk',    title: 'Notatblokk',       icon: '📝', route: { name: 'Notebook' },      left: 614, top: 26,  rot:  1.8, width: 130, color: '#0E7490', cp: CP.notatblokk },
+  { key: 'mistenktmappe', title: 'Mistenktmappe',    icon: '🗂️', route: { name: 'SuspectDossier' }, left: 28, top: 152, rot: -1.5, width: 145, color: '#9B2226', cp: CP.mistenktmappe },
+  { key: 'hjelp',         title: 'Hjelp',            icon: '💡', route: { name: 'Help' },           left: 618, top: 148, rot: -2,   width: 130, color: '#92400E', cp: CP.hjelp },
+  { key: 'ledertavle',    title: 'Ledertavle',       icon: '📊', route: { name: 'Leaderboard' },   left: 32,  top: 278, rot:  1.3, width: 130, color: '#1D4ED8', cp: CP.ledertavle },
+  { key: 'profil',        title: 'Profil',           icon: '🕵️', route: { name: 'Profile' },       left: 618, top: 274, rot:  2,   width: 130, color: '#6D28D9', cp: CP.profil },
+  { key: 'butikk',        title: 'Butikk',           icon: '🏪', route: { name: 'Shop' },           left: 174, top: 312, rot: -1.8, width: 130, color: '#065F46', cp: CP.butikk },
+  { key: 'sendinn',       title: 'Send inn mysterium', icon: '🔍', route: { name: 'SendInn' },      left: 474, top: 308, rot:  1.5, width: 130, color: '#0F766E', cp: CP.sendinn },
+].map(c => ({
+  ...c,
+  wrapStyle: { left: c.left + 'px', top: c.top + 'px', transform: `rotate(${c.rot}deg)` },
+  cardStyle:  { '--card-bg': c.color, '--cp': c.cp, width: c.width + 'px' },
+}))
 
 function formatDisplayName(email) {
   if (!email) return 'Ukjent'
@@ -121,9 +198,7 @@ function formatDisplayName(email) {
     ? email.replace('@student.local', '')
     : email.split('@')[0]
   return (
-    base
-      .split(/[._-]+/)
-      .filter(Boolean)
+    base.split(/[._-]+/).filter(Boolean)
       .map(p => p.charAt(0).toUpperCase() + p.slice(1))
       .join(' ') || 'Detektiv'
   )
@@ -135,6 +210,20 @@ function handleLogout() {
   router.push({ name: 'StudentLogin' })
 }
 
+function scaleEasel() {
+  const el = document.getElementById('home-easel')
+  if (!el) return
+  // Design dimensions: 820px wide, 489px tall (rail+frame+board — legs go off-screen)
+  const s = Math.min(
+    window.innerWidth  * 0.92 / 820,
+    window.innerHeight * 0.93 / 489
+  )
+  el.style.transform = `scale(${s})`
+  if (import.meta.env.DEV) {
+    console.log(`[HomeView] Easel scale: ${s.toFixed(3)} (${window.innerWidth}×${window.innerHeight})`)
+  }
+}
+
 onMounted(() => {
   if (!localStorage.getItem('hasSeenIntro')) {
     console.log('[HomeView] First visit — redirecting to intro')
@@ -142,296 +231,437 @@ onMounted(() => {
     return
   }
   console.log('[HomeView] Corkboard loaded for:', studentName.value)
+  scaleEasel()
+  window.addEventListener('resize', scaleEasel)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', scaleEasel)
 })
 </script>
 
 <style scoped>
-/* ── Detective colour palette (page-local) ───────────── */
+/* ── Full-screen room ── */
 .home {
-  --cork:        #A87230;
-  --cork-dark:   #7A4E1A;
-  --cork-light:  #C49240;
-  --wood:        #3B1F08;
-  --wood-mid:    #5C3210;
-  --gold:        #EFB45C;
-  --red-pin:     #9B2226;
-  --hero-red:    #B91C1C;
-
-  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
   display: flex;
-  flex-direction: column;
-  background: var(--wood);
-}
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 2.5vh;
 
-/* ── Header — dark wood frame ────────────────────────── */
-.home__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.875rem 1.5rem;
-  background: var(--wood);
-  border-bottom: 4px solid var(--wood-mid);
-  flex-shrink: 0;
-}
-
-.home__eyebrow {
-  margin: 0 0 0.2rem;
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gold);
-  opacity: 0.8;
-}
-
-.home__name {
-  margin: 0;
-  font-size: clamp(1.25rem, 4vw, 1.625rem);
-  font-weight: 800;
-  color: #FEF3C7;
-  letter-spacing: -0.02em;
+  /* Office room photo as background */
+  background: url('/office_background.webp') center center / cover no-repeat;
 }
 
 .home__logout {
-  flex-shrink: 0;
   background: none;
-  border: 1px solid rgba(239, 180, 92, 0.35);
-  color: rgba(254, 243, 199, 0.55);
-  font-size: 0.775rem;
+  border: 1px solid rgba(239, 180, 92, 0.45);
+  color: rgba(254, 243, 199, 0.7);
+  font-size: 0.68rem;
   font-family: inherit;
   font-weight: 500;
-  padding: 0.4rem 0.9rem;
-  border-radius: 4px;
+  padding: 0.3rem 0.75rem;
+  border-radius: 3px;
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
+  min-height: 44px;
+  white-space: nowrap;
 }
-.home__logout:hover {
-  color: #FEF3C7;
-  border-color: var(--gold);
+.home__logout:hover { color: #FEF3C7; border-color: var(--color-gold); }
+.home__logout:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 2px;
 }
 
-/* ── Cork board ──────────────────────────────────────── */
-.home__board {
+/* ── Easel — fixed 820px design width, scaled via JS ── */
+.home__easel {
+  flex-shrink: 0;
+  transform-origin: top center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: drop-shadow(0 40px 80px rgba(0, 0, 0, 0.85))
+          drop-shadow(0 0 120px rgba(0, 0, 0, 0.5));
+}
+
+/* ── Top rail ── */
+.home__rail {
+  width: 820px;
+  height: 44px;
+  background: linear-gradient(to bottom, #5c2e0e, #3a1808 45%, #2e1205);
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  gap: 12px;
+  box-shadow: inset 0 1px 2px rgba(255, 180, 80, 0.15);
+}
+.home__rail-label {
+  font-family: 'Special Elite', 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 200, 120, 0.5);
   flex: 1;
-  position: relative;
-  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 3vw, 2rem);
-
-  /* Cork texture */
-  background-color: var(--cork);
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      rgba(0,0,0,0.045) 0,   rgba(0,0,0,0.045) 1px,
-      transparent        1px, transparent        5px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgba(0,0,0,0.03) 0,   rgba(0,0,0,0.03) 1px,
-      transparent       1px, transparent       8px
-    ),
-    radial-gradient(ellipse at 15% 20%, rgba(210,168,70,0.45) 0%, transparent 55%),
-    radial-gradient(ellipse at 80% 75%, rgba(100,60,10,0.45)  0%, transparent 55%),
-    radial-gradient(ellipse at 50% 50%, rgba(176,120,50,0.2)  0%, transparent 70%);
-
-  /* Wooden frame inset */
-  box-shadow:
-    inset 0 0 0 8px  var(--wood-mid),
-    inset 0 0 0 12px var(--wood);
+  text-align: center;
+}
+.home__rail-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* ── Yarn overlay ────────────────────────────────────── */
-.home__yarn {
+/* SoundControls inside dark wood rail — override colors for visibility/contrast */
+.home__rail-controls :deep(.mute-btn) {
+  color: rgba(254, 243, 199, 0.85);
+  min-height: 44px;
+  min-width: 36px;
+}
+.home__rail-controls :deep(.mute-btn:focus-visible) {
+  outline-color: var(--color-gold);
+}
+.home__rail-controls :deep(.volume-slider) {
+  background: rgba(255, 200, 120, 0.3);
+  width: 80px;
+}
+.home__rail-controls :deep(.volume-slider:focus-visible) {
+  outline-color: var(--color-gold);
+}
+.home__rail-controls :deep(.volume-slider::-webkit-slider-thumb) {
+  background: var(--color-gold);
+  border-color: #2e1205;
+}
+.home__rail-controls :deep(.volume-slider::-moz-range-thumb) {
+  background: var(--color-gold);
+  border-color: #2e1205;
+}
+
+.home__knob {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #6a3a18, #2a1005);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 180, 80, 0.2);
+}
+
+/* ── Wooden frame ── */
+.home__frame {
+  width: 820px;
+  padding: 18px;
+  background: linear-gradient(160deg, #6a3010 0%, #3a1808 25%, #4e2410 55%, #2a1205 78%, #5a2c10 100%);
+  box-shadow:
+    inset 2px  2px 4px rgba(255, 160, 60, 0.08),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+.home__frame::before,
+.home__frame::after {
+  content: '';
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  width: 22px;
+  height: 22px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 2px;
+}
+.home__frame::before { top: 6px; left: 6px; }
+.home__frame::after  { top: 6px; right: 6px; }
+
+/* ── Cork board ── */
+.home__board {
+  position: relative;
+  width: 784px;
+  height: 425px;
+  background-color: var(--color-cork);
+  background-image:
+    repeating-linear-gradient(0deg,  rgba(0,0,0,.042) 0, rgba(0,0,0,.042) 1px, transparent 1px, transparent 5px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.028) 0, rgba(0,0,0,.028) 1px, transparent 1px, transparent 8px),
+    radial-gradient(ellipse at 18% 22%, rgba(215,172,72,.38) 0%, transparent 50%),
+    radial-gradient(ellipse at 82% 78%, rgba(95,52,8,.38)    0%, transparent 50%);
+  box-shadow:
+    inset 0 0 0 6px  rgba(90, 50, 16, 0.88),
+    inset 0 0 0 10px rgba(56, 30,  8, 0.92);
+  overflow: hidden;
+}
+
+/* ── SVG threads — behind cards ── */
+.home__threads {
+  position: absolute;
+  top: 0; left: 0;
+  width: 784px;
+  height: 425px;
+  z-index: 0;
   pointer-events: none;
 }
 
-/* ── Card grid ───────────────────────────────────────── */
-.home__grid {
-  position: relative;
+/* ── Card wrapper — positions + rotates the pair (card + pin) ── */
+.home__cw {
+  position: absolute;
   z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: clamp(1rem, 2.5vw, 1.75rem);
-  align-items: start;
+  cursor: pointer;
+  transform-origin: top center;
+}
+.home__cw:hover { z-index: 5; }
+.home__cw:hover .home__card {
+  filter: drop-shadow(4px 8px 20px rgba(0, 0, 0, 0.78)) !important;
+  transform: scale(1.08);
+}
+.home__cw:focus-within { z-index: 5; }
+.home__cw:focus-within .home__card {
+  box-shadow: 0 0 0 3px rgba(239, 180, 92, 0.85);
 }
 
-@media (max-width: 900px) {
-  .home__grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-/* ── Note (card) base ────────────────────────────────── */
-.home__note {
-  position: relative;
+/* ── Card visual (clip-path lives here; pin does NOT — avoids clipping) ── */
+.home__card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 1.75rem 1rem 1.5rem;
-  min-height: 150px;
-  border-radius: 2px;
-
-  background: var(--note-bg, #374151);
-  color: #fff;
+  /* width set inline via cardStyle */
+  height: 95px;
+  gap: 5px;
+  padding: 8px 10px 12px;
   text-decoration: none;
-  text-align: center;
-
-  /* Paper lift */
-  box-shadow:
-    2px 3px 8px  rgba(0,0,0,0.35),
-    0   1px 2px  rgba(0,0,0,0.25),
-    inset 0 0 0 1px rgba(255,255,255,0.06);
-
-  /* Organic rotation — overridden per child below */
-  transform-origin: top center;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-  will-change: transform;
-}
-
-/* Alternating rotations per slot */
-.home__note:nth-child(1) { transform: rotate(-1.4deg); }
-.home__note:nth-child(2) { transform: rotate(1.1deg);  }
-.home__note:nth-child(3) { transform: rotate(-0.9deg); }
-.home__note:nth-child(4) { transform: rotate(1.7deg);  }
-.home__note:nth-child(5) { transform: rotate(-1.5deg); }
-.home__note:nth-child(6) { transform: rotate(0.8deg);  }
-.home__note:nth-child(7) { transform: rotate(-1.2deg); }
-.home__note:nth-child(8) { transform: rotate(0.7deg);  }
-
-.home__note[href]:hover,
-.home__note[href]:focus-visible {
-  transform: rotate(0deg) scale(1.04) translateY(-4px) !important;
-  box-shadow:
-    4px 10px 24px rgba(0,0,0,0.45),
-    0   2px  6px  rgba(0,0,0,0.3);
-  z-index: 10;
+  background: var(--card-bg, #B45309);
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0, transparent 14px,
+    rgba(255, 255, 255, 0.10) 14px, rgba(255, 255, 255, 0.10) 15px
+  );
+  color: #fff;
+  font-family: 'Special Elite', 'Courier New', monospace;
+  clip-path: var(--cp);
+  filter: drop-shadow(2px 4px 9px rgba(0, 0, 0, 0.62));
+  transition: filter 0.15s, transform 0.15s;
   outline: none;
 }
-.home__note[href]:focus-visible {
-  box-shadow:
-    4px 10px 24px rgba(0,0,0,0.45),
-    0 0 0 3px rgba(239,180,92,0.8);
-}
-.home__note[href]:active { transform: rotate(0deg) scale(0.98) !important; }
 
-/* ── Hero note ───────────────────────────────────────── */
-.home__note--hero {
-  grid-column: span 2;
-  flex-direction: row;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 2rem 1.75rem 2rem 2rem;
-  min-height: 180px;
-  text-align: left;
-  background: var(--hero-red) !important;
-}
-
-@media (max-width: 900px) {
-  .home__note--hero {
-    grid-column: span 2;
-  }
-}
-
-.home__note-badge {
+/* ── Red pushpin — sibling AFTER .home__card, never clipped ── */
+.home__ipin {
   position: absolute;
-  top: 0.6rem;
-  right: 0.75rem;
-  font-size: 0.55rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.6);
-  border: 1px solid rgba(255,255,255,0.3);
-  padding: 0.15rem 0.45rem;
-  border-radius: 2px;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  z-index: 2;
+  background: radial-gradient(circle at 38% 34%, #e03030, #7a1818);
+  box-shadow: 0 2px 5px rgba(0,0,0,.65), inset 0 1px 2px rgba(255,255,255,.2);
+  pointer-events: none;
 }
 
-/* ── Push pin ────────────────────────────────────────── */
-.home__pin {
+.home__c-icon  { font-size: 28px; line-height: 1; display: block; }
+.home__c-label {
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+  display: block;
+}
+
+/* ── Hero wrapper ── */
+.home__hw {
+  position: absolute;
+  z-index: 4;
+  cursor: pointer;
+  transform-origin: top center;
+}
+.home__hw:hover { z-index: 10; }
+.home__hw:hover .home__hero {
+  filter: drop-shadow(4px 9px 22px rgba(0, 0, 0, 0.8)) !important;
+  transform: scale(1.06);
+}
+.home__hw:focus-within .home__hero {
+  box-shadow: 0 0 0 3px rgba(239, 180, 92, 0.85);
+}
+
+/* ── Hero card ── */
+.home__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 12px 16px;
+  width: 149px;
+  text-align: center;
+  text-decoration: none;
+  background: #B91C1C;
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0, transparent 14px,
+    rgba(255, 255, 255, 0.09) 14px, rgba(255, 255, 255, 0.09) 15px
+  );
+  color: #fff;
+  font-family: 'Special Elite', 'Courier New', monospace;
+  clip-path: polygon(
+    0% 3%,4% 0%,11% 3%,19% 0%,28% 3%,38% 0%,48% 3%,58% 0%,68% 3%,78% 0%,88% 3%,96% 0%,100% 3%,
+    100% 97%,94% 100%,84% 97%,74% 100%,63% 97%,53% 100%,42% 97%,32% 100%,21% 97%,11% 100%,4% 97%,0% 100%
+  );
+  filter: drop-shadow(2px 4px 12px rgba(0, 0, 0, 0.65));
+  transition: filter 0.15s, transform 0.15s;
+  outline: none;
+}
+
+/* ── Gold hero pin — sibling AFTER .home__hero ── */
+.home__hpin {
   position: absolute;
   top: -9px;
   left: 50%;
   transform: translateX(-50%);
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
-  background: var(--red-pin);
-  box-shadow:
-    0 3px 6px rgba(0,0,0,0.55),
-    inset 0 1px 2px rgba(255,255,255,0.25);
   z-index: 2;
-  flex-shrink: 0;
-}
-
-.home__note--hero .home__pin {
-  left: 50%;
-}
-
-.home__pin--gold {
-  background: var(--gold);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.55), inset 0 1px 2px rgba(255,255,255,0.35);
-}
-
-.home__pin--dark {
-  background: #5C5C5C;
-}
-
-/* ── Note content ────────────────────────────────────── */
-.home__note-icon {
-  font-size: 2.5rem;
-  line-height: 1;
-  flex-shrink: 0;
-  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35));
-}
-
-.home__note--hero .home__note-icon {
-  font-size: 3.25rem;
-}
-
-.home__note-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.home__note-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-}
-
-.home__note--hero .home__note-title {
-  font-size: clamp(1.1rem, 3vw, 1.5rem);
-}
-
-.home__note-sub {
-  margin: 0;
-  font-size: 0.85rem;
-  color: rgba(255,255,255,0.72);
-  font-weight: 500;
-}
-
-/* ── Locked note ─────────────────────────────────────── */
-.home__note--locked {
-  background: #2C2420 !important;
-  opacity: 0.5;
-  cursor: not-allowed;
+  background: radial-gradient(circle at 38% 34%, #ffe066, #c07c08);
+  box-shadow: 0 2px 5px rgba(0,0,0,.75), inset 0 1px 1px rgba(255,255,255,.3);
   pointer-events: none;
 }
 
-.home__note-soon {
-  margin: 0;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+.home__badge {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 6px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.4);
+  padding: 2px 7px;
+  border-radius: 1px;
+  margin-bottom: 5px;
+  font-family: monospace;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.home__h-icon  { font-size: 25px; display: block; margin-bottom: 3px; }
+.home__h-title { font-size: 12px; font-weight: bold; display: block; text-transform: uppercase; letter-spacing: 0.04em; }
+.home__h-sub   { font-size: 7px; display: block; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,.82); margin-top: 3px; }
+
+/* ── Easel legs ── */
+.home__legs {
+  display: block;
+  width: 820px;
+  height: 130px;
+  overflow: visible;
+  margin-top: -2px;
+}
+
+/* ── Mobile layout — hidden on desktop ── */
+.home__mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .home {
+    align-items: flex-start;
+    padding-top: 0;
+    background-attachment: fixed;
+  }
+
+  /* Hide the corkboard easel */
+  .home__easel { display: none; }
+
+  /* Show mobile grid */
+  .home__mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    width: 100%;
+    min-height: 100vh;
+    padding: 4rem 1rem 2rem;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+  }
+
+  /* Hero — full width */
+  .home__m-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 1.25rem 1rem;
+    background: #B91C1C;
+    background-image: repeating-linear-gradient(
+      180deg,
+      transparent 0, transparent 14px,
+      rgba(255,255,255,.08) 14px, rgba(255,255,255,.08) 15px
+    );
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-family: 'Special Elite', 'Courier New', monospace;
+    box-shadow: 0 4px 16px rgba(0,0,0,.5);
+  }
+  .home__m-hero:active { transform: scale(0.97); }
+  .home__m-hero-icon  { font-size: 2.2rem; }
+  .home__m-hero-title { font-size: 1.1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.06em; }
+  .home__m-hero-sub   { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,.78); }
+
+  /* 2-column grid */
+  .home__m-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .home__m-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 1rem 0.5rem;
+    background: var(--card-bg, #B45309);
+    background-image: repeating-linear-gradient(
+      180deg,
+      transparent 0, transparent 14px,
+      rgba(255,255,255,.08) 14px, rgba(255,255,255,.08) 15px
+    );
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-family: 'Special Elite', 'Courier New', monospace;
+    box-shadow: 0 3px 10px rgba(0,0,0,.45);
+  }
+  .home__m-card:active { transform: scale(0.96); }
+  .home__m-icon  { font-size: 1.9rem; line-height: 1; }
+  .home__m-label {
+    font-size: 0.72rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    line-height: 1.2;
+    color: rgba(255,255,255,.9);
+  }
+
+  .home__m-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+  }
+  /* SoundControls on mobile: dark overlay context — keep readable */
+  .home__m-top :deep(.mute-btn) { color: #FEF3C7; }
+  .home__m-top :deep(.volume-slider) { background: rgba(255,255,255,0.25); }
+  .home__m-top :deep(.volume-slider::-webkit-slider-thumb) { background: var(--color-gold); border-color: #1a0a00; }
+  .home__m-top :deep(.volume-slider::-moz-range-thumb) { background: var(--color-gold); border-color: #1a0a00; }
+
+  /* Logout on mobile */
+  .home__logout {
+    min-height: 44px;
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+    border-color: rgba(239, 180, 92, 0.5);
+    color: rgba(254, 243, 199, 0.85);
+  }
 }
 </style>
