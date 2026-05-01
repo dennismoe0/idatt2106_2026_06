@@ -104,6 +104,29 @@
       </svg>
 
     </div>
+
+    <!-- Mobile layout (≤768px): 2-column card grid, easel hidden -->
+    <div class="home__mobile" aria-label="Studentmeny">
+      <RouterLink :to="mapEntryRoute" class="home__m-hero">
+        <span class="home__m-hero-icon" aria-hidden="true">🗺️</span>
+        <span class="home__m-hero-title">Til kartet</span>
+        <span class="home__m-hero-sub">Fortsett etterforskningen →</span>
+      </RouterLink>
+      <div class="home__m-grid">
+        <RouterLink
+          v-for="card in navCards"
+          :key="card.key"
+          :to="card.route"
+          class="home__m-card"
+          :style="{ '--card-bg': card.color }"
+          :aria-label="card.title"
+        >
+          <span class="home__m-icon" aria-hidden="true">{{ card.icon }}</span>
+          <span class="home__m-label">{{ card.title }}</span>
+        </RouterLink>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -495,5 +518,104 @@ onUnmounted(() => {
   height: 130px;
   overflow: visible;
   margin-top: -2px;
+}
+
+/* ── Mobile layout — hidden on desktop ── */
+.home__mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .home {
+    align-items: flex-start;
+    padding-top: 0;
+    background-attachment: fixed;
+  }
+
+  /* Hide the corkboard easel */
+  .home__easel { display: none; }
+
+  /* Show mobile grid */
+  .home__mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    width: 100%;
+    min-height: 100vh;
+    padding: 4rem 1rem 2rem;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+  }
+
+  /* Hero — full width */
+  .home__m-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 1.25rem 1rem;
+    background: #B91C1C;
+    background-image: repeating-linear-gradient(
+      180deg,
+      transparent 0, transparent 14px,
+      rgba(255,255,255,.08) 14px, rgba(255,255,255,.08) 15px
+    );
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-family: 'Special Elite', 'Courier New', monospace;
+    box-shadow: 0 4px 16px rgba(0,0,0,.5);
+  }
+  .home__m-hero:active { transform: scale(0.97); }
+  .home__m-hero-icon  { font-size: 2.2rem; }
+  .home__m-hero-title { font-size: 1.1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.06em; }
+  .home__m-hero-sub   { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,.78); }
+
+  /* 2-column grid */
+  .home__m-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .home__m-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 1rem 0.5rem;
+    background: var(--card-bg, #B45309);
+    background-image: repeating-linear-gradient(
+      180deg,
+      transparent 0, transparent 14px,
+      rgba(255,255,255,.08) 14px, rgba(255,255,255,.08) 15px
+    );
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-family: 'Special Elite', 'Courier New', monospace;
+    box-shadow: 0 3px 10px rgba(0,0,0,.45);
+  }
+  .home__m-card:active { transform: scale(0.96); }
+  .home__m-icon  { font-size: 1.9rem; line-height: 1; }
+  .home__m-label {
+    font-size: 0.72rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    line-height: 1.2;
+    color: rgba(255,255,255,.9);
+  }
+
+  /* HUD adapts on mobile */
+  .home__hud {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
 }
 </style>
