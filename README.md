@@ -4,12 +4,12 @@
 
 **https://frontend-production-90b8.up.railway.app/**
 
-| Role | Login | Credentials |
-|------|-------|-------------|
-| Teacher | Email: `grethe@teacher.no` | Password: `password123` |
-| Student | Username: `christian` | (no password — simulated Feide) |
-| Student | Username: `dennis` | (no password — simulated Feide) |
-| Student | Username: `kasper` | (no password — simulated Feide) |
+| Role    | Login                      | Credentials                     |
+| ------- | -------------------------- | ------------------------------- |
+| Teacher | Email: `grethe@teacher.no` | Password: `password123`         |
+| Student | Username: `christian`      | (no password — simulated Feide) |
+| Student | Username: `dennis`         | (no password — simulated Feide) |
+| Student | Username: `kasper`         | (no password — simulated Feide) |
 
 Students log in via the **"Elev"** button on the login page. After logging in, join classroom with code **`dataing-2`** (Grethe's class) if not already enrolled.
 
@@ -26,32 +26,32 @@ The game is played inside a classroom managed by a teacher. The teacher creates 
 
 ## Team
 
-| Username   | Name                          |
-|------------|-------------------------------|
-| dennimoe   | Dennis Moe                    |
-| chripre    | Christian Petter Remman       |
-| kasperog   | Kasper Østerlie Gladsøy       |
-| krisase    | Kristian Ask Selmer           |
-| olasy      | Ola Syrstad Berg              |
-| shaktios   | Shakti Om Sharma              |
-| tohiggin   | Thomas Oliver Wallin Higgins  |
+| Username | Name                         |
+| -------- | ---------------------------- |
+| dennimoe | Dennis Moe                   |
+| chripre  | Christian Petter Remman      |
+| kasperog | Kasper Østerlie Gladsøy      |
+| krisase  | Kristian Ask Selmer          |
+| olasy    | Ola Syrstad Berg             |
+| shaktios | Shakti Om Sharma             |
+| tohiggin | Thomas Oliver Wallin Higgins |
 
 ---
 
 ## Tech stack
 
-| Layer        | Technology                                                      |
-|--------------|-----------------------------------------------------------------|
-| Backend      | Spring Boot 3.2.4 / Java 21                                     |
-| Database     | MySQL 8, Flyway migrations (30 migrations)                      |
-| Auth         | JWT (HMAC-SHA256, 24 h expiry), BCrypt strength 12              |
-| ORM          | Spring Data JPA / Hibernate                                     |
-| Frontend     | Vue 3.5 (Composition API, `<script setup>`)                     |
-| State        | Pinia 3                                                         |
-| Routing      | Vue Router 5                                                    |
-| Styling      | Tailwind CSS v4 (CSS-first `@theme` config)                     |
-| Build        | Vite (frontend), Maven (backend)                                |
-| HTTP client  | Axios with JWT interceptor                                      |
+| Layer       | Technology                                         |
+| ----------- | -------------------------------------------------- |
+| Backend     | Spring Boot 3.2.4 / Java 21                        |
+| Database    | MySQL 8, Flyway migrations (30 migrations)         |
+| Auth        | JWT (HMAC-SHA256, 24 h expiry), BCrypt strength 12 |
+| ORM         | Spring Data JPA / Hibernate                        |
+| Frontend    | Vue 3.5 (Composition API, `<script setup>`)        |
+| State       | Pinia 3                                            |
+| Routing     | Vue Router 5                                       |
+| Styling     | Tailwind CSS v4 (CSS-first `@theme` config)        |
+| Build       | Vite (frontend), Maven (backend)                   |
+| HTTP client | Axios with JWT interceptor                         |
 
 ---
 
@@ -59,15 +59,15 @@ The game is played inside a classroom managed by a teacher. The teacher creates 
 
 Students explore 7 stops in order. Each stop has a short learning phase followed by domain-specific tasks, and ends with a clue riddle that advances the story.
 
-| # | Stop | Theme |
-|---|------|-------|
-| 1 | Nyhetskvartalet | Fake news detection |
-| 2 | Fotografen | AI / manipulated images |
-| 3 | Postkontoret | Phishing emails |
-| 4 | Markedsplassen | Scam marketplace |
-| 5 | Den sosiale møteplassen | Social media manipulation |
-| 6 | Passordbanken | Password strength |
-| 7 | Datasenteret | Final Boss — all six types combined |
+| #   | Stop                    | Theme                               |
+| --- | ----------------------- | ----------------------------------- |
+| 1   | Nyhetskvartalet         | Fake news detection                 |
+| 2   | Fotografen              | AI / manipulated images             |
+| 3   | Postkontoret            | Phishing emails                     |
+| 4   | Markedsplassen          | Scam marketplace                    |
+| 5   | Den sosiale møteplassen | Social media manipulation           |
+| 6   | Passordbanken           | Password strength                   |
+| 7   | Datasenteret            | Final Boss — all six types combined |
 
 Completed stops award XP and medals. Medals unlock avatar options. Stars (secondary currency) are spent in the avatar shop. A classroom leaderboard, school leaderboard, and global leaderboard track progress.
 
@@ -135,6 +135,7 @@ First run takes 3–5 minutes (Maven downloads dependencies, npm builds). Subseq
 Open http://localhost:5173 when all three services show healthy.
 
 **Stop:**
+
 ```bash
 docker compose down
 ```
@@ -148,18 +149,20 @@ Full Vite HMR and Spring Boot devtools. Database runs in Docker; backend and fro
 **Prerequisites:** Docker Desktop, Java 21, Node 20.
 
 **Step 1 — Start the database (once per session):**
+
 ```bash
 docker compose -f docker-compose.dev.yml up -d --wait
 ```
 
 **Step 2 — Start the backend (Terminal 1):**
+
 ```bash
 # Mac / Linux
 cd backend && ./mvnw spring-boot:run
 
 # Windows (CMD)
 cd backend
-mvnw.cmd spring-boot:run
+mvnw.cmd spring-boot:run (or potentially the same as Mac / Linux)
 
 # Windows (PowerShell)
 cd backend
@@ -167,19 +170,21 @@ cd backend
 ```
 
 **Step 3 — Start the frontend (Terminal 2):**
+
 ```bash
 cd frontend && npm run dev
 ```
 
 Mac/Linux shortcuts: `make dev-db`, `make backend`, `make frontend`
 
-| URL | |
-|-----|---|
-| Frontend | http://localhost:5173 |
-| Backend API | http://localhost:8080 |
-| Swagger UI | http://localhost:8080/swagger-ui/index.html |
+| URL         |                                             |
+| ----------- | ------------------------------------------- |
+| Frontend    | http://localhost:5173                       |
+| Backend API | http://localhost:8080                       |
+| Swagger UI  | http://localhost:8080/swagger-ui/index.html |
 
 **Stop:**
+
 ```bash
 docker compose -f docker-compose.dev.yml down
 ```
@@ -190,6 +195,7 @@ docker compose -f docker-compose.dev.yml down
 
 **`Access denied for user appuser` or `Communications link failure`**
 The `.env` file is missing, or Docker initialized the database before `.env` existed.
+
 ```bash
 docker compose down -v
 cp .env.example .env
@@ -207,17 +213,20 @@ brew services stop mysql   # Mac with Homebrew
 Set `FRONTEND_PORT=5174` in your `.env`.
 
 **`Permission denied` on `./mvnw` (Mac/Linux)**
+
 ```bash
 chmod +x backend/mvnw
 ```
 
 **Docker `pipe/docker_engine` error (Windows)**
 Docker Desktop is not running or is in Windows containers mode.
+
 1. Open Docker Desktop and wait for it to finish loading.
 2. Right-click the whale icon → **Switch to Linux containers…**
 
 **`UnsupportedClassVersionError` / `class file version 65.0`**
 Wrong Java version. Project requires Java 21.
+
 ```bash
 java -version
 sudo archlinux-java set java-21-openjdk   # Arch Linux
