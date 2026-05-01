@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
+/**
+ * Issues and validates HMAC-signed JWTs used for stateless authentication.
+ */
 @Component
 public class JwtTokenProvider {
 
@@ -25,6 +28,14 @@ public class JwtTokenProvider {
         this.expirationMs = expirationMs;
     }
 
+    /**
+     * Generates a signed JWT containing the user ID (subject), role, and email claims.
+     *
+     * @param userId the user's database ID
+     * @param role   the user's role name (e.g. {@code "TEACHER"} or {@code "STUDENT"})
+     * @param email  the user's email address
+     * @return the compact JWT string
+     */
     public String generateToken(Long userId, String role, String email) {
         log.debug("Generating JWT for userId={} role={}", userId, role);
         return Jwts.builder()
@@ -37,6 +48,12 @@ public class JwtTokenProvider {
             .compact();
     }
 
+    /**
+     * Returns {@code true} if the token is well-formed, signed correctly, and not expired.
+     *
+     * @param token the JWT string to validate
+     * @return {@code true} if valid, {@code false} otherwise
+     */
     public boolean isTokenValid(String token) {
         try {
             parseClaims(token);
@@ -47,10 +64,22 @@ public class JwtTokenProvider {
         }
     }
 
+    /**
+     * Extracts the user ID from the JWT subject claim.
+     *
+     * @param token the JWT string
+     * @return the user's database ID
+     */
     public Long extractUserId(String token) {
         return Long.parseLong(parseClaims(token).getSubject());
     }
 
+    /**
+     * Extracts the role claim from the JWT.
+     *
+     * @param token the JWT string
+     * @return the role string (e.g. {@code "TEACHER"} or {@code "STUDENT"})
+     */
     public String extractRole(String token) {
         return parseClaims(token).get("role", String.class);
     }

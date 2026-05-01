@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
+/**
+ * Records that a specific student has earned a particular medal.
+ * The combination of student and medal is unique — a student cannot earn the
+ * same medal twice.
+ */
 @Entity
 @Table(name = "student_medals",
        uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "medal_id"}))

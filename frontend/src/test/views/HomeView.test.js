@@ -49,7 +49,7 @@ describe('HomeView', () => {
     const wrapper = mountHomeView()
 
     expect(wrapper.text()).toContain('Agent Elev')
-    expect(wrapper.findAll('.home__note').length).toBeGreaterThan(0)
+    expect(wrapper.findAll('.home__card').length).toBeGreaterThan(0)
     expect(wrapper.text()).toContain('Til kartet')
     expect(wrapper.text()).toContain('Ukas Mysterium')
   })
@@ -58,7 +58,7 @@ describe('HomeView', () => {
     localStorage.removeItem('hasSeenMapIntro')
 
     const wrapper = mountHomeView()
-    const mapCard = wrapper.get('.home__note--hero')
+    const mapCard = wrapper.get('.home__hero')
 
     expect(mapCard.attributes('href')).toBe('/world-map?showMapIntro=1')
   })
@@ -67,14 +67,14 @@ describe('HomeView', () => {
     localStorage.setItem('hasSeenMapIntro', 'true')
 
     const wrapper = mountHomeView()
-    const mapCard = wrapper.get('.home__note--hero')
+    const mapCard = wrapper.get('.home__hero')
 
     expect(mapCard.attributes('href')).toBe('/world-map')
   })
 
   it('shows Kommer snart on locked notes when present', () => {
     const wrapper = mountHomeView()
-    const lockedNotes = wrapper.findAll('.home__note--locked')
+    const lockedNotes = wrapper.findAll('.home__card--locked')
 
     // No locked cards are defined currently; verify the class is not rendered
     lockedNotes.forEach((note) => {

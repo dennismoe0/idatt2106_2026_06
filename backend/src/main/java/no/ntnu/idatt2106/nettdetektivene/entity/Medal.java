@@ -5,6 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents an achievement medal that a student can earn by completing a stop.
+ * Each medal is optionally associated with a specific {@link Stop}; completing
+ * that stop awards the medal to the student.
+ */
 @Entity
 @Table(name = "medals")
 @Getter

@@ -8,14 +8,19 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+/**
+ * Evaluates answers for PHISHING_EMAIL tasks by delegating to {@link PhishingAnswerChecker}.
+ */
 @Component
 public class PhishingEmailTaskAnswerChecker implements TaskAnswerChecker {
 
+    /** {@inheritDoc} */
     @Override
     public TaskType supportedTaskType() {
         return TaskType.PHISHING_EMAIL;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isCorrect(Task task, JsonNode correctAnswer, Map<String, Object> answer) {
         return PhishingAnswerChecker.check(correctAnswer, answer);

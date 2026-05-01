@@ -55,6 +55,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Core game service responsible for stops, tasks, answer submission, progress tracking, XP/star rewards, and medal awards.
+ */
 @Service
 public class GameService {
 
@@ -114,6 +117,11 @@ public class GameService {
             .collect(Collectors.toUnmodifiableMap(TaskAnswerChecker::supportedTaskType, Function.identity()));
     }
 
+    /**
+     * Returns lightweight metadata for all stops, ordered by stop index.
+     *
+     * @return list of {@link StopMetaResponse} objects
+     */
     @Transactional(readOnly = true)
     public List<StopMetaResponse> getStopsMeta() {
         log.info("[GameService] getStopsMeta");
@@ -128,6 +136,13 @@ public class GameService {
             .toList();
     }
 
+    /**
+     * Returns all stops with per-student lock/completion state.
+     *
+     * @param studentId   the student's user ID
+     * @param classroomId the student's classroom ID
+     * @return list of {@link StopResponse} objects
+     */
     @Transactional(readOnly = true)
     public List<StopResponse> getStops(Long studentId, Long classroomId) {
         log.info("[GameService] getStops studentId={} classroomId={}", studentId, classroomId);
@@ -137,6 +152,16 @@ public class GameService {
             .toList();
     }
 
+    /**
+     * Returns all tasks for a stop, in order, with the student's completion state.
+     *
+     * @param studentId   the student's user ID
+     * @param classroomId the student's classroom ID
+     * @param stopId      the stop ID
+     * @return list of {@link TaskResponse} objects
+     * @throws no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException if the stop is not found
+     * @throws org.springframework.web.server.ResponseStatusException if the stop is locked
+     */
     @Transactional(readOnly = true)
     public List<TaskResponse> getTasks(Long studentId, Long classroomId, Long stopId) {
         log.info(
@@ -157,6 +182,16 @@ public class GameService {
             .toList();
     }
 
+    /**
+     * Returns a single task with the student's completion state.
+     *
+     * @param studentId   the student's user ID
+     * @param classroomId the student's classroom ID
+     * @param taskId      the task ID
+     * @return the {@link TaskResponse}
+     * @throws no.ntnu.idatt2106.nettdetektivene.exception.ResourceNotFoundException if the task is not found
+     * @throws org.springframework.web.server.ResponseStatusException if the stop is locked or task sequence requirements are unmet
+     */
     @Transactional(readOnly = true)
     public TaskResponse getTask(Long studentId, Long classroomId, Long taskId) {
         log.info(
@@ -175,6 +210,15 @@ public class GameService {
         return toTaskResponse(studentId, classroomId, task);
     }
 
+    /**
+     * Evaluates a student's answer, records progress, awards XP and stars, and triggers medal/stop-completion logic.
+     *
+     * @param studentId   the student's user ID
+     * @param classroomId the student's classroom ID
+     * @param taskId      the task being answered
+     * @param req         the submitted answer payload
+     * @return a {@link SubmitAnswerResponse} containing correctness, rewards, and optional medal/clue data
+     */
     @Transactional
     public SubmitAnswerResponse submitAnswer(
         Long studentId,
@@ -318,6 +362,13 @@ public class GameService {
         );
     }
 
+    /**
+     * Returns the student's overall progress including completed stop count and per-stop details.
+     *
+     * @param studentId   the student's user ID
+     * @param classroomId the student's classroom ID
+     * @return a {@link ProgressResponse}
+     */
     @Transactional(readOnly = true)
     public ProgressResponse getProgress(Long studentId, Long classroomId) {
         log.info("[GameService] getProgress studentId={} classroomId={}", studentId, classroomId);
@@ -326,6 +377,12 @@ public class GameService {
         return new ProgressResponse(stopsCompleted, stops.size(), stops);
     }
 
+    /**
+     * Returns a student's profile including level (completed stops), XP, and star balance.
+     *
+     * @param studentId the student's user ID
+     * @return a {@link PlayerProfileDto}
+     */
     @Transactional(readOnly = true)
     public PlayerProfileDto getProfile(Long studentId) {
         log.info("[GameService] getProfile studentId={}", studentId);
@@ -336,6 +393,14 @@ public class GameService {
         return new PlayerProfileDto(level, student.getXp(), student.getStarBalance());
     }
 
+    /**
+     * Awards a student the weekly XP bonus for a completed stop, provided they have not claimed it within the last 7 days.
+     *
+     * @param studentId the student's user ID
+     * @param stopId    the stop for which XP is being claimed
+     * @return a {@link ClaimXpResponse} with the amount of XP awarded
+     * @throws org.springframework.web.server.ResponseStatusException if the stop is not complete or the claim is too recent
+     */
     @Transactional
     public ClaimXpResponse claimWeeklyXp(Long studentId, Long stopId) {
         log.info("[GameService] claimWeeklyXp studentId={} stopId={}", studentId, stopId);

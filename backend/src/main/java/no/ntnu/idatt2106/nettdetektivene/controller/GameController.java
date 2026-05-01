@@ -25,6 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Handles game-related endpoints for students and teachers, including stop and task retrieval,
+ * answer submission, progress tracking, and weekly XP claims.
+ */
 @RestController
 @RequestMapping("/api/game")
 @RequiredArgsConstructor
@@ -34,6 +38,11 @@ public class GameController {
 
     private final GameService gameService;
 
+    /**
+     * Returns metadata for all stops in the game, intended for teacher use (e.g. managing classroom progress).
+     *
+     * @return a list of {@link StopMetaResponse} for every stop
+     */
     @GetMapping("/stops/meta")
     @PreAuthorize("hasRole('TEACHER')")
     public List<StopMetaResponse> getStopsMeta() {
@@ -41,6 +50,13 @@ public class GameController {
         return gameService.getStopsMeta();
     }
 
+    /**
+     * Returns all stops for the given classroom with their locked/unlocked status for the authenticated student.
+     *
+     * @param userDetails the authenticated student
+     * @param classroomId the classroom to load stop status for
+     * @return a list of {@link StopResponse} with lock status per stop
+     */
     @GetMapping("/stops")
     @PreAuthorize("hasRole('STUDENT')")
     public List<StopResponse> getStops(
@@ -52,6 +68,14 @@ public class GameController {
         return gameService.getStops(studentId, classroomId);
     }
 
+    /**
+     * Returns all tasks for a given stop in the context of the authenticated student's classroom progress.
+     *
+     * @param userDetails the authenticated student
+     * @param stopId      the stop whose tasks to retrieve
+     * @param classroomId the classroom context
+     * @return a list of {@link TaskResponse} for the stop
+     */
     @GetMapping("/stops/{stopId}/tasks")
     @PreAuthorize("hasRole('STUDENT')")
     public List<TaskResponse> getTasks(
@@ -69,6 +93,14 @@ public class GameController {
         return gameService.getTasks(studentId, classroomId, stopId);
     }
 
+    /**
+     * Returns a single task by ID in the context of the authenticated student's classroom.
+     *
+     * @param userDetails the authenticated student
+     * @param taskId      the task to retrieve
+     * @param classroomId the classroom context
+     * @return the {@link TaskResponse} for the requested task
+     */
     @GetMapping("/tasks/{taskId}")
     @PreAuthorize("hasRole('STUDENT')")
     public TaskResponse getTask(
@@ -86,6 +118,15 @@ public class GameController {
         return gameService.getTask(studentId, classroomId, taskId);
     }
 
+    /**
+     * Submits a student's answer for a task and returns the result including correctness and XP awarded.
+     *
+     * @param userDetails the authenticated student
+     * @param taskId      the task being answered
+     * @param classroomId the classroom context
+     * @param request     the student's answer payload
+     * @return a {@link SubmitAnswerResponse} with correctness feedback and XP
+     */
     @PostMapping("/tasks/{taskId}/submit")
     @PreAuthorize("hasRole('STUDENT')")
     public SubmitAnswerResponse submitAnswer(
@@ -104,6 +145,13 @@ public class GameController {
         return gameService.submitAnswer(studentId, classroomId, taskId, request);
     }
 
+    /**
+     * Returns the authenticated student's overall game progress for the given classroom.
+     *
+     * @param userDetails the authenticated student
+     * @param classroomId the classroom to load progress for
+     * @return a {@link ProgressResponse} with XP, completed stops, and task counts
+     */
     @GetMapping("/progress")
     @PreAuthorize("hasRole('STUDENT')")
     public ProgressResponse getProgress(
@@ -115,6 +163,12 @@ public class GameController {
         return gameService.getProgress(studentId, classroomId);
     }
 
+    /**
+     * Returns the authenticated student's player profile including display name, XP, level, and medals.
+     *
+     * @param userDetails the authenticated student
+     * @return a {@link PlayerProfileDto} for the student
+     */
     @GetMapping("/profile")
     @PreAuthorize("hasRole('STUDENT')")
     public PlayerProfileDto getProfile(
@@ -125,6 +179,13 @@ public class GameController {
         return gameService.getProfile(studentId);
     }
 
+    /**
+     * Claims the weekly bonus XP for completing a stop, if not already claimed this week.
+     *
+     * @param userDetails the authenticated student
+     * @param stopId      the stop for which to claim weekly XP
+     * @return a {@link ClaimXpResponse} indicating whether XP was awarded and the amount
+     */
     @PostMapping("/stops/{stopId}/claim-xp")
     @PreAuthorize("hasRole('STUDENT')")
     public ClaimXpResponse claimWeeklyXp(
@@ -136,6 +197,12 @@ public class GameController {
         return gameService.claimWeeklyXp(studentId, stopId);
     }
 
+    /**
+     * Extracts the numeric user ID from the authenticated principal's username.
+     *
+     * @param userDetails the authenticated user
+     * @return the user's database ID
+     */
     private Long currentUserId(UserDetails userDetails) {
         return Long.parseLong(userDetails.getUsername());
     }

@@ -6,6 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
+/**
+ * Records a student's attempt at the weekly mystery challenge within a classroom.
+ * A student may only submit one answer per mystery. The {@code correct} flag
+ * indicates whether the submitted answer matched the expected answer.
+ */
 @Entity
 @Table(name = "student_mystery_completions",
        uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "mystery_id"}))

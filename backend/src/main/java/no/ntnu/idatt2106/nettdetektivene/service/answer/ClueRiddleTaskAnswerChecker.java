@@ -10,14 +10,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Evaluates answers for CLUE_RIDDLE tasks, supporting both single and multi-select correct answers.
+ */
 @Component
 public class ClueRiddleTaskAnswerChecker implements TaskAnswerChecker {
 
+    /** {@inheritDoc} */
     @Override
     public TaskType supportedTaskType() {
         return TaskType.CLUE_RIDDLE;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isCorrect(Task task, JsonNode correctAnswer, Map<String, Object> answer) {
         Object submitted = answer.get("selected");

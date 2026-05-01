@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Handles school management for teachers, including creating, joining, and querying schools and their classrooms.
+ */
 @RestController
 @RequestMapping("/api/schools")
 @RequiredArgsConstructor
@@ -26,6 +29,13 @@ public class SchoolController {
 
     private final SchoolService schoolService;
 
+    /**
+     * Creates a new school and associates the authenticated teacher as its owner.
+     *
+     * @param userDetails the authenticated teacher
+     * @param request     the school name and details
+     * @return 201 Created with the new {@link SchoolResponse}
+     */
     @PostMapping
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<SchoolResponse> createSchool(
@@ -38,6 +48,13 @@ public class SchoolController {
             .body(schoolService.createSchool(teacherId, request));
     }
 
+    /**
+     * Joins an existing school using the provided join code, associating the authenticated teacher with it.
+     *
+     * @param userDetails the authenticated teacher
+     * @param request     the school join code
+     * @return 200 OK with the joined {@link SchoolResponse}
+     */
     @PostMapping("/join")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<SchoolResponse> joinSchool(
@@ -49,6 +66,12 @@ public class SchoolController {
         return ResponseEntity.ok(schoolService.joinSchool(teacherId, request));
     }
 
+    /**
+     * Returns the school that the authenticated teacher belongs to.
+     *
+     * @param userDetails the authenticated teacher
+     * @return 200 OK with the teacher's {@link SchoolResponse}
+     */
     @GetMapping("/mine")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<SchoolResponse> getMySchool(
@@ -59,6 +82,12 @@ public class SchoolController {
         return ResponseEntity.ok(schoolService.getMySchool(teacherId));
     }
 
+    /**
+     * Returns a summary of all classrooms in the school that the authenticated teacher belongs to.
+     *
+     * @param userDetails the authenticated teacher
+     * @return 200 OK with a list of {@link SchoolClassroomSummary} for each classroom in the school
+     */
     @GetMapping("/mine/classrooms")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<List<SchoolClassroomSummary>> getSchoolClassrooms(
@@ -69,6 +98,12 @@ public class SchoolController {
         return ResponseEntity.ok(schoolService.getSchoolClassrooms(teacherId));
     }
 
+    /**
+     * Extracts the numeric user ID from the authenticated principal's username.
+     *
+     * @param userDetails the authenticated user
+     * @return the user's database ID
+     */
     private Long currentUserId(UserDetails userDetails) {
         return Long.parseLong(userDetails.getUsername());
     }

@@ -16,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Creates and manages teacher notifications, such as student join requests and weekly mystery submissions.
+ */
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
@@ -28,6 +31,16 @@ public class NotificationService {
     private final UserRepository userRepository;
     private final ClassroomRepository classroomRepository;
 
+    /**
+     * Creates and persists a notification for a teacher.
+     *
+     * @param teacherId   the recipient teacher's user ID
+     * @param classroomId the classroom related to the notification
+     * @param type        the notification type constant (e.g. {@code STUDENT_JOIN_REQUEST})
+     * @param message     the human-readable message text
+     * @param referenceId an optional related entity ID (e.g. student ID or mystery ID)
+     * @return the created {@link NotificationDto}
+     */
     @Transactional
     public NotificationDto createNotification(
         Long teacherId,
@@ -51,6 +64,12 @@ public class NotificationService {
         return toDto(notificationRepository.save(notification));
     }
 
+    /**
+     * Returns all notifications for a teacher, newest first.
+     *
+     * @param teacherId the teacher's user ID
+     * @return list of {@link NotificationDto}
+     */
     @Transactional(readOnly = true)
     public List<NotificationDto> listNotifications(Long teacherId) {
         return notificationRepository.findByTeacher_IdOrderByCreatedAtDesc(teacherId).stream()
@@ -58,11 +77,23 @@ public class NotificationService {
             .toList();
     }
 
+    /**
+     * Returns the count of unread notifications for a teacher.
+     *
+     * @param teacherId the teacher's user ID
+     * @return a {@link NotificationCountDto} with the unread count
+     */
     @Transactional(readOnly = true)
     public NotificationCountDto unreadCount(Long teacherId) {
         return new NotificationCountDto(notificationRepository.countByTeacher_IdAndIsReadFalse(teacherId));
     }
 
+    /**
+     * Marks a single notification as read.
+     *
+     * @param teacherId      the teacher's user ID
+     * @param notificationId the notification ID
+     */
     @Transactional
     public void markRead(Long teacherId, Long notificationId) {
         Notification notification = getTeacherNotification(teacherId, notificationId);
@@ -70,6 +101,11 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
+    /**
+     * Marks all notifications for the given teacher as read.
+     *
+     * @param teacherId the teacher's user ID
+     */
     @Transactional
     public void markAllRead(Long teacherId) {
         List<Notification> notifications = notificationRepository.findByTeacher_IdOrderByCreatedAtDesc(teacherId);
@@ -79,12 +115,24 @@ public class NotificationService {
         notificationRepository.saveAll(notifications);
     }
 
+    /**
+     * Deletes a single notification belonging to the teacher.
+     *
+     * @param teacherId      the teacher's user ID
+     * @param notificationId the notification ID to delete
+     */
     @Transactional
     public void deleteNotification(Long teacherId, Long notificationId) {
         Notification notification = getTeacherNotification(teacherId, notificationId);
         notificationRepository.delete(notification);
     }
 
+    /**
+     * Deletes notifications older than {@code STALE_HOURS} for the given teacher.
+     *
+     * @param teacherId the teacher's user ID
+     * @return the number of notifications deleted
+     */
     @Transactional
     public int deleteOldNotifications(Long teacherId) {
         LocalDateTime cutoff = LocalDateTime.now().minusHours(STALE_HOURS);

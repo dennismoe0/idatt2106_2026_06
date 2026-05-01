@@ -36,6 +36,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Manages student avatar state, available customisation options, medal-based unlocks, and shop purchases.
+ */
 @Service
 @RequiredArgsConstructor
 public class AvatarService {
@@ -55,6 +58,11 @@ public class AvatarService {
     private final StudentMedalRepository studentMedalRepository;
     private final StopRepository stopRepository;
 
+    /**
+     * Returns the current student's avatar, creating a default one if none exists.
+     *
+     * @return the student's {@link AvatarResponse}
+     */
     @Transactional
     public AvatarResponse getMyAvatar() {
         Long userId = currentUserId();
@@ -68,6 +76,13 @@ public class AvatarService {
             });
     }
 
+    /**
+     * Updates the current student's avatar with the provided customisation values.
+     *
+     * @param request the new avatar configuration
+     * @return the updated {@link AvatarResponse}
+     * @throws org.springframework.web.server.ResponseStatusException if any field value is invalid or not yet unlocked
+     */
     @Transactional
     public AvatarResponse updateMyAvatar(UpdateAvatarRequest request) {
         Long userId = currentUserId();
@@ -104,6 +119,11 @@ public class AvatarService {
         return toResponse(avatarRepository.save(avatar));
     }
 
+    /**
+     * Returns all avatar options available to the current student, including defaults, earned unlocks, and medal-locked items.
+     *
+     * @return an {@link AvatarOptionsResponse} with available options and locked items
+     */
     @Transactional(readOnly = true)
     public AvatarOptionsResponse getMyOptions() {
         Long userId = currentUserId();
@@ -148,6 +168,12 @@ public class AvatarService {
         );
     }
 
+    /**
+     * Grants the avatar reward associated with the medal earned at the given stop, if not already owned.
+     *
+     * @param studentId the student who earned the medal
+     * @param stopId    the stop whose medal reward should be unlocked
+     */
     @Transactional
     public void handleMedalUnlock(Long studentId, Long stopId) {
         Stop stop = stopRepository.findById(stopId).orElse(null);
@@ -177,6 +203,11 @@ public class AvatarService {
             reward.optionType(), reward.optionValue(), studentId, stopId);
     }
 
+    /**
+     * Returns all shop items with their purchase status for the current student.
+     *
+     * @return list of {@link ShopItemDto} objects
+     */
     @Transactional(readOnly = true)
     public List<ShopItemDto> getShopItems() {
         Long userId = currentUserId();
@@ -198,6 +229,12 @@ public class AvatarService {
             .toList();
     }
 
+    /**
+     * Deducts the star cost and records a shop purchase for the current student.
+     *
+     * @param request the item to purchase (optionType and optionValue)
+     * @throws org.springframework.web.server.ResponseStatusException if the item is not found, already owned, or the student lacks stars
+     */
     @Transactional
     public void purchaseItem(PurchaseItemRequest request) {
         Long userId = currentUserId();
@@ -234,6 +271,11 @@ public class AvatarService {
             userId, request.optionType(), request.optionValue(), item.getStarPrice());
     }
 
+    /**
+     * Returns the full catalogue of all possible avatar option values, regardless of unlock status.
+     *
+     * @return map of option type to list of allowed values
+     */
     public Map<String, List<String>> getOptions() {
         log.info("[avatar] getOptions");
         return AVATAR_OPTIONS;

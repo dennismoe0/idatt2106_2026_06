@@ -27,6 +27,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Application-startup runner that seeds the game content (stops, tasks, and medals)
+ * into the database on every start. Existing stops and tasks are diffed against the
+ * expected content and updated in-place to avoid duplicate data across restarts.
+ * This component runs first (order 1) before any profile-specific seeders.
+ */
 @Component
 @Order(1)
 @RequiredArgsConstructor

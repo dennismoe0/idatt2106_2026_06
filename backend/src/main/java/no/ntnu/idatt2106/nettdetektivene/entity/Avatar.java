@@ -5,6 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents the visual appearance (paper-doll avatar) of a student.
+ * Each student has exactly one avatar. Fields correspond to customisable
+ * SVG layers rendered on the frontend.
+ */
 @Entity
 @Table(name = "avatars")
 @Getter
