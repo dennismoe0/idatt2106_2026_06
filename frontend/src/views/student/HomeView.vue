@@ -1,19 +1,17 @@
 <template>
   <div class="home">
 
-    <!-- Fixed HUD: sound controls + logout, always on top regardless of board scale -->
-    <div class="home__hud">
-      <SoundControls />
-      <button class="home__logout" @click="handleLogout">Logg ut</button>
-    </div>
-
     <!-- Standing detective easel — scaled to fill viewport via JS -->
     <div id="home-easel" class="home__easel">
 
-      <!-- Top rail -->
+      <!-- Top rail: label left, controls right -->
       <div class="home__rail">
-        <span class="home__rail-label">Detektiv {{ studentName }} · Sak #042 · Nettdetektivene</span>
         <span class="home__knob" aria-hidden="true"></span>
+        <span class="home__rail-label">Detektiv {{ studentName }} · Sak #042</span>
+        <div class="home__rail-controls">
+          <SoundControls />
+          <button class="home__logout" @click="handleLogout">Logg ut</button>
+        </div>
         <span class="home__knob" aria-hidden="true"></span>
       </div>
 
@@ -107,6 +105,10 @@
 
     <!-- Mobile layout (≤768px): 2-column card grid, easel hidden -->
     <div class="home__mobile" aria-label="Studentmeny">
+      <div class="home__m-top">
+        <SoundControls />
+        <button class="home__logout" @click="handleLogout">Logg ut</button>
+      </div>
       <RouterLink :to="mapEntryRoute" class="home__m-hero">
         <span class="home__m-hero-icon" aria-hidden="true">🗺️</span>
         <span class="home__m-hero-title">Til kartet</span>
@@ -244,39 +246,31 @@ onUnmounted(() => {
   overflow: hidden;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   padding-top: 2.5vh;
 
   /* Office room photo as background */
   background: url('/office_background.webp') center center / cover no-repeat;
 }
 
-/* ── HUD overlay (sound + logout) — fixed, above the scaled easel ── */
-.home__hud {
-  position: fixed;
-  top: 1vh;
-  right: 1.5vw;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
 .home__logout {
-  background: rgba(30, 14, 4, 0.72);
-  border: 1px solid rgba(239, 180, 92, 0.35);
-  color: rgba(254, 243, 199, 0.75);
-  font-size: 0.72rem;
+  background: none;
+  border: 1px solid rgba(239, 180, 92, 0.45);
+  color: rgba(254, 243, 199, 0.7);
+  font-size: 0.68rem;
   font-family: inherit;
   font-weight: 500;
-  padding: 0.35rem 0.85rem;
-  border-radius: 4px;
+  padding: 0.3rem 0.75rem;
+  border-radius: 3px;
   cursor: pointer;
-  backdrop-filter: blur(4px);
   transition: color 0.15s, border-color 0.15s;
+  min-height: 44px;
+  white-space: nowrap;
 }
-.home__logout:hover {
-  color: #FEF3C7;
-  border-color: #EFB45C;
+.home__logout:hover { color: #FEF3C7; border-color: #EFB45C; }
+.home__logout:focus-visible {
+  outline: 3px solid #EFB45C;
+  outline-offset: 2px;
 }
 
 /* ── Easel — fixed 820px design width, scaled via JS ── */
@@ -293,25 +287,60 @@ onUnmounted(() => {
 /* ── Top rail ── */
 .home__rail {
   width: 820px;
-  height: 28px;
+  height: 44px;
   background: linear-gradient(to bottom, #5c2e0e, #3a1808 45%, #2e1205);
   border-radius: 4px 4px 0 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 16px;
+  gap: 12px;
   box-shadow: inset 0 1px 2px rgba(255, 180, 80, 0.15);
 }
 .home__rail-label {
   font-family: 'Special Elite', 'Courier New', monospace;
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: rgba(255, 200, 120, 0.5);
+  flex: 1;
+  text-align: center;
 }
+.home__rail-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* SoundControls inside dark wood rail — override colors for visibility/contrast */
+.home__rail-controls :deep(.mute-btn) {
+  color: rgba(254, 243, 199, 0.85);
+  min-height: 44px;
+  min-width: 36px;
+}
+.home__rail-controls :deep(.mute-btn:focus-visible) {
+  outline-color: #EFB45C;
+}
+.home__rail-controls :deep(.volume-slider) {
+  background: rgba(255, 200, 120, 0.3);
+  width: 80px;
+}
+.home__rail-controls :deep(.volume-slider:focus-visible) {
+  outline-color: #EFB45C;
+}
+.home__rail-controls :deep(.volume-slider::-webkit-slider-thumb) {
+  background: #EFB45C;
+  border-color: #2e1205;
+}
+.home__rail-controls :deep(.volume-slider::-moz-range-thumb) {
+  background: #EFB45C;
+  border-color: #2e1205;
+}
+
 .home__knob {
   width: 14px;
   height: 14px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: radial-gradient(circle at 38% 34%, #6a3a18, #2a1005);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 180, 80, 0.2);
@@ -612,10 +641,25 @@ onUnmounted(() => {
     color: rgba(255,255,255,.9);
   }
 
-  /* HUD adapts on mobile */
-  .home__hud {
-    top: 0.75rem;
-    right: 0.75rem;
+  .home__m-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+  }
+  /* SoundControls on mobile: dark overlay context — keep readable */
+  .home__m-top :deep(.mute-btn) { color: #FEF3C7; }
+  .home__m-top :deep(.volume-slider) { background: rgba(255,255,255,0.25); }
+  .home__m-top :deep(.volume-slider::-webkit-slider-thumb) { background: #EFB45C; border-color: #1a0a00; }
+  .home__m-top :deep(.volume-slider::-moz-range-thumb) { background: #EFB45C; border-color: #1a0a00; }
+
+  /* Logout on mobile */
+  .home__logout {
+    min-height: 44px;
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+    border-color: rgba(239, 180, 92, 0.5);
+    color: rgba(254, 243, 199, 0.85);
   }
 }
 </style>
