@@ -4,6 +4,8 @@ dennis_docs/
 .superpowers/
 docs/superpowers/
 .worktrees/
+.claude/
+.playwright-mcp/
 
 
 # ─── Java / Maven ─────────────────────────────────────────────────────────────

@@ -1,5 +1,20 @@
 # Nettdetektivene — IDATT2106 V2026, Team 6
 
+## Live demo
+
+**https://frontend-production-90b8.up.railway.app/**
+
+| Role | Login | Credentials |
+|------|-------|-------------|
+| Teacher | Email: `grethe@teacher.no` | Password: `password123` |
+| Student | Username: `christian` | (no password — simulated Feide) |
+| Student | Username: `dennis` | (no password — simulated Feide) |
+| Student | Username: `kasper` | (no password — simulated Feide) |
+
+Students log in via the **"Elev"** button on the login page. After logging in, join classroom with code **`dataing-2`** (Grethe's class) if not already enrolled.
+
+---
+
 Nettdetektivene ("The Net Detectives") is an educational browser game for students aged 8–13. A mysterious criminal has stolen the town's digital budget, and players take on the role of junior detectives. To unmask the culprit, they must investigate 7 locations across the city, each teaching a core internet-safety skill: spotting fake news, identifying phishing emails, recognising AI-manipulated images, evaluating password strength, avoiding online scams, understanding social media manipulation, and a final boss challenge combining all six.
 
 The game is played inside a classroom managed by a teacher. The teacher creates the classroom, students join with a code, and each student's progress is tracked individually. Medals, avatar customisation, a personal notebook, and leaderboards keep students engaged across multiple sessions.
