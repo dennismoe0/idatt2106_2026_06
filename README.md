@@ -1,9 +1,5 @@
 # Nettdetektivene — IDATT2106 V2026, Team 6
 
-## Live demo
-
-**https://frontend-production-90b8.up.railway.app/**
-
 | Role    | Login                      | Credentials                     |
 | ------- | -------------------------- | ------------------------------- |
 | Teacher | Email: `grethe@teacher.no` | Password: `password123`         |
